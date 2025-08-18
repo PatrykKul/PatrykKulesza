@@ -39,6 +39,19 @@ jobs:
       - name: Build with Next.js
         run: yarn build
       
+      - name: Debug - List files
+        run: |
+          echo "=== Current directory ==="
+          pwd
+          echo "=== Root files ==="
+          ls -la
+          echo "=== Looking for out folder ==="
+          find . -name "out" -type d
+          echo "=== Looking for .next folder ==="  
+          find . -name ".next" -type d
+          echo "=== If out exists, show contents ==="
+          if [ -d "./out" ]; then ls -la ./out; fi
+      
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
