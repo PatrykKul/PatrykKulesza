@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/admin/', '/api/'],
     },
-    sitemap: 'https://patryk-korepetycje.pl/sitemap.xml', // Zmień na swoją domenę
+    sitemap: 'https://PatrykKul.github.io/korepetycje/sitemap.xml',
   }
 }

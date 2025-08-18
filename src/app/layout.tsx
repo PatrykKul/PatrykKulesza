@@ -46,7 +46,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Patryk Kulesza - Korepetycje Matematyka, Angielski, Programowanie",
     description: "Korepetycje z matematyki, angielskiego i programowania w Białymstoku i Zambrowie. 5+ lat doświadczenia, 100% zdawalność egzaminów.",
-    url: 'https://patryk-korepetycje.pl',
+    url: 'https://PatrykKul.github.io/korepetycje',
     siteName: 'Patryk Kulesza - Korepetycje',
     images: [
       {
@@ -108,7 +108,7 @@ export default function RootLayout({
               "@graph": [
                 {
                   "@type": "Person",
-                  "@id": "https://patryk-korepetycje.pl/#person",
+                  "@id": "https://PatrykKul.github.io/korepetycje/#person",
                   "name": "Patryk Kulesza",
                   "givenName": "Patryk",
                   "familyName": "Kulesza",
@@ -127,11 +127,11 @@ export default function RootLayout({
                 },
                 {
                   "@type": "LocalBusiness",
-                  "@id": "https://patryk-korepetycje.pl/#business",
+                  "@id": "https://PatrykKul.github.io/korepetycje/#business",
                   "name": "Patryk Kulesza - Korepetycje",
                   "description": "Profesjonalne korepetycje z matematyki, angielskiego i programowania",
                   "founder": {
-                    "@id": "https://patryk-korepetycje.pl/#person"
+                    "@id": "https://PatrykKul.github.io/korepetycje/#person"
                   },
                   "serviceArea": [
                     {
