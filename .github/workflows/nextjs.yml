@@ -28,42 +28,31 @@ jobs:
           node-version: "20"
           cache: yarn
       
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-        with:
-          static_site_generator: next
-      
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       
       - name: Build with Next.js
         run: yarn build
       
-      - name: Debug - List files
+      - name: Debug - Check what was created after build
         run: |
-          echo "=== Current directory ==="
-          pwd
-          echo "=== Root files ==="
+          echo "=== Root directory after build ==="
           ls -la
-          echo "=== Looking for out folder ==="
+          echo "=== Look for out folder ==="
           find . -name "out" -type d
-          echo "=== Looking for .next folder ==="  
+          echo "=== Look for .next folder ==="  
           find . -name ".next" -type d
-          echo "=== If out exists, show contents ==="
-          if [ -d "./out" ]; then ls -la ./out; fi
+          echo "=== Check next.config.ts content ==="
+          cat next.config.ts
+          echo "=== Check build output in .next ==="
+          if [ -d ".next" ]; then ls -la .next/; fi
+          echo "=== Check if out folder exists and show contents ==="
+          if [ -d "./out" ]; then 
+            echo "OUT FOLDER EXISTS!"
+            ls -la ./out/
+          else
+            echo "OUT FOLDER DOES NOT EXIST"
+          fi
       
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./out
-
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Upload artifact (skip for now)
+        run: echo "Skipping upload to debug first"
