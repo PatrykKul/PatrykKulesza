@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://patryk-korepetycje.pl'), // Zmień na swoją domenę
+  metadataBase: new URL('https://PatrykKul.github.io/korepetycje'),
   alternates: {
     canonical: '/',
   },
