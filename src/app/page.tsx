@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
+
 import { 
   Phone, 
   Mail, 
@@ -10,8 +11,7 @@ import {
   BookOpen, 
   Calculator, 
   Code, 
-  Globe, 
-  ChevronRight, 
+  Globe,  
   ExternalLink, 
   ChevronDown,
   Menu,
@@ -701,7 +701,7 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
                 </div>
               </div>
 
-              <p className="text-[#8b949e] mb-6 leading-relaxed">"{testimonial.opinion}"</p>
+              <p className="text-[#8b949e] mb-6 leading-relaxed">&quot;{testimonial.opinion}&quot;</p>
 
               <div className="border-t border-[#30363d] pt-4">
                 <div className="font-semibold text-[#f0f6fc] mb-1">{testimonial.name}</div>
@@ -1131,7 +1131,7 @@ export default function HomePage() {
         name: "Anna K.",
         grade: "Matura rozszerzona 2024",
         result: "100%",
-        opinion: "Dzięki Patryko zdałam maturę na 100%! Świetnie tłumaczysz trudne zagadnienia i zawsze cierpliwie odpowiadasz na pytania. Polecam każdemu!",
+        opinion: "Dzięki Patrykowi zdałam maturę na 100%! Świetnie tłumaczysz trudne zagadnienia i zawsze cierpliwie odpowiadasz na pytania. Polecam każdemu!",
         rating: 5
       },
       {
