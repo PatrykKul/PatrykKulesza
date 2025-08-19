@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 
 import { 
@@ -138,88 +138,280 @@ const useAdvancedInView = (threshold: number = 0.1) => {
 };
 
 // ==========================================
-// 🧭 HEADER/NAVBAR COMPONENT
+// 🧭 IMPROVED HEADER/NAVBAR COMPONENT
 // ==========================================
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('hero');
+  const [isScrolled, setIsScrolled] = useState(false);
 
   const menuItems = [
     { label: 'Start', href: '#hero' },
     { label: 'Usługi', href: '#services' },
     { label: 'Portfolio', href: '#portfolio' },
     { label: 'Opinie', href: '#testimonials' },
+    { label: 'FAQ', href: '#faq' },
     { label: 'Kontakt', href: '#contact' }
   ];
 
+  // Track scroll position and active section
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+      
+      // Active section tracking
+      const sections = menuItems.map(item => item.href.substring(1));
+      const current = sections.find(section => {
+        const element = document.getElementById(section);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          return rect.top <= 100 && rect.bottom >= 100;
+        }
+        return false;
+      });
+      
+      if (current) {
+        setActiveSection(current);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Smooth scroll handler
+  const handleMenuClick = (href: string) => {
+    setIsMenuOpen(false);
+    
+    if (href.startsWith('#')) {
+      const element = document.getElementById(href.substring(1));
+      if (element) {
+        element.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    }
+  };
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-[#0d1117]/95 backdrop-blur-sm border-b border-[#30363d]">
-      <div className="container mx-auto px-6 py-4">
-        <div className="flex items-center justify-between">
-          {/* Logo */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="text-2xl font-bold text-[#1f6feb]"
-          >
-            PK
-          </motion.div>
-
-          {/* Desktop Menu */}
-          <nav className="hidden md:flex items-center space-x-8">
-            {menuItems.map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                className="text-[#f0f6fc] hover:text-[#1f6feb] transition-colors duration-300"
+    <>
+      <motion.header 
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          isScrolled 
+            ? 'bg-[#0d1117]/95 backdrop-blur-lg border-b border-[#1f6feb]/30 shadow-lg shadow-[#1f6feb]/10' 
+            : 'bg-[#0d1117]/80 backdrop-blur-sm border-b border-[#30363d]'
+        }`}
+      >
+        <div className="container mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            
+            {/* Enhanced Logo */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center space-x-3 cursor-pointer"
+            >
+              <motion.div 
+                className="w-10 h-10 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white text-sm font-black flex items-center justify-center rounded-xl shadow-lg"
+                whileHover={{ rotate: 5 }}
               >
-                {item.label}
-              </a>
-            ))}
-          </nav>
+                PK
+              </motion.div>
+              <motion.span 
+                className="text-xl md:text-2xl font-bold bg-gradient-to-r from-[#f0f6fc] to-[#1f6feb] bg-clip-text text-transparent"
+                whileHover={{ x: 3 }}
+              >
+                Patryk Kulesza
+              </motion.span>
+            </motion.div>
 
-          {/* Mobile Menu Button */}
-          <div className="flex items-center">
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 rounded-lg bg-[#161b22] text-[#f0f6fc]"
-            >
-              {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Menu */}
-        <AnimatePresence>
-          {isMenuOpen && (
-            <motion.nav
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="md:hidden mt-4 pb-4 border-t border-[#30363d] pt-4"
-            >
+            {/* Enhanced Desktop Menu */}
+            <nav className="hidden lg:flex items-center space-x-1">
               {menuItems.map((item, index) => (
                 <motion.a
                   key={item.label}
                   href={item.href}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="block py-2 text-[#f0f6fc] hover:text-[#1f6feb] transition-colors"
-                  onClick={() => setIsMenuOpen(false)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleMenuClick(item.href);
+                  }}
+                  className={`relative px-5 py-3 rounded-full font-semibold text-lg transition-all duration-300 ${
+                    activeSection === item.href.substring(1)
+                      ? 'text-white bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] shadow-lg shadow-[#1f6feb]/30'
+                      : 'text-[#f0f6fc] hover:text-[#1f6feb] hover:bg-[#1f6feb]/10'
+                  }`}
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  whileHover={{ 
+                    scale: 1.05,
+                    y: -2
+                  }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   {item.label}
+                  
+                  {/* Active indicator */}
+                  {activeSection === item.href.substring(1) && (
+                    <motion.div
+                      layoutId="activeSection"
+                      className="absolute inset-0 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] rounded-full -z-10"
+                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    />
+                  )}
                 </motion.a>
               ))}
-            </motion.nav>
-          )}
-        </AnimatePresence>
-      </div>
-    </header>
+            </nav>
+
+            {/* Enhanced Mobile Menu Button */}
+            <motion.button
+              className="lg:hidden p-3 rounded-xl bg-[#1f6feb]/10 border border-[#1f6feb]/20 text-[#1f6feb] hover:bg-[#1f6feb]/20 transition-all duration-300"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <AnimatePresence mode="wait">
+                {isMenuOpen ? (
+                  <motion.div
+                    key="close"
+                    initial={{ rotate: -90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: 90, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <X className="w-6 h-6" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="menu"
+                    initial={{ rotate: 90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: -90, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Menu className="w-6 h-6" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.button>
+          </div>
+        </div>
+      </motion.header>
+
+      {/* Enhanced Mobile Menu - Side Overlay */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-40 lg:hidden"
+          >
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-[#0d1117]/90 backdrop-blur-lg"
+              onClick={() => setIsMenuOpen(false)}
+            />
+            
+            {/* Menu Content - From Right Side */}
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="absolute right-0 top-0 h-full w-80 bg-gradient-to-br from-[#161b22] to-[#0d1117] border-l border-[#1f6feb]/20 shadow-2xl"
+            >
+              <div className="flex flex-col h-full pt-24 pb-8 px-6">
+                
+                {/* Logo in mobile menu */}
+                <motion.div
+                  initial={{ y: -20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.4, delay: 0.1 }}
+                  className="flex items-center space-x-3 mb-8 pb-6 border-b border-[#30363d]"
+                >
+                  <div className="w-8 h-8 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white text-xs font-black flex items-center justify-center rounded-lg">
+                    PK
+                  </div>
+                  <span className="text-lg font-bold text-[#f0f6fc]">
+                    Patryk Kulesza
+                  </span>
+                </motion.div>
+
+                {/* Menu Items */}
+                <div className="flex-1 space-y-2">
+                  {menuItems.map((item, index) => (
+                    <motion.a
+                      key={item.label}
+                      href={item.href}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleMenuClick(item.href);
+                      }}
+                      className={`block w-full text-left px-6 py-4 rounded-2xl font-semibold text-lg transition-all duration-300 ${
+                        activeSection === item.href.substring(1)
+                          ? 'bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white shadow-lg'
+                          : 'text-[#f0f6fc] hover:bg-[#1f6feb]/10 hover:text-[#1f6feb]'
+                      }`}
+                      initial={{ x: 50, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ duration: 0.3, delay: index * 0.05 }}
+                      whileHover={{ x: 10, scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      {item.label}
+                    </motion.a>
+                  ))}
+                </div>
+                
+                {/* Mobile Contact Info */}
+                <motion.div
+                  initial={{ y: 30, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.4, delay: 0.5 }}
+                  className="border-t border-[#30363d] pt-6 space-y-3"
+                >
+                  <div className="text-center text-[#8b949e] text-sm">
+                    Skontaktuj się ze mną
+                  </div>
+                  <div className="text-center">
+                    <a 
+                      href="mailto:patryk27_2003@o2.pl"
+                      className="text-[#1f6feb] hover:text-[#58a6ff] transition-colors text-sm"
+                    >
+                      patryk27_2003@o2.pl
+                    </a>
+                  </div>
+                  <div className="text-center">
+                    <a 
+                      href="tel:+48662581368"
+                      className="text-[#1f6feb] hover:text-[#58a6ff] transition-colors text-sm"
+                    >
+                      +48 662 581 368
+                    </a>
+                  </div>
+                </motion.div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 
 // ==========================================
-// 🚀 HERO SECTION
+// 🚀 CLEAN HERO SECTION - 2 COLUMN LAYOUT
 // ==========================================
 const HeroSection = ({ data }: { data: HomePageData }) => {
   const [ref, inView] = useAdvancedInView();
@@ -230,7 +422,7 @@ const HeroSection = ({ data }: { data: HomePageData }) => {
       id="hero"
       className="min-h-screen flex items-center bg-gradient-to-br from-[#0d1117] via-[#161b22] to-[#1f6feb]/20 relative overflow-hidden pt-20"
     >
-      {/* Background Pattern - CLEAN CSS ONLY */}
+      {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0 bg-gradient-to-br from-[#1f6feb]/5 to-transparent" />
         <div 
@@ -242,182 +434,240 @@ const HeroSection = ({ data }: { data: HomePageData }) => {
         />
       </div>
 
-      <div className="container mx-auto px-6 relative z-10">
-        <div className="max-w-5xl mx-auto text-center">
+      <div className="container mx-auto px-6 relative z-10 pb-4 mb-4">
+        
+        {/* MAIN CONTENT - 2 COLUMNS */}
+        <div className="grid lg:grid-cols-5 gap-12 items-center mb-16">
           
-          {/* GŁÓWNY H1 - semantycznie i wizualnie najważniejszy */}
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-4xl md:text-6xl lg:text-7xl font-black mb-6 leading-none"
-          >
-            <span className="bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
-              Twój sukces,
-            </span>
-            <br />
-            <span className="bg-gradient-to-r from-[#58a6ff] via-[#1f6feb] to-[#f0f6fc] bg-clip-text text-transparent">
-              nasze wspólne dzieło
-            </span>
-          </motion.h1>
-
-          {/* H2 - podtytuł SEO */}
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-lg md:text-xl text-[#8b949e] font-medium mb-4 tracking-wide"
-          >
-            Korepetycje Matematyka • Angielski • Programowanie - Patryk Kulesza
-          </motion.h2>
-
-          {/* Subtitle with typing effect */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={inView ? { opacity: 1 } : {}}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            className="mb-8"
-          >
-            <div className="text-2xl md:text-3xl text-[#1f6feb] font-semibold mb-2">
-              Student informatyki | 5+ lat doświadczenia
-            </div>
-            <div className="text-lg md:text-xl text-[#8b949e] font-light">
-              Data Science • Web Development • Indywidualne podejście
-            </div>
-          </motion.div>
-
-          {/* Enhanced description */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.7 }}
-            className="text-xl md:text-2xl text-[#f0f6fc] mb-12 leading-relaxed max-w-4xl mx-auto font-light"
-          >
-            Specjalizuję się w korepetycjach z{' '}
-            <span className="text-[#1f6feb] font-semibold">matematyki</span>,{' '}
-            <span className="text-[#1f6feb] font-semibold">angielskiego</span> i{' '}
-            <span className="text-[#1f6feb] font-semibold">programowania</span>.
-            <br />
-            Pomagam uczniom osiągnąć sukces na każdym poziomie nauki.
-          </motion.p>
-
-          {/* Enhanced Stats with icons */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.9 }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 max-w-3xl mx-auto"
-          >
-            <div className="bg-[#161b22]/50 backdrop-blur-sm border border-[#30363d]/50 rounded-2xl p-6 hover:border-[#1f6feb]/50 transition-all duration-300">
-              <div className="text-4xl md:text-5xl font-black text-[#1f6feb] mb-2">
-                {data.hero.stats.experience}
-              </div>
-              <div className="text-[#8b949e] text-sm uppercase tracking-wider font-medium">
-                lat doświadczenia
-              </div>
-            </div>
+          {/* LEFT COLUMN - TEXT CONTENT (60%) */}
+          <div className="lg:col-span-3">
             
-            <div className="bg-[#161b22]/50 backdrop-blur-sm border border-[#30363d]/50 rounded-2xl p-6 hover:border-[#1f6feb]/50 transition-all duration-300">
-              <div className="text-4xl md:text-5xl font-black text-[#1f6feb] mb-2">
-                {data.hero.stats.students}
-              </div>
-              <div className="text-[#8b949e] text-sm uppercase tracking-wider font-medium">
-                zadowolonych uczniów
-              </div>
-            </div>
-            
-            <div className="bg-[#161b22]/50 backdrop-blur-sm border border-[#30363d]/50 rounded-2xl p-6 hover:border-[#1f6feb]/50 transition-all duration-300">
-              <div className="text-4xl md:text-5xl font-black text-[#1f6feb] mb-2">
-                {data.hero.stats.successRate}
-              </div>
-              <div className="text-[#8b949e] text-sm uppercase tracking-wider font-medium">
-                zdawalność egzaminów
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Enhanced CTA Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, delay: 1.1 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-          >
-            {/* Primary CTA */}
-            <motion.a
-              href="#contact"
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              className="group relative px-8 py-4 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-[#1f6feb]/25 text-lg"
+            {/* H1 - Main Title */}
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 leading-tight"
             >
-              <span className="relative z-10 flex items-center">
-                {data.hero.cta}
-                <svg 
-                  className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
+              <span className="bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
+                Twój sukces,
               </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-[#58a6ff] to-[#1f6feb] rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </motion.a>
+              <br />
+              <span className="bg-gradient-to-r from-[#58a6ff] via-[#1f6feb] to-[#f0f6fc] bg-clip-text text-transparent">
+                nasze wspólne dzieło
+              </span>
+            </motion.h1>
 
-            {/* Secondary CTA */}
-            <motion.a
-              href="#services"
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-8 py-4 border-2 border-[#1f6feb] text-[#1f6feb] font-bold rounded-2xl hover:bg-[#1f6feb] hover:text-white transition-all duration-300 text-lg"
+            {/* H2 - SEO Optimized Subtitle */}
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="text-lg md:text-xl text-[#c9d1d9] font-medium mb-6 tracking-wide"
             >
-              Zobacz usługi
-            </motion.a>
-          </motion.div>
+              Korepetycje Białystok, Zambrów i okolice • Matematyka • Angielski • Programowanie
+            </motion.h2>
 
-          {/* Trust indicators */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={inView ? { opacity: 1 } : {}}
-            transition={{ duration: 0.8, delay: 1.3 }}
-            className="mt-16 flex flex-wrap justify-center items-center gap-8 text-[#8b949e] text-sm"
-          >
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-[#1f6feb]" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-              Pierwsza lekcja gratis
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-[#1f6feb]" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-              Online i stacjonarnie
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-[#1f6feb]" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-              Materiały własne
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-[#1f6feb]" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-              Białystok • Zambrów
-            </div>
-          </motion.div>
+            {/* Description - Shortened */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="text-xl md:text-2xl text-[#f0f6fc] mb-6 leading-relaxed font-light"
+            >
+              Specjalizuję się w korepetycjach z{' '}
+              <span className="text-[#1f6feb] font-semibold">matematyki</span>,{' '}
+              <span className="text-[#1f6feb] font-semibold">angielskiego</span> i{' '}
+              <span className="text-[#1f6feb] font-semibold">programowania</span>.
+              <br />
+              <span className="text-[#58a6ff]">Indywidualne podejście = gwarantowane rezultaty.</span>
+            </motion.p>
+
+            {/* Enhanced Credentials */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, delay: 0.8 }}
+              className="space-y-2"
+            >
+              <div className="text-lg md:text-2xl text-[#1f6feb] font-semibold">
+                📚 Student Informatyki 3 roku | 5+ lat doświadczenia
+              </div>
+              <div className="text-md md:text-xl text-[#cae2ea] font-light">
+                🔬 Data Science • 💻 Web Development • 🎯 Zambrów & Białystok
+              </div>
+            </motion.div>
+          </div>
+
+          {/* RIGHT COLUMN - BRAIN IMAGE (40%) */}
+          <div className="lg:col-span-2 flex justify-center lg:justify-end">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
+              animate={inView ? { opacity: 1, scale: 1, rotate: 0 } : {}}
+              transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
+              className="relative"
+            >
+              {/* Floating Animation Container */}
+              <motion.div
+                animate={{ 
+                  y: [-20, 20, -20],
+                  rotate: [-2, 2, -2]
+                }}
+                transition={{ 
+                  duration: 6,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="relative"
+              >
+                {/* Glow Effect */}
+                <div className="absolute inset-0 bg-[#1f6feb]/20 rounded-full blur-3xl scale-110"></div>
+                
+                {/* Brain Image */}
+                <div className="relative w-96 h-96 md:w-[500px] md:h-[500px] lg:w-[550px] lg:h-[550px]">
+                  <img 
+                    src={`${process.env.NODE_ENV === 'production' ? '/korepetycje' : ''}/_resources/brain.png`}
+                    alt="Neural Network Brain - Korepetycje Programowanie i Matematyka" 
+                    className="w-full h-full object-contain drop-shadow-2xl"
+                  />
+                </div>
+              </motion.div>
+            </motion.div>
+          </div>
         </div>
+
+        {/* STATISTICS - FULL WIDTH */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8, delay: 1 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 max-w-4xl mx-auto"
+        >
+          <div className="bg-[#161b22]/50 backdrop-blur-sm border border-[#30363d]/50 rounded-2xl p-8 hover:border-[#1f6feb]/50 transition-all duration-300 text-center">
+            <div className="text-5xl md:text-6xl font-black text-[#1f6feb] mb-2">
+              {data.hero.stats.experience}
+            </div>
+            <div className="text-[#c9d1d9] text-sm uppercase tracking-wider font-medium">
+              lat doświadczenia
+            </div>
+          </div>
+          
+          <div className="bg-[#161b22]/50 backdrop-blur-sm border border-[#30363d]/50 rounded-2xl p-8 hover:border-[#1f6feb]/50 transition-all duration-300 text-center">
+            <div className="text-5xl md:text-6xl font-black text-[#1f6feb] mb-2">
+              {data.hero.stats.students}
+            </div>
+            <div className="text-[#c9d1d9] text-sm uppercase tracking-wider font-medium">
+              zadowolonych uczniów
+            </div>
+          </div>
+          
+          <div className="bg-[#161b22]/50 backdrop-blur-sm border border-[#30363d]/50 rounded-2xl p-8 hover:border-[#1f6feb]/50 transition-all duration-300 text-center">
+            <div className="text-5xl md:text-6xl font-black text-[#1f6feb] mb-2">
+              {data.hero.stats.successRate}
+            </div>
+            <div className="text-[#c9d1d9] text-sm uppercase tracking-wider font-medium">
+              zdawalność egzaminów
+            </div>
+          </div>
+        </motion.div>
+
+        {/* CTA BUTTONS */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8, delay: 1.2 }}
+          className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12"
+        >
+          <motion.a
+            href="#contact"
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.95 }}
+            className="group relative px-8 py-4 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-[#1f6feb]/25 text-lg"
+          >
+            <span className="relative z-10 flex items-center">
+              {data.hero.cta}
+              <svg 
+                className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </span>
+          </motion.a>
+
+          <motion.a
+            href="#services"
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.95 }}
+            className="px-8 py-4 border-2 border-[#1f6feb] text-[#1f6feb] font-bold rounded-2xl hover:bg-[#1f6feb] hover:text-white transition-all duration-300 text-lg"
+          >
+            Zobacz usługi
+          </motion.a>
+        </motion.div>
+
+        {/* TRUST INDICATORS - Enhanced */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={inView ? { opacity: 1 } : {}}
+          transition={{ duration: 0.8, delay: 1.4 }}
+          className="flex flex-wrap justify-center items-center gap-8 text-[#c9d1d9] text-sm"
+        >
+          <div className="flex items-center gap-2">
+            <svg className="w-6 h-6 text-[#1f6feb]" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
+            <span className="font-bold text-lg">Online i stacjonarnie</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <svg className="w-5 h-5 text-[#1f6feb]" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
+            <span className="font-bold text-lg">Materiały własne</span>
+          </div>
+          
+        </motion.div>
       </div>
     </section>
   );
 };
 
 // ==========================================
-// 💼 SERVICES SECTION
+// 💼 SERVICES SECTION - Enhanced with CTA buttons
 // ==========================================
 const ServicesSection = ({ data }: { data: HomePageData }) => {
   const [ref, inView] = useAdvancedInView();
+
+  // Function to handle service booking
+  const handleBookService = (serviceTitle: string) => {
+    // Map service titles to form values
+    const serviceMapping: { [key: string]: string } = {
+      'Matematyka': 'matematyka',
+      'Angielski': 'angielski', 
+      'Programowanie': 'programowanie'
+    };
+    
+    const serviceValue = serviceMapping[serviceTitle] || serviceTitle.toLowerCase();
+    
+    // Scroll to contact section with service parameter
+    const contactSection = document.getElementById('contact');
+    if (contactSection) {
+      // Add service to URL hash for auto-fill
+      window.location.hash = `contact-${serviceValue}`;
+      
+      // Smooth scroll to contact
+      contactSection.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+      
+      // Trigger custom event for form auto-fill
+      window.dispatchEvent(new CustomEvent('autoFillService', {
+        detail: { service: serviceValue }
+      }));
+    }
+  };
 
   return (
     <section ref={ref} id="services" className="py-20 bg-[#161b22]">
@@ -428,7 +678,7 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <h2 className="text-5xl md:text-6xl font-extrabold mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
+          <h2 className="text-5xl md:text-6xl font-extrabold mb-8 pb-4 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
             Usługi
           </h2>
           <p className="text-xl text-[#8b949e] max-w-3xl mx-auto">
@@ -445,7 +695,7 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: index * 0.1 }}
               whileHover={{ y: -10, scale: 1.02 }}
-              className="bg-[#0d1117] border border-[#30363d] rounded-xl p-8 hover:border-[#1f6feb]/50 transition-all duration-300 shadow-lg hover:shadow-xl"
+              className="bg-[#0d1117] border border-[#30363d] rounded-xl p-8 hover:border-[#1f6feb]/50 transition-all duration-300 shadow-lg hover:shadow-xl flex flex-col"
             >
               <div className="text-[#1f6feb] mb-6">
                 {service.icon}
@@ -473,7 +723,7 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
                 <div className="text-sm text-[#8b949e]">za godzinę zajęć</div>
               </div>
 
-              <ul className="space-y-2">
+              <ul className="space-y-2 mb-8 flex-grow">
                 {service.features.map((feature, idx) => (
                   <li key={idx} className="flex items-center text-[#8b949e]">
                     <Check className="w-4 h-4 text-[#1f6feb] mr-2 flex-shrink-0" />
@@ -481,6 +731,26 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
                   </li>
                 ))}
               </ul>
+
+              {/* CTA Button */}
+              <motion.button
+                onClick={() => handleBookService(service.title)}
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                className="w-full bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-[#1f6feb]/25"
+              >
+                <span className="flex items-center justify-center">
+                  Umów korepetycje
+                  <svg 
+                    className="ml-2 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </span>
+              </motion.button>
             </motion.div>
           ))}
         </div>
@@ -495,7 +765,17 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
           <Award className="w-12 h-12 text-[#1f6feb] mx-auto mb-4" />
           <h3 className="text-2xl font-bold text-[#f0f6fc] mb-4">Pakiet 10 godzin</h3>
           <p className="text-[#8b949e] mb-4">Zapisz się na 10 godzin z góry i otrzymaj 20% rabatu!</p>
-          <div className="text-lg text-[#1f6feb] font-semibold">Oszczędzasz do 120 zł!</div>
+          <div className="text-lg text-[#1f6feb] font-semibold mb-6">Oszczędzasz do 120 zł!</div>
+          
+          {/* Package CTA */}
+          <motion.button
+            onClick={() => handleBookService('pakiet')}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold py-3 px-8 rounded-xl transition-all duration-300"
+          >
+            Umów pakiet 10h
+          </motion.button>
         </motion.div>
       </div>
     </section>
@@ -653,13 +933,177 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
 };
 
 // ==========================================
-// ⭐ TESTIMONIALS SECTION
+// ⭐ TESTIMONIALS SECTION - HORIZONTAL SCROLLING
 // ==========================================
 const TestimonialsSection = ({ data }: { data: HomePageData }) => {
   const [ref, inView] = useAdvancedInView();
+  
+  // ==========================================
+  // 📊 STATES DLA DRAG SCROLLING
+  // ==========================================
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const [hasMoved, setHasMoved] = useState(false);
+  
+  // ==========================================
+  // 🚀 MOMENTUM SCROLLING STATES
+  // ==========================================
+  const [velocity, setVelocity] = useState(0);
+  const [lastX, setLastX] = useState(0);
+  const [lastTime, setLastTime] = useState(0);
+  const momentumAnimationRef = useRef<number | null>(null);
+  const lastCallTime = useRef<number>(0);
 
-    return (
-      <section ref={ref} id="testimonials" className="py-20 bg-[#161b22]">
+  // ==========================================
+  // 🚀 MOMENTUM ANIMATION FUNCTION
+  // ==========================================
+  const startMomentumAnimation = useCallback((initialVelocity: number) => {
+    if (!scrollContainerRef.current || Math.abs(initialVelocity) < 0.1) return;
+    
+    let currentVelocity = initialVelocity;
+    const deceleration = 0.95;
+    const minVelocity = 0.1;
+    
+    const animate = () => {
+      if (!scrollContainerRef.current) return;
+      
+      const currentScrollLeft = scrollContainerRef.current.scrollLeft;
+      const newScrollLeft = currentScrollLeft + currentVelocity;
+      
+      const maxScroll = scrollContainerRef.current.scrollWidth - scrollContainerRef.current.clientWidth;
+      const clampedScrollLeft = Math.max(0, Math.min(maxScroll, newScrollLeft));
+      
+      scrollContainerRef.current.scrollLeft = clampedScrollLeft;
+      currentVelocity *= deceleration;
+      
+      if (Math.abs(currentVelocity) > minVelocity && 
+          clampedScrollLeft > 0 && 
+          clampedScrollLeft < maxScroll) {
+        momentumAnimationRef.current = requestAnimationFrame(animate);
+      } else {
+        momentumAnimationRef.current = null;
+      }
+    };
+    
+    momentumAnimationRef.current = requestAnimationFrame(animate);
+  }, []);
+
+  // ==========================================
+  // 🛑 STOP MOMENTUM FUNCTION
+  // ==========================================
+  const stopMomentumAnimation = useCallback(() => {
+    if (momentumAnimationRef.current) {
+      cancelAnimationFrame(momentumAnimationRef.current);
+      momentumAnimationRef.current = null;
+    }
+  }, []);
+
+  // ==========================================
+  // 🖱️ MOUSE EVENT HANDLERS
+  // ==========================================
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!scrollContainerRef.current) return;
+    
+    stopMomentumAnimation();
+    
+    setIsDragging(true);
+    setHasMoved(false);
+    setStartX(e.pageX);
+    setScrollLeft(scrollContainerRef.current.scrollLeft);
+    
+    setLastX(e.pageX);
+    setLastTime(Date.now());
+    setVelocity(0);
+  };
+
+  const handleMouseUp = () => {
+    if (isDragging) {
+      startMomentumAnimation(velocity);
+    }
+    setIsDragging(false);
+  };
+
+  const handleMouseLeave = () => {
+    if (isDragging) {
+      startMomentumAnimation(velocity);
+    }
+    setIsDragging(false);
+  };
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isDragging || !scrollContainerRef.current) return;
+    
+    const now = Date.now();
+    if (now - lastCallTime.current < 16) return;
+    lastCallTime.current = now;
+    
+    e.preventDefault();
+    
+    const x = e.pageX;
+    const walk = (x - startX) * 1.5;
+    
+    if (Math.abs(walk) > 5) {
+      setHasMoved(true);
+    }
+    
+    scrollContainerRef.current.scrollLeft = scrollLeft - walk;
+    
+    const currentTime = Date.now();
+    const currentX = e.pageX;
+    
+    const timeDiff = currentTime - lastTime;
+    const xDiff = currentX - lastX;
+    
+    if (timeDiff > 0) {
+      const newVelocity = (xDiff / timeDiff) * -1.5 * 16;
+      setVelocity(newVelocity);
+    }
+    
+    setLastX(currentX);
+    setLastTime(currentTime);
+  }, [isDragging, startX, scrollLeft, lastTime]);
+
+  // ==========================================
+  // 🎯 CLEANUP
+  // ==========================================
+  useEffect(() => {
+    return () => stopMomentumAnimation();
+  }, [stopMomentumAnimation]);
+
+  return (
+    <>
+      {/* ==========================================
+          🎨 CUSTOM CURSOR STYLES - NIEBIESKI
+          ========================================== */}
+      <style jsx>{`
+        .testimonials-section {
+          cursor: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48' fill='none'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23000000' fill-opacity='0.8' stroke='%231f6feb' stroke-width='2'/%3E%3Cpath d='M14 24l6-6m-6 6l6 6m-6-6h20m-6-6l6 6m-6 6l6-6' stroke='%231f6feb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 24 24, grab;
+        }
+        .testimonials-section.dragging {
+          cursor: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48' fill='none'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23000000' fill-opacity='0.95' stroke='%231f6feb' stroke-width='2'/%3E%3Cpath d='M14 24l6-6m-6 6l6 6m-6-6h20m-6-6l6 6m-6 6l6-6' stroke='%231f6feb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 24 24, grabbing;
+        }
+        .testimonials-scroll-container::-webkit-scrollbar {
+          display: none;
+        }
+        .testimonials-section.dragging {
+          user-select: none;
+        }
+        .testimonials-section * {
+          cursor: inherit !important;
+        }
+      `}</style>
+
+      <section 
+        ref={ref} 
+        id="testimonials" 
+        className={`testimonials-section py-20 bg-[#161b22] overflow-hidden ${isDragging ? 'dragging' : ''}`}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+        onMouseMove={handleMouseMove}
+      >
         {/* Structured data dla opinii */}
         <script
           type="application/ld+json"
@@ -668,51 +1112,155 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
           }}
         />
         
-        <div className="container mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-5xl md:text-6xl font-extrabold mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
-            Opinie Uczniów
-          </h2>
-          <p className="text-xl text-[#8b949e] max-w-3xl mx-auto">
-            Zobacz co mówią o mnie uczniowie i ich rodzice.
-          </p>
-        </motion.div>
+        <div className="w-full">
+          {/* ==========================================
+              📝 HEADER SEKCJI
+              ========================================== */}
+          <motion.div
+            initial={{ y: 50, opacity: 0 }}
+            animate={inView ? { y: 0, opacity: 1 } : {}}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-8"
+          >
+            <div className="container mx-auto px-6">
+              <h2 className="text-5xl md:text-6xl font-extrabold mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
+                Opinie Uczniów
+              </h2>
+              <p className="text-2xl text-[#c9d1d9] max-w-3xl mx-auto">
+                Zobacz co mówią o mnie uczniowie i ich rodzice.
+              </p>
+              
+            </div>
+          </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {data.testimonials.map((testimonial, index) => (
-            <motion.div
-              key={testimonial.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              whileHover={{ y: -5 }}
-              className="bg-[#0d1117] border border-[#30363d] rounded-xl p-6 hover:border-[#1f6feb]/50 transition-all duration-300"
+          {/* ==========================================
+              🎬 HORIZONTAL SCROLLING CONTAINER
+              ========================================== */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={inView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="relative"
+          >
+            <div
+              ref={scrollContainerRef}
+              className="testimonials-scroll-container flex gap-12 overflow-x-auto scrollbar-hide py-8 px-6 md:px-12"
+              style={{
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+              }}
             >
-              <div className="flex items-center mb-4">
-                <div className="flex text-yellow-400">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-current" />
-                  ))}
+              {/* ==========================================
+                  💬 MAPA OPINII
+                  ========================================== */}
+              {data.testimonials.map((testimonial, index) => (
+                <motion.div
+                  key={testimonial.id}
+                  initial={{ x: 100, opacity: 0 }}
+                  animate={inView ? { x: 0, opacity: 1 } : {}}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  className="flex-shrink-0 group"
+                  whileHover={{ y: -10, scale: 1.02 }}
+                >
+                  {/* ==========================================
+                      💬 KARTA OPINII - DUŻA
+                      ========================================== */}
+                  <div className="relative w-[600px] md:w-[700px] lg:w-[800px] h-[400px] md:h-[450px] bg-[#0d1117] border border-[#30363d] rounded-3xl p-12 hover:border-[#1f6feb]/50 transition-all duration-300 shadow-lg hover:shadow-xl group-hover:shadow-[#1f6feb]/10">
+                    
+                    {/* Rating Stars */}
+                    <div className="flex items-center mb-8">
+                      <div className="flex text-yellow-400 mr-6">
+                        {[...Array(testimonial.rating)].map((_, i) => (
+                          <Star key={i} className="w-7 h-7 fill-current mr-1" />
+                        ))}
+                      </div>
+                      <div className="text-[#1f6feb] font-semibold text-lg bg-[#1f6feb]/10 px-4 py-2 rounded-full">
+                        {testimonial.rating}/5
+                      </div>
+                    </div>
+
+                    {/* Opinion Text */}
+                    <div className="mb-12 flex-grow">
+                      <p className="text-[#c9d1d9] leading-relaxed text-2xl md:text-3xl font-light">
+                        &quot;{testimonial.opinion}&quot;
+                      </p>
+                    </div>
+
+                    {/* Bottom Info */}
+                    <div className="absolute bottom-12 left-12 right-12">
+                      <div className="border-t border-[#30363d] pt-8">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="font-bold text-[#f0f6fc] text-2xl mb-2">
+                              {testimonial.name}
+                            </div>
+                            <div className="text-lg text-[#8b949e] mb-2">
+                              {testimonial.grade}
+                            </div>
+                          </div>
+                          
+                          {/* Result Badge */}
+                          <div className="text-right">
+                            <div className="text-sm text-[#8b949e] mb-2">Wynik:</div>
+                            <div className="bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold px-6 py-3 rounded-xl text-lg">
+                              {testimonial.result}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Hover Glow Effect */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-3xl">
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1f6feb]/5 to-transparent rounded-3xl" />
+                      <div className="absolute inset-0 shadow-2xl shadow-[#1f6feb]/25 rounded-3xl" />
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+
+              {/* ==========================================
+                  📊 PODSUMOWANIE NA KOŃCU
+                  ========================================== */}
+              <motion.div
+                initial={{ x: 100, opacity: 0 }}
+                animate={inView ? { x: 0, opacity: 1 } : {}}
+                transition={{ duration: 0.6, delay: 0.8 }}
+                className="flex-shrink-0"
+              >
+                <div className="w-[600px] md:w-[700px] lg:w-[800px] h-[400px] md:h-[450px] bg-gradient-to-br from-[#1f6feb]/10 to-[#58a6ff]/10 border border-[#1f6feb]/30 rounded-3xl p-12 flex flex-col items-center justify-center text-center">
+                  
+                  <motion.div
+                    animate={{ rotate: [0, 360] }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                    className="w-20 h-20 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] rounded-full flex items-center justify-center mb-8"
+                  >
+                    <Star className="w-10 h-10 text-white fill-current" />
+                  </motion.div>
+                  
+                  <h3 className="text-3xl md:text-4xl font-bold text-[#f0f6fc] mb-6">
+                    100% zadowolonych uczniów!
+                  </h3>
+                  
+                  <p className="text-[#c9d1d9] mb-8 leading-relaxed text-xl">
+                    Każdy uczeń osiągnął swoje cele. Dołącz do grona zadowolonych uczniów!
+                  </p>
+                  
+                  <motion.a
+                    href="#contact"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 text-lg"
+                  >
+                    Umów konsultację
+                  </motion.a>
                 </div>
-              </div>
-
-              <p className="text-[#8b949e] mb-6 leading-relaxed">&quot;{testimonial.opinion}&quot;</p>
-
-              <div className="border-t border-[#30363d] pt-4">
-                <div className="font-semibold text-[#f0f6fc] mb-1">{testimonial.name}</div>
-                <div className="text-sm text-[#8b949e] mb-1">{testimonial.grade}</div>
-                <div className="text-[#1f6feb] font-semibold text-sm">Wynik: {testimonial.result}</div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            </div>
+          </motion.div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 };
 
@@ -815,7 +1363,7 @@ const FaqSection = ({ data }: { data: HomePageData }) => {
 };
 
 // ==========================================
-// 📞 CONTACT SECTION
+// 📞 CONTACT SECTION - Enhanced with auto-fill
 // ==========================================
 const ContactSection = ({ data }: { data: HomePageData }) => {
   const [ref, inView] = useAdvancedInView();
@@ -827,10 +1375,61 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
     message: ''
   });
 
+  // Auto-fill service from URL hash or custom event
+  useEffect(() => {
+    // Check URL hash on mount
+    const checkHash = () => {
+      const hash = window.location.hash;
+      if (hash.startsWith('#contact-')) {
+        const service = hash.replace('#contact-', '');
+        setFormData(prev => ({ ...prev, subject: service }));
+      }
+    };
+
+    // Listen for custom auto-fill events
+    const handleAutoFill = (event: CustomEvent) => {
+      const { service } = event.detail;
+      setFormData(prev => ({ 
+        ...prev, 
+        subject: service,
+        message: service === 'pakiet' 
+          ? 'Jestem zainteresowany/a pakietem 10 godzin z rabatem 20%. Proszę o kontakt w sprawie szczegółów.'
+          : `Jestem zainteresowany/a korepetycjami z przedmiotu: ${service}. Proszę o kontakt.`
+      }));
+    };
+
+    // Check hash on component mount
+    checkHash();
+
+    // Listen for hash changes and custom events
+    window.addEventListener('hashchange', checkHash);
+    window.addEventListener('autoFillService', handleAutoFill as EventListener);
+
+    return () => {
+      window.removeEventListener('hashchange', checkHash);
+      window.removeEventListener('autoFillService', handleAutoFill as EventListener);
+    };
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // EmailJS integration will go here
     console.log('Form submitted:', formData);
+    
+    // Show success message (you can implement toast notification)
+    alert('Dziękuję za wiadomość! Odpowiem w ciągu 24 godzin.');
+    
+    // Reset form
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      subject: '',
+      message: ''
+    });
+    
+    // Clear hash
+    window.location.hash = '';
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -852,7 +1451,7 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
           <h2 className="text-5xl md:text-6xl font-extrabold mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
             Kontakt
           </h2>
-          <p className="text-xl text-[#8b949e] max-w-3xl mx-auto">
+          <p className="text-xl text-[#c9d1d9] max-w-3xl mx-auto">
             Gotowy na rozpoczęcie nauki? Skontaktuj się ze mną już dziś!
           </p>
         </motion.div>
@@ -873,7 +1472,12 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
                 </div>
                 <div>
                   <div className="text-[#f0f6fc] font-semibold">Telefon</div>
-                  <div className="text-[#8b949e]">{data.contact.phone}</div>
+                  <a 
+                    href={`tel:${data.contact.phone}`}
+                    className="text-[#c9d1d9] hover:text-[#1f6feb] transition-colors"
+                  >
+                    {data.contact.phone}
+                  </a>
                 </div>
               </div>
 
@@ -883,7 +1487,12 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
                 </div>
                 <div>
                   <div className="text-[#f0f6fc] font-semibold">Email</div>
-                  <div className="text-[#8b949e]">{data.contact.email}</div>
+                  <a 
+                    href={`mailto:${data.contact.email}`}
+                    className="text-[#c9d1d9] hover:text-[#1f6feb] transition-colors"
+                  >
+                    {data.contact.email}
+                  </a>
                 </div>
               </div>
 
@@ -893,7 +1502,7 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
                 </div>
                 <div>
                   <div className="text-[#f0f6fc] font-semibold">Lokalizacja</div>
-                  <div className="text-[#8b949e]">{data.contact.location}</div>
+                  <div className="text-[#c9d1d9]">{data.contact.location}</div>
                 </div>
               </div>
             </div>
@@ -912,6 +1521,27 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
                 <Github className="w-6 h-6 text-[#1f6feb]" />
               </a>
             </div>
+
+            {/* Quick Contact Actions */}
+            <div className="mt-8 space-y-3">
+              <h4 className="text-lg font-semibold text-[#f0f6fc]">Szybki kontakt:</h4>
+              <div className="flex flex-col space-y-2">
+                <a
+                  href={`tel:${data.contact.phone}`}
+                  className="flex items-center px-4 py-2 bg-[#1f6feb]/10 rounded-lg hover:bg-[#1f6feb]/20 transition-colors text-[#1f6feb]"
+                >
+                  <Phone className="w-4 h-4 mr-2" />
+                  Zadzwoń teraz
+                </a>
+                <a
+                  href={`mailto:${data.contact.email}?subject=Zapytanie o korepetycje`}
+                  className="flex items-center px-4 py-2 bg-[#1f6feb]/10 rounded-lg hover:bg-[#1f6feb]/20 transition-colors text-[#1f6feb]"
+                >
+                  <Mail className="w-4 h-4 mr-2" />
+                  Wyślij email
+                </a>
+              </div>
+            </div>
           </motion.div>
 
           {/* Contact Form */}
@@ -923,25 +1553,31 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-[#f0f6fc] font-semibold mb-2">Imię i nazwisko</label>
+                  <label className="block text-[#f0f6fc] font-semibold mb-2">
+                    Imię i nazwisko <span className="text-red-400">*</span>
+                  </label>
                   <input
                     type="text"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#f0f6fc] focus:border-[#1f6feb] focus:outline-none transition-colors"
+                    className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#f0f6fc] focus:border-[#1f6feb] focus:outline-none transition-colors placeholder-[#8b949e]"
+                    placeholder="Jan Kowalski"
                   />
                 </div>
                 <div>
-                  <label className="block text-[#f0f6fc] font-semibold mb-2">Email</label>
+                  <label className="block text-[#f0f6fc] font-semibold mb-2">
+                    Email <span className="text-red-400">*</span>
+                  </label>
                   <input
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#f0f6fc] focus:border-[#1f6feb] focus:outline-none transition-colors"
+                    className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#f0f6fc] focus:border-[#1f6feb] focus:outline-none transition-colors placeholder-[#8b949e]"
+                    placeholder="jan@example.com"
                   />
                 </div>
               </div>
@@ -954,11 +1590,14 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#f0f6fc] focus:border-[#1f6feb] focus:outline-none transition-colors"
+                    className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#f0f6fc] focus:border-[#1f6feb] focus:outline-none transition-colors placeholder-[#8b949e]"
+                    placeholder="+48 123 456 789"
                   />
                 </div>
                 <div>
-                  <label className="block text-[#f0f6fc] font-semibold mb-2">Przedmiot</label>
+                  <label className="block text-[#f0f6fc] font-semibold mb-2">
+                    Przedmiot <span className="text-red-400">*</span>
+                  </label>
                   <select
                     name="subject"
                     value={formData.subject}
@@ -970,20 +1609,23 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
                     <option value="matematyka">Matematyka</option>
                     <option value="angielski">Angielski</option>
                     <option value="programowanie">Programowanie</option>
+                    <option value="pakiet">Pakiet 10 godzin</option>
                     <option value="inne">Inne</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block text-[#f0f6fc] font-semibold mb-2">Wiadomość</label>
+                <label className="block text-[#f0f6fc] font-semibold mb-2">
+                  Wiadomość <span className="text-red-400">*</span>
+                </label>
                 <textarea
                   name="message"
                   value={formData.message}
                   onChange={handleChange}
                   rows={5}
                   required
-                  className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#f0f6fc] focus:border-[#1f6feb] focus:outline-none transition-colors resize-vertical"
+                  className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#f0f6fc] focus:border-[#1f6feb] focus:outline-none transition-colors resize-vertical placeholder-[#8b949e]"
                   placeholder="Opisz swoje potrzeby, poziom zaawansowania, cele..."
                 ></textarea>
               </div>
@@ -992,7 +1634,7 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
                 type="submit"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full flex items-center justify-center px-8 py-4 bg-[#1f6feb] text-white font-semibold rounded-lg hover:bg-[#58a6ff] transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="w-full flex items-center justify-center px-8 py-4 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-[#1f6feb]/25"
               >
                 <Send className="w-5 h-5 mr-2" />
                 Wyślij wiadomość
@@ -1068,7 +1710,7 @@ export default function HomePage() {
         levels: ["Podstawówka", "Liceum", "Matura", "Konwersacje"],
         price: "50-70 zł",
         features: [
-          "Konwersacje z native speakerem",
+          "Konwersacje",
           "Przygotowanie do matury",
           "Gramatyka i słownictwo",
           "Pisanie rozprawek",

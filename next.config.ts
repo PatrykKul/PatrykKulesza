@@ -1,11 +1,15 @@
 import type { NextConfig } from "next";
 
+// Use basePath only for GitHub Pages deployment
+const isGithubPages = process.env.NODE_ENV === 'production';
+
 const nextConfig: NextConfig = {
   output: 'export',
   distDir: 'out',
   trailingSlash: true,
-  basePath: '/korepetycje',
-  assetPrefix: '/korepetycje',
+  // Only use basePath and assetPrefix for GitHub Pages
+  basePath: isGithubPages ? '/korepetycje' : '',
+  assetPrefix: isGithubPages ? '/korepetycje' : '',
   images: {
     unoptimized: true
   }
