@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     "korepetycje programowanie",
     "nauka Python",
     "przygotowanie do matury",
-    "egzamin ósmoklasisty",
+    "egzamin ósmoklaisisty",
     "Zambrów korepetycje",
     "Data Science nauka",
     "Next.js kursy",
@@ -48,14 +48,6 @@ export const metadata: Metadata = {
     description: "Korepetycje z matematyki, angielskiego i programowania w Białymstoku i Zambrowie. 5+ lat doświadczenia, 100% zdawalność egzaminów.",
     url: 'https://PatrykKul.github.io/korepetycje',
     siteName: 'Patryk Kulesza - Korepetycje',
-    images: [
-      {
-        url: '/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'Patryk Kulesza - Korepetycje Matematyka, Angielski, Programowanie',
-      },
-    ],
     locale: 'pl_PL',
     type: 'website',
   },
@@ -63,7 +55,6 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: "Patryk Kulesza - Korepetycje Matematyka, Angielski, Programowanie",
     description: "Korepetycje z matematyki, angielskiego i programowania w Białymstoku i Zambrowie. 5+ lat doświadczenia.",
-    images: ['/og-image.jpg'],
   },
   robots: {
     index: true,
@@ -89,12 +80,6 @@ export default function RootLayout({
   return (
     <html lang="pl">
       <head>
-        {/* Favicons */}
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="manifest" href="/manifest.json" />
-        
         {/* Preconnect dla szybszego ładowania */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
