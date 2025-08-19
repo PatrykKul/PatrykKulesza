@@ -26,7 +26,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: yarn
+          cache: npm
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -34,10 +34,17 @@ jobs:
           static_site_generator: next
       
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: npm ci
       
       - name: Build with Next.js
-        run: yarn build
+        run: npm run build
+        
+      - name: Debug - List files
+        run: |
+          echo "Current directory contents:"
+          ls -la
+          echo "Out directory contents (if exists):"
+          ls -la out/ || echo "Out directory does not exist"
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

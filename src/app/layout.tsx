@@ -12,6 +12,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const basePath = process.env.NODE_ENV === 'production' ? '/korepetycje' : '';
+
 export const metadata: Metadata = {
   title: {
     default: "Patryk Kulesza - Korepetycje Matematyka, Angielski, Programowanie | Białystok, Zambrów",
@@ -50,7 +52,7 @@ export const metadata: Metadata = {
     siteName: 'Patryk Kulesza - Korepetycje',
     images: [
       {
-        url: '/og-image.jpg', // Stwórz ten obrazek 1200x630px
+        url: `${basePath}/og-image.jpg`,
         width: 1200,
         height: 630,
         alt: 'Patryk Kulesza - Korepetycje Matematyka, Angielski, Programowanie',
@@ -63,7 +65,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: "Patryk Kulesza - Korepetycje Matematyka, Angielski, Programowanie",
     description: "Korepetycje z matematyki, angielskiego i programowania w Białymstoku i Zambrowie. 5+ lat doświadczenia.",
-    images: ['/og-image.jpg'],
+    images: [`${basePath}/og-image.jpg`],
   },
   robots: {
     index: true,
@@ -77,7 +79,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: 'your-google-verification-code', // Dodaj po weryfikacji w Google Search Console
+    google: 'your-google-verification-code',
   },
 };
 
@@ -90,10 +92,10 @@ export default function RootLayout({
     <html lang="pl">
       <head>
         {/* Favicons */}
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="manifest" href="/manifest.json" />
+        <link rel="icon" href={`${basePath}/favicon.ico`} sizes="any" />
+        <link rel="icon" href={`${basePath}/favicon.svg`} type="image/svg+xml" />
+        <link rel="apple-touch-icon" href={`${basePath}/apple-touch-icon.png`} />
+        <link rel="manifest" href={`${basePath}/manifest.json`} />
         
         {/* Preconnect dla szybszego ładowania */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
