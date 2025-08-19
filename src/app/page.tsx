@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
-
+import emailjs from '@emailjs/browser';
 import { 
   Phone, 
   Mail, 
@@ -1702,6 +1702,13 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
     subject: '',
     message: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  // Inicjalizacja EmailJS z twoim Public Key
+  useEffect(() => {
+    emailjs.init('7K0ksAqXHemL_xEgT');
+  }, []);
 
   // Auto-fill service from URL hash or custom event
   useEffect(() => {
@@ -1739,25 +1746,49 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
     };
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // EmailJS integration will go here
-    console.log('Form submitted:', formData);
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
     
-    // Show success message (you can implement toast notification)
-    alert('Dziękuję za wiadomość! Odpowiem w ciągu 24 godzin.');
-    
-    // Reset form
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      subject: '',
-      message: ''
-    });
-    
-    // Clear hash
-    window.location.hash = '';
+    try {
+      // Parametry EmailJS z twoimi danymi
+      const templateParams = {
+        from_name: formData.name,
+        from_email: formData.email,
+        phone: formData.phone,
+        subject: formData.subject,
+        message: formData.message
+      };
+
+      // Wyślij email przez EmailJS z twoimi kluczami
+      await emailjs.send(
+        'service_ax6r24o',    // Twój Service ID
+        'template_iay34wr',   // Twój Template ID  
+        templateParams
+      );
+
+      // Sukces
+      setSubmitStatus('success');
+      
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        subject: '',
+        message: ''
+      });
+      
+      // Clear hash
+      window.location.hash = '';
+      
+    } catch (error) {
+      console.error('Email send failed:', error);
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -1879,6 +1910,27 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
             transition={{ duration: 0.8, delay: 0.4 }}
           >
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Status Messages */}
+              {submitStatus === 'success' && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-green-500/20 border border-green-500/50 text-green-400 px-4 py-3 rounded-lg"
+                >
+                  ✅ Wiadomość została wysłana! Odpowiem w ciągu 24 godzin.
+                </motion.div>
+              )}
+              
+              {submitStatus === 'error' && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-red-500/20 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg"
+                >
+                  ❌ Wystąpił błąd. Spróbuj ponownie lub zadzwoń bezpośrednio.
+                </motion.div>
+              )}
+
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-[#f0f6fc] font-semibold mb-2">
@@ -1890,7 +1942,8 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#f0f6fc] focus:border-[#1f6feb] focus:outline-none transition-colors placeholder-[#8b949e]"
+                    disabled={isSubmitting}
+                    className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#f0f6fc] focus:border-[#1f6feb] focus:outline-none transition-colors placeholder-[#8b949e] disabled:opacity-50"
                     placeholder="Jan Kowalski"
                   />
                 </div>
@@ -1904,7 +1957,8 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#f0f6fc] focus:border-[#1f6feb] focus:outline-none transition-colors placeholder-[#8b949e]"
+                    disabled={isSubmitting}
+                    className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#f0f6fc] focus:border-[#1f6feb] focus:outline-none transition-colors placeholder-[#8b949e] disabled:opacity-50"
                     placeholder="jan@example.com"
                   />
                 </div>
@@ -1921,7 +1975,8 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
                     value={formData.phone}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#f0f6fc] focus:border-[#1f6feb] focus:outline-none transition-colors placeholder-[#8b949e]"
+                    disabled={isSubmitting}
+                    className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#f0f6fc] focus:border-[#1f6feb] focus:outline-none transition-colors placeholder-[#8b949e] disabled:opacity-50"
                     placeholder="+48 123 456 789"
                   />
                 </div>
@@ -1934,7 +1989,8 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
                     value={formData.subject}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#f0f6fc] focus:border-[#1f6feb] focus:outline-none transition-colors"
+                    disabled={isSubmitting}
+                    className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#f0f6fc] focus:border-[#1f6feb] focus:outline-none transition-colors disabled:opacity-50"
                   >
                     <option value="">Wybierz przedmiot</option>
                     <option value="matematyka">Matematyka</option>
@@ -1956,19 +2012,32 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
                   onChange={handleChange}
                   rows={5}
                   required
-                  className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#f0f6fc] focus:border-[#1f6feb] focus:outline-none transition-colors resize-vertical placeholder-[#8b949e]"
+                  disabled={isSubmitting}
+                  className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#f0f6fc] focus:border-[#1f6feb] focus:outline-none transition-colors resize-vertical placeholder-[#8b949e] disabled:opacity-50"
                   placeholder="Opisz swoje potrzeby, poziom zaawansowania, cele..."
                 ></textarea>
               </div>
 
               <motion.button
                 type="submit"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="cursor-pointer w-full flex items-center justify-center px-8 py-4 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-[#1f6feb]/25"
+                disabled={isSubmitting}
+                whileHover={!isSubmitting ? { scale: 1.02 } : {}}
+                whileTap={!isSubmitting ? { scale: 0.98 } : {}}
+                className={`w-full flex items-center justify-center px-8 py-4 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-[#1f6feb]/25 disabled:opacity-50 disabled:cursor-not-allowed ${
+                  isSubmitting ? 'animate-pulse' : 'cursor-pointer'
+                }`}
               >
-                <Send className="w-5 h-5 mr-2 "  />
-                Wyślij wiadomość
+                {isSubmitting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                    Wysyłanie...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-5 h-5 mr-2" />
+                    Wyślij wiadomość
+                  </>
+                )}
               </motion.button>
             </form>
           </motion.div>
