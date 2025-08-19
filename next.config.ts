@@ -6,12 +6,6 @@ const nextConfig: NextConfig = {
   trailingSlash: true,
   images: {
     unoptimized: true
-  },
-  basePath: '/korepetycje',
-  assetPrefix: '/korepetycje/',
-  // Dodajemy explicit configuration dla GitHub Pages
-  env: {
-    NEXT_PUBLIC_BASE_PATH: '/korepetycje'
   }
 };
 
