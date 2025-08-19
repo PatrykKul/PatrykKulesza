@@ -776,7 +776,7 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
             onClick={() => handleBookService('pakiet')}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold py-3 px-8 rounded-xl transition-all duration-300"
+            className="cursor-pointer bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold py-3 px-8 rounded-xl transition-all duration-300"
           >
             Umów pakiet 10h
           </motion.button>
