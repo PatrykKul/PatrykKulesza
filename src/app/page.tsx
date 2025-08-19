@@ -77,6 +77,14 @@ interface FaqItem {
   answer: string;
 }
 
+interface FormErrors {
+  name?: string;
+  email?: string;
+  phone?: string;
+  subject?: string;
+  message?: string;
+}
+
 interface HomePageData {
   hero: HeroData;
   services: ServiceData[];
@@ -1691,7 +1699,7 @@ const FaqSection = ({ data }: { data: HomePageData }) => {
 };
 
 // ==========================================
-// 📞 CONTACT SECTION - Enhanced with auto-fill
+// 📞 CONTACT SECTION - Prosta ale dobra walidacja
 // ==========================================
 const ContactSection = ({ data }: { data: HomePageData }) => {
   const [ref, inView] = useAdvancedInView();
@@ -1700,19 +1708,242 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
     email: '',
     phone: '',
     subject: '',
-    message: ''
+    message: '',
+    website: '' // Honeypot field - anty-bot
   });
+  
+  const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set());
+  const [cooldownTime, setCooldownTime] = useState(0);
 
-  // Inicjalizacja EmailJS z twoim Public Key
+  // Inicjalizacja EmailJS
   useEffect(() => {
     emailjs.init('7K0ksAqXHemL_xEgT');
   }, []);
 
+  // Timer cooldown
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (cooldownTime > 0) {
+      interval = setInterval(() => {
+        setCooldownTime(prev => prev - 1);
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [cooldownTime]);
+
+  // ==========================================
+  // 🔍 FUNKCJE WALIDACJI - PROSTE ALE SKUTECZNE
+  // ==========================================
+  
+  const validateField = (name: string, value: string): string => {
+    switch (name) {
+      case 'name':
+        if (!value.trim()) return 'Imię i nazwisko jest wymagane';
+        if (value.trim().length < 2) return 'Minimum 2 znaki';
+        if (value.trim().length > 50) return 'Maximum 50 znaków';
+        return '';
+
+      case 'email':
+        if (!value.trim()) return 'Email jest wymagany';
+        if (!/\S+@\S+\.\S+/.test(value)) return 'Nieprawidłowy format email';
+        return '';
+
+      case 'phone':
+        if (!value.trim()) return 'Telefon jest wymagany';
+        const digits = value.replace(/\D/g, '');
+        if (digits.length < 9) return 'Minimum 9 cyfr';
+        return '';
+
+      case 'subject':
+        if (!value) return 'Wybierz przedmiot';
+        return '';
+
+      case 'message':
+        if (!value.trim()) return 'Wiadomość jest wymagana';
+        if (value.trim().length < 10) return 'Minimum 10 znaków';
+        if (value.length > 1000) return 'Maximum 1000 znaków';
+        return '';
+
+      default:
+        return '';
+    }
+  };
+
+  // Sprawdź czy cały formularz jest ważny
+  const isFormValid = () => {
+    const requiredFields = ['name', 'email', 'phone', 'subject', 'message'];
+    
+    // Sprawdź czy wszystkie pola są wypełnione
+    const hasAllFields = requiredFields.every(field => {
+      const value = formData[field as keyof typeof formData];
+      return value && value.trim() !== '';
+    });
+    
+    // Sprawdź czy nie ma błędów w wypełnionych polach
+    const hasNoErrors = requiredFields.every(field => {
+      const value = formData[field as keyof typeof formData];
+      if (!value || value.trim() === '') return true; // Puste pole = brak błędu na tym etapie
+      return validateField(field, value) === '';
+    });
+    
+    return hasAllFields && hasNoErrors;
+  };
+
+  // Sprawdź czy można wysłać formularz (uwzględnia cooldown)
+  const canSubmit = () => {
+    return isFormValid() && !isSubmitting && cooldownTime === 0;
+  };
+
+  // ==========================================
+  // 📝 OBSŁUGA FORMULARZA
+  // ==========================================
+  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    
+    // Formatowanie telefonu w locie
+    let formattedValue = value;
+    if (name === 'phone') {
+      const digits = value.replace(/\D/g, '');
+      if (digits.length <= 3) {
+        formattedValue = digits;
+      } else if (digits.length <= 6) {
+        formattedValue = `${digits.slice(0, 3)} ${digits.slice(3)}`;
+      } else if (digits.length <= 9) {
+        formattedValue = `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}`;
+      } else {
+        formattedValue = `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6, 9)}`;
+      }
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      [name]: formattedValue
+    }));
+
+    // Walidacja po zmianie (tylko jeśli pole było już dotknięte)
+    if (touchedFields.has(name)) {
+      const error = validateField(name, formattedValue);
+      setErrors(prev => ({
+        ...prev,
+        [name]: error
+      }));
+    }
+
+    // Reset submit status gdy użytkownik zaczyna pisać ponownie
+    if (submitStatus !== 'idle') {
+      setSubmitStatus('idle');
+    }
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    
+    // Oznacz pole jako dotknięte
+    setTouchedFields(prev => new Set(prev).add(name));
+    
+    // Waliduj pole
+    const error = validateField(name, value);
+    setErrors(prev => ({
+      ...prev,
+      [name]: error
+    }));
+  };
+
+  const scrollToContact = () => {
+    const contactElement = document.getElementById('contact');
+    if (contactElement) {
+      contactElement.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Sprawdź honeypot (anty-bot)
+    if (formData.website) {
+      console.log('Bot detected');
+      return;
+    }
+
+    // Sprawdź cooldown
+    if (cooldownTime > 0) {
+      return;
+    }
+
+    // Waliduj wszystkie pola
+    const newErrors: FormErrors = {};
+    ['name', 'email', 'phone', 'subject', 'message'].forEach(field => {
+      const error = validateField(field, formData[field as keyof typeof formData]);
+      if (error) newErrors[field as keyof FormErrors] = error;
+    });
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      setTouchedFields(new Set(['name', 'email', 'phone', 'subject', 'message']));
+      scrollToContact();
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+    
+    try {
+      const templateParams = {
+        from_name: formData.name,
+        from_email: formData.email,
+        phone: formData.phone,
+        subject: formData.subject,
+        message: formData.message
+      };
+
+      await emailjs.send(
+        'service_ax6r24o',
+        'template_iay34wr',
+        templateParams
+      );
+
+      setSubmitStatus('success');
+      
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        subject: '',
+        message: '',
+        website: ''
+      });
+      setErrors({});
+      setTouchedFields(new Set());
+      
+      // Ustaw cooldown na 60 sekund
+      setCooldownTime(60);
+      
+      // Zostań w sekcji contact
+      setTimeout(() => {
+        scrollToContact();
+      }, 100);
+      
+    } catch (error) {
+      console.error('Email send failed:', error);
+      setSubmitStatus('error');
+      scrollToContact();
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   // Auto-fill service from URL hash or custom event
   useEffect(() => {
-    // Check URL hash on mount
     const checkHash = () => {
       const hash = window.location.hash;
       if (hash.startsWith('#contact-')) {
@@ -1721,7 +1952,6 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
       }
     };
 
-    // Listen for custom auto-fill events
     const handleAutoFill = (event: CustomEvent) => {
       const { service } = event.detail;
       setFormData(prev => ({ 
@@ -1733,10 +1963,7 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
       }));
     };
 
-    // Check hash on component mount
     checkHash();
-
-    // Listen for hash changes and custom events
     window.addEventListener('hashchange', checkHash);
     window.addEventListener('autoFillService', handleAutoFill as EventListener);
 
@@ -1745,58 +1972,6 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
       window.removeEventListener('autoFillService', handleAutoFill as EventListener);
     };
   }, []);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setSubmitStatus('idle');
-    
-    try {
-      // Parametry EmailJS z twoimi danymi
-      const templateParams = {
-        from_name: formData.name,
-        from_email: formData.email,
-        phone: formData.phone,
-        subject: formData.subject,
-        message: formData.message
-      };
-
-      // Wyślij email przez EmailJS z twoimi kluczami
-      await emailjs.send(
-        'service_ax6r24o',    // Twój Service ID
-        'template_iay34wr',   // Twój Template ID  
-        templateParams
-      );
-
-      // Sukces
-      setSubmitStatus('success');
-      
-      // Reset form
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: ''
-      });
-      
-      // Clear hash
-      window.location.hash = '';
-      
-    } catch (error) {
-      console.error('Email send failed:', error);
-      setSubmitStatus('error');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
-  };
 
   return (
     <section ref={ref} id="contact" className="py-20 bg-[#161b22]">
@@ -1910,6 +2085,17 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
             transition={{ duration: 0.8, delay: 0.4 }}
           >
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Honeypot field - ukryte pole anty-bot */}
+              <input
+                type="text"
+                name="website"
+                value={formData.website}
+                onChange={handleChange}
+                style={{ display: 'none' }}
+                tabIndex={-1}
+                autoComplete="off"
+              />
+
               {/* Status Messages */}
               {submitStatus === 'success' && (
                 <motion.div
@@ -1931,7 +2117,19 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
                 </motion.div>
               )}
 
+              {/* Cooldown Message */}
+              {cooldownTime > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-blue-500/20 border border-blue-500/50 text-blue-400 px-4 py-3 rounded-lg"
+                >
+                  ⏱️ Poczekaj {cooldownTime} sekund przed wysłaniem kolejnej wiadomości.
+                </motion.div>
+              )}
+
               <div className="grid md:grid-cols-2 gap-6">
+                {/* Name Field */}
                 <div>
                   <label className="block text-[#f0f6fc] font-semibold mb-2">
                     Imię i nazwisko <span className="text-red-400">*</span>
@@ -1941,12 +2139,30 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    required
+                    onBlur={handleBlur}
                     disabled={isSubmitting}
-                    className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#f0f6fc] focus:border-[#1f6feb] focus:outline-none transition-colors placeholder-[#8b949e] disabled:opacity-50"
+                    className={`w-full px-4 py-3 bg-[#0d1117] border rounded-lg text-[#f0f6fc] focus:outline-none transition-colors placeholder-[#8b949e] disabled:opacity-50 ${
+                      errors.name 
+                        ? 'border-red-500 focus:border-red-400' 
+                        : formData.name && !errors.name
+                        ? 'border-green-500 focus:border-green-400'
+                        : 'border-[#30363d] focus:border-[#1f6feb]'
+                    }`}
                     placeholder="Jan Kowalski"
                   />
+                  {errors.name && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-red-400 text-sm mt-1 flex items-center"
+                    >
+                      <span className="mr-1">⚠️</span>
+                      {errors.name}
+                    </motion.p>
+                  )}
                 </div>
+
+                {/* Email Field */}
                 <div>
                   <label className="block text-[#f0f6fc] font-semibold mb-2">
                     Email <span className="text-red-400">*</span>
@@ -1956,15 +2172,32 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    required
+                    onBlur={handleBlur}
                     disabled={isSubmitting}
-                    className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#f0f6fc] focus:border-[#1f6feb] focus:outline-none transition-colors placeholder-[#8b949e] disabled:opacity-50"
+                    className={`w-full px-4 py-3 bg-[#0d1117] border rounded-lg text-[#f0f6fc] focus:outline-none transition-colors placeholder-[#8b949e] disabled:opacity-50 ${
+                      errors.email 
+                        ? 'border-red-500 focus:border-red-400' 
+                        : formData.email && !errors.email
+                        ? 'border-green-500 focus:border-green-400'
+                        : 'border-[#30363d] focus:border-[#1f6feb]'
+                    }`}
                     placeholder="jan@example.com"
                   />
+                  {errors.email && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-red-400 text-sm mt-1 flex items-center"
+                    >
+                      <span className="mr-1">⚠️</span>
+                      {errors.email}
+                    </motion.p>
+                  )}
                 </div>
               </div>
 
               <div className="grid md:grid-cols-2 gap-6">
+                {/* Phone Field */}
                 <div>
                   <label className="block text-[#f0f6fc] font-semibold mb-2">
                     Telefon <span className="text-red-400">*</span>
@@ -1974,12 +2207,30 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    required
+                    onBlur={handleBlur}
                     disabled={isSubmitting}
-                    className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#f0f6fc] focus:border-[#1f6feb] focus:outline-none transition-colors placeholder-[#8b949e] disabled:opacity-50"
-                    placeholder="+48 123 456 789"
+                    className={`w-full px-4 py-3 bg-[#0d1117] border rounded-lg text-[#f0f6fc] focus:outline-none transition-colors placeholder-[#8b949e] disabled:opacity-50 ${
+                      errors.phone 
+                        ? 'border-red-500 focus:border-red-400' 
+                        : formData.phone && !errors.phone
+                        ? 'border-green-500 focus:border-green-400'
+                        : 'border-[#30363d] focus:border-[#1f6feb]'
+                    }`}
+                    placeholder="123 456 789"
                   />
+                  {errors.phone && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-red-400 text-sm mt-1 flex items-center"
+                    >
+                      <span className="mr-1">⚠️</span>
+                      {errors.phone}
+                    </motion.p>
+                  )}
                 </div>
+
+                {/* Subject Field */}
                 <div>
                   <label className="block text-[#f0f6fc] font-semibold mb-2">
                     Przedmiot <span className="text-red-400">*</span>
@@ -1988,9 +2239,15 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
                     name="subject"
                     value={formData.subject}
                     onChange={handleChange}
-                    required
+                    onBlur={handleBlur}
                     disabled={isSubmitting}
-                    className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#f0f6fc] focus:border-[#1f6feb] focus:outline-none transition-colors disabled:opacity-50"
+                    className={`w-full px-4 py-3 bg-[#0d1117] border rounded-lg text-[#f0f6fc] focus:outline-none transition-colors disabled:opacity-50 ${
+                      errors.subject 
+                        ? 'border-red-500 focus:border-red-400' 
+                        : formData.subject && !errors.subject
+                        ? 'border-green-500 focus:border-green-400'
+                        : 'border-[#30363d] focus:border-[#1f6feb]'
+                    }`}
                   >
                     <option value="">Wybierz przedmiot</option>
                     <option value="matematyka">Matematyka</option>
@@ -1999,38 +2256,79 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
                     <option value="pakiet">Pakiet 10 godzin</option>
                     <option value="inne">Inne</option>
                   </select>
+                  {errors.subject && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-red-400 text-sm mt-1 flex items-center"
+                    >
+                      <span className="mr-1">⚠️</span>
+                      {errors.subject}
+                    </motion.p>
+                  )}
                 </div>
               </div>
 
+              {/* Message Field */}
               <div>
                 <label className="block text-[#f0f6fc] font-semibold mb-2">
                   Wiadomość <span className="text-red-400">*</span>
+                  <span className={`text-sm font-normal ml-2 ${
+                    formData.message.length > 900 ? 'text-orange-400' : 'text-[#8b949e]'
+                  }`}>
+                    ({formData.message.length}/1000)
+                  </span>
                 </label>
                 <textarea
                   name="message"
                   value={formData.message}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   rows={5}
-                  required
                   disabled={isSubmitting}
-                  className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#f0f6fc] focus:border-[#1f6feb] focus:outline-none transition-colors resize-vertical placeholder-[#8b949e] disabled:opacity-50"
+                  className={`w-full px-4 py-3 bg-[#0d1117] border rounded-lg text-[#f0f6fc] focus:outline-none transition-colors resize-vertical placeholder-[#8b949e] disabled:opacity-50 ${
+                    errors.message 
+                      ? 'border-red-500 focus:border-red-400' 
+                      : formData.message && !errors.message
+                      ? 'border-green-500 focus:border-green-400'
+                      : 'border-[#30363d] focus:border-[#1f6feb]'
+                  }`}
                   placeholder="Opisz swoje potrzeby, poziom zaawansowania, cele..."
+                  maxLength={1000}
                 ></textarea>
+                {errors.message && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-red-400 text-sm mt-1 flex items-center"
+                  >
+                    <span className="mr-1">⚠️</span>
+                    {errors.message}
+                  </motion.p>
+                )}
               </div>
 
+              {/* Submit Button */}
               <motion.button
                 type="submit"
-                disabled={isSubmitting}
-                whileHover={!isSubmitting ? { scale: 1.02 } : {}}
-                whileTap={!isSubmitting ? { scale: 0.98 } : {}}
-                className={`w-full flex items-center justify-center px-8 py-4 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-[#1f6feb]/25 disabled:opacity-50 disabled:cursor-not-allowed ${
-                  isSubmitting ? 'animate-pulse' : 'cursor-pointer'
+                disabled={!canSubmit()}
+                whileHover={canSubmit() ? { scale: 1.02 } : {}}
+                whileTap={canSubmit() ? { scale: 0.98 } : {}}
+                className={`w-full flex items-center justify-center px-8 py-4 font-bold rounded-xl transition-all duration-300 shadow-lg ${
+                  canSubmit()
+                    ? 'bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white hover:shadow-xl hover:shadow-[#1f6feb]/25 cursor-pointer'
+                    : 'bg-gray-600 text-gray-400 cursor-not-allowed'
                 }`}
               >
                 {isSubmitting ? (
                   <>
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                     Wysyłanie...
+                  </>
+                ) : cooldownTime > 0 ? (
+                  <>
+                    <div className="w-5 h-5 mr-2">⏱️</div>
+                    Poczekaj {cooldownTime}s
                   </>
                 ) : (
                   <>
@@ -2046,7 +2344,6 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
     </section>
   );
 };
-
 // ==========================================
 // 🦶 FOOTER
 // ==========================================
