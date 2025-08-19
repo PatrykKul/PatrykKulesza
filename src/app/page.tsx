@@ -58,8 +58,6 @@ interface PortfolioItem {
   description: string;
   image?: string;
   demoUrl?: string;
-  githubUrl?: string;
-  readmeUrl?: string;
   technologies: string[];
   type: 'web' | 'desktop' | 'game' | 'ml' | 'tool';
   category: string;
@@ -743,9 +741,9 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
                 onClick={() => handleBookService(service.title)}
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
-                className="w-full bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-[#1f6feb]/25"
+                className="cursor-pointer w-full bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-[#1f6feb]/25"
               >
-                <span className="flex items-center justify-center">
+                <span className="flex items-center justify-center ">
                   Umów korepetycje
                   <svg 
                     className="ml-2 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" 
@@ -789,7 +787,7 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
 };
 
 // ==========================================
-// 🎨 PORTFOLIO SECTION - BEZ MODAL, WSZYSTKO NA KARTACH
+// 🎨 PORTFOLIO SECTION - ZDJĘCIE JAKO TŁO Z OVERLAY
 // ==========================================
 const PortfolioSection = ({ data }: { data: HomePageData }) => {
   const [ref, inView] = useAdvancedInView();
@@ -802,6 +800,12 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
   const [hasMoved, setHasMoved] = useState(false);
+  
+  // ==========================================
+  // 🖼️ STATES DLA MODALA
+  // ==========================================
+  const [selectedProject, setSelectedProject] = useState<PortfolioItem | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
   // ==========================================
   // 🚀 MOMENTUM SCROLLING STATES
@@ -860,7 +864,7 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
   // 🖱️ MOUSE EVENT HANDLERS
   // ==========================================
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (!scrollContainerRef.current) return;
+    if (!scrollContainerRef.current || isModalOpen) return;
     
     stopMomentumAnimation();
     
@@ -875,6 +879,8 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
   };
 
   const handleMouseUp = () => {
+    if (isModalOpen) return; 
+
     if (isDragging) {
       startMomentumAnimation(velocity);
     }
@@ -882,6 +888,7 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
   };
 
   const handleMouseLeave = () => {
+    if (isModalOpen) return;
     if (isDragging) {
       startMomentumAnimation(velocity);
     }
@@ -889,7 +896,8 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
   };
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDragging || !scrollContainerRef.current) return;
+
+    if (!isDragging || !scrollContainerRef.current || isModalOpen) return; // ← Dodaj isModalOpen
     
     const now = Date.now();
     if (now - lastCallTime.current < 16) return;
@@ -922,11 +930,57 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
   }, [isDragging, startX, scrollLeft, lastTime]);
 
   // ==========================================
-  // 🎯 CLEANUP
+// 🔒 BLOKOWANIE SCROLLOWANIA W TLE PODCZAS MODALA
+// ==========================================
+useEffect(() => {
+  if (isModalOpen) {
+    // Dodaj klasę do body która zablokuje scroll i zmieni cursor
+    document.body.classList.add('modal-open');
+    document.body.style.overflow = 'hidden';
+  } else {
+    // Usuń klasę i przywróć scroll
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = 'unset';
+  }
+
+  // Cleanup - na wszelki wypadek
+  return () => {
+    document.body.classList.remove('modal-open');
+    document.body.style.overflow = 'unset';
+  };
+}, [isModalOpen]);
+
+  // ==========================================
+  // 🎯 CLEANUP + MODAL HANDLERS
   // ==========================================
   useEffect(() => {
     return () => stopMomentumAnimation();
   }, [stopMomentumAnimation]);
+
+  // Modal handlers
+  const openModal = (project: PortfolioItem) => {
+    if (!hasMoved) { // Tylko jeśli nie było przeciągania
+      setSelectedProject(project);
+      setIsModalOpen(true);
+    }
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedProject(null);
+  };
+
+  // ESC key handler
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isModalOpen) {
+        closeModal();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isModalOpen]);
 
   return (
     <>
@@ -940,6 +994,7 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
         .portfolio-section.dragging {
           cursor: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48' fill='none'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23000000' fill-opacity='0.95' stroke='%231f6feb' stroke-width='2'/%3E%3Cpath d='M14 24l6-6m-6 6l6 6m-6-6h20m-6-6l6 6m-6 6l6-6' stroke='%231f6feb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 24 24, grabbing;
         }
+        
         .portfolio-scroll-container::-webkit-scrollbar {
           display: none;
         }
@@ -975,7 +1030,7 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
                 Portfolio
               </h2>
               <p className="text-xl text-[#c9d1d9] max-w-3xl mx-auto">
-                Projekty które stworzyłem - od stron po aplikacje webowe, desktopowe, gry, narzędzia AI.
+                Projekty - od stron po aplikacje webowe, desktopowe, gry, narzędzia AI.
               </p>
             </div>
           </motion.div>
@@ -998,7 +1053,7 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
               }}
             >
               {/* ==========================================
-                  🎴 MAPA PROJEKTÓW PORTFOLIO - KOMPLETNE KARTY
+                  🎴 MAPA PROJEKTÓW - OVERLAY DESIGN
                   ========================================== */}
               {data.portfolio.map((project, index) => (
                 <motion.div
@@ -1010,95 +1065,77 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
                   whileHover={{ y: -10, scale: 1.02 }}
                 >
                   {/* ==========================================
-                      🎬 KARTA PROJEKTU - KOMPLETNA
+                      🎬 KARTA PROJEKTU - PODZIELONA NA DWA OBSZARY
                       ========================================== */}
-                  <div className="relative w-[600px] md:w-[700px] lg:w-[800px] h-[700px] md:h-[750px] bg-[#161b22] border border-[#30363d] rounded-3xl overflow-hidden hover:border-[#1f6feb]/50 transition-all duration-300 shadow-lg hover:shadow-xl group-hover:shadow-[#1f6feb]/10">
+                  <div 
+                    className="relative w-[600px] md:w-[700px] lg:w-[800px] h-[600px] md:h-[650px] bg-[#161b22] border border-[#30363d] rounded-3xl overflow-hidden hover:border-[#1f6feb]/50 transition-all duration-300 shadow-lg hover:shadow-xl group-hover:shadow-[#1f6feb]/10 cursor-pointer"
+                    onClick={() => openModal(project)}
+                  >
                     
                     {/* ==========================================
-                        🖼️ ZDJĘCIE PROJEKTU
+                        🖼️ GÓRNY OBSZAR - ZDJĘCIE
                         ========================================== */}
-                    <div className="h-[320px] md:h-[350px] relative overflow-hidden">
+                    <div className="h-[400px] md:h-[420px] relative overflow-hidden">
+                      
+                      {project.image ? (
                         <img
                           src={`${process.env.NODE_ENV === 'production' ? '/korepetycje' : ''}/_resources/${project.image}`}
                           alt={project.title}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
                           loading="lazy"
                           draggable={false}
                         />
-                      )
-                      
-                      {/* Delikatny gradient overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                      
-                      {/* GitHub link w prawym górnym rogu */}
-                      {project.githubUrl && (
-                        <div className="absolute top-4 right-4">
-                          <a
-                            href={project.githubUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center justify-center w-12 h-12 bg-black/70 backdrop-blur-sm hover:bg-[#1f6feb]/80 rounded-xl border border-[#1f6feb]/30 transition-colors"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <Github className="w-6 h-6 text-[#f0f6fc]" />
-                          </a>
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-[#1f6feb]/30 to-[#58a6ff]/30 flex items-center justify-center">
+                          <div className="text-center">
+                            <Code className="w-16 h-16 text-[#1f6feb] mx-auto mb-3" />
+                            <div className="text-[#c9d1d9] text-base">Projekt w trakcie dokumentacji</div>
+                          </div>
                         </div>
                       )}
-                      
-                      {/* Tytuł na zdjęciu */}
-                      <div className="absolute bottom-0 left-0 right-0 p-6">
-                        <h3 className="text-3xl md:text-4xl font-bold text-white mb-2">
+
+                      {/* Kategoria w prawym górnym rogu */}
+                      <div className="absolute top-4 right-4">
+                        <span className="bg-[#1f6feb]/90 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-[#1f6feb]/50">
+                          {project.category}
+                        </span>
+                      </div>
+
+                      {/* Tytuł na dole zdjęcia */}
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm p-6">
+                        <h3 className="text-2xl md:text-3xl font-bold text-white">
                           {project.title}
                         </h3>
-                        <p className="text-[#c9d1d9] text-sm bg-black/30 px-3 py-1 rounded-full inline-block">
-                          {project.category}
-                        </p>
                       </div>
                     </div>
 
                     {/* ==========================================
-                        📝 SZCZEGÓŁY PROJEKTU
+                        📝 DOLNY OBSZAR - INFORMACJE
                         ========================================== */}
-                    <div className="p-8 h-[380px] md:h-[400px] flex flex-col">
+                    <div className="h-[200px] md:h-[230px] p-6 flex flex-col">
                       
                       {/* Opis projektu */}
-                      <div className="mb-6">
-                        <h4 className="text-xl font-bold text-[#f0f6fc] mb-3">O projekcie:</h4>
-                        <p className="text-[#c9d1d9] leading-relaxed text-base">
+                      <div className="mb-4">
+                        <h4 className="text-lg font-bold text-[#f0f6fc] mb-2">O projekcie:</h4>
+                        <p className="text-[#c9d1d9] leading-relaxed text-sm">
                           {project.description}
                         </p>
                       </div>
 
                       {/* Technologie */}
-                      <div className="mb-6 flex-grow">
-                        <h4 className="text-xl font-bold text-[#f0f6fc] mb-4">Technologie:</h4>
+                      <div className="flex-grow">
+                        <h4 className="text-lg font-bold text-[#f0f6fc] mb-3">Technologie:</h4>
                         <div className="flex flex-wrap gap-2">
                           {project.technologies.map((tech, idx) => (
                             <span
                               key={idx}
-                              className="px-3 py-2 bg-[#1f6feb]/20 text-[#58a6ff] rounded-full text-sm font-medium border border-[#1f6feb]/30"
+                              className="px-3 py-1 bg-[#1f6feb]/20 text-[#58a6ff] rounded-full text-sm font-medium border border-[#1f6feb]/30"
                             >
                               {tech}
                             </span>
                           ))}
                         </div>
                       </div>
-
-                      {/* GitHub link na dole */}
-                      {project.githubUrl && (
-                        <div className="mt-auto">
-                          <a
-                            href={project.githubUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center justify-center w-full py-3 bg-[#1f6feb]/10 hover:bg-[#1f6feb] text-[#1f6feb] hover:text-white font-semibold rounded-xl border border-[#1f6feb]/30 transition-all duration-300"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <Github className="w-5 h-5 mr-2" />
-                            Zobacz kod na GitHub
-                          </a>
-                        </div>
-                      )}
                     </div>
 
                     {/* Hover Glow Effect */}
@@ -1113,6 +1150,112 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
           </motion.div>
         </div>
       </section>
+
+      {/* ==========================================
+          🖼️ MODAL Z WIĘKSZYM OBRAZKIEM - POZA SEKCJĄ PORTFOLIO!
+          ========================================== */}
+      <AnimatePresence>
+        {isModalOpen && selectedProject && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ cursor: 'default' }} // Dodatkowe zabezpieczenie
+          >
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/80 backdrop-blur-lg"
+              onClick={closeModal}
+              style={{ cursor: 'default' }}
+            />
+            
+            {/* Modal Content */}
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0, y: 50 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: 50 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="relative bg-[#161b22] border border-[#30363d] rounded-3xl overflow-hidden max-w-5xl w-full max-h-[90vh] flex flex-col shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+              style={{ cursor: 'default' }}
+            >
+              
+              {/* Close Button */}
+              <button
+                onClick={closeModal}
+                className="absolute top-4 right-4 z-10 w-10 h-10 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition-all duration-300 border border-white/20"
+                style={{ cursor: 'pointer' }}
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* Image Section */}
+              <div className="h-[60vh] relative bg-gradient-to-br from-[#1f6feb]/20 via-[#161b22] to-[#58a6ff]/20">
+                {selectedProject.image ? (
+                  <img
+                    src={`${process.env.NODE_ENV === 'production' ? '/korepetycje' : ''}/_resources/${selectedProject.image}`}
+                    alt={selectedProject.title}
+                    className="w-full h-full object-contain"
+                    draggable={false}
+                    style={{ cursor: 'default' }}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <div className="text-center">
+                      <Code className="w-24 h-24 text-[#1f6feb] mx-auto mb-4" />
+                      <div className="text-[#c9d1d9] text-xl">Projekt w trakcie dokumentacji</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Category Badge */}
+                <div className="absolute top-4 left-4">
+                  <span className="bg-[#1f6feb]/90 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-[#1f6feb]/50">
+                    {selectedProject.category}
+                  </span>
+                </div>
+              </div>
+
+              {/* Info Section */}
+              <div className="p-8 flex-grow overflow-y-auto">
+                
+                {/* Title */}
+                <h2 className="text-3xl md:text-4xl font-bold text-[#f0f6fc] mb-6">
+                  {selectedProject.title}
+                </h2>
+
+                {/* Description */}
+                <div className="mb-6">
+                  <h3 className="text-xl font-bold text-[#1f6feb] mb-3">O projekcie:</h3>
+                  <p className="text-[#c9d1d9] leading-relaxed text-lg">
+                    {selectedProject.description}
+                  </p>
+                </div>
+
+                {/* Technologies */}
+                <div>
+                  <h3 className="text-xl font-bold text-[#1f6feb] mb-4">Technologie:</h3>
+                  <div className="flex flex-wrap gap-3">
+                    {selectedProject.technologies.map((tech, idx) => (
+                      <span
+                        key={idx}
+                        className="px-4 py-2 bg-[#1f6feb]/20 text-[#58a6ff] rounded-full text-base font-medium border border-[#1f6feb]/30"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };
@@ -1450,7 +1593,7 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
 };
 
 // ==========================================
-// ❓ FAQ SECTION
+// ❓ FAQ SECTION - Enhanced with larger text
 // ==========================================
 const FaqSection = ({ data }: { data: HomePageData }) => {
   const [ref, inView] = useAdvancedInView();
@@ -1489,20 +1632,20 @@ const FaqSection = ({ data }: { data: HomePageData }) => {
           </p>
         </motion.div>
 
-        <div className="max-w-4xl mx-auto space-y-4">
+        <div className="max-w-5xl mx-auto space-y-6 ">
           {data.faq.map((item, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 20 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="bg-[#161b22] border border-[#30363d] rounded-xl overflow-hidden hover:border-[#1f6feb]/50 transition-all duration-300"
+              className="bg-[#161b22] border border-[#30363d] rounded-xl overflow-hidden hover:border-[#1f6feb]/50 transition-all duration-300 shadow-lg hover:shadow-xl"
             >
               <button
                 onClick={() => toggleItem(index)}
-                className="w-full px-8 py-6 text-left flex items-center justify-between group focus:outline-none"
+                className="w-full px-10 py-8 text-left flex items-center justify-between group focus:outline-none cursor-pointer"
               >
-                <h3 className="text-lg md:text-xl font-semibold text-[#1f6feb] group-hover:text-[#58a6ff] transition-colors duration-300 pr-4">
+                <h3 className="text-xl md:text-2xl font-semibold text-[#1f6feb] group-hover:text-[#58a6ff] transition-colors duration-300 pr-6 leading-relaxed">
                   {item.question}
                 </h3>
                 
@@ -1511,7 +1654,7 @@ const FaqSection = ({ data }: { data: HomePageData }) => {
                   transition={{ duration: 0.3 }}
                   className="flex-shrink-0"
                 >
-                  <ChevronDown className="w-6 h-6 text-[#1f6feb]" />
+                  <ChevronDown className="w-7 h-7 text-[#1f6feb]" />
                 </motion.div>
               </button>
 
@@ -1524,14 +1667,14 @@ const FaqSection = ({ data }: { data: HomePageData }) => {
                     transition={{ duration: 0.3, ease: "easeInOut" }}
                     className="overflow-hidden"
                   >
-                    <div className="px-8 pb-6 border-t border-[#30363d]">
+                    <div className="px-10 pb-8 border-t border-[#30363d]">
                       <motion.div
                         initial={{ y: -10, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ duration: 0.3, delay: 0.1 }}
-                        className="pt-4"
+                        className="pt-6"
                       >
-                        <p className="text-[#f0f6fc] leading-relaxed whitespace-pre-line">
+                        <p className="text-[#f0f6fc] text-lg leading-relaxed whitespace-pre-line">
                           {item.answer}
                         </p>
                       </motion.div>
@@ -1769,12 +1912,15 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-[#f0f6fc] font-semibold mb-2">Telefon</label>
+                  <label className="block text-[#f0f6fc] font-semibold mb-2">
+                    Telefon <span className="text-red-400">*</span>
+                  </label>
                   <input
                     type="tel"
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
+                    required
                     className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#f0f6fc] focus:border-[#1f6feb] focus:outline-none transition-colors placeholder-[#8b949e]"
                     placeholder="+48 123 456 789"
                   />
@@ -1819,9 +1965,9 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
                 type="submit"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full flex items-center justify-center px-8 py-4 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-[#1f6feb]/25"
+                className="cursor-pointer w-full flex items-center justify-center px-8 py-4 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-[#1f6feb]/25"
               >
-                <Send className="w-5 h-5 mr-2" />
+                <Send className="w-5 h-5 mr-2 "  />
                 Wyślij wiadomość
               </motion.button>
             </form>
@@ -1842,7 +1988,7 @@ const Footer = () => {
         <div className="text-center">
           <div className="text-2xl font-bold text-[#1f6feb] mb-4">Patryk Kulesza</div>
           <p className="text-[#8b949e] mb-4">
-            Korepetycje z pasją • Matematyka • Angielski • Programowanie
+            Korepetycje z pasją • Matematyka • Angielski • Programowanie 
           </p>
           <div className="text-sm text-[#8b949e]">
             © 2024 Patryk Kulesza. Wszystkie prawa zastrzeżone.
@@ -1926,7 +2072,6 @@ export default function HomePage() {
       title: "Audio Compressor",
       description: "Profesjonalny kompresor audio stworzony w Juce framework. Zaawansowane algorytmy DSP z real-time processing.",
       image: "compressor-preview.png",
-      githubUrl: "https://github.com/Matimusic/VST3",
       technologies: ["Juce", "C++", "DSP", "Audio Processing"],
       type: "desktop",
       category: "Audio Software"
@@ -1936,7 +2081,6 @@ export default function HomePage() {
       title: "Weather Chatbot AI",
       description: "Inteligentny chatbot pogodowy z machine learning, rozpoznawaniem mowy i dynamicznymi animacjami zależnymi od pogody.",
       image: "weather-chatbot-preview.png",  
-      githubUrl: "https://github.com/PatrykKul/weather-chatbot",
       technologies: ["Python", "PyQt5", "OpenWeather API", "scikit-learn", "TensorFlow", "Speech Recognition"],
       type: "desktop",
       category: "AI & Machine Learning"
@@ -1946,7 +2090,6 @@ export default function HomePage() {
       title: "Macro Recorder Pro",
       description: "Zaawansowane narzędzie do nagrywania i odtwarzania makr. Precyzyjne rejestrowanie ruchów myszy, kliknięć i skrótów klawiszowych.",
       //image: "macro-recorder-preview.png",  
-      githubUrl: "https://github.com/PatrykKul/macro-recorder",
       technologies: ["Python", "PyQt5", "Win32API", "Automation"],
       type: "tool",
       category: "Productivity Tools"
@@ -1956,7 +2099,6 @@ export default function HomePage() {
       title: "Bezier Curves Visualizer",
       description: "Interaktywny wizualizator krzywych Beziera z możliwością manipulacji punktów kontrolnych w czasie rzeczywistym.",
       //image: "bezier-preview.png",  
-      githubUrl: "https://github.com/PatrykKul/bezier-visualizer",
       technologies: ["JavaScript", "Canvas API", "Mathematical Algorithms"],
       type: "web",
       category: "Mathematical Visualization"
@@ -1966,7 +2108,6 @@ export default function HomePage() {
       title: "Spaceship Shooter",
       description: "Klasyczna gra arcade typu space shooter z proceduralnymi wrogami i systemem power-upów.",
       //image: "spaceship-game-preview.png",  
-      githubUrl: "https://github.com/PatrykKul/spaceship-shooter",
       technologies: ["Python", "Pygame"],
       type: "game",
       category: "Pygame"
@@ -1976,7 +2117,6 @@ export default function HomePage() {
       title: "FPS Shooting Game",
       description: "Pierwszoosobowa strzelanka z zaawansowaną mechaniką broni i systemem AI przeciwników.",
       //image: "fps-game-preview.png",  
-      githubUrl: "https://github.com/PatrykKul/fps-shooter",
       technologies: ["Unity", "C#", "AI Pathfinding", "3D Graphics"],
       type: "game",
       category: "Unity Games"
@@ -1985,8 +2125,7 @@ export default function HomePage() {
       id: 7,
       title: "Racing Car Simulator",
       description: "Realistyczny symulator wyścigów samochodowych z fizyką pojazdów i różnymi torami.",
-      //image: "racing-game-preview.png",  
-      githubUrl: "https://github.com/PatrykKul/racing-simulator",
+      //image: "racing-game-preview.png",
       technologies: ["Unity", "C#", "Physics Simulation", "Vehicle Dynamics"],
       type: "game",
       category: "Unity Games"
@@ -1995,8 +2134,7 @@ export default function HomePage() {
       id: 8,
       title: "Image Processing Suite",
       description: "Zaawansowany pakiet do przetwarzania obrazów z algorytmami Computer Vision i filtrami real-time.",
-      //image: "image-processing-preview.png",  
-      githubUrl: "https://github.com/PatrykKul/image-processing",
+      //image: "image-processing-preview.png", 
       technologies: ["Python", "OpenCV", "NumPy", "PIL", "Computer Vision"],
       type: "tool",
       category: "Image Processing"
