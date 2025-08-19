@@ -13,6 +13,10 @@ import {
   Code, 
   Globe,  
   ExternalLink, 
+  Monitor,
+  Gamepad2,
+  Brain, 
+  Wrench, 
   ChevronDown,
   Menu,
   X,
@@ -52,11 +56,13 @@ interface PortfolioItem {
   id: number;
   title: string;
   description: string;
-  image: string;
-  liveUrl: string;
-  githubUrl: string;
+  image?: string;
+  demoUrl?: string;
+  githubUrl?: string;
+  readmeUrl?: string;
   technologies: string[];
-  type: 'web' | 'mobile' | 'demo';
+  type: 'web' | 'desktop' | 'game' | 'ml' | 'tool';
+  category: string;
 }
 
 interface TestimonialData {
@@ -783,151 +789,330 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
 };
 
 // ==========================================
-// 🎨 PORTFOLIO SECTION
+// 🎨 PORTFOLIO SECTION - BEZ MODAL, WSZYSTKO NA KARTACH
 // ==========================================
 const PortfolioSection = ({ data }: { data: HomePageData }) => {
   const [ref, inView] = useAdvancedInView();
-  const [selectedProject, setSelectedProject] = useState<PortfolioItem | null>(null);
+  
+  // ==========================================
+  // 📊 STATES DLA DRAG SCROLLING
+  // ==========================================
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const [hasMoved, setHasMoved] = useState(false);
+  
+  // ==========================================
+  // 🚀 MOMENTUM SCROLLING STATES
+  // ==========================================
+  const [velocity, setVelocity] = useState(0);
+  const [lastX, setLastX] = useState(0);
+  const [lastTime, setLastTime] = useState(0);
+  const momentumAnimationRef = useRef<number | null>(null);
+  const lastCallTime = useRef<number>(0);
+
+  // ==========================================
+  // 🚀 MOMENTUM ANIMATION FUNCTION
+  // ==========================================
+  const startMomentumAnimation = useCallback((initialVelocity: number) => {
+    if (!scrollContainerRef.current || Math.abs(initialVelocity) < 0.1) return;
+    
+    let currentVelocity = initialVelocity;
+    const deceleration = 0.95;
+    const minVelocity = 0.1;
+    
+    const animate = () => {
+      if (!scrollContainerRef.current) return;
+      
+      const currentScrollLeft = scrollContainerRef.current.scrollLeft;
+      const newScrollLeft = currentScrollLeft + currentVelocity;
+      
+      const maxScroll = scrollContainerRef.current.scrollWidth - scrollContainerRef.current.clientWidth;
+      const clampedScrollLeft = Math.max(0, Math.min(maxScroll, newScrollLeft));
+      
+      scrollContainerRef.current.scrollLeft = clampedScrollLeft;
+      currentVelocity *= deceleration;
+      
+      if (Math.abs(currentVelocity) > minVelocity && 
+          clampedScrollLeft > 0 && 
+          clampedScrollLeft < maxScroll) {
+        momentumAnimationRef.current = requestAnimationFrame(animate);
+      } else {
+        momentumAnimationRef.current = null;
+      }
+    };
+    
+    momentumAnimationRef.current = requestAnimationFrame(animate);
+  }, []);
+
+  // ==========================================
+  // 🛑 STOP MOMENTUM FUNCTION
+  // ==========================================
+  const stopMomentumAnimation = useCallback(() => {
+    if (momentumAnimationRef.current) {
+      cancelAnimationFrame(momentumAnimationRef.current);
+      momentumAnimationRef.current = null;
+    }
+  }, []);
+
+  // ==========================================
+  // 🖱️ MOUSE EVENT HANDLERS
+  // ==========================================
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!scrollContainerRef.current) return;
+    
+    stopMomentumAnimation();
+    
+    setIsDragging(true);
+    setHasMoved(false);
+    setStartX(e.pageX);
+    setScrollLeft(scrollContainerRef.current.scrollLeft);
+    
+    setLastX(e.pageX);
+    setLastTime(Date.now());
+    setVelocity(0);
+  };
+
+  const handleMouseUp = () => {
+    if (isDragging) {
+      startMomentumAnimation(velocity);
+    }
+    setIsDragging(false);
+  };
+
+  const handleMouseLeave = () => {
+    if (isDragging) {
+      startMomentumAnimation(velocity);
+    }
+    setIsDragging(false);
+  };
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isDragging || !scrollContainerRef.current) return;
+    
+    const now = Date.now();
+    if (now - lastCallTime.current < 16) return;
+    lastCallTime.current = now;
+    
+    e.preventDefault();
+    
+    const x = e.pageX;
+    const walk = (x - startX) * 1.5;
+    
+    if (Math.abs(walk) > 5) {
+      setHasMoved(true);
+    }
+    
+    scrollContainerRef.current.scrollLeft = scrollLeft - walk;
+    
+    const currentTime = Date.now();
+    const currentX = e.pageX;
+    
+    const timeDiff = currentTime - lastTime;
+    const xDiff = currentX - lastX;
+    
+    if (timeDiff > 0) {
+      const newVelocity = (xDiff / timeDiff) * -1.5 * 16;
+      setVelocity(newVelocity);
+    }
+    
+    setLastX(currentX);
+    setLastTime(currentTime);
+  }, [isDragging, startX, scrollLeft, lastTime]);
+
+  // ==========================================
+  // 🎯 CLEANUP
+  // ==========================================
+  useEffect(() => {
+    return () => stopMomentumAnimation();
+  }, [stopMomentumAnimation]);
 
   return (
     <>
-      <section ref={ref} id="portfolio" className="py-20 bg-[#0d1117]">
-        <div className="container mx-auto px-6">
+      {/* ==========================================
+          🎨 CUSTOM CURSOR STYLES - NIEBIESKI
+          ========================================== */}
+      <style jsx>{`
+        .portfolio-section {
+          cursor: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48' fill='none'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23000000' fill-opacity='0.8' stroke='%231f6feb' stroke-width='2'/%3E%3Cpath d='M14 24l6-6m-6 6l6 6m-6-6h20m-6-6l6 6m-6 6l6-6' stroke='%231f6feb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 24 24, grab;
+        }
+        .portfolio-section.dragging {
+          cursor: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48' fill='none'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23000000' fill-opacity='0.95' stroke='%231f6feb' stroke-width='2'/%3E%3Cpath d='M14 24l6-6m-6 6l6 6m-6-6h20m-6-6l6 6m-6 6l6-6' stroke='%231f6feb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 24 24, grabbing;
+        }
+        .portfolio-scroll-container::-webkit-scrollbar {
+          display: none;
+        }
+        .portfolio-section.dragging {
+          user-select: none;
+        }
+        .portfolio-section * {
+          cursor: inherit !important;
+        }
+      `}</style>
+
+      <section 
+        ref={ref} 
+        id="portfolio" 
+        className={`portfolio-section py-20 bg-[#0d1117] overflow-hidden ${isDragging ? 'dragging' : ''}`}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+        onMouseMove={handleMouseMove}
+      >
+        <div className="w-full">
+          {/* ==========================================
+              📝 HEADER SEKCJI
+              ========================================== */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
+            initial={{ y: 50, opacity: 0 }}
+            animate={inView ? { y: 0, opacity: 1 } : {}}
             transition={{ duration: 0.8 }}
             className="text-center mb-16"
           >
-            <h2 className="text-5xl md:text-6xl font-extrabold mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
-              Portfolio
-            </h2>
-            <p className="text-xl text-[#8b949e] max-w-3xl mx-auto">
-              Projekty które stworzyłem podczas nauki programowania i pracy z klientami.
-            </p>
+            <div className="container mx-auto px-6">
+              <h2 className="text-5xl md:text-6xl font-extrabold mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
+                Portfolio
+              </h2>
+              <p className="text-xl text-[#c9d1d9] max-w-3xl mx-auto">
+                Projekty które stworzyłem - od stron po aplikacje webowe, desktopowe, gry, narzędzia AI.
+              </p>
+            </div>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {data.portfolio.map((project, index) => (
-              <motion.div
-                key={project.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ y: -10, scale: 1.02 }}
-                className="bg-[#161b22] border border-[#30363d] rounded-xl overflow-hidden hover:border-[#1f6feb]/50 transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer"
-                onClick={() => setSelectedProject(project)}
-              >
-                <div className="h-48 bg-gradient-to-br from-[#1f6feb]/20 to-[#58a6ff]/20 flex items-center justify-center">
-                  <Globe className="w-16 h-16 text-[#1f6feb]" />
-                </div>
-                
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-[#f0f6fc] mb-3">{project.title}</h3>
-                  <p className="text-[#8b949e] mb-4">{project.description}</p>
-                  
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {project.technologies.map((tech, idx) => (
-                      <span
-                        key={idx}
-                        className="px-2 py-1 bg-[#1f6feb]/20 text-[#58a6ff] rounded text-xs"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <a
-                      href={project.liveUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[#1f6feb] hover:text-[#58a6ff] transition-colors"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <ExternalLink className="w-5 h-5" />
-                    </a>
-                    <a
-                      href={project.githubUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[#1f6feb] hover:text-[#58a6ff] transition-colors"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Github className="w-5 h-5" />
-                    </a>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Portfolio Modal */}
-      <AnimatePresence>
-        {selectedProject && (
+          {/* ==========================================
+              🎬 HORIZONTAL SCROLLING CONTAINER
+              ========================================== */}
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80"
-            onClick={() => setSelectedProject(null)}
+            animate={inView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="relative"
           >
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              className="bg-[#161b22] border border-[#30363d] rounded-xl p-6 max-w-2xl w-full"
-              onClick={(e) => e.stopPropagation()}
+            <div
+              ref={scrollContainerRef}
+              className="portfolio-scroll-container flex gap-12 overflow-x-auto scrollbar-hide py-8 px-6 md:px-12"
+              style={{
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+              }}
             >
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-[#f0f6fc]">{selectedProject.title}</h3>
-                <button
-                  onClick={() => setSelectedProject(null)}
-                  className="p-2 hover:bg-[#30363d] rounded-lg transition-colors"
+              {/* ==========================================
+                  🎴 MAPA PROJEKTÓW PORTFOLIO - KOMPLETNE KARTY
+                  ========================================== */}
+              {data.portfolio.map((project, index) => (
+                <motion.div
+                  key={project.id}
+                  initial={{ x: 100, opacity: 0 }}
+                  animate={inView ? { x: 0, opacity: 1 } : {}}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  className="flex-shrink-0 group"
+                  whileHover={{ y: -10, scale: 1.02 }}
                 >
-                  <X className="w-5 h-5 text-[#8b949e]" />
-                </button>
-              </div>
-              
-              <p className="text-[#8b949e] mb-6">{selectedProject.description}</p>
-              
-              <div className="flex flex-wrap gap-2 mb-6">
-                {selectedProject.technologies.map((tech, idx) => (
-                  <span
-                    key={idx}
-                    className="px-3 py-1 bg-[#1f6feb]/20 text-[#58a6ff] rounded-full text-sm"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
+                  {/* ==========================================
+                      🎬 KARTA PROJEKTU - KOMPLETNA
+                      ========================================== */}
+                  <div className="relative w-[600px] md:w-[700px] lg:w-[800px] h-[700px] md:h-[750px] bg-[#161b22] border border-[#30363d] rounded-3xl overflow-hidden hover:border-[#1f6feb]/50 transition-all duration-300 shadow-lg hover:shadow-xl group-hover:shadow-[#1f6feb]/10">
+                    
+                    {/* ==========================================
+                        🖼️ ZDJĘCIE PROJEKTU
+                        ========================================== */}
+                    <div className="h-[320px] md:h-[350px] relative overflow-hidden">
+                        <img
+                          src={`${process.env.NODE_ENV === 'production' ? '/korepetycje' : ''}/_resources/${project.image}`}
+                          alt={project.title}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          loading="lazy"
+                          draggable={false}
+                        />
+                      )
+                      
+                      {/* Delikatny gradient overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                      
+                      {/* GitHub link w prawym górnym rogu */}
+                      {project.githubUrl && (
+                        <div className="absolute top-4 right-4">
+                          <a
+                            href={project.githubUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-center w-12 h-12 bg-black/70 backdrop-blur-sm hover:bg-[#1f6feb]/80 rounded-xl border border-[#1f6feb]/30 transition-colors"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Github className="w-6 h-6 text-[#f0f6fc]" />
+                          </a>
+                        </div>
+                      )}
+                      
+                      {/* Tytuł na zdjęciu */}
+                      <div className="absolute bottom-0 left-0 right-0 p-6">
+                        <h3 className="text-3xl md:text-4xl font-bold text-white mb-2">
+                          {project.title}
+                        </h3>
+                        <p className="text-[#c9d1d9] text-sm bg-black/30 px-3 py-1 rounded-full inline-block">
+                          {project.category}
+                        </p>
+                      </div>
+                    </div>
 
-              <div className="flex gap-4">
-                <a
-                  href={selectedProject.liveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 bg-[#1f6feb] text-white rounded-lg hover:bg-[#58a6ff] transition-colors"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  Zobacz Live
-                </a>
-                <a
-                  href={selectedProject.githubUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 bg-[#30363d] text-[#f0f6fc] rounded-lg hover:bg-[#484f58] transition-colors"
-                >
-                  <Github className="w-4 h-4" />
-                  Zobacz Kod
-                </a>
-              </div>
-            </motion.div>
+                    {/* ==========================================
+                        📝 SZCZEGÓŁY PROJEKTU
+                        ========================================== */}
+                    <div className="p-8 h-[380px] md:h-[400px] flex flex-col">
+                      
+                      {/* Opis projektu */}
+                      <div className="mb-6">
+                        <h4 className="text-xl font-bold text-[#f0f6fc] mb-3">O projekcie:</h4>
+                        <p className="text-[#c9d1d9] leading-relaxed text-base">
+                          {project.description}
+                        </p>
+                      </div>
+
+                      {/* Technologie */}
+                      <div className="mb-6 flex-grow">
+                        <h4 className="text-xl font-bold text-[#f0f6fc] mb-4">Technologie:</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {project.technologies.map((tech, idx) => (
+                            <span
+                              key={idx}
+                              className="px-3 py-2 bg-[#1f6feb]/20 text-[#58a6ff] rounded-full text-sm font-medium border border-[#1f6feb]/30"
+                            >
+                              {tech}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* GitHub link na dole */}
+                      {project.githubUrl && (
+                        <div className="mt-auto">
+                          <a
+                            href={project.githubUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-center w-full py-3 bg-[#1f6feb]/10 hover:bg-[#1f6feb] text-[#1f6feb] hover:text-white font-semibold rounded-xl border border-[#1f6feb]/30 transition-all duration-300"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Github className="w-5 h-5 mr-2" />
+                            Zobacz kod na GitHub
+                          </a>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Hover Glow Effect */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-3xl">
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1f6feb]/5 to-transparent rounded-3xl" />
+                      <div className="absolute inset-0 shadow-2xl shadow-[#1f6feb]/25 rounded-3xl" />
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </div>
+      </section>
     </>
   );
 };
@@ -1721,7 +1906,7 @@ export default function HomePage() {
       {
         id: 3,
         title: "Programowanie",
-        description: "Python, Next.js, Strapi, web development od podstaw. Także starsze technologie XAMPP.",
+        description: "Python, Next.js, Strapi, Buildery Online, web development od podstaw. Także starsze technologie jak XAMPP.",
         icon: <Code className="w-12 h-12" />,
         levels: ["Podstawy", "Średniozaawansowany", "Projekty"],
         price: "70-100 zł",
@@ -1735,38 +1920,88 @@ export default function HomePage() {
         ]
       }
     ],
-    portfolio: [
+   portfolio: [
       {
-        id: 1,
-        title: "Weather App",
-        description: "Aplikacja pogodowa z API OpenWeather, geolokalizacją i prognozą 5-dniową.",
-        image: "/placeholder-weather.jpg",
-        liveUrl: "https://weather-app-demo.vercel.app",
-        githubUrl: "https://github.com/patryk/weather-app",
-        technologies: ["React", "TypeScript", "OpenWeather API", "Tailwind CSS"],
-        type: "web"
-      },
-      {
-        id: 2,
-        title: "Task Manager",
-        description: "System zarządzania zadaniami z kalendarzem i powiadomieniami.",
-        image: "/placeholder-tasks.jpg",
-        liveUrl: "#",
-        githubUrl: "https://github.com/patryk/task-manager",
-        technologies: ["PHP", "MySQL", "Bootstrap", "JavaScript"],
-        type: "demo"
-      },
-      {
-        id: 3,
-        title: "Chatbot AI",
-        description: "Inteligentny chatbot wykorzystujący AI do odpowiadania na pytania.",
-        image: "/placeholder-chat.jpg",
-        liveUrl: "https://chatbot-demo.vercel.app",
-        githubUrl: "https://github.com/patryk/ai-chatbot",
-        technologies: ["Python", "FastAPI", "OpenAI API", "React"],
-        type: "web"
-      }
-    ],
+      id: 1,
+      title: "Audio Compressor",
+      description: "Profesjonalny kompresor audio stworzony w Juce framework. Zaawansowane algorytmy DSP z real-time processing.",
+      image: "compressor-preview.png",
+      githubUrl: "https://github.com/Matimusic/VST3",
+      technologies: ["Juce", "C++", "DSP", "Audio Processing"],
+      type: "desktop",
+      category: "Audio Software"
+    },
+    {
+      id: 2,
+      title: "Weather Chatbot AI",
+      description: "Inteligentny chatbot pogodowy z machine learning, rozpoznawaniem mowy i dynamicznymi animacjami zależnymi od pogody.",
+      image: "weather-chatbot-preview.png",  
+      githubUrl: "https://github.com/PatrykKul/weather-chatbot",
+      technologies: ["Python", "PyQt5", "OpenWeather API", "scikit-learn", "TensorFlow", "Speech Recognition"],
+      type: "desktop",
+      category: "AI & Machine Learning"
+    },
+    {
+      id: 3,
+      title: "Macro Recorder Pro",
+      description: "Zaawansowane narzędzie do nagrywania i odtwarzania makr. Precyzyjne rejestrowanie ruchów myszy, kliknięć i skrótów klawiszowych.",
+      //image: "macro-recorder-preview.png",  
+      githubUrl: "https://github.com/PatrykKul/macro-recorder",
+      technologies: ["Python", "PyQt5", "Win32API", "Automation"],
+      type: "tool",
+      category: "Productivity Tools"
+    },
+    {
+      id: 4,
+      title: "Bezier Curves Visualizer",
+      description: "Interaktywny wizualizator krzywych Beziera z możliwością manipulacji punktów kontrolnych w czasie rzeczywistym.",
+      //image: "bezier-preview.png",  
+      githubUrl: "https://github.com/PatrykKul/bezier-visualizer",
+      technologies: ["JavaScript", "Canvas API", "Mathematical Algorithms"],
+      type: "web",
+      category: "Mathematical Visualization"
+    },
+    {
+      id: 5,
+      title: "Spaceship Shooter",
+      description: "Klasyczna gra arcade typu space shooter z proceduralnymi wrogami i systemem power-upów.",
+      //image: "spaceship-game-preview.png",  
+      githubUrl: "https://github.com/PatrykKul/spaceship-shooter",
+      technologies: ["Python", "Pygame"],
+      type: "game",
+      category: "Pygame"
+    },
+    {
+      id: 6,
+      title: "FPS Shooting Game",
+      description: "Pierwszoosobowa strzelanka z zaawansowaną mechaniką broni i systemem AI przeciwników.",
+      //image: "fps-game-preview.png",  
+      githubUrl: "https://github.com/PatrykKul/fps-shooter",
+      technologies: ["Unity", "C#", "AI Pathfinding", "3D Graphics"],
+      type: "game",
+      category: "Unity Games"
+    },
+    {
+      id: 7,
+      title: "Racing Car Simulator",
+      description: "Realistyczny symulator wyścigów samochodowych z fizyką pojazdów i różnymi torami.",
+      //image: "racing-game-preview.png",  
+      githubUrl: "https://github.com/PatrykKul/racing-simulator",
+      technologies: ["Unity", "C#", "Physics Simulation", "Vehicle Dynamics"],
+      type: "game",
+      category: "Unity Games"
+    },
+    {
+      id: 8,
+      title: "Image Processing Suite",
+      description: "Zaawansowany pakiet do przetwarzania obrazów z algorytmami Computer Vision i filtrami real-time.",
+      //image: "image-processing-preview.png",  
+      githubUrl: "https://github.com/PatrykKul/image-processing",
+      technologies: ["Python", "OpenCV", "NumPy", "PIL", "Computer Vision"],
+      type: "tool",
+      category: "Image Processing"
+    }
+  ],
     testimonials: [
       {
         id: 1,
@@ -1805,7 +2040,7 @@ export default function HomePage() {
         name: "Marlena S.",
         grade: "Matura podstawowa 2024",
         result: "90%",
-        opinion: "Angielski z Patryko to była przyjemność! Konwersacje pomogły mi przełamać barierę językową i pewnie zdać maturę.",
+        opinion: "Angielski z Patrykiem to była przyjemność! Konwersacje pomogły mi przełamać barierę językową i pewnie zdać maturę.",
         rating: 5
       },
       {
@@ -1813,7 +2048,7 @@ export default function HomePage() {
         name: "Tomek R.",
         grade: "Nauka programowania",
         result: "Pierwsza praca w IT",
-        opinion: "Dzięki kursom Pythona z Patryko znalazłem pierwszą pracę w IT! Praktyczne podejście i realne projekty to było to czego potrzebowałem.",
+        opinion: "Dzięki kursom Pythona z Patrykiem znalazłem pierwszą pracę w IT! Praktyczne podejście i realne projekty to było to czego potrzebowałem.",
         rating: 5
       }
     ],
