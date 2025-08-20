@@ -534,10 +534,13 @@ const HeroSection = ({ data }: { data: HomePageData }) => {
                 
                 {/* Brain Image */}
                 <div className="relative w-96 h-96 md:w-[500px] md:h-[500px] lg:w-[550px] lg:h-[550px]">
-                  <img
+                  <Image
                     src={`${process.env.NODE_ENV === 'production' ? '/korepetycje' : ''}/_resources/brain.png`}
                     alt="Neural Network Brain - Korepetycje Programowanie i Matematyka" 
+                    width={550}
+                    height={550}
                     className="w-full h-full object-contain drop-shadow-2xl"
+                    priority
                   />
                 </div>
               </motion.div>
@@ -895,7 +898,6 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
-  const [hasMoved, setHasMoved] = useState(false);
   
   // ==========================================
   // 🚀 MOMENTUM SCROLLING STATES
@@ -992,10 +994,6 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
     
     const x = e.pageX;
     const walk = (x - startX) * 1.5;
-    
-    if (Math.abs(walk) > 5) {
-      setHasMoved(true);
-    }
     
     scrollContainerRef.current.scrollLeft = scrollLeft - walk;
     
@@ -1228,7 +1226,6 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
   const [hasMoved, setHasMoved] = useState(false);
-  
   // ==========================================
   // 🖼️ STATES DLA MODALA
   // ==========================================
@@ -1335,10 +1332,6 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
     const x = e.pageX;
     const walk = (x - startX) * 1.5;
     
-    if (Math.abs(walk) > 5) {
-      setHasMoved(true);
-    }
-    
     scrollContainerRef.current.scrollLeft = scrollLeft - walk;
     
     const currentTime = Date.now();
@@ -1354,7 +1347,7 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
     
     setLastX(currentX);
     setLastTime(currentTime);
-  }, [isDragging, startX, scrollLeft, lastTime, lastX]);
+  }, [isDragging, startX, scrollLeft, lastTime, lastX, isModalOpen]);
 
   // ==========================================
 // 🔒 BLOKOWANIE SCROLLOWANIA W TLE PODCZAS MODALA
@@ -1497,11 +1490,12 @@ useEffect(() => {
                     <div className="h-[400px] md:h-[420px] relative overflow-hidden">
                       
                       {project.image ? (
-                        <img
+                        <Image
                           src={`${process.env.NODE_ENV === 'production' ? '/korepetycje' : ''}/_resources/${project.image}`}
                           alt={project.title}
+                          width={800}
+                          height={420}
                           className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
-                          loading="lazy"
                           draggable={false}
                         />
                       ) : (
@@ -1616,9 +1610,11 @@ useEffect(() => {
               {/* Image Section */}
               <div className="h-[60vh] relative bg-gradient-to-br from-[#1f6feb]/20 via-[#161b22] to-[#58a6ff]/20">
                 {selectedProject.image ? (
-                  <img
+                  <Image
                     src={`${process.env.NODE_ENV === 'production' ? '/korepetycje' : ''}/_resources/${selectedProject.image}`}
                     alt={selectedProject.title}
+                    width={800}
+                    height={600}
                     className="w-full h-full object-contain"
                     draggable={false}
                     style={{ cursor: 'default' }}
@@ -1692,7 +1688,6 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
-  const [hasMoved, setHasMoved] = useState(false);
   const [hoveredCardIndex, setHoveredCardIndex] = useState<number | null>(null);
   
   // ==========================================
@@ -1849,10 +1844,6 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
     
     const x = e.pageX;
     const walk = (x - startX) * 1.5;
-    
-    if (Math.abs(walk) > 5) {
-      setHasMoved(true);
-    }
     
     scrollContainerRef.current.scrollLeft = scrollLeft - walk;
     
