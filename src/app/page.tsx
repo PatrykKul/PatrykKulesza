@@ -154,7 +154,7 @@ const MENU_ITEMS = [
   { label: 'O mnie', href: '#about' },
   { label: 'Opinie', href: '#testimonials' },
   { label: 'Portfolio', href: '#portfolio' },
-  { label: 'UsÅ‚ugi', href: '#services' },
+  { label: 'Usługi', href: '#services' },
   { label: 'FAQ', href: '#faq' },
   { label: 'Kontakt', href: '#contact' }
 ];
