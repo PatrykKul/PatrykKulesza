@@ -161,9 +161,9 @@ const Header = () => {
 const menuItems = [
   { label: 'Start', href: '#hero' },
   { label: 'O mnie', href: '#about' },
-  { label: 'Usługi', href: '#services' },
-  { label: 'Portfolio', href: '#portfolio' },
   { label: 'Opinie', href: '#testimonials' },
+    { label: 'Portfolio', href: '#portfolio' },
+  { label: 'Usługi', href: '#services' },
   { label: 'FAQ', href: '#faq' },
   { label: 'Kontakt', href: '#contact' }
 ];
@@ -451,7 +451,7 @@ const HeroSection = ({ data }: { data: HomePageData }) => {
       <div className="container mx-auto px-6 relative z-10 pb-4 mb-4">
         
         {/* MAIN CONTENT - 2 COLUMNS */}
-        <div className="grid lg:grid-cols-5 gap-12 items-center mb-16">
+        <div className="grid lg:grid-cols-5 gap-12 items-center mb-4">
           
           {/* LEFT COLUMN - TEXT CONTENT (60%) */}
           <div className="lg:col-span-3">
@@ -504,9 +504,6 @@ const HeroSection = ({ data }: { data: HomePageData }) => {
               transition={{ duration: 0.8, delay: 0.8 }}
               className="space-y-2"
             >
-              <div className="text-lg md:text-2xl text-[#1f6feb] font-semibold">
-                📚 Student Informatyki 3 roku | 5+ lat doświadczenia
-              </div>
               <div className="text-md md:text-xl text-[#cae2ea] font-light">
                 🔬 Data Science • 💻 Web Development • 🎯 Zambrów & Białystok
               </div>
@@ -662,13 +659,13 @@ const AboutSection = () => {
     },
     {
       title: "Matura matematyka",
-      value: "100%",
+      value: "93%",
       description: "Poziom rozszerzony",
       icon: <Calculator className="w-8 h-8" />
     },
     {
       title: "Matura angielski", 
-      value: "100%",
+      value: "96%",
       description: "Certyfikat C1",
       icon: <BookOpen className="w-8 h-8" />
     },
@@ -683,17 +680,17 @@ const AboutSection = () => {
   const skills = [
     {
       category: "Matematyka",
-      items: ["Analiza Matematyczna", "Algebra Liniowa", "Matematyka Dyskretna", "Statystyka", "Równania Różniczkowe"],
+      items: ["Analiza Matematyczna", "Algebra Liniowa", "Matematyka Dyskretna", "Statystyka", "Metody Probabilistyczne","Równania Różniczkowe"],
       color: "from-blue-500 to-blue-600"
     },
     {
       category: "Programowanie", 
-      items: ["Python", "React/Next.js", "TypeScript", "C++/JUCE", "Java", "Data Science"],
+      items: ["Python", "React/Next.js", "TypeScript", "CSS Tailwind", "C++/JUCE", "Java", "Data Science"],
       color: "from-green-500 to-green-600"
     },
     {
       category: "Angielski",
-      items: ["Poziom C1", "Konwersacje", "Matura 100%", "Doświadczenie podróżnicze", "Business English"],
+      items: ["Poziom C1", "Konwersacje", "Doświadczenie podróżnicze", "Business English"],
       color: "from-purple-500 to-purple-600"
     }
   ];
@@ -706,7 +703,7 @@ const AboutSection = () => {
     },
     {
       title: "Specjalizacja w trudnych przypadkach",
-      description: "Pomoc uczniom z dysleksją, dyskalkulią i orzeczeniami kuratorów", 
+      description: "Pomoc uczniom z dysleksją, dyskalkulią i orzeczeniami", 
       icon: "💪"
     },
     {
@@ -716,7 +713,7 @@ const AboutSection = () => {
     },
     {
       title: "Stypendium naukowe",
-      description: "Otrzymywane przez 3 lata z rzędu za wybitne wyniki w nauce",
+      description: "Otrzymywane za wybitne wyniki w nauce",
       icon: "📚"
     }
   ];
@@ -747,7 +744,7 @@ const AboutSection = () => {
           </h2>
           <p className="text-xl text-[#c9d1d9] max-w-4xl mx-auto leading-relaxed">
             Student informatyki III roku z pasją do nauczania. Specjalizuję się w Data Science i web developmencie, 
-            pomagając uczniom osiągać sukcesy przez <span className="text-[#1f6feb] font-semibold">5 lat</span>.
+            pomagając uczniom osiągać sukcesy od <span className="text-[#1f6feb] font-semibold">5 lat</span>.
           </p>
         </motion.div>
 
