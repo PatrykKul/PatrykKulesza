@@ -12,11 +12,7 @@ import {
   Calculator, 
   Code, 
   Globe,  
-  ExternalLink, 
-  Monitor,
-  Gamepad2,
   Brain, 
-  Wrench, 
   ChevronDown,
   Menu,
   X,
@@ -191,7 +187,7 @@ const menuItems = [
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [menuItems]);
 
   // Smooth scroll handler
   const handleMenuClick = (href: string) => {
@@ -961,7 +957,6 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
     stopMomentumAnimation();
     
     setIsDragging(true);
-    setHasMoved(false);
     setStartX(e.pageX);
     setScrollLeft(scrollContainerRef.current.scrollLeft);
     
@@ -1300,7 +1295,6 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
     stopMomentumAnimation();
     
     setIsDragging(true);
-    setHasMoved(false);
     setStartX(e.pageX);
     setScrollLeft(scrollContainerRef.current.scrollLeft);
     
@@ -1749,7 +1743,7 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
   // ==========================================
   const getCardIndexUnderCursor = useCallback((clientX: number, clientY: number) => {
     const elements = document.elementsFromPoint(clientX, clientY);
-    for (let element of elements) {
+    for (const element of elements) {
       const cardElement = element.closest('.service-card');
       if (cardElement) {
         const cardIndex = parseInt(cardElement.getAttribute('data-card-index') || '-1');
@@ -1812,8 +1806,6 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
     stopMomentumAnimation();
     
     setIsDragging(true);
-    setHasMoved(false);
-    // 🆕 NIE resetuj hover podczas drag - zamiast tego używaj dragHoveredCardIndex
     setStartX(e.pageX);
     setScrollLeft(scrollContainerRef.current.scrollLeft);
     
