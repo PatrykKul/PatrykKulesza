@@ -1,5 +1,5 @@
 'use client';
-
+import Image from 'next/image';
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 import emailjs from '@emailjs/browser';
@@ -147,6 +147,19 @@ const useAdvancedInView = (threshold: number = 0.1) => {
 };
 
 // ==========================================
+// 🎯 ODWOLANIA DLA MENU
+// ==========================================
+const MENU_ITEMS = [
+  { label: 'Start', href: '#hero' },
+  { label: 'O mnie', href: '#about' },
+  { label: 'Opinie', href: '#testimonials' },
+  { label: 'Portfolio', href: '#portfolio' },
+  { label: 'UsÅ‚ugi', href: '#services' },
+  { label: 'FAQ', href: '#faq' },
+  { label: 'Kontakt', href: '#contact' }
+];
+
+// ==========================================
 // 🧭 IMPROVED HEADER/NAVBAR COMPONENT
 // ==========================================
 const Header = () => {
@@ -154,40 +167,29 @@ const Header = () => {
   const [activeSection, setActiveSection] = useState('hero');
   const [isScrolled, setIsScrolled] = useState(false);
 
-const menuItems = [
-  { label: 'Start', href: '#hero' },
-  { label: 'O mnie', href: '#about' },
-  { label: 'Opinie', href: '#testimonials' },
-    { label: 'Portfolio', href: '#portfolio' },
-  { label: 'Usługi', href: '#services' },
-  { label: 'FAQ', href: '#faq' },
-  { label: 'Kontakt', href: '#contact' }
-];
-
-  // Track scroll position and active section
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-      
-      // Active section tracking
-      const sections = menuItems.map(item => item.href.substring(1));
-      const current = sections.find(section => {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          return rect.top <= 100 && rect.bottom >= 100;
-        }
-        return false;
-      });
-      
-      if (current) {
-        setActiveSection(current);
+useEffect(() => {
+  const handleScroll = () => {
+    setIsScrolled(window.scrollY > 50);
+    
+    // Active section tracking
+    const sections = MENU_ITEMS.map(item => item.href.substring(1)); // ✅ ZMIEŃ na MENU_ITEMS
+    const current = sections.find(section => {
+      const element = document.getElementById(section);
+      if (element) {
+        const rect = element.getBoundingClientRect();
+        return rect.top <= 100 && rect.bottom >= 100;
       }
-    };
+      return false;
+    });
+    
+    if (current) {
+      setActiveSection(current);
+    }
+  };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [menuItems]);
+  window.addEventListener('scroll', handleScroll);
+  return () => window.removeEventListener('scroll', handleScroll);
+}, []); 
 
   // Smooth scroll handler
   const handleMenuClick = (href: string) => {
@@ -243,7 +245,7 @@ const menuItems = [
 
             {/* Enhanced Desktop Menu */}
             <nav className="hidden lg:flex items-center space-x-1">
-              {menuItems.map((item, index) => (
+              {MENU_ITEMS.map((item, index) => (
                 <motion.a
                   key={item.label}
                   href={item.href}
@@ -360,7 +362,7 @@ const menuItems = [
 
                 {/* Menu Items */}
                 <div className="flex-1 space-y-2">
-                  {menuItems.map((item, index) => (
+                  {MENU_ITEMS.map((item, index) => (
                     <motion.a
                       key={item.label}
                       href={item.href}
@@ -532,7 +534,7 @@ const HeroSection = ({ data }: { data: HomePageData }) => {
                 
                 {/* Brain Image */}
                 <div className="relative w-96 h-96 md:w-[500px] md:h-[500px] lg:w-[550px] lg:h-[550px]">
-                  <img 
+                  <img
                     src={`${process.env.NODE_ENV === 'production' ? '/korepetycje' : ''}/_resources/brain.png`}
                     alt="Neural Network Brain - Korepetycje Programowanie i Matematyka" 
                     className="w-full h-full object-contain drop-shadow-2xl"
@@ -1010,7 +1012,7 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
     
     setLastX(currentX);
     setLastTime(currentTime);
-  }, [isDragging, startX, scrollLeft, lastTime]);
+  }, [isDragging, startX, scrollLeft, lastTime, lastX]);
 
   // ==========================================
   // 🎯 CLEANUP
@@ -1129,7 +1131,7 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
                     {/* Opinion Text */}
                     <div className="mb-12 flex-grow">
                       <p className="text-[#c9d1d9] leading-relaxed text-2xl md:text-3xl font-light">
-                        &quot;{testimonial.opinion}&quot;
+                        "{testimonial.opinion}"
                       </p>
                     </div>
 
@@ -1352,7 +1354,7 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
     
     setLastX(currentX);
     setLastTime(currentTime);
-  }, [isDragging, startX, scrollLeft, lastTime]);
+  }, [isDragging, startX, scrollLeft, lastTime, lastX]);
 
   // ==========================================
 // 🔒 BLOKOWANIE SCROLLOWANIA W TLE PODCZAS MODALA
