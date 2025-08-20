@@ -24,7 +24,8 @@ import {
   Linkedin,
   Check,
   Award,
-  Send
+  Send,
+  Facebook
 } from 'lucide-react';
 
 // ==========================================
@@ -157,14 +158,15 @@ const Header = () => {
   const [activeSection, setActiveSection] = useState('hero');
   const [isScrolled, setIsScrolled] = useState(false);
 
-  const menuItems = [
-    { label: 'Start', href: '#hero' },
-    { label: 'Usługi', href: '#services' },
-    { label: 'Portfolio', href: '#portfolio' },
-    { label: 'Opinie', href: '#testimonials' },
-    { label: 'FAQ', href: '#faq' },
-    { label: 'Kontakt', href: '#contact' }
-  ];
+const menuItems = [
+  { label: 'Start', href: '#hero' },
+  { label: 'O mnie', href: '#about' },
+  { label: 'Usługi', href: '#services' },
+  { label: 'Portfolio', href: '#portfolio' },
+  { label: 'Opinie', href: '#testimonials' },
+  { label: 'FAQ', href: '#faq' },
+  { label: 'Kontakt', href: '#contact' }
+];
 
   // Track scroll position and active section
   useEffect(() => {
@@ -646,153 +648,577 @@ const HeroSection = ({ data }: { data: HomePageData }) => {
 };
 
 // ==========================================
-// 💼 SERVICES SECTION - Enhanced with CTA buttons
+// 🎓 ABOUT SECTION - Personal achievements
 // ==========================================
-const ServicesSection = ({ data }: { data: HomePageData }) => {
+const AboutSection = () => {
   const [ref, inView] = useAdvancedInView();
 
-  // Function to handle service booking
-  const handleBookService = (serviceTitle: string) => {
-    // Map service titles to form values
-    const serviceMapping: { [key: string]: string } = {
-      'Matematyka': 'matematyka',
-      'Angielski': 'angielski', 
-      'Programowanie': 'programowanie'
-    };
-    
-    const serviceValue = serviceMapping[serviceTitle] || serviceTitle.toLowerCase();
-    
-    // Scroll to contact section with service parameter
-    const contactSection = document.getElementById('contact');
-    if (contactSection) {
-      // Add service to URL hash for auto-fill
-      window.location.hash = `contact-${serviceValue}`;
-      
-      // Smooth scroll to contact
-      contactSection.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
-      });
-      
-      // Trigger custom event for form auto-fill
-      window.dispatchEvent(new CustomEvent('autoFillService', {
-        detail: { service: serviceValue }
-      }));
+  const educationStats = [
+    {
+      title: "Średnia na studiach",
+      value: "4.76",
+      description: "Stypendium naukowe 3 lata z rzędu",
+      icon: <Award className="w-8 h-8" />
+    },
+    {
+      title: "Matura matematyka",
+      value: "100%",
+      description: "Poziom rozszerzony",
+      icon: <Calculator className="w-8 h-8" />
+    },
+    {
+      title: "Matura angielski", 
+      value: "100%",
+      description: "Certyfikat C1",
+      icon: <BookOpen className="w-8 h-8" />
+    },
+    {
+      title: "Lat doświadczenia",
+      value: "5+",
+      description: "Ponad 60 uczniów",
+      icon: <Brain className="w-8 h-8" />
     }
-  };
+  ];
+
+  const skills = [
+    {
+      category: "Matematyka",
+      items: ["Analiza Matematyczna", "Algebra Liniowa", "Matematyka Dyskretna", "Statystyka", "Równania Różniczkowe"],
+      color: "from-blue-500 to-blue-600"
+    },
+    {
+      category: "Programowanie", 
+      items: ["Python", "React/Next.js", "TypeScript", "C++/JUCE", "Java", "Data Science"],
+      color: "from-green-500 to-green-600"
+    },
+    {
+      category: "Angielski",
+      items: ["Poziom C1", "Konwersacje", "Matura 100%", "Doświadczenie podróżnicze", "Business English"],
+      color: "from-purple-500 to-purple-600"
+    }
+  ];
+
+  const achievements = [
+    {
+      title: "100% Zdawalność",
+      description: "Wszyscy uczniowie zdali egzaminy na oczekiwanym poziomie",
+      icon: "🎯"
+    },
+    {
+      title: "Specjalizacja w trudnych przypadkach",
+      description: "Pomoc uczniom z dysleksją, dyskalkulią i orzeczeniami kuratorów", 
+      icon: "💪"
+    },
+    {
+      title: "Kwalifikacje zawodowe",
+      description: "Ukończone na 90-100%, certyfikaty AutoCAD, programowanie drukarek 3D",
+      icon: "🏆"
+    },
+    {
+      title: "Stypendium naukowe",
+      description: "Otrzymywane przez 3 lata z rzędu za wybitne wyniki w nauce",
+      icon: "📚"
+    }
+  ];
 
   return (
-    <section ref={ref} id="services" className="py-20 bg-[#161b22]">
-      <div className="container mx-auto px-6">
+    <section ref={ref} id="about" className="py-20 bg-[#0d1117] relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div 
+          className="absolute inset-0" 
+          style={{
+            backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(31, 111, 235, 0.15) 1px, transparent 0)',
+            backgroundSize: '32px 32px'
+          }}
+        />
+      </div>
+
+      <div className="container mx-auto px-6 relative z-10">
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <h2 className="text-5xl md:text-6xl font-extrabold mb-8 pb-4 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
-            Usługi
+          <h2 className="text-5xl md:text-6xl font-extrabold mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
+            O mnie
           </h2>
-          <p className="text-xl text-[#8b949e] max-w-3xl mx-auto">
-            Specjalizuję się w korepetycjach z matematyki, angielskiego i programowania. 
-            Każde zajęcia dostosowuję do indywidualnych potrzeb ucznia.
+          <p className="text-xl text-[#c9d1d9] max-w-4xl mx-auto leading-relaxed">
+            Student informatyki III roku z pasją do nauczania. Specjalizuję się w Data Science i web developmencie, 
+            pomagając uczniom osiągać sukcesy przez <span className="text-[#1f6feb] font-semibold">5 lat</span>.
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {data.services.map((service, index) => (
-            <motion.div
-              key={service.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              whileHover={{ y: -10, scale: 1.02 }}
-              className="bg-[#0d1117] border border-[#30363d] rounded-xl p-8 hover:border-[#1f6feb]/50 transition-all duration-300 shadow-lg hover:shadow-xl flex flex-col"
-            >
-              <div className="text-[#1f6feb] mb-6">
-                {service.icon}
-              </div>
-              
-              <h3 className="text-2xl font-bold text-[#f0f6fc] mb-4">{service.title}</h3>
-              <p className="text-[#8b949e] mb-6">{service.description}</p>
-              
-              <div className="mb-6">
-                <div className="text-lg font-semibold text-[#1f6feb] mb-2">Poziomy:</div>
-                <div className="flex flex-wrap gap-2">
-                  {service.levels.map((level, idx) => (
-                    <span
-                      key={idx}
-                      className="px-3 py-1 bg-[#1f6feb]/20 text-[#58a6ff] rounded-full text-sm"
-                    >
-                      {level}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mb-6">
-                <div className="text-2xl font-bold text-[#1f6feb] mb-2">{service.price}</div>
-                <div className="text-sm text-[#8b949e]">za godzinę zajęć</div>
-              </div>
-
-              <ul className="space-y-2 mb-8 flex-grow">
-                {service.features.map((feature, idx) => (
-                  <li key={idx} className="flex items-center text-[#8b949e]">
-                    <Check className="w-4 h-4 text-[#1f6feb] mr-2 flex-shrink-0" />
-                    <span className="text-sm">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-
-              {/* CTA Button */}
-              <motion.button
-                onClick={() => handleBookService(service.title)}
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-                className="cursor-pointer w-full bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-[#1f6feb]/25"
-              >
-                <span className="flex items-center justify-center ">
-                  Umów korepetycje
-                  <svg 
-                    className="ml-2 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </span>
-              </motion.button>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Package Deal */}
+        {/* Stats Grid */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, delay: 0.5 }}
-          className="mt-12 text-center bg-gradient-to-r from-[#1f6feb]/20 to-[#58a6ff]/20 border border-[#1f6feb]/30 rounded-xl p-8"
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16"
         >
-          <Award className="w-12 h-12 text-[#1f6feb] mx-auto mb-4" />
-          <h3 className="text-2xl font-bold text-[#f0f6fc] mb-4">Pakiet 10 godzin</h3>
-          <p className="text-[#8b949e] mb-4">Zapisz się na 10 godzin z góry i otrzymaj 20% rabatu!</p>
-          <div className="text-lg text-[#1f6feb] font-semibold mb-6">Oszczędzasz do 120 zł!</div>
+          {educationStats.map((stat, index) => (
+            <motion.div
+              key={stat.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6, delay: 0.3 + index * 0.1 }}
+              className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 hover:border-[#1f6feb]/50 transition-all duration-300 group"
+              whileHover={{ y: -5 }}
+            >
+              <div className="text-[#1f6feb] mb-4 group-hover:scale-110 transition-transform duration-300">
+                {stat.icon}
+              </div>
+              <div className="text-3xl font-black text-[#f0f6fc] mb-2">
+                {stat.value}
+              </div>
+              <div className="text-lg font-semibold text-[#1f6feb] mb-1">
+                {stat.title}
+              </div>
+              <div className="text-sm text-[#8b949e]">
+                {stat.description}
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Skills & Expertise */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="mb-16"
+        >
+          <h3 className="text-3xl font-bold text-center text-[#f0f6fc] mb-12">
+            Moja ekspertyza
+          </h3>
           
-          {/* Package CTA */}
-          <motion.button
-            onClick={() => handleBookService('pakiet')}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="cursor-pointer bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold py-3 px-8 rounded-xl transition-all duration-300"
-          >
-            Umów pakiet 10h
-          </motion.button>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {skills.map((skill, index) => (
+              <motion.div
+                key={skill.category}
+                initial={{ opacity: 0, x: index % 2 === 0 ? -30 : 30 }}
+                animate={inView ? { opacity: 1, x: 0 } : {}}
+                transition={{ duration: 0.6, delay: 0.5 + index * 0.1 }}
+                className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 hover:border-[#1f6feb]/50 transition-all duration-300"
+              >
+                <div className={`inline-block px-4 py-2 rounded-full bg-gradient-to-r ${skill.color} text-white font-semibold mb-4`}>
+                  {skill.category}
+                </div>
+                
+                <div className="space-y-3">
+                  {skill.items.map((item, idx) => (
+                    <motion.div
+                      key={item}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={inView ? { opacity: 1, x: 0 } : {}}
+                      transition={{ duration: 0.4, delay: 0.6 + index * 0.1 + idx * 0.05 }}
+                      className="flex items-center text-[#c9d1d9]"
+                    >
+                      <div className="w-2 h-2 bg-[#1f6feb] rounded-full mr-3 flex-shrink-0"></div>
+                      <span>{item}</span>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Key Achievements */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8, delay: 0.6 }}
+        >
+          <h3 className="text-3xl font-bold text-center text-[#f0f6fc] mb-12">
+            Kluczowe osiągnięcia
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {achievements.map((achievement, index) => (
+              <motion.div
+                key={achievement.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.6, delay: 0.7 + index * 0.1 }}
+                className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 hover:border-[#1f6feb]/50 transition-all duration-300 group"
+                whileHover={{ scale: 1.02 }}
+              >
+                <div className="flex items-start">
+                  <span className="text-3xl mr-4 group-hover:scale-110 transition-transform duration-300">
+                    {achievement.icon}
+                  </span>
+                  <div>
+                    <h4 className="text-xl font-bold text-[#f0f6fc] mb-2">
+                      {achievement.title}
+                    </h4>
+                    <p className="text-[#c9d1d9] leading-relaxed">
+                      {achievement.description}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Personal Quote */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8, delay: 0.8 }}
+          className="text-center mt-16"
+        >
+          <div className="bg-gradient-to-r from-[#1f6feb]/10 to-[#58a6ff]/10 border border-[#1f6feb]/30 rounded-3xl p-8 max-w-4xl mx-auto">
+            <div className="text-4xl text-[#1f6feb] mb-4">"</div>
+            <p className="text-xl md:text-2xl text-[#f0f6fc] leading-relaxed italic font-light mb-4">
+              Każdy uczeń ma potencjał na sukces. Moją rolą jest odkryć go i pomóc mu rozkwitnąć. 
+              Nauka to nie tylko teoria - to budowanie pewności siebie i osiąganie celów.
+            </p>
+            <div className="text-[#1f6feb] font-semibold">
+              - Patryk Kulesza
+            </div>
+          </div>
         </motion.div>
       </div>
     </section>
   );
 };
+
+// ==========================================
+// ⭐ TESTIMONIALS SECTION - HORIZONTAL SCROLLING
+// ==========================================
+const TestimonialsSection = ({ data }: { data: HomePageData }) => {
+  const [ref, inView] = useAdvancedInView();
+  
+  // ==========================================
+  // 📊 STATES DLA DRAG SCROLLING
+  // ==========================================
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const [hasMoved, setHasMoved] = useState(false);
+  
+  // ==========================================
+  // 🚀 MOMENTUM SCROLLING STATES
+  // ==========================================
+  const [velocity, setVelocity] = useState(0);
+  const [lastX, setLastX] = useState(0);
+  const [lastTime, setLastTime] = useState(0);
+  const momentumAnimationRef = useRef<number | null>(null);
+  const lastCallTime = useRef<number>(0);
+
+  // ==========================================
+  // 🚀 MOMENTUM ANIMATION FUNCTION
+  // ==========================================
+  const startMomentumAnimation = useCallback((initialVelocity: number) => {
+    if (!scrollContainerRef.current || Math.abs(initialVelocity) < 0.1) return;
+    
+    let currentVelocity = initialVelocity;
+    const deceleration = 0.95;
+    const minVelocity = 0.1;
+    
+    const animate = () => {
+      if (!scrollContainerRef.current) return;
+      
+      const currentScrollLeft = scrollContainerRef.current.scrollLeft;
+      const newScrollLeft = currentScrollLeft + currentVelocity;
+      
+      const maxScroll = scrollContainerRef.current.scrollWidth - scrollContainerRef.current.clientWidth;
+      const clampedScrollLeft = Math.max(0, Math.min(maxScroll, newScrollLeft));
+      
+      scrollContainerRef.current.scrollLeft = clampedScrollLeft;
+      currentVelocity *= deceleration;
+      
+      if (Math.abs(currentVelocity) > minVelocity && 
+          clampedScrollLeft > 0 && 
+          clampedScrollLeft < maxScroll) {
+        momentumAnimationRef.current = requestAnimationFrame(animate);
+      } else {
+        momentumAnimationRef.current = null;
+      }
+    };
+    
+    momentumAnimationRef.current = requestAnimationFrame(animate);
+  }, []);
+
+  // ==========================================
+  // 🛑 STOP MOMENTUM FUNCTION
+  // ==========================================
+  const stopMomentumAnimation = useCallback(() => {
+    if (momentumAnimationRef.current) {
+      cancelAnimationFrame(momentumAnimationRef.current);
+      momentumAnimationRef.current = null;
+    }
+  }, []);
+
+  // ==========================================
+  // 🖱️ MOUSE EVENT HANDLERS
+  // ==========================================
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!scrollContainerRef.current) return;
+    
+    stopMomentumAnimation();
+    
+    setIsDragging(true);
+    setHasMoved(false);
+    setStartX(e.pageX);
+    setScrollLeft(scrollContainerRef.current.scrollLeft);
+    
+    setLastX(e.pageX);
+    setLastTime(Date.now());
+    setVelocity(0);
+  };
+
+  const handleMouseUp = () => {
+    if (isDragging) {
+      startMomentumAnimation(velocity);
+    }
+    setIsDragging(false);
+  };
+
+  const handleMouseLeave = () => {
+    if (isDragging) {
+      startMomentumAnimation(velocity);
+    }
+    setIsDragging(false);
+  };
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isDragging || !scrollContainerRef.current) return;
+    
+    const now = Date.now();
+    if (now - lastCallTime.current < 16) return;
+    lastCallTime.current = now;
+    
+    e.preventDefault();
+    
+    const x = e.pageX;
+    const walk = (x - startX) * 1.5;
+    
+    if (Math.abs(walk) > 5) {
+      setHasMoved(true);
+    }
+    
+    scrollContainerRef.current.scrollLeft = scrollLeft - walk;
+    
+    const currentTime = Date.now();
+    const currentX = e.pageX;
+    
+    const timeDiff = currentTime - lastTime;
+    const xDiff = currentX - lastX;
+    
+    if (timeDiff > 0) {
+      const newVelocity = (xDiff / timeDiff) * -1.5 * 16;
+      setVelocity(newVelocity);
+    }
+    
+    setLastX(currentX);
+    setLastTime(currentTime);
+  }, [isDragging, startX, scrollLeft, lastTime]);
+
+  // ==========================================
+  // 🎯 CLEANUP
+  // ==========================================
+  useEffect(() => {
+    return () => stopMomentumAnimation();
+  }, [stopMomentumAnimation]);
+
+  return (
+    <>
+      {/* ==========================================
+          🎨 CUSTOM CURSOR STYLES - NIEBIESKI
+          ========================================== */}
+      <style jsx>{`
+        .testimonials-scroll-container {
+          cursor: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48' fill='none'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23000000' fill-opacity='0.8' stroke='%231f6feb' stroke-width='2'/%3E%3Cpath d='M14 24l6-6m-6 6l6 6m-6-6h20m-6-6l6 6m-6 6l6-6' stroke='%231f6feb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 24 24, grab;
+        }
+        .testimonials-section.dragging {
+          cursor: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48' fill='none'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23000000' fill-opacity='0.95' stroke='%231f6feb' stroke-width='2'/%3E%3Cpath d='M14 24l6-6m-6 6l6 6m-6-6h20m-6-6l6 6m-6 6l6-6' stroke='%231f6feb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 24 24, grabbing;
+        }
+        .testimonials-scroll-container::-webkit-scrollbar {
+          display: none;
+        }
+        .testimonials-section.dragging {
+          user-select: none;
+        }
+        .testimonials-section * {
+          cursor: inherit !important;
+        }
+      `}</style>
+
+      <section 
+        ref={ref} 
+        id="testimonials" 
+        className="py-20 bg-[#161b22] overflow-hidden"
+      >
+        {/* Structured data dla opinii */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(generateReviewsStructuredData(data.testimonials))
+          }}
+        />
+        
+        <div className="w-full">
+          {/* ==========================================
+              📝 HEADER SEKCJI
+              ========================================== */}
+          <motion.div
+            initial={{ y: 50, opacity: 0 }}
+            animate={inView ? { y: 0, opacity: 1 } : {}}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-8"
+          >
+            <div className="container mx-auto px-6">
+              <h2 className="text-5xl md:text-6xl font-extrabold mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
+                Opinie Uczniów
+              </h2>
+              <p className="text-2xl text-[#c9d1d9] max-w-3xl mx-auto">
+                Zobacz co mówią o mnie uczniowie i ich rodzice.
+              </p>
+              
+            </div>
+          </motion.div>
+
+          {/* ==========================================
+              🎬 HORIZONTAL SCROLLING CONTAINER
+              ========================================== */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={inView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="relative"
+          >
+            <div
+              ref={scrollContainerRef}
+              className={`testimonials-scroll-container flex gap-12 overflow-x-auto scrollbar-hide py-8 px-6 md:px-12 ${isDragging ? 'dragging' : ''}`}
+              onMouseDown={handleMouseDown}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseLeave}
+              onMouseMove={handleMouseMove}
+              style={{
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+              }}
+            >
+              {/* ==========================================
+                  💬 MAPA OPINII
+                  ========================================== */}
+              {data.testimonials.map((testimonial, index) => (
+                <motion.div
+                  key={testimonial.id}
+                  initial={{ x: 100, opacity: 0 }}
+                  animate={inView ? { x: 0, opacity: 1 } : {}}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  className="flex-shrink-0 group"
+                  whileHover={{ y: -10, scale: 1.02 }}
+                >
+                  {/* ==========================================
+                      💬 KARTA OPINII - DUŻA
+                      ========================================== */}
+                  <div className="relative w-[600px] md:w-[700px] lg:w-[800px] h-[400px] md:h-[500px] bg-[#0d1117] border border-[#30363d] rounded-3xl p-12 hover:border-[#1f6feb]/50 transition-all duration-300 shadow-lg hover:shadow-xl group-hover:shadow-[#1f6feb]/10">
+
+                    {/* Rating Stars */}
+                    <div className="flex items-center mb-8">
+                      <div className="flex text-yellow-400 mr-6">
+                        {[...Array(testimonial.rating)].map((_, i) => (
+                          <Star key={i} className="w-7 h-7 fill-current mr-1" />
+                        ))}
+                      </div>
+                      <div className="text-[#1f6feb] font-semibold text-lg bg-[#1f6feb]/10 px-4 py-2 rounded-full">
+                        {testimonial.rating}/5
+                      </div>
+                    </div>
+
+                    {/* Opinion Text */}
+                    <div className="mb-12 flex-grow">
+                      <p className="text-[#c9d1d9] leading-relaxed text-2xl md:text-3xl font-light">
+                        &quot;{testimonial.opinion}&quot;
+                      </p>
+                    </div>
+
+                    {/* Bottom Info */}
+                    <div className="absolute bottom-12 left-12 right-12">
+                      <div className="border-t border-[#30363d] pt-8">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="font-bold text-[#f0f6fc] text-2xl mb-2">
+                              {testimonial.name}
+                            </div>
+                            <div className="text-lg text-[#8b949e] mb-2">
+                              {testimonial.grade}
+                            </div>
+                          </div>
+                          
+                          {/* Result Badge */}
+                          <div className="text-right">
+                            <div className="text-sm text-[#8b949e] mb-2">Wynik:</div>
+                            <div className="bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold px-6 py-3 rounded-xl text-lg">
+                              {testimonial.result}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Hover Glow Effect */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-3xl">
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1f6feb]/5 to-transparent rounded-3xl" />
+                      <div className="absolute inset-0 shadow-2xl shadow-[#1f6feb]/25 rounded-3xl" />
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+
+              {/* ==========================================
+                  📊 PODSUMOWANIE NA KOŃCU
+                  ========================================== */}
+              <motion.div
+                initial={{ x: 100, opacity: 0 }}
+                animate={inView ? { x: 0, opacity: 1 } : {}}
+                transition={{ duration: 0.6, delay: 0.8 }}
+                className="flex-shrink-0"
+              >
+                <div className="w-[600px] md:w-[700px] lg:w-[800px] h-[400px] md:h-[450px] bg-gradient-to-br from-[#1f6feb]/10 to-[#58a6ff]/10 border border-[#1f6feb]/30 rounded-3xl p-12 flex flex-col items-center justify-center text-center">
+                  
+                  <motion.div
+                    animate={{ rotate: [0, 360] }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                    className="w-20 h-20 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] rounded-full flex items-center justify-center mb-8"
+                  >
+                    <Star className="w-10 h-10 text-white fill-current" />
+                  </motion.div>
+                  
+                  <h3 className="text-3xl md:text-4xl font-bold text-[#f0f6fc] mb-6">
+                    100% zadowolonych uczniów!
+                  </h3>
+                  
+                  <p className="text-[#c9d1d9] mb-8 leading-relaxed text-xl">
+                    Każdy uczeń osiągnął swoje cele. Dołącz do grona zadowolonych uczniów!
+                  </p>
+                  
+                  <motion.a
+                    href="#contact"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 text-lg"
+                  >
+                    Umów konsultację
+                  </motion.a>
+                </div>
+              </motion.div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+    </>
+  );
+};
+
 
 // ==========================================
 // 🎨 PORTFOLIO SECTION - ZDJĘCIE JAKO TŁO Z OVERLAY
@@ -996,32 +1422,20 @@ useEffect(() => {
           🎨 CUSTOM CURSOR STYLES - NIEBIESKI
           ========================================== */}
       <style jsx>{`
-        .portfolio-section {
+        .portfolio-scroll-container {
           cursor: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48' fill='none'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23000000' fill-opacity='0.8' stroke='%231f6feb' stroke-width='2'/%3E%3Cpath d='M14 24l6-6m-6 6l6 6m-6-6h20m-6-6l6 6m-6 6l6-6' stroke='%231f6feb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 24 24, grab;
         }
         .portfolio-section.dragging {
           cursor: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48' fill='none'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23000000' fill-opacity='0.95' stroke='%231f6feb' stroke-width='2'/%3E%3Cpath d='M14 24l6-6m-6 6l6 6m-6-6h20m-6-6l6 6m-6 6l6-6' stroke='%231f6feb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 24 24, grabbing;
         }
         
-        .portfolio-scroll-container::-webkit-scrollbar {
-          display: none;
-        }
-        .portfolio-section.dragging {
-          user-select: none;
-        }
-        .portfolio-section * {
-          cursor: inherit !important;
-        }
+
       `}</style>
 
       <section 
         ref={ref} 
         id="portfolio" 
-        className={`portfolio-section py-20 bg-[#0d1117] overflow-hidden ${isDragging ? 'dragging' : ''}`}
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseLeave}
-        onMouseMove={handleMouseMove}
+        className="py-20 bg-[#0d1117] overflow-hidden"
       >
         <div className="w-full">
           {/* ==========================================
@@ -1053,13 +1467,17 @@ useEffect(() => {
             className="relative"
           >
             <div
-              ref={scrollContainerRef}
-              className="portfolio-scroll-container flex gap-12 overflow-x-auto scrollbar-hide py-8 px-6 md:px-12"
-              style={{
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none',
-              }}
-            >
+            ref={scrollContainerRef}
+            className={`portfolio-scroll-container flex gap-12 overflow-x-auto scrollbar-hide py-8 px-6 md:px-12 ${isDragging ? 'dragging' : ''}`}
+            onMouseDown={handleMouseDown}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseLeave}
+            onMouseMove={handleMouseMove}
+            style={{
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+            }}
+          >
               {/* ==========================================
                   🎴 MAPA PROJEKTÓW - OVERLAY DESIGN
                   ========================================== */}
@@ -1269,19 +1687,25 @@ useEffect(() => {
 };
 
 // ==========================================
-// ⭐ TESTIMONIALS SECTION - HORIZONTAL SCROLLING
+// 💼 SERVICES SECTION - "Credit Card" Horizontal Overlap
 // ==========================================
-const TestimonialsSection = ({ data }: { data: HomePageData }) => {
+const ServicesSection = ({ data }: { data: HomePageData }) => {
   const [ref, inView] = useAdvancedInView();
   
   // ==========================================
-  // 📊 STATES DLA DRAG SCROLLING
+  // 🎯 STATES FOR DRAG SCROLLING
   // ==========================================
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
   const [hasMoved, setHasMoved] = useState(false);
+  const [hoveredCardIndex, setHoveredCardIndex] = useState<number | null>(null);
+  
+  // ==========================================
+  // 🆕 NOWY STAN DLA DRAG HOVER
+  // ==========================================
+  const [dragHoveredCardIndex, setDragHoveredCardIndex] = useState<number | null>(null);
   
   // ==========================================
   // 🚀 MOMENTUM SCROLLING STATES
@@ -1291,6 +1715,52 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
   const [lastTime, setLastTime] = useState(0);
   const momentumAnimationRef = useRef<number | null>(null);
   const lastCallTime = useRef<number>(0);
+
+  // Function to handle service booking
+  const handleBookService = (serviceTitle: string) => {
+    // Map service titles to form values
+    const serviceMapping: { [key: string]: string } = {
+      'Matematyka': 'matematyka',
+      'Angielski': 'angielski', 
+      'Programowanie': 'programowanie',
+      'Strony Internetowe': 'strony-internetowe'
+    };
+    
+    const serviceValue = serviceMapping[serviceTitle] || serviceTitle.toLowerCase();
+    
+    // Scroll to contact section with service parameter
+    const contactSection = document.getElementById('contact');
+    if (contactSection) {
+      // Add service to URL hash for auto-fill
+      window.location.hash = `contact-${serviceValue}`;
+      
+      // Smooth scroll to contact
+      contactSection.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+      
+      // Trigger custom event for form auto-fill
+      window.dispatchEvent(new CustomEvent('autoFillService', {
+        detail: { service: serviceValue }
+      }));
+    }
+  };
+
+  // ==========================================
+  // 🆕 FUNKCJA DO WYKRYWANIA KARTY POD KURSOREM
+  // ==========================================
+  const getCardIndexUnderCursor = useCallback((clientX: number, clientY: number) => {
+    const elements = document.elementsFromPoint(clientX, clientY);
+    for (let element of elements) {
+      const cardElement = element.closest('.service-card');
+      if (cardElement) {
+        const cardIndex = parseInt(cardElement.getAttribute('data-card-index') || '-1');
+        if (cardIndex >= 0) return cardIndex;
+      }
+    }
+    return null;
+  }, []);
 
   // ==========================================
   // 🚀 MOMENTUM ANIMATION FUNCTION
@@ -1346,12 +1816,17 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
     
     setIsDragging(true);
     setHasMoved(false);
+    // 🆕 NIE resetuj hover podczas drag - zamiast tego używaj dragHoveredCardIndex
     setStartX(e.pageX);
     setScrollLeft(scrollContainerRef.current.scrollLeft);
     
     setLastX(e.pageX);
     setLastTime(Date.now());
     setVelocity(0);
+    
+    // 🆕 Ustaw początkowy drag hover
+    const cardIndex = getCardIndexUnderCursor(e.clientX, e.clientY);
+    setDragHoveredCardIndex(cardIndex);
   };
 
   const handleMouseUp = () => {
@@ -1359,6 +1834,8 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
       startMomentumAnimation(velocity);
     }
     setIsDragging(false);
+    // 🆕 Reset drag hover po zakończeniu drag
+    setDragHoveredCardIndex(null);
   };
 
   const handleMouseLeave = () => {
@@ -1366,6 +1843,8 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
       startMomentumAnimation(velocity);
     }
     setIsDragging(false);
+    // 🆕 Reset drag hover po opuszczeniu
+    setDragHoveredCardIndex(null);
   };
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
@@ -1386,6 +1865,10 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
     
     scrollContainerRef.current.scrollLeft = scrollLeft - walk;
     
+    // 🆕 Aktualizuj drag hover podczas ruchu
+    const cardIndex = getCardIndexUnderCursor(e.clientX, e.clientY);
+    setDragHoveredCardIndex(cardIndex);
+    
     const currentTime = Date.now();
     const currentX = e.pageX;
     
@@ -1399,7 +1882,24 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
     
     setLastX(currentX);
     setLastTime(currentTime);
-  }, [isDragging, startX, scrollLeft, lastTime]);
+  }, [isDragging, startX, scrollLeft, lastTime, getCardIndexUnderCursor]);
+
+  // ==========================================
+  // 🆕 FUNKCJA DO OBLICZANIA Z-INDEX
+  // ==========================================
+  const getCardZIndex = useCallback((index: number) => {
+    // Prioritet: dragHoveredCardIndex > hoveredCardIndex > default
+    if (dragHoveredCardIndex === index) return 100;
+    if (hoveredCardIndex === index && !isDragging) return 100;
+    return data.services.length - index;
+  }, [dragHoveredCardIndex, hoveredCardIndex, isDragging, data.services.length]);
+
+  // ==========================================
+  // 🆕 FUNKCJA DO SPRAWDZANIA CZY KARTA JEST HIGHLIGHTED
+  // ==========================================
+  const isCardHighlighted = useCallback((index: number) => {
+    return dragHoveredCardIndex === index || (hoveredCardIndex === index && !isDragging);
+  }, [dragHoveredCardIndex, hoveredCardIndex, isDragging]);
 
   // ==========================================
   // 🎯 CLEANUP
@@ -1411,66 +1911,69 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
   return (
     <>
       {/* ==========================================
-          🎨 CUSTOM CURSOR STYLES - NIEBIESKI
+          🎨 CUSTOM CURSOR STYLES - Credit Card Theme
           ========================================== */}
       <style jsx>{`
-        .testimonials-section {
+        .services-scroll-container {
           cursor: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48' fill='none'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23000000' fill-opacity='0.8' stroke='%231f6feb' stroke-width='2'/%3E%3Cpath d='M14 24l6-6m-6 6l6 6m-6-6h20m-6-6l6 6m-6 6l6-6' stroke='%231f6feb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 24 24, grab;
         }
-        .testimonials-section.dragging {
+        .services-scroll-container.dragging {
           cursor: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48' fill='none'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23000000' fill-opacity='0.95' stroke='%231f6feb' stroke-width='2'/%3E%3Cpath d='M14 24l6-6m-6 6l6 6m-6-6h20m-6-6l6 6m-6 6l6-6' stroke='%231f6feb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 24 24, grabbing;
         }
-        .testimonials-scroll-container::-webkit-scrollbar {
+        .services-scroll-container::-webkit-scrollbar {
           display: none;
         }
-        .testimonials-section.dragging {
+        .services-scroll-container.dragging {
           user-select: none;
         }
-        .testimonials-section * {
+        .services-scroll-container.dragging * {
           cursor: inherit !important;
+        }
+        
+        /* Credit Card Overlap Effect */
+        .service-card {
+          transform-style: preserve-3d;
+          transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        
+        .service-card.highlighted {
+          transform: translateY(-20px) translateZ(50px) rotateY(-5deg) scale(1.02);
+        }
+        
+        @media (max-width: 768px) {
+          .service-card.highlighted {
+            transform: translateY(-10px) scale(1.01);
+          }
         }
       `}</style>
 
       <section 
         ref={ref} 
-        id="testimonials" 
-        className={`testimonials-section py-20 bg-[#161b22] overflow-hidden ${isDragging ? 'dragging' : ''}`}
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseLeave}
-        onMouseMove={handleMouseMove}
+        id="services" 
+        className="py-20 bg-[#161b22] overflow-hidden"
       >
-        {/* Structured data dla opinii */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(generateReviewsStructuredData(data.testimonials))
-          }}
-        />
-        
         <div className="w-full">
           {/* ==========================================
-              📝 HEADER SEKCJI
+              📝 HEADER SECTION
               ========================================== */}
           <motion.div
             initial={{ y: 50, opacity: 0 }}
             animate={inView ? { y: 0, opacity: 1 } : {}}
             transition={{ duration: 0.8 }}
-            className="text-center mb-8"
+            className="text-center mb-16"
           >
             <div className="container mx-auto px-6">
-              <h2 className="text-5xl md:text-6xl font-extrabold mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
-                Opinie Uczniów
+              <h2 className="text-5xl md:text-6xl font-extrabold mb-8 pb-4 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
+                Usługi
               </h2>
-              <p className="text-2xl text-[#c9d1d9] max-w-3xl mx-auto">
-                Zobacz co mówią o mnie uczniowie i ich rodzice.
+              <p className="text-xl text-[#c9d1d9] max-w-3xl mx-auto">
+                Specjalizuję się w korepetycjach z matematyki, angielskiego, programowania i tworzenia stron internetowych.
               </p>
-              
             </div>
           </motion.div>
 
           {/* ==========================================
-              🎬 HORIZONTAL SCROLLING CONTAINER
+              🎬 HORIZONTAL SCROLLING CONTAINER - Credit Card Style
               ========================================== */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -1480,116 +1983,195 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
           >
             <div
               ref={scrollContainerRef}
-              className="testimonials-scroll-container flex gap-12 overflow-x-auto scrollbar-hide py-8 px-6 md:px-12"
+              className={`services-scroll-container flex gap-0 overflow-x-auto scrollbar-hide py-8 px-6 md:px-12 ${isDragging ? 'dragging' : ''}`}
               style={{
                 scrollbarWidth: 'none',
                 msOverflowStyle: 'none',
               }}
+              onMouseDown={handleMouseDown}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseLeave}
+              onMouseMove={handleMouseMove}
             >
               {/* ==========================================
-                  💬 MAPA OPINII
+                  💳 SERVICE CARDS MAP - Credit Card Overlap
                   ========================================== */}
-              {data.testimonials.map((testimonial, index) => (
+              {data.services.map((service, index) => (
                 <motion.div
-                  key={testimonial.id}
-                  initial={{ x: 100, opacity: 0 }}
-                  animate={inView ? { x: 0, opacity: 1 } : {}}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  className="flex-shrink-0 group"
-                  whileHover={{ y: -10, scale: 1.02 }}
+                  key={service.id}
+                  initial={{ x: 100 + (index * 50), opacity: 0, rotateY: 15 }}
+                  animate={inView ? { x: 0, opacity: 1, rotateY: 0 } : {}}
+                  transition={{ duration: 0.8, delay: index * 0.2 }}
+                  className={`service-card flex-shrink-0 group ${isCardHighlighted(index) ? 'highlighted' : ''}`}
+                  data-card-index={index} // 🆕 Dodaj data attribute dla identyfikacji
+                  style={{
+                    marginLeft: index > 0 ? '-200px' : '0px', // Overlap effect
+                    zIndex: getCardZIndex(index), // 🆕 Używaj nowej funkcji z-index
+                  }}
+                  onMouseEnter={() => !isDragging && setHoveredCardIndex(index)}
+                  onMouseLeave={() => !isDragging && setHoveredCardIndex(null)}
                 >
                   {/* ==========================================
-                      💬 KARTA OPINII - DUŻA
+                      💳 CREDIT CARD DESIGN - Large Wide Card
                       ========================================== */}
-                  <div className="relative w-[600px] md:w-[700px] lg:w-[800px] h-[400px] md:h-[450px] bg-[#0d1117] border border-[#30363d] rounded-3xl p-12 hover:border-[#1f6feb]/50 transition-all duration-300 shadow-lg hover:shadow-xl group-hover:shadow-[#1f6feb]/10">
+                  <div 
+                    className={`relative w-[800px] md:w-[900px] lg:w-[1000px] h-[600px] md:h-[650px] bg-gradient-to-br ${
+                      index % 2 === 0 
+                        ? 'from-[#1f6feb] via-[#0d1117] to-[#58a6ff]'  // Jak pierwsza
+                        : 'from-[#58a6ff] via-[#0d1117] to-[#1f6feb]'   // Jak druga
+                    } border border-[#30363d] rounded-3xl overflow-hidden shadow-2xl hover:shadow-[#1f6feb]/25 transition-all duration-500`}
+                  >
                     
-                    {/* Rating Stars */}
-                    <div className="flex items-center mb-8">
-                      <div className="flex text-yellow-400 mr-6">
-                        {[...Array(testimonial.rating)].map((_, i) => (
-                          <Star key={i} className="w-7 h-7 fill-current mr-1" />
-                        ))}
-                      </div>
-                      <div className="text-[#1f6feb] font-semibold text-lg bg-[#1f6feb]/10 px-4 py-2 rounded-full">
-                        {testimonial.rating}/5
-                      </div>
+                    {/* Card Background Pattern */}
+                    <div className="absolute inset-0 opacity-10">
+                      <div 
+                        className="absolute inset-0" 
+                        style={{
+                          backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.15) 1px, transparent 0)',
+                          backgroundSize: '40px 40px'
+                        }}
+                      />
                     </div>
 
-                    {/* Opinion Text */}
-                    <div className="mb-12 flex-grow">
-                      <p className="text-[#c9d1d9] leading-relaxed text-2xl md:text-3xl font-light">
-                        &quot;{testimonial.opinion}&quot;
-                      </p>
-                    </div>
-
-                    {/* Bottom Info */}
-                    <div className="absolute bottom-12 left-12 right-12">
-                      <div className="border-t border-[#30363d] pt-8">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="font-bold text-[#f0f6fc] text-2xl mb-2">
-                              {testimonial.name}
-                            </div>
-                            <div className="text-lg text-[#8b949e] mb-2">
-                              {testimonial.grade}
-                            </div>
+                    {/* Card Content */}
+                    <div className="relative z-10 p-12 h-full flex flex-col">
+                      
+                      {/* Top Section - Icon & Title */}
+                      <div className="flex items-start justify-between mb-8">
+                        <div className="flex items-center">
+                          <div className="text-white/90 mr-6 transform group-hover:scale-110 transition-transform duration-300">
+                            {service.icon}
                           </div>
-                          
-                          {/* Result Badge */}
-                          <div className="text-right">
-                            <div className="text-sm text-[#8b949e] mb-2">Wynik:</div>
-                            <div className="bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold px-6 py-3 rounded-xl text-lg">
-                              {testimonial.result}
-                            </div>
+                          <div>
+                            <h3 className="text-4xl md:text-5xl font-black text-white mb-2">
+                              {service.title}
+                            </h3>
                           </div>
                         </div>
+                        
+                        {/* Price Tag */}
+                        <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 text-center border border-white/30">
+                          <div className="text-3xl font-black text-white mb-1">
+                            {service.price}
+                          </div>
+                          <div className="text-white/70 text-xl">
+                            {service.title === 'Strony Internetowe' ? 'za projekt' : 'za godzinę'}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Middle Section - Description & Levels */}
+                      <div className="flex-grow mb-8">
+                        <p className="text-white/90 text-xl leading-relaxed mb-6">
+                          {service.description}
+                        </p>
+                        
+                        <div className="mb-6">
+                          <div className="text-white font-semibold mb-3 text-xl">Poziomy:</div>
+                          <div className="flex flex-wrap gap-3">
+                            {service.levels.map((level, idx) => (
+                              <span
+                                key={idx}
+                                className="px-4 py-2 bg-white/20 text-white rounded-full text-xl font-medium border border-white/30 backdrop-blur-sm"
+                              >
+                                {level}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Features List */}
+                        <div className="grid md:grid-cols-2 gap-3">
+                          {service.features.slice(0, 6).map((feature, idx) => (
+                            <div key={idx} className="flex items-center text-white/80">
+                              <Check className="w-5 h-5 text-white mr-3 flex-shrink-0" />
+                              <span className="text-xl">{feature}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Bottom Section - CTA Button */}
+                      <div className="flex justify-center">
+                        <motion.button
+                          onClick={() => handleBookService(service.title)}
+                          whileHover={{ scale: 1.05, y: -3 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="bg-white text-[#1f6feb] font-bold py-4 px-8 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl flex items-center group/btn cursor-pointer"
+                        >
+                          <span className="mr-2">
+                            {service.title === 'Strony Internetowe' ? 'Zamów stronę' : `Umów ${service.title.toLowerCase()}`}
+                          </span>
+                          <svg 
+                            className="w-5 h-5 transition-transform duration-300 group-hover/btn:translate-x-1" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                          </svg>
+                        </motion.button>
+                      </div>
+
+                      {/* Card Number Style Decoration */}
+                      <div className="absolute bottom-6 left-12 text-white/30 font-mono text-lg tracking-wider">
+                        {`**** **** **** ${String(service.id).padStart(4, '0')}`}
                       </div>
                     </div>
 
                     {/* Hover Glow Effect */}
                     <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-3xl">
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1f6feb]/5 to-transparent rounded-3xl" />
-                      <div className="absolute inset-0 shadow-2xl shadow-[#1f6feb]/25 rounded-3xl" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-white/5 to-transparent rounded-3xl" />
+                      <div className="absolute inset-0 shadow-2xl shadow-white/10 rounded-3xl" />
                     </div>
                   </div>
                 </motion.div>
               ))}
 
               {/* ==========================================
-                  📊 PODSUMOWANIE NA KOŃCU
+                  🎁 PACKAGE DEAL CARD - Special Offer
                   ========================================== */}
               <motion.div
-                initial={{ x: 100, opacity: 0 }}
-                animate={inView ? { x: 0, opacity: 1 } : {}}
-                transition={{ duration: 0.6, delay: 0.8 }}
-                className="flex-shrink-0"
+                initial={{ x: 100, opacity: 0, rotateY: 15 }}
+                animate={inView ? { x: 0, opacity: 1, rotateY: 0 } : {}}
+                transition={{ duration: 0.8, delay: 1 }}
+                className="service-card flex-shrink-0"
+                data-card-index={data.services.length} // 🆕 Dodaj data attribute
+                style={{
+                  marginLeft: '-200px',
+                  zIndex: 0,
+                }}
               >
-                <div className="w-[600px] md:w-[700px] lg:w-[800px] h-[400px] md:h-[450px] bg-gradient-to-br from-[#1f6feb]/10 to-[#58a6ff]/10 border border-[#1f6feb]/30 rounded-3xl p-12 flex flex-col items-center justify-center text-center">
+                <div className="w-[800px] md:w-[900px] lg:w-[1000px] h-[600px] md:h-[650px] bg-gradient-to-br from-[#58a6ff]/20 to-[#1f6feb]/20 border border-[#1f6feb]/30 rounded-3xl flex flex-col items-center justify-center text-center p-12 backdrop-blur-sm">
                   
                   <motion.div
                     animate={{ rotate: [0, 360] }}
                     transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="w-20 h-20 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] rounded-full flex items-center justify-center mb-8"
+                    className="w-24 h-24 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] rounded-full flex items-center justify-center mb-8"
                   >
-                    <Star className="w-10 h-10 text-white fill-current" />
+                    <Award className="w-12 h-12 text-white" />
                   </motion.div>
                   
-                  <h3 className="text-3xl md:text-4xl font-bold text-[#f0f6fc] mb-6">
-                    100% zadowolonych uczniów!
+                  <h3 className="text-4xl md:text-5xl font-black text-[#f0f6fc] mb-6">
+                    Pakiet 10 godzin
                   </h3>
                   
-                  <p className="text-[#c9d1d9] mb-8 leading-relaxed text-xl">
-                    Każdy uczeń osiągnął swoje cele. Dołącz do grona zadowolonych uczniów!
+                  <p className="text-[#c9d1d9] mb-8 leading-relaxed text-xl max-w-2xl">
+                    Zapisz się na 10 godzin z góry i otrzymaj 20% rabatu! Idealne dla systematycznej nauki.
                   </p>
                   
-                  <motion.a
-                    href="#contact"
-                    whileHover={{ scale: 1.05 }}
+                  <div className="text-3xl text-[#1f6feb] font-black mb-8">
+                    Oszczędzasz do 120 zł!
+                  </div>
+                  
+                  <motion.button
+                    onClick={() => handleBookService('pakiet')}
+                    whileHover={{ scale: 1.05, y: -3 }}
                     whileTap={{ scale: 0.95 }}
-                    className="bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 text-lg"
+                    className="bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 text-xl shadow-lg hover:shadow-xl"
                   >
-                    Umów konsultację
-                  </motion.a>
+                    Umów pakiet 10h
+                  </motion.button>
                 </div>
               </motion.div>
             </div>
@@ -1760,7 +2342,7 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
         return '';
 
       case 'subject':
-        if (!value) return 'Wybierz przedmiot';
+        if (!value) return 'Wybierz przedmiot/usługę';
         return '';
 
       case 'message':
@@ -1952,17 +2534,37 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
       }
     };
 
-    const handleAutoFill = (event: CustomEvent) => {
-      const { service } = event.detail;
-      setFormData(prev => ({ 
-        ...prev, 
-        subject: service,
-        message: service === 'pakiet' 
-          ? 'Jestem zainteresowany/a pakietem 10 godzin z rabatem 20%. Proszę o kontakt w sprawie szczegółów.'
-          : `Jestem zainteresowany/a korepetycjami z przedmiotu: ${service}. Proszę o kontakt.`
-      }));
-    };
+const handleAutoFill = (event: CustomEvent) => {
+    const { service } = event.detail;
+    
+    let message = '';
+    
+    if (service === 'pakiet') {
+      message = 'Jestem zainteresowany/a pakietem 10 godzin z rabatem 20%. Proszę o kontakt w sprawie szczegółów.';
+    } else if (service === 'strony-internetowe') {
+      message = 'Jestem zainteresowany/a zamówieniem strony internetowej. Proszę o kontakt w sprawie szczegółów projektu, wyceny i terminu realizacji.';
+    } else {
+      message = `Jestem zainteresowany/a korepetycjami z przedmiotu: ${service}. Proszę o kontakt.`;
+    }
+    
+    setFormData(prev => ({ 
+      ...prev, 
+      subject: service,
+      message: message
+    }));
 
+    // Oznacz pola jako dotknięte i usun błędy walidacji
+    setTouchedFields(prev => new Set(prev).add('subject').add('message'));
+    setErrors(prev => {
+      const newErrors = { ...prev };
+      // Usuń błędy dla pól które zostały wypełnione
+      delete newErrors.subject;
+      delete newErrors.message;
+      return newErrors;
+    });
+  };
+
+  
     checkHash();
     window.addEventListener('hashchange', checkHash);
     window.addEventListener('autoFillService', handleAutoFill as EventListener);
@@ -1986,7 +2588,7 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
             Kontakt
           </h2>
           <p className="text-xl text-[#c9d1d9] max-w-3xl mx-auto">
-            Gotowy na rozpoczęcie nauki? Skontaktuj się ze mną już dziś!
+            Gotowy na rozpoczęcie nauki lub zamówienie strony? Skontaktuj się ze mną już dziś!
           </p>
         </motion.div>
 
@@ -2043,36 +2645,37 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
 
             <div className="mt-8 flex space-x-4">
               <a
-                href="#"
+                href="https://www.linkedin.com/in/patryk-kulesza-788397354"
                 className="w-12 h-12 bg-[#1f6feb]/20 rounded-lg flex items-center justify-center hover:bg-[#1f6feb]/30 transition-colors"
               >
                 <Linkedin className="w-6 h-6 text-[#1f6feb]" />
               </a>
               <a
-                href="#"
+                href="https://github.com/PatrykKul"
                 className="w-12 h-12 bg-[#1f6feb]/20 rounded-lg flex items-center justify-center hover:bg-[#1f6feb]/30 transition-colors"
               >
                 <Github className="w-6 h-6 text-[#1f6feb]" />
+              </a>
+              <a
+                href="https://www.facebook.com/patryk.kulesza.790"
+                className="w-12 h-12 bg-[#1f6feb]/20 rounded-lg flex items-center justify-center hover:bg-[#1f6feb]/30 transition-colors"
+              >
+                <Facebook className="w-6 h-6 text-[#1f6feb]" />
               </a>
             </div>
 
             {/* Quick Contact Actions */}
             <div className="mt-8 space-y-3">
-              <h4 className="text-lg font-semibold text-[#f0f6fc]">Szybki kontakt:</h4>
+              <h4 className="text-xl font-semibold text-[#f0f6fc]">Szybki kontakt:</h4>
               <div className="flex flex-col space-y-2">
                 <a
                   href={`tel:${data.contact.phone}`}
                   className="flex items-center px-4 py-2 bg-[#1f6feb]/10 rounded-lg hover:bg-[#1f6feb]/20 transition-colors text-[#1f6feb]"
                 >
-                  <Phone className="w-4 h-4 mr-2" />
-                  Zadzwoń teraz
-                </a>
-                <a
-                  href={`mailto:${data.contact.email}?subject=Zapytanie o korepetycje`}
-                  className="flex items-center px-4 py-2 bg-[#1f6feb]/10 rounded-lg hover:bg-[#1f6feb]/20 transition-colors text-[#1f6feb]"
-                >
-                  <Mail className="w-4 h-4 mr-2" />
-                  Wyślij email
+                  <Phone className="w-6 h-6 mr-3" />
+                  <span className="text-xl font-medium">
+                    Zadzwoń teraz
+                  </span>
                 </a>
               </div>
             </div>
@@ -2230,10 +2833,10 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
                   )}
                 </div>
 
-                {/* Subject Field */}
+                {/* Subject Field - DODANA OPCJA STRONY */}
                 <div>
                   <label className="block text-[#f0f6fc] font-semibold mb-2">
-                    Przedmiot <span className="text-red-400">*</span>
+                    Przedmiot/Usługa <span className="text-red-400">*</span>
                   </label>
                   <select
                     name="subject"
@@ -2249,10 +2852,11 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
                         : 'border-[#30363d] focus:border-[#1f6feb]'
                     }`}
                   >
-                    <option value="">Wybierz przedmiot</option>
+                    <option value="">Wybierz przedmiot/usługę</option>
                     <option value="matematyka">Matematyka</option>
                     <option value="angielski">Angielski</option>
                     <option value="programowanie">Programowanie</option>
+                    <option value="strony-internetowe">Strony Internetowe</option>
                     <option value="pakiet">Pakiet 10 godzin</option>
                     <option value="inne">Inne</option>
                   </select>
@@ -2293,7 +2897,7 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
                       ? 'border-green-500 focus:border-green-400'
                       : 'border-[#30363d] focus:border-[#1f6feb]'
                   }`}
-                  placeholder="Opisz swoje potrzeby, poziom zaawansowania, cele..."
+                  placeholder="Opisz swoje potrzeby, poziom zaawansowania, cele... (dla stron: typ strony, funkcjonalności, budżet)"
                   maxLength={1000}
                 ></textarea>
                 {errors.message && (
@@ -2344,6 +2948,7 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
     </section>
   );
 };
+
 // ==========================================
 // 🦶 FOOTER
 // ==========================================
@@ -2430,7 +3035,23 @@ export default function HomePage() {
           "Bazy danych SQL/NoSQL",
           "Deploy i hosting"
         ]
-      }
+      },
+      {
+      id: 4,
+      title: "Strony Internetowe",
+      description: "Profesjonalne strony internetowe z nowoczesnych technologii. Od prostych wizytówek po zaawansowane aplikacje webowe.",
+      icon: <Globe className="w-12 h-12" />,
+      levels: ["Wizytówka", "Sklep online", "Portfolio", "Aplikacja webowa"],
+      price: "od 1000 zł",
+      features: [
+        "Next.js & TypeScript",
+        "Tailwind CSS design",
+        "Strapi CMS",
+        "SEO optymalizacja", 
+        "Hosting i domena",
+        "Website builders"
+      ]
+    } 
     ],
    portfolio: [
       {
@@ -2509,10 +3130,10 @@ export default function HomePage() {
     testimonials: [
       {
         id: 1,
-        name: "Anna K.",
-        grade: "Matura rozszerzona 2024",
-        result: "100%",
-        opinion: "Dzięki Patrykowi zdałam maturę na 100%! Świetnie tłumaczysz trudne zagadnienia i zawsze cierpliwie odpowiadasz na pytania. Polecam każdemu!",
+        name: "Mateusz M.",
+        grade: "Statystyka i Metody Probabilistyczne",
+        result: "Zaliczenie Sesji",
+        opinion: "Czasami spotykasz osobę, która zmienia bieg twojego życia w kilka dni. Patryk to jeden z tych ludzi - ratuje nie tylko przed sesją, ale potrafi w kilka godzin nauczyć tego, czego nie ogarnąłeś przez cały semestr.",
         rating: 5
       },
       {
@@ -2649,14 +3270,17 @@ export default function HomePage() {
         {/* 🚀 SEKCJA HERO */}
         <HeroSection data={data} />
 
-        {/* 💼 SEKCJA USŁUGI */}
-        <ServicesSection data={data} />
+        {/* 🎓 SEKCJA O MNIE */}
+        <AboutSection />
+
+          {/* ⭐ SEKCJA OPINIE */}
+        <TestimonialsSection data={data} />
 
         {/* 🎨 SEKCJA PORTFOLIO */}
         <PortfolioSection data={data} />
 
-        {/* ⭐ SEKCJA OPINIE */}
-        <TestimonialsSection data={data} />
+        {/* 💼 SEKCJA USŁUGI */}
+        <ServicesSection data={data} />
 
         {/* ❓ SEKCJA FAQ */}
         <FaqSection data={data} />
