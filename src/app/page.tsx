@@ -1294,6 +1294,7 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
     stopMomentumAnimation();
     
     setIsDragging(true);
+     setHasMoved(false);
     setStartX(e.pageX);
     setScrollLeft(scrollContainerRef.current.scrollLeft);
     
@@ -1332,6 +1333,10 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
     const x = e.pageX;
     const walk = (x - startX) * 1.5;
     
+    if (Math.abs(walk) > 5) {
+    setHasMoved(true);
+  }
+
     scrollContainerRef.current.scrollLeft = scrollLeft - walk;
     
     const currentTime = Date.now();
@@ -1864,7 +1869,7 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
     
     setLastX(currentX);
     setLastTime(currentTime);
-  }, [isDragging, startX, scrollLeft, lastTime, getCardIndexUnderCursor]);
+  }, [isDragging, startX, scrollLeft, lastTime, lastX, getCardIndexUnderCursor]);
 
   // ==========================================
   // 🆕 FUNKCJA DO OBLICZANIA Z-INDEX
