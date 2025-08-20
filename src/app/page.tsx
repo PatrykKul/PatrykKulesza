@@ -870,7 +870,7 @@ const AboutSection = () => {
           className="text-center mt-16"
         >
           <div className="bg-gradient-to-r from-[#1f6feb]/10 to-[#58a6ff]/10 border border-[#1f6feb]/30 rounded-3xl p-8 max-w-4xl mx-auto">
-            <div className="text-4xl text-[#1f6feb] mb-4">"</div>
+            <div className="text-4xl text-[#1f6feb] mb-4">&quot;</div>
             <p className="text-xl md:text-2xl text-[#f0f6fc] leading-relaxed italic font-light mb-4">
               Każdy uczeń ma potencjał na sukces. Moją rolą jest odkryć go i pomóc mu rozkwitnąć. 
               Nauka to nie tylko teoria - to budowanie pewności siebie i osiąganie celów.
