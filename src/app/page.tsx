@@ -1129,7 +1129,7 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
                     {/* Opinion Text */}
                     <div className="mb-12 flex-grow">
                       <p className="text-[#c9d1d9] leading-relaxed text-2xl md:text-3xl font-light">
-                        "{testimonial.opinion}"
+                        &ldquo;{testimonial.opinion}&rdquo;
                       </p>
                     </div>
 
