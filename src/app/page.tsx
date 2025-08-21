@@ -1647,11 +1647,11 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
               transition={{ duration: 0.8, delay: 1 }}
               className="text-center mt-4 md:hidden"
             >
-              <p className="text-xs text-[#8b949e] flex items-center justify-center">
-                <span className="mr-2">👈</span>
-                Przesuń palcem aby zobaczyć więcej projektów
-                <span className="ml-2">👉</span>
-              </p>
+            <p className="text-xs text-[#8b949e] flex items-center justify-center">
+              <span className="mr-2">👈</span>
+              Przesuń palcem aby zobaczyć więcej • Dotknij aby zobaczyć szczegóły
+              <span className="ml-2">👉</span>
+            </p>
             </motion.div>
           )}
         </div>
@@ -2506,7 +2506,7 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
 
   // Inicjalizacja EmailJS
   useEffect(() => {
-    emailjs.init('7K0ksAqXHemL_xEgT');
+    emailjs.init(process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!);
   }, []);
 
   // Timer cooldown
@@ -2694,8 +2694,8 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
       };
 
       await emailjs.send(
-        'service_ax6r24o',
-        'template_iay34wr',
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
         templateParams
       );
 
