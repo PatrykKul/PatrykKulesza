@@ -3462,11 +3462,11 @@ export default function HomePage() {
     faq: [
       {
         question: "Jak wyglądają zajęcia online?",
-        answer: "Zajęcia prowadzę przez Google Meet lub Zoom. Używam tabletu graficznego do pisania, dzielę się ekranem i wysyłam notatki po zajęciach. Jakość jest identyczna jak przy zajęciach stacjonarnych."
+        answer: "Zajęcia online prowadzę za pomocą interaktywnych narzędzi cyfrowych - najczęściej używam wirtualnych tablic (whiteboard, Miro), które możemy wspólnie edytować w czasie rzeczywistym. Do komunikacji wykorzystujemy platformy wybrane przez ucznia: Teams, Google Meet czy Zoom. Podczas zajęć korzystam z tabletu graficznego, dzielę się ekranem i po każdych zajęciach wysyłam kompletne notatki. Dzięki takiemu podejściu jakość nauczania jest identyczna jak przy zajęciach stacjonarnych."
       },
       {
         question: "Czy prowadzisz zajęcia stacjonarne?",
-        answer: "Tak, prowadzę zajęcia stacjonarne w Białymstoku i Zambrowie oraz okolicach. Mogę dojechać do ucznia lub spotkać się w bibliotece/kawiarni."
+        answer: "Tak, prowadzę zajęcia stacjonarne w Białymstoku, Zambrowie oraz okolicach. Mamy kilka opcji do wyboru: zajęcia u mnie w domu, mogę przyjechać do ucznia lub spotkać się w miejscu wybranym przez ucznia."
       },
       {
         question: "Jakie są ceny korepetycji?",
@@ -3486,7 +3486,7 @@ export default function HomePage() {
       },
       {
         question: "Jak wygląda pierwsza lekcja?",
-        answer: "Pierwsza lekcja to bezpłatna konsultacja (30 min), podczas której poznajemy się, ustalamy cele, sprawdzam poziom i dostosowuję plan nauki do Twoich potrzeb."
+        answer: "Pierwsza lekcja przypomina konsultację, podczas której poznajemy się, ustalamy cele, sprawdzam poziom i dostosowuję plan nauki do Twoich potrzeb."
       },
       {
         question: "Czy wysyłasz materiały po zajęciach?",
