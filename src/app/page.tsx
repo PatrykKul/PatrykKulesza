@@ -626,7 +626,7 @@ const HeroSection = ({ data }: { data: HomePageData }) => {
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : {}}
           transition={{ duration: 0.8, delay: 1.4 }}
-          className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-4 sm:gap-6 lg:gap-8 text-[#c9d1d9] px-4 sm:px-0"
+          className="pb-4 flex flex-col sm:flex-row flex-wrap justify-center items-center gap-4 sm:gap-6 lg:gap-8 text-[#c9d1d9] px-4 sm:px-0"
         >
           <div className="flex items-center gap-2">
             <svg className="w-5 h-5 sm:w-6 sm:h-6 text-[#1f6feb] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -2121,7 +2121,7 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
             className="text-center mb-8 sm:mb-12 md:mb-16"
           >
             <div className="container mx-auto px-4 sm:px-6">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 md:mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
+              <h2 className="text-3xl sm:text-4xl pb-4 md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 md:mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
                 Usługi
               </h2>
               <p className="text-sm sm:text-base md:text-lg lg:text-xl text-[#c9d1d9] max-w-3xl mx-auto px-2 sm:px-0">
@@ -2354,7 +2354,7 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
                     onClick={() => handleBookService('pakiet')}
                     whileHover={{ scale: 1.05, y: -3 }}
                     whileTap={{ scale: 0.95 }}
-                    className="bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold py-2 sm:py-3 md:py-4 px-4 sm:px-6 md:px-8 rounded-lg sm:rounded-xl md:rounded-2xl transition-all duration-300 text-sm sm:text-base md:text-lg lg:text-xl shadow-lg hover:shadow-xl"
+                    className="cursor-pointer bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold py-2 sm:py-3 md:py-4 px-4 sm:px-6 md:px-8 rounded-lg sm:rounded-xl md:rounded-2xl transition-all duration-300 text-sm sm:text-base md:text-lg lg:text-xl shadow-lg hover:shadow-xl"
                   >
                     Umów pakiet 10h
                   </motion.button>
@@ -3470,28 +3470,28 @@ export default function HomePage() {
       `}</style>
 
       <main className="min-h-screen bg-[#0d1117]">
-        {/* 🧭 HEADER NAVIGATION */}
+          {/* 🧭 HEADER NAVIGATION */}
         <Header />
 
-        {/* 🚀 SEKCJA HERO */}
+          {/* 🚀 SEKCJA HERO */}
         <HeroSection data={data} />
 
-        {/* 🎓 SEKCJA O MNIE */}
+          {/* 🎓 SEKCJA O MNIE */}
         <AboutSection />
 
           {/* ⭐ SEKCJA OPINIE */}
         <TestimonialsSection data={data} />
 
-        {/* 🎨 SEKCJA PORTFOLIO */}
+          {/* 🎨 SEKCJA PORTFOLIO */}
         <PortfolioSection data={data} />
 
-        {/* 💼 SEKCJA USŁUGI */}
+          {/* 💼 SEKCJA USŁUGI */}
         <ServicesSection data={data} />
 
-        {/* ❓ SEKCJA FAQ */}
+          {/* ❓ SEKCJA FAQ */}
         <FaqSection data={data} />
 
-        {/* 📞 SEKCJA KONTAKT */}
+          {/* 📞 SEKCJA KONTAKT */}
         <ContactSection data={data} />
 
         {/* 🦶 FOOTER */}
