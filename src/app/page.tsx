@@ -2387,7 +2387,7 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
 };
 
 // ==========================================
-// ❓ FAQ SECTION - Enhanced with larger text
+// ❓ RESPONSIVE FAQ SECTION - Mobile First
 // ==========================================
 const FaqSection = ({ data }: { data: HomePageData }) => {
   const [ref, inView] = useAdvancedInView();
@@ -2402,7 +2402,7 @@ const FaqSection = ({ data }: { data: HomePageData }) => {
   }, []);
 
   return (
-    <section ref={ref} id="faq" className="py-20 bg-[#0d1117]">
+    <section ref={ref} id="faq" className="py-12 sm:py-16 md:py-20 bg-[#0d1117]">
       {/* Structured data dla FAQ */}
       <script
         type="application/ld+json"
@@ -2411,35 +2411,35 @@ const FaqSection = ({ data }: { data: HomePageData }) => {
         }}
       />
       
-      <div className="container mx-auto px-6">
+      <div className="container mx-auto px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          className="text-center mb-8 sm:mb-12 md:mb-16"
         >
-          <h2 className="text-5xl md:text-6xl font-extrabold mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 md:mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
             FAQ
           </h2>
-          <p className="text-xl text-[#8b949e] max-w-3xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl text-[#8b949e] max-w-3xl mx-auto px-2 sm:px-0">
             Najczęściej zadawane pytania o korepetycje
           </p>
         </motion.div>
 
-        <div className="max-w-5xl mx-auto space-y-6 ">
+        <div className="max-w-5xl mx-auto space-y-3 sm:space-y-4 md:space-y-6">
           {data.faq.map((item, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 20 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="bg-[#161b22] border border-[#30363d] rounded-xl overflow-hidden hover:border-[#1f6feb]/50 transition-all duration-300 shadow-lg hover:shadow-xl"
+              className="bg-[#161b22] border border-[#30363d] rounded-lg sm:rounded-xl overflow-hidden hover:border-[#1f6feb]/50 transition-all duration-300 shadow-lg hover:shadow-xl"
             >
               <button
                 onClick={() => toggleItem(index)}
-                className="w-full px-10 py-8 text-left flex items-center justify-between group focus:outline-none cursor-pointer"
+                className="w-full px-4 sm:px-6 md:px-8 lg:px-10 py-4 sm:py-6 md:py-8 text-left flex items-center justify-between group focus:outline-none cursor-pointer"
               >
-                <h3 className="text-xl md:text-2xl font-semibold text-[#1f6feb] group-hover:text-[#58a6ff] transition-colors duration-300 pr-6 leading-relaxed">
+                <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-[#1f6feb] group-hover:text-[#58a6ff] transition-colors duration-300 pr-3 sm:pr-4 md:pr-6 leading-relaxed">
                   {item.question}
                 </h3>
                 
@@ -2448,7 +2448,7 @@ const FaqSection = ({ data }: { data: HomePageData }) => {
                   transition={{ duration: 0.3 }}
                   className="flex-shrink-0"
                 >
-                  <ChevronDown className="w-7 h-7 text-[#1f6feb]" />
+                  <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-[#1f6feb]" />
                 </motion.div>
               </button>
 
@@ -2461,14 +2461,14 @@ const FaqSection = ({ data }: { data: HomePageData }) => {
                     transition={{ duration: 0.3, ease: "easeInOut" }}
                     className="overflow-hidden"
                   >
-                    <div className="px-10 pb-8 border-t border-[#30363d]">
+                    <div className="px-4 sm:px-6 md:px-8 lg:px-10 pb-4 sm:pb-6 md:pb-8 border-t border-[#30363d]">
                       <motion.div
                         initial={{ y: -10, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ duration: 0.3, delay: 0.1 }}
-                        className="pt-6"
+                        className="pt-3 sm:pt-4 md:pt-6"
                       >
-                        <p className="text-[#f0f6fc] text-lg leading-relaxed whitespace-pre-line">
+                        <p className="text-[#f0f6fc] text-sm sm:text-base md:text-lg leading-relaxed whitespace-pre-line">
                           {item.answer}
                         </p>
                       </motion.div>
