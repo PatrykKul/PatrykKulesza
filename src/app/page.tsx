@@ -167,29 +167,29 @@ const Header = () => {
   const [activeSection, setActiveSection] = useState('hero');
   const [isScrolled, setIsScrolled] = useState(false);
 
-useEffect(() => {
-  const handleScroll = () => {
-    setIsScrolled(window.scrollY > 50);
-    
-    // Active section tracking
-    const sections = MENU_ITEMS.map(item => item.href.substring(1)); // ✅ ZMIEŃ na MENU_ITEMS
-    const current = sections.find(section => {
-      const element = document.getElementById(section);
-      if (element) {
-        const rect = element.getBoundingClientRect();
-        return rect.top <= 100 && rect.bottom >= 100;
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+      
+      // Active section tracking
+      const sections = MENU_ITEMS.map(item => item.href.substring(1)); // ✅ ZMIEŃ na MENU_ITEMS
+      const current = sections.find(section => {
+        const element = document.getElementById(section);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          return rect.top <= 100 && rect.bottom >= 100;
+        }
+        return false;
+      });
+      
+      if (current) {
+        setActiveSection(current);
       }
-      return false;
-    });
-    
-    if (current) {
-      setActiveSection(current);
-    }
-  };
+    };
 
-  window.addEventListener('scroll', handleScroll);
-  return () => window.removeEventListener('scroll', handleScroll);
-}, []); 
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []); 
 
   // Smooth scroll handler
   const handleMenuClick = (href: string) => {
@@ -1211,7 +1211,6 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
   );
 };
 
-
 // ==========================================
 // 🎨 PORTFOLIO SECTION - ZDJĘCIE JAKO TŁO Z OVERLAY
 // ==========================================
@@ -1681,24 +1680,39 @@ useEffect(() => {
 };
 
 // ==========================================
-// 💼 SERVICES SECTION - "Credit Card" Horizontal Overlap
+// 💼 SERVICES SECTION - "Credit Card" Horizontal Overlap z Dynamic Scaling
 // ==========================================
 const ServicesSection = ({ data }: { data: HomePageData }) => {
   const [ref, inView] = useAdvancedInView();
   
   // ==========================================
-  // 🎯 STATES FOR DRAG SCROLLING
+  // 🎯 STATES FOR DRAG SCROLLING & MOBILE DETECTION
   // ==========================================
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
   const [hoveredCardIndex, setHoveredCardIndex] = useState<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   
   // ==========================================
   // 🆕 NOWY STAN DLA DRAG HOVER
   // ==========================================
   const [dragHoveredCardIndex, setDragHoveredCardIndex] = useState<number | null>(null);
+  
+  // ==========================================
+  // 📱 MOBILE DETECTION HOOK
+  // ==========================================
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   // ==========================================
   // 🚀 MOMENTUM SCROLLING STATES
@@ -1882,6 +1896,25 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
   }, [dragHoveredCardIndex, hoveredCardIndex, isDragging, data.services.length]);
 
   // ==========================================
+  // 🆕 FUNKCJA DO OBLICZANIA SCALE Z MOBILE SUPPORT
+  // ==========================================
+  const getCardScale = useCallback((index: number) => {
+    // Na mobile mniejszy efekt
+    if (isMobile) {
+      if (dragHoveredCardIndex === index || (hoveredCardIndex === index && !isDragging)) {
+        return 1.05; // Mniejszy efekt na mobile
+      }
+      return 0.9; // Mniejsza różnica na mobile
+    }
+    
+    // Desktop - pełny efekt
+    if (dragHoveredCardIndex === index || (hoveredCardIndex === index && !isDragging)) {
+      return 1.0;
+    }
+    return 0.8;
+  }, [dragHoveredCardIndex, hoveredCardIndex, isDragging, isMobile]);
+
+  // ==========================================
   // 🆕 FUNKCJA DO SPRAWDZANIA CZY KARTA JEST HIGHLIGHTED
   // ==========================================
   const isCardHighlighted = useCallback((index: number) => {
@@ -1917,19 +1950,39 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
           cursor: inherit !important;
         }
         
-        /* Credit Card Overlap Effect */
+        /* Credit Card Overlap Effect z Dynamic Scaling */
         .service-card {
           transform-style: preserve-3d;
-          transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+          transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+          transform-origin: center center;
         }
         
         .service-card.highlighted {
           transform: translateY(-20px) translateZ(50px) rotateY(-5deg) scale(1.02);
         }
         
+        /* Smooth scaling dla wszystkich kart */
+        .service-card-content {
+          transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+          transform-origin: center center;
+        }
+        
+        /* Mobile optimizations */
         @media (max-width: 768px) {
           .service-card.highlighted {
             transform: translateY(-10px) scale(1.01);
+          }
+          
+          /* Na mobile wyłącz skalowanie lub zmniejsz efekt */
+          .service-card-content {
+            transition: all 0.4s ease-out;
+          }
+          
+          /* Opcjonalnie: wyłącz hover effects na mobile */
+          @media (hover: none) and (pointer: coarse) {
+            .service-card-content {
+              transform: scale(1) !important;
+            }
           }
         }
       `}</style>
@@ -1975,13 +2028,23 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
                 scrollbarWidth: 'none',
                 msOverflowStyle: 'none',
               }}
-              onMouseDown={handleMouseDown}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseLeave}
-              onMouseMove={handleMouseMove}
+              // Na mobile wyłącz drag, zostaw tylko scroll
+              onMouseDown={!isMobile ? handleMouseDown : undefined}
+              onMouseUp={!isMobile ? handleMouseUp : undefined}
+              onMouseLeave={!isMobile ? handleMouseLeave : undefined}
+              onMouseMove={!isMobile ? handleMouseMove : undefined}
+              // Dodaj touch events dla mobile hover simulation
+              onTouchStart={isMobile ? (e) => {
+                const touch = e.touches[0];
+                const cardIndex = getCardIndexUnderCursor(touch.clientX, touch.clientY);
+                setHoveredCardIndex(cardIndex);
+              } : undefined}
+              onTouchEnd={isMobile ? () => {
+                setTimeout(() => setHoveredCardIndex(null), 150); // Reset po krótkiej chwili
+              } : undefined}
             >
               {/* ==========================================
-                  💳 SERVICE CARDS MAP - Credit Card Overlap
+                  💳 SERVICE CARDS MAP - Credit Card Overlap z Dynamic Scaling
                   ========================================== */}
               {data.services.map((service, index) => (
                 <motion.div
@@ -1990,23 +2053,26 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
                   animate={inView ? { x: 0, opacity: 1, rotateY: 0 } : {}}
                   transition={{ duration: 0.8, delay: index * 0.2 }}
                   className={`service-card flex-shrink-0 group ${isCardHighlighted(index) ? 'highlighted' : ''}`}
-                  data-card-index={index} // 🆕 Dodaj data attribute dla identyfikacji
+                  data-card-index={index}
                   style={{
-                    marginLeft: index > 0 ? '-200px' : '0px', // Overlap effect
-                    zIndex: getCardZIndex(index), // 🆕 Używaj nowej funkcji z-index
+                    marginLeft: index > 0 ? '-200px' : '0px',
+                    zIndex: getCardZIndex(index),
                   }}
                   onMouseEnter={() => !isDragging && setHoveredCardIndex(index)}
                   onMouseLeave={() => !isDragging && setHoveredCardIndex(null)}
                 >
                   {/* ==========================================
-                      💳 CREDIT CARD DESIGN - Large Wide Card
+                      💳 CREDIT CARD DESIGN - Large Wide Card z Dynamic Scale
                       ========================================== */}
                   <div 
-                    className={`relative w-[800px] md:w-[900px] lg:w-[1000px] h-[600px] md:h-[650px] bg-gradient-to-br ${
+                    className={`service-card-content relative w-[800px] md:w-[900px] lg:w-[1000px] h-[600px] md:h-[650px] bg-gradient-to-br ${
                       index % 2 === 0 
-                        ? 'from-[#1f6feb] via-[#0d1117] to-[#58a6ff]'  // Jak pierwsza
-                        : 'from-[#58a6ff] via-[#0d1117] to-[#1f6feb]'   // Jak druga
+                        ? 'from-[#1f6feb] via-[#0d1117] to-[#58a6ff]'
+                        : 'from-[#58a6ff] via-[#0d1117] to-[#1f6feb]'
                     } border border-[#30363d] rounded-3xl overflow-hidden shadow-2xl hover:shadow-[#1f6feb]/25 transition-all duration-500`}
+                    style={{
+                      transform: `scale(${getCardScale(index)})`,
+                    }}
                   >
                     
                     {/* Card Background Pattern */}
@@ -2116,20 +2182,27 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
               ))}
 
               {/* ==========================================
-                  🎁 PACKAGE DEAL CARD - Special Offer
+                  🎁 PACKAGE DEAL CARD - Special Offer z Dynamic Scale
                   ========================================== */}
               <motion.div
                 initial={{ x: 100, opacity: 0, rotateY: 15 }}
                 animate={inView ? { x: 0, opacity: 1, rotateY: 0 } : {}}
                 transition={{ duration: 0.8, delay: 1 }}
                 className="service-card flex-shrink-0"
-                data-card-index={data.services.length} // 🆕 Dodaj data attribute
+                data-card-index={data.services.length}
                 style={{
                   marginLeft: '-200px',
-                  zIndex: 0,
+                  zIndex: getCardZIndex(data.services.length),
                 }}
+                onMouseEnter={() => !isDragging && setHoveredCardIndex(data.services.length)}
+                onMouseLeave={() => !isDragging && setHoveredCardIndex(null)}
               >
-                <div className="w-[800px] md:w-[900px] lg:w-[1000px] h-[600px] md:h-[650px] bg-gradient-to-br from-[#58a6ff]/20 to-[#1f6feb]/20 border border-[#1f6feb]/30 rounded-3xl flex flex-col items-center justify-center text-center p-12 backdrop-blur-sm">
+                <div 
+                  className="service-card-content w-[800px] md:w-[900px] lg:w-[1000px] h-[600px] md:h-[650px] bg-gradient-to-br from-[#58a6ff]/20 to-[#1f6feb]/20 border border-[#1f6feb]/30 rounded-3xl flex flex-col items-center justify-center text-center p-12 backdrop-blur-sm"
+                  style={{
+                    transform: `scale(${getCardScale(data.services.length)})`,
+                  }}
+                >
                   
                   <motion.div
                     animate={{ rotate: [0, 360] }}
