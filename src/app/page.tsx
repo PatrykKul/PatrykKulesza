@@ -2506,7 +2506,7 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
 
   // Inicjalizacja EmailJS
   useEffect(() => {
-    emailjs.init(process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!);
+    emailjs.init('7K0ksAqXHemL_xEgT');
   }, []);
 
   // Timer cooldown
@@ -2693,11 +2693,11 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
         message: formData.message
       };
 
-      await emailjs.send(
-        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
-        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
-        templateParams
-      );
+    await emailjs.send(
+      'service_ax6r24o',
+      'template_iay34wr',
+      templateParams
+    );
 
       setSubmitStatus('success');
       
