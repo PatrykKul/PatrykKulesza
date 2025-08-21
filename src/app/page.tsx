@@ -903,7 +903,10 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
-  
+  const [touchStart, setTouchStart] = useState({ x: 0, y: 0 });
+  const [isTouching, setIsTouching] = useState(false);
+  const [hasScrolledHorizontally, setHasScrolledHorizontally] = useState(false);
+    
   // ==========================================
   // 🚀 MOMENTUM SCROLLING STATES
   // ==========================================
@@ -1031,6 +1034,47 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
     setLastTime(currentTime);
   }, [isDragging, startX, scrollLeft, lastTime, lastX, isMobile]);
 
+
+  // ==========================================
+  // 📱 TOUCH EVENT HANDLERS - MOBILE
+  // ==========================================
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (!scrollContainerRef.current || !isMobile) return;
+    
+    const touch = e.touches[0];
+    setTouchStart({ x: touch.clientX, y: touch.clientY });
+    setIsTouching(true);
+    setHasScrolledHorizontally(false);
+    
+    stopMomentumAnimation();
+  }, [isMobile, stopMomentumAnimation]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!isTouching || !scrollContainerRef.current || !isMobile) return;
+    
+    const touch = e.touches[0];
+    const deltaX = touchStart.x - touch.clientX;
+    const deltaY = touchStart.y - touch.clientY;
+    
+    // Detect horizontal vs vertical scroll intent
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+      e.preventDefault();
+      setHasScrolledHorizontally(true);
+      
+      const currentScrollLeft = scrollContainerRef.current.scrollLeft;
+      const newScrollLeft = currentScrollLeft + deltaX;
+      const maxScroll = scrollContainerRef.current.scrollWidth - scrollContainerRef.current.clientWidth;
+      const clampedScrollLeft = Math.max(0, Math.min(maxScroll, newScrollLeft));
+      
+      scrollContainerRef.current.scrollLeft = clampedScrollLeft;
+    }
+  }, [isTouching, touchStart, isMobile]);
+
+  const handleTouchEnd = useCallback(() => {
+    setIsTouching(false);
+    setHasScrolledHorizontally(false);
+  }, []);
+
   // ==========================================
   // 🎯 CLEANUP
   // ==========================================
@@ -1119,6 +1163,9 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
               onMouseUp={!isMobile ? handleMouseUp : undefined}
               onMouseLeave={!isMobile ? handleMouseLeave : undefined}
               onMouseMove={!isMobile ? handleMouseMove : undefined}
+              onTouchStart={isMobile ? handleTouchStart : undefined}
+              onTouchMove={isMobile ? handleTouchMove : undefined}
+              onTouchEnd={isMobile ? handleTouchEnd : undefined}
               style={{
                 scrollbarWidth: 'none',
                 msOverflowStyle: 'none',
