@@ -647,7 +647,7 @@ const HeroSection = ({ data }: { data: HomePageData }) => {
 };
 
 // ==========================================
-// 🎓 ABOUT SECTION - Personal achievements
+// 🎓 RESPONSIVE ABOUT SECTION - Mobile First
 // ==========================================
 const AboutSection = () => {
   const [ref, inView] = useAdvancedInView();
@@ -657,25 +657,25 @@ const AboutSection = () => {
       title: "Średnia na studiach",
       value: "4.76",
       description: "Stypendium naukowe 3 lata z rzędu",
-      icon: <Award className="w-8 h-8" />
+      icon: <Award className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
     },
     {
       title: "Matura matematyka",
       value: "93%",
       description: "Poziom rozszerzony",
-      icon: <Calculator className="w-8 h-8" />
+      icon: <Calculator className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
     },
     {
       title: "Matura angielski", 
       value: "96%",
       description: "Certyfikat C1",
-      icon: <BookOpen className="w-8 h-8" />
+      icon: <BookOpen className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
     },
     {
       title: "Lat doświadczenia",
       value: "5+",
       description: "Ponad 60 uczniów",
-      icon: <Brain className="w-8 h-8" />
+      icon: <Brain className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
     }
   ];
 
@@ -721,7 +721,7 @@ const AboutSection = () => {
   ];
 
   return (
-    <section ref={ref} id="about" className="py-20 bg-[#0d1117] relative overflow-hidden">
+    <section ref={ref} id="about" className="py-12 sm:py-16 md:py-20 bg-[#0d1117] relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div 
@@ -733,29 +733,29 @@ const AboutSection = () => {
         />
       </div>
 
-      <div className="container mx-auto px-6 relative z-10">
-        {/* Header */}
+      <div className="container mx-auto px-4 sm:px-6 relative z-10">
+        {/* Header - RESPONSIVE TYPOGRAPHY */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          className="text-center mb-8 sm:mb-12 md:mb-16"
         >
-          <h2 className="text-5xl md:text-6xl font-extrabold mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 md:mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
             O mnie
           </h2>
-          <p className="text-xl text-[#c9d1d9] max-w-4xl mx-auto leading-relaxed">
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl text-[#c9d1d9] max-w-4xl mx-auto leading-relaxed px-2 sm:px-0">
             Student informatyki III roku z pasją do nauczania. Specjalizuję się w Data Science i web developmencie, 
             pomagając uczniom osiągać sukcesy od <span className="text-[#1f6feb] font-semibold">5 lat</span>.
           </p>
         </motion.div>
 
-        {/* Stats Grid */}
+        {/* Stats Grid - FULLY RESPONSIVE */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-12 sm:mb-16"
         >
           {educationStats.map((stat, index) => (
             <motion.div
@@ -763,60 +763,60 @@ const AboutSection = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.3 + index * 0.1 }}
-              className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 hover:border-[#1f6feb]/50 transition-all duration-300 group"
+              className="bg-[#161b22] border border-[#30363d] rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 hover:border-[#1f6feb]/50 transition-all duration-300 group"
               whileHover={{ y: -5 }}
             >
-              <div className="text-[#1f6feb] mb-4 group-hover:scale-110 transition-transform duration-300">
+              <div className="text-[#1f6feb] mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300">
                 {stat.icon}
               </div>
-              <div className="text-3xl font-black text-[#f0f6fc] mb-2">
+              <div className="text-2xl sm:text-3xl font-black text-[#f0f6fc] mb-1 sm:mb-2">
                 {stat.value}
               </div>
-              <div className="text-lg font-semibold text-[#1f6feb] mb-1">
+              <div className="text-sm sm:text-base md:text-lg font-semibold text-[#1f6feb] mb-1">
                 {stat.title}
               </div>
-              <div className="text-sm text-[#8b949e]">
+              <div className="text-xs sm:text-sm text-[#8b949e] leading-relaxed">
                 {stat.description}
               </div>
             </motion.div>
           ))}
         </motion.div>
 
-        {/* Skills & Expertise */}
+        {/* Skills & Expertise - RESPONSIVE GRID */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="mb-16"
+          className="mb-12 sm:mb-16"
         >
-          <h3 className="text-3xl font-bold text-center text-[#f0f6fc] mb-12">
+          <h3 className="text-2xl sm:text-3xl font-bold text-center text-[#f0f6fc] mb-8 sm:mb-12">
             Moja ekspertyza
           </h3>
           
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {skills.map((skill, index) => (
               <motion.div
                 key={skill.category}
                 initial={{ opacity: 0, x: index % 2 === 0 ? -30 : 30 }}
                 animate={inView ? { opacity: 1, x: 0 } : {}}
                 transition={{ duration: 0.6, delay: 0.5 + index * 0.1 }}
-                className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 hover:border-[#1f6feb]/50 transition-all duration-300"
+                className="bg-[#161b22] border border-[#30363d] rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 hover:border-[#1f6feb]/50 transition-all duration-300"
               >
-                <div className={`inline-block px-4 py-2 rounded-full bg-gradient-to-r ${skill.color} text-white font-semibold mb-4`}>
+                <div className={`inline-block px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-gradient-to-r ${skill.color} text-white font-semibold mb-3 sm:mb-4 text-sm sm:text-base`}>
                   {skill.category}
                 </div>
                 
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   {skill.items.map((item, idx) => (
                     <motion.div
                       key={item}
                       initial={{ opacity: 0, x: -10 }}
                       animate={inView ? { opacity: 1, x: 0 } : {}}
                       transition={{ duration: 0.4, delay: 0.6 + index * 0.1 + idx * 0.05 }}
-                      className="flex items-center text-[#c9d1d9]"
+                      className="flex items-center text-[#c9d1d9] text-sm sm:text-base"
                     >
-                      <div className="w-2 h-2 bg-[#1f6feb] rounded-full mr-3 flex-shrink-0"></div>
-                      <span>{item}</span>
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#1f6feb] rounded-full mr-2 sm:mr-3 flex-shrink-0"></div>
+                      <span className="leading-relaxed">{item}</span>
                     </motion.div>
                   ))}
                 </div>
@@ -825,35 +825,36 @@ const AboutSection = () => {
           </div>
         </motion.div>
 
-        {/* Key Achievements */}
+        {/* Key Achievements - RESPONSIVE GRID */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.6 }}
+          className="mb-12 sm:mb-16"
         >
-          <h3 className="text-3xl font-bold text-center text-[#f0f6fc] mb-12">
+          <h3 className="text-2xl sm:text-3xl font-bold text-center text-[#f0f6fc] mb-8 sm:mb-12">
             Kluczowe osiągnięcia
           </h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {achievements.map((achievement, index) => (
               <motion.div
                 key={achievement.title}
                 initial={{ opacity: 0, y: 20 }}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6, delay: 0.7 + index * 0.1 }}
-                className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 hover:border-[#1f6feb]/50 transition-all duration-300 group"
+                className="bg-[#161b22] border border-[#30363d] rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 hover:border-[#1f6feb]/50 transition-all duration-300 group"
                 whileHover={{ scale: 1.02 }}
               >
                 <div className="flex items-start">
-                  <span className="text-3xl mr-4 group-hover:scale-110 transition-transform duration-300">
+                  <span className="text-2xl sm:text-3xl mr-3 sm:mr-4 group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
                     {achievement.icon}
                   </span>
-                  <div>
-                    <h4 className="text-xl font-bold text-[#f0f6fc] mb-2">
+                  <div className="min-w-0 flex-1">
+                    <h4 className="text-lg sm:text-xl font-bold text-[#f0f6fc] mb-1 sm:mb-2 leading-tight">
                       {achievement.title}
                     </h4>
-                    <p className="text-[#c9d1d9] leading-relaxed">
+                    <p className="text-sm sm:text-base text-[#c9d1d9] leading-relaxed">
                       {achievement.description}
                     </p>
                   </div>
@@ -863,20 +864,22 @@ const AboutSection = () => {
           </div>
         </motion.div>
 
-        {/* Personal Quote */}
+        {/* Personal Quote - MOBILE RESPONSIVE */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.8 }}
-          className="text-center mt-16"
+          className="text-center"
         >
-          <div className="bg-gradient-to-r from-[#1f6feb]/10 to-[#58a6ff]/10 border border-[#1f6feb]/30 rounded-3xl p-8 max-w-4xl mx-auto">
-            <div className="text-4xl text-[#1f6feb] mb-4">&quot;</div>
-            <p className="text-xl md:text-2xl text-[#f0f6fc] leading-relaxed italic font-light mb-4">
+          <div className="bg-gradient-to-r from-[#1f6feb]/10 to-[#58a6ff]/10 border border-[#1f6feb]/30 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 max-w-4xl mx-auto">
+            <div className="text-2xl sm:text-3xl md:text-4xl text-[#1f6feb] mb-2 sm:mb-4">&quot;</div>
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-[#f0f6fc] leading-relaxed italic font-light mb-3 sm:mb-4 px-2 sm:px-0">
               Każdy uczeń ma potencjał na sukces. Moją rolą jest odkryć go i pomóc mu rozkwitnąć. 
-              Nauka to nie tylko teoria - to budowanie pewności siebie i osiąganie celów.
+              <span className="block sm:inline mt-2 sm:mt-0">
+                Nauka to nie tylko teoria - to budowanie pewności siebie i osiąganie celów.
+              </span>
             </p>
-            <div className="text-[#1f6feb] font-semibold">
+            <div className="text-[#1f6feb] font-semibold text-sm sm:text-base">
               - Patryk Kulesza
             </div>
           </div>
@@ -887,10 +890,11 @@ const AboutSection = () => {
 };
 
 // ==========================================
-// ⭐ TESTIMONIALS SECTION - HORIZONTAL SCROLLING
+// ⭐ RESPONSIVE TESTIMONIALS SECTION - Mobile First
 // ==========================================
 const TestimonialsSection = ({ data }: { data: HomePageData }) => {
   const [ref, inView] = useAdvancedInView();
+  const [isMobile, setIsMobile] = useState(false);
   
   // ==========================================
   // 📊 STATES DLA DRAG SCROLLING
@@ -908,6 +912,20 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
   const [lastTime, setLastTime] = useState(0);
   const momentumAnimationRef = useRef<number | null>(null);
   const lastCallTime = useRef<number>(0);
+
+  // ==========================================
+  // 📱 MOBILE DETECTION
+  // ==========================================
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // ==========================================
   // 🚀 MOMENTUM ANIMATION FUNCTION
@@ -954,10 +972,10 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
   }, []);
 
   // ==========================================
-  // 🖱️ MOUSE EVENT HANDLERS
+  // 🖱️ MOUSE EVENT HANDLERS - DESKTOP ONLY
   // ==========================================
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (!scrollContainerRef.current) return;
+    if (!scrollContainerRef.current || isMobile) return;
     
     stopMomentumAnimation();
     
@@ -985,7 +1003,7 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
   };
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDragging || !scrollContainerRef.current) return;
+    if (!isDragging || !scrollContainerRef.current || isMobile) return;
     
     const now = Date.now();
     if (now - lastCallTime.current < 16) return;
@@ -1011,7 +1029,7 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
     
     setLastX(currentX);
     setLastTime(currentTime);
-  }, [isDragging, startX, scrollLeft, lastTime, lastX]);
+  }, [isDragging, startX, scrollLeft, lastTime, lastX, isMobile]);
 
   // ==========================================
   // 🎯 CLEANUP
@@ -1023,14 +1041,14 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
   return (
     <>
       {/* ==========================================
-          🎨 CUSTOM CURSOR STYLES - NIEBIESKI
+          🎨 CUSTOM CURSOR STYLES - RESPONSIVE
           ========================================== */}
       <style jsx>{`
         .testimonials-scroll-container {
-          cursor: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48' fill='none'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23000000' fill-opacity='0.8' stroke='%231f6feb' stroke-width='2'/%3E%3Cpath d='M14 24l6-6m-6 6l6 6m-6-6h20m-6-6l6 6m-6 6l6-6' stroke='%231f6feb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 24 24, grab;
+          cursor: ${isMobile ? 'default' : `url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48' fill='none'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23000000' fill-opacity='0.8' stroke='%231f6feb' stroke-width='2'/%3E%3Cpath d='M14 24l6-6m-6 6l6 6m-6-6h20m-6-6l6 6m-6 6l6-6' stroke='%231f6feb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 24 24, grab`};
         }
         .testimonials-section.dragging {
-          cursor: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48' fill='none'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23000000' fill-opacity='0.95' stroke='%231f6feb' stroke-width='2'/%3E%3Cpath d='M14 24l6-6m-6 6l6 6m-6-6h20m-6-6l6 6m-6 6l6-6' stroke='%231f6feb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 24 24, grabbing;
+          cursor: ${isMobile ? 'default' : `url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48' fill='none'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23000000' fill-opacity='0.95' stroke='%231f6feb' stroke-width='2'/%3E%3Cpath d='M14 24l6-6m-6 6l6 6m-6-6h20m-6-6l6 6m-6 6l6-6' stroke='%231f6feb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 24 24, grabbing`};
         }
         .testimonials-scroll-container::-webkit-scrollbar {
           display: none;
@@ -1041,12 +1059,21 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
         .testimonials-section * {
           cursor: inherit !important;
         }
+        
+        /* Mobile scroll indicators */
+        @media (max-width: 768px) {
+          .testimonials-scroll-container {
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+          }
+        }
       `}</style>
 
       <section 
         ref={ref} 
         id="testimonials" 
-        className="py-20 bg-[#161b22] overflow-hidden"
+        className="py-12 sm:py-16 md:py-20 bg-[#161b22] overflow-hidden"
       >
         {/* Structured data dla opinii */}
         <script
@@ -1058,27 +1085,26 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
         
         <div className="w-full">
           {/* ==========================================
-              📝 HEADER SEKCJI
+              📝 HEADER SEKCJI - RESPONSIVE
               ========================================== */}
           <motion.div
             initial={{ y: 50, opacity: 0 }}
             animate={inView ? { y: 0, opacity: 1 } : {}}
             transition={{ duration: 0.8 }}
-            className="text-center mb-8"
+            className="text-center mb-6 sm:mb-8"
           >
-            <div className="container mx-auto px-6">
-              <h2 className="text-5xl md:text-6xl font-extrabold mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
+            <div className="container mx-auto px-4 sm:px-6">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 md:mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
                 Opinie Uczniów
               </h2>
-              <p className="text-2xl text-[#c9d1d9] max-w-3xl mx-auto">
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-[#c9d1d9] max-w-3xl mx-auto px-2 sm:px-0">
                 Zobacz co mówią o mnie uczniowie i ich rodzice.
               </p>
-              
             </div>
           </motion.div>
 
           {/* ==========================================
-              🎬 HORIZONTAL SCROLLING CONTAINER
+              🎬 HORIZONTAL SCROLLING CONTAINER - RESPONSIVE
               ========================================== */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -1088,18 +1114,18 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
           >
             <div
               ref={scrollContainerRef}
-              className={`testimonials-scroll-container flex gap-12 overflow-x-auto scrollbar-hide py-8 px-6 md:px-12 ${isDragging ? 'dragging' : ''}`}
-              onMouseDown={handleMouseDown}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseLeave}
-              onMouseMove={handleMouseMove}
+              className={`testimonials-scroll-container flex gap-4 sm:gap-6 md:gap-8 lg:gap-12 overflow-x-auto scrollbar-hide py-4 sm:py-6 md:py-8 px-4 sm:px-6 md:px-8 lg:px-12 ${isDragging ? 'dragging' : ''}`}
+              onMouseDown={!isMobile ? handleMouseDown : undefined}
+              onMouseUp={!isMobile ? handleMouseUp : undefined}
+              onMouseLeave={!isMobile ? handleMouseLeave : undefined}
+              onMouseMove={!isMobile ? handleMouseMove : undefined}
               style={{
                 scrollbarWidth: 'none',
                 msOverflowStyle: 'none',
               }}
             >
               {/* ==========================================
-                  💬 MAPA OPINII
+                  💬 MAPA OPINII - FULLY RESPONSIVE CARDS
                   ========================================== */}
               {data.testimonials.map((testimonial, index) => (
                 <motion.div
@@ -1108,67 +1134,67 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
                   animate={inView ? { x: 0, opacity: 1 } : {}}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   className="flex-shrink-0 group"
-                  whileHover={{ y: -10, scale: 1.02 }}
+                  whileHover={!isMobile ? { y: -10, scale: 1.02 } : {}}
                 >
                   {/* ==========================================
-                      💬 KARTA OPINII - DUŻA
+                      💬 KARTA OPINII - RESPONSIVE DIMENSIONS
                       ========================================== */}
-                  <div className="relative w-[600px] md:w-[700px] lg:w-[800px] h-[400px] md:h-[500px] bg-[#0d1117] border border-[#30363d] rounded-3xl p-12 hover:border-[#1f6feb]/50 transition-all duration-300 shadow-lg hover:shadow-xl group-hover:shadow-[#1f6feb]/10">
+                  <div className="relative min-w-[280px] w-[85vw] sm:w-[400px] md:w-[500px] lg:w-[600px] xl:w-[700px] h-auto min-h-[300px] sm:min-h-[350px] md:min-h-[400px] lg:min-h-[450px] bg-[#0d1117] border border-[#30363d] rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12 hover:border-[#1f6feb]/50 transition-all duration-300 shadow-lg hover:shadow-xl group-hover:shadow-[#1f6feb]/10 flex flex-col">
 
-                    {/* Rating Stars */}
-                    <div className="flex items-center mb-8">
-                      <div className="flex text-yellow-400 mr-6">
+                    {/* Rating Stars - RESPONSIVE */}
+                    <div className="flex items-center mb-4 sm:mb-6 md:mb-8">
+                      <div className="flex text-yellow-400 mr-3 sm:mr-4 md:mr-6">
                         {[...Array(testimonial.rating)].map((_, i) => (
-                          <Star key={i} className="w-7 h-7 fill-current mr-1" />
+                          <Star key={i} className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 fill-current mr-0.5 sm:mr-1" />
                         ))}
                       </div>
-                      <div className="text-[#1f6feb] font-semibold text-lg bg-[#1f6feb]/10 px-4 py-2 rounded-full">
+                      <div className="text-[#1f6feb] font-semibold text-xs sm:text-sm md:text-base lg:text-lg bg-[#1f6feb]/10 px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 md:py-2 rounded-full">
                         {testimonial.rating}/5
                       </div>
                     </div>
 
-                    {/* Opinion Text */}
-                    <div className="mb-12 flex-grow">
-                      <p className="text-[#c9d1d9] leading-relaxed text-2xl md:text-3xl font-light">
+                    {/* Opinion Text - RESPONSIVE TYPOGRAPHY */}
+                    <div className="mb-4 sm:mb-6 md:mb-8 lg:mb-12 flex-grow">
+                      <p className="text-[#c9d1d9] leading-relaxed text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-light">
                         &ldquo;{testimonial.opinion}&rdquo;
                       </p>
                     </div>
 
-                    {/* Bottom Info */}
-                    <div className="absolute bottom-12 left-12 right-12">
-                      <div className="border-t border-[#30363d] pt-8">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="font-bold text-[#f0f6fc] text-2xl mb-2">
-                              {testimonial.name}
-                            </div>
-                            <div className="text-lg text-[#8b949e] mb-2">
-                              {testimonial.grade}
-                            </div>
+                    {/* Bottom Info - RESPONSIVE LAYOUT */}
+                    <div className="border-t border-[#30363d] pt-3 sm:pt-4 md:pt-6 lg:pt-8 mt-auto">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="font-bold text-[#f0f6fc] text-base sm:text-lg md:text-xl lg:text-2xl mb-1 sm:mb-2 truncate">
+                            {testimonial.name}
                           </div>
-                          
-                          {/* Result Badge */}
-                          <div className="text-right">
-                            <div className="text-sm text-[#8b949e] mb-2">Wynik:</div>
-                            <div className="bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold px-6 py-3 rounded-xl text-lg">
-                              {testimonial.result}
-                            </div>
+                          <div className="text-xs sm:text-sm md:text-base lg:text-lg text-[#8b949e] mb-2 sm:mb-0">
+                            {testimonial.grade}
+                          </div>
+                        </div>
+                        
+                        {/* Result Badge - RESPONSIVE */}
+                        <div className="flex-shrink-0 text-left sm:text-right">
+                          <div className="text-xs sm:text-sm text-[#8b949e] mb-1 sm:mb-2">Wynik:</div>
+                          <div className="bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 md:py-3 rounded-lg sm:rounded-xl text-sm sm:text-base md:text-lg inline-block">
+                            {testimonial.result}
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* Hover Glow Effect */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-3xl">
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1f6feb]/5 to-transparent rounded-3xl" />
-                      <div className="absolute inset-0 shadow-2xl shadow-[#1f6feb]/25 rounded-3xl" />
-                    </div>
+                    {/* Hover Glow Effect - DESKTOP ONLY */}
+                    {!isMobile && (
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl sm:rounded-3xl">
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#1f6feb]/5 to-transparent rounded-2xl sm:rounded-3xl" />
+                        <div className="absolute inset-0 shadow-2xl shadow-[#1f6feb]/25 rounded-2xl sm:rounded-3xl" />
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               ))}
 
               {/* ==========================================
-                  📊 PODSUMOWANIE NA KOŃCU
+                  📊 PODSUMOWANIE NA KOŃCU - RESPONSIVE
                   ========================================== */}
               <motion.div
                 initial={{ x: 100, opacity: 0 }}
@@ -1176,21 +1202,21 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
                 transition={{ duration: 0.6, delay: 0.8 }}
                 className="flex-shrink-0"
               >
-                <div className="w-[600px] md:w-[700px] lg:w-[800px] h-[400px] md:h-[450px] bg-gradient-to-br from-[#1f6feb]/10 to-[#58a6ff]/10 border border-[#1f6feb]/30 rounded-3xl p-12 flex flex-col items-center justify-center text-center">
+                <div className="min-w-[280px] w-[85vw] sm:w-[400px] md:w-[500px] lg:w-[600px] xl:w-[700px] h-auto min-h-[300px] sm:min-h-[350px] md:min-h-[400px] lg:min-h-[450px] bg-gradient-to-br from-[#1f6feb]/10 to-[#58a6ff]/10 border border-[#1f6feb]/30 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12 flex flex-col items-center justify-center text-center">
                   
                   <motion.div
                     animate={{ rotate: [0, 360] }}
                     transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="w-20 h-20 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] rounded-full flex items-center justify-center mb-8"
+                    className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] rounded-full flex items-center justify-center mb-4 sm:mb-6 md:mb-8"
                   >
-                    <Star className="w-10 h-10 text-white fill-current" />
+                    <Star className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 text-white fill-current" />
                   </motion.div>
                   
-                  <h3 className="text-3xl md:text-4xl font-bold text-[#f0f6fc] mb-6">
+                  <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-[#f0f6fc] mb-3 sm:mb-4 md:mb-6 leading-tight">
                     100% zadowolonych uczniów!
                   </h3>
                   
-                  <p className="text-[#c9d1d9] mb-8 leading-relaxed text-xl">
+                  <p className="text-[#c9d1d9] mb-4 sm:mb-6 md:mb-8 leading-relaxed text-sm sm:text-base md:text-lg lg:text-xl">
                     Każdy uczeń osiągnął swoje cele. Dołącz do grona zadowolonych uczniów!
                   </p>
                   
@@ -1198,7 +1224,7 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
                     href="#contact"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 text-lg"
+                    className="bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold py-2 sm:py-3 md:py-4 px-4 sm:px-6 md:px-8 rounded-lg sm:rounded-xl transition-all duration-300 text-sm sm:text-base md:text-lg"
                   >
                     Umów konsultację
                   </motion.a>
@@ -1206,6 +1232,24 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
               </motion.div>
             </div>
           </motion.div>
+
+          {/* ==========================================
+              📱 MOBILE SCROLL HINT
+              ========================================== */}
+          {isMobile && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={inView ? { opacity: 1 } : {}}
+              transition={{ duration: 0.8, delay: 1 }}
+              className="text-center mt-4 md:hidden"
+            >
+              <p className="text-xs text-[#8b949e] flex items-center justify-center">
+                <span className="mr-2">👈</span>
+                Przesuń palcem aby zobaczyć więcej opinii
+                <span className="ml-2">👉</span>
+              </p>
+            </motion.div>
+          )}
         </div>
       </section>
     </>
@@ -1213,10 +1257,11 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
 };
 
 // ==========================================
-// 🎨 PORTFOLIO SECTION - ZDJĘCIE JAKO TŁO Z OVERLAY
+// 🎨 RESPONSIVE PORTFOLIO SECTION - Mobile First
 // ==========================================
 const PortfolioSection = ({ data }: { data: HomePageData }) => {
   const [ref, inView] = useAdvancedInView();
+  const [isMobile, setIsMobile] = useState(false);
   
   // ==========================================
   // 📊 STATES DLA DRAG SCROLLING
@@ -1226,6 +1271,7 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
   const [hasMoved, setHasMoved] = useState(false);
+  
   // ==========================================
   // 🖼️ STATES DLA MODALA
   // ==========================================
@@ -1240,6 +1286,20 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
   const [lastTime, setLastTime] = useState(0);
   const momentumAnimationRef = useRef<number | null>(null);
   const lastCallTime = useRef<number>(0);
+
+  // ==========================================
+  // 📱 MOBILE DETECTION
+  // ==========================================
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // ==========================================
   // 🚀 MOMENTUM ANIMATION FUNCTION
@@ -1286,15 +1346,15 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
   }, []);
 
   // ==========================================
-  // 🖱️ MOUSE EVENT HANDLERS
+  // 🖱️ MOUSE EVENT HANDLERS - DESKTOP ONLY
   // ==========================================
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (!scrollContainerRef.current || isModalOpen) return;
+    if (!scrollContainerRef.current || isModalOpen || isMobile) return;
     
     stopMomentumAnimation();
     
     setIsDragging(true);
-     setHasMoved(false);
+    setHasMoved(false);
     setStartX(e.pageX);
     setScrollLeft(scrollContainerRef.current.scrollLeft);
     
@@ -1321,8 +1381,7 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
   };
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
-
-    if (!isDragging || !scrollContainerRef.current || isModalOpen) return; // ← Dodaj isModalOpen
+    if (!isDragging || !scrollContainerRef.current || isModalOpen || isMobile) return;
     
     const now = Date.now();
     if (now - lastCallTime.current < 16) return;
@@ -1334,8 +1393,8 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
     const walk = (x - startX) * 1.5;
     
     if (Math.abs(walk) > 5) {
-    setHasMoved(true);
-  }
+      setHasMoved(true);
+    }
 
     scrollContainerRef.current.scrollLeft = scrollLeft - walk;
     
@@ -1352,28 +1411,25 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
     
     setLastX(currentX);
     setLastTime(currentTime);
-  }, [isDragging, startX, scrollLeft, lastTime, lastX, isModalOpen]);
+  }, [isDragging, startX, scrollLeft, lastTime, lastX, isModalOpen, isMobile]);
 
   // ==========================================
-// 🔒 BLOKOWANIE SCROLLOWANIA W TLE PODCZAS MODALA
-// ==========================================
-useEffect(() => {
-  if (isModalOpen) {
-    // Dodaj klasę do body która zablokuje scroll i zmieni cursor
-    document.body.classList.add('modal-open');
-    document.body.style.overflow = 'hidden';
-  } else {
-    // Usuń klasę i przywróć scroll
-    document.body.classList.remove('modal-open');
-    document.body.style.overflow = 'unset';
-  }
+  // 🔒 BLOKOWANIE SCROLLOWANIA W TLE PODCZAS MODALA
+  // ==========================================
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.classList.add('modal-open');
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.classList.remove('modal-open');
+      document.body.style.overflow = 'unset';
+    }
 
-  // Cleanup - na wszelki wypadek
-  return () => {
-    document.body.classList.remove('modal-open');
-    document.body.style.overflow = 'unset';
-  };
-}, [isModalOpen]);
+    return () => {
+      document.body.classList.remove('modal-open');
+      document.body.style.overflow = 'unset';
+    };
+  }, [isModalOpen]);
 
   // ==========================================
   // 🎯 CLEANUP + MODAL HANDLERS
@@ -1384,7 +1440,7 @@ useEffect(() => {
 
   // Modal handlers
   const openModal = (project: PortfolioItem) => {
-    if (!hasMoved) { // Tylko jeśli nie było przeciągania
+    if (!hasMoved || isMobile) { // Na mobile zawsze otwórz modal
       setSelectedProject(project);
       setIsModalOpen(true);
     }
@@ -1410,46 +1466,53 @@ useEffect(() => {
   return (
     <>
       {/* ==========================================
-          🎨 CUSTOM CURSOR STYLES - NIEBIESKI
+          🎨 CUSTOM CURSOR STYLES - RESPONSIVE
           ========================================== */}
       <style jsx>{`
         .portfolio-scroll-container {
-          cursor: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48' fill='none'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23000000' fill-opacity='0.8' stroke='%231f6feb' stroke-width='2'/%3E%3Cpath d='M14 24l6-6m-6 6l6 6m-6-6h20m-6-6l6 6m-6 6l6-6' stroke='%231f6feb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 24 24, grab;
+          cursor: ${isMobile ? 'default' : `url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48' fill='none'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23000000' fill-opacity='0.8' stroke='%231f6feb' stroke-width='2'/%3E%3Cpath d='M14 24l6-6m-6 6l6 6m-6-6h20m-6-6l6 6m-6 6l6-6' stroke='%231f6feb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 24 24, grab`};
         }
         .portfolio-section.dragging {
-          cursor: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48' fill='none'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23000000' fill-opacity='0.95' stroke='%231f6feb' stroke-width='2'/%3E%3Cpath d='M14 24l6-6m-6 6l6 6m-6-6h20m-6-6l6 6m-6 6l6-6' stroke='%231f6feb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 24 24, grabbing;
+          cursor: ${isMobile ? 'default' : `url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48' fill='none'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23000000' fill-opacity='0.95' stroke='%231f6feb' stroke-width='2'/%3E%3Cpath d='M14 24l6-6m-6 6l6 6m-6-6h20m-6-6l6 6m-6 6l6-6' stroke='%231f6feb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 24 24, grabbing`};
         }
-        
 
+        /* Mobile scroll indicators */
+        @media (max-width: 768px) {
+          .portfolio-scroll-container {
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+          }
+        }
       `}</style>
 
       <section 
         ref={ref} 
         id="portfolio" 
-        className="py-20 bg-[#0d1117] overflow-hidden"
+        className="py-12 sm:py-16 md:py-20 bg-[#0d1117] overflow-hidden"
       >
         <div className="w-full">
           {/* ==========================================
-              📝 HEADER SEKCJI
+              📝 HEADER SEKCJI - RESPONSIVE
               ========================================== */}
           <motion.div
             initial={{ y: 50, opacity: 0 }}
             animate={inView ? { y: 0, opacity: 1 } : {}}
             transition={{ duration: 0.8 }}
-            className="text-center mb-16"
+            className="text-center mb-8 sm:mb-12 md:mb-16"
           >
-            <div className="container mx-auto px-6">
-              <h2 className="text-5xl md:text-6xl font-extrabold mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
+            <div className="container mx-auto px-4 sm:px-6">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 md:mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
                 Portfolio
               </h2>
-              <p className="text-xl text-[#c9d1d9] max-w-3xl mx-auto">
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-[#c9d1d9] max-w-3xl mx-auto px-2 sm:px-0">
                 Projekty - od stron po aplikacje webowe, desktopowe, gry, narzędzia AI.
               </p>
             </div>
           </motion.div>
 
           {/* ==========================================
-              🎬 HORIZONTAL SCROLLING CONTAINER
+              🎬 HORIZONTAL SCROLLING CONTAINER - RESPONSIVE
               ========================================== */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -1458,19 +1521,19 @@ useEffect(() => {
             className="relative"
           >
             <div
-            ref={scrollContainerRef}
-            className={`portfolio-scroll-container flex gap-12 overflow-x-auto scrollbar-hide py-8 px-6 md:px-12 ${isDragging ? 'dragging' : ''}`}
-            onMouseDown={handleMouseDown}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseLeave}
-            onMouseMove={handleMouseMove}
-            style={{
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none',
-            }}
-          >
+              ref={scrollContainerRef}
+              className={`portfolio-scroll-container flex gap-4 sm:gap-6 md:gap-8 lg:gap-12 overflow-x-auto scrollbar-hide py-4 sm:py-6 md:py-8 px-4 sm:px-6 md:px-8 lg:px-12 ${isDragging ? 'dragging' : ''}`}
+              onMouseDown={!isMobile ? handleMouseDown : undefined}
+              onMouseUp={!isMobile ? handleMouseUp : undefined}
+              onMouseLeave={!isMobile ? handleMouseLeave : undefined}
+              onMouseMove={!isMobile ? handleMouseMove : undefined}
+              style={{
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+              }}
+            >
               {/* ==========================================
-                  🎴 MAPA PROJEKTÓW - OVERLAY DESIGN
+                  🎴 MAPA PROJEKTÓW - FULLY RESPONSIVE CARDS
                   ========================================== */}
               {data.portfolio.map((project, index) => (
                 <motion.div
@@ -1479,98 +1542,123 @@ useEffect(() => {
                   animate={inView ? { x: 0, opacity: 1 } : {}}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   className="flex-shrink-0 group"
-                  whileHover={{ y: -10, scale: 1.02 }}
+                  whileHover={!isMobile ? { y: -10, scale: 1.02 } : {}}
                 >
                   {/* ==========================================
-                      🎬 KARTA PROJEKTU - PODZIELONA NA DWA OBSZARY
+                      🎬 KARTA PROJEKTU - RESPONSIVE DIMENSIONS
                       ========================================== */}
                   <div 
-                    className="relative w-[600px] md:w-[700px] lg:w-[800px] h-[600px] md:h-[650px] bg-[#161b22] border border-[#30363d] rounded-3xl overflow-hidden hover:border-[#1f6feb]/50 transition-all duration-300 shadow-lg hover:shadow-xl group-hover:shadow-[#1f6feb]/10 cursor-pointer"
+                    className="relative min-w-[300px] w-[90vw] sm:w-[400px] md:w-[500px] lg:w-[600px] xl:w-[700px] h-auto min-h-[400px] sm:min-h-[450px] md:min-h-[500px] lg:min-h-[550px] xl:min-h-[600px] bg-[#161b22] border border-[#30363d] rounded-2xl sm:rounded-3xl overflow-hidden hover:border-[#1f6feb]/50 transition-all duration-300 shadow-lg hover:shadow-xl group-hover:shadow-[#1f6feb]/10 cursor-pointer flex flex-col"
                     onClick={() => openModal(project)}
                   >
                     
                     {/* ==========================================
-                        🖼️ GÓRNY OBSZAR - ZDJĘCIE
+                        🖼️ GÓRNY OBSZAR - ZDJĘCIE - RESPONSIVE
                         ========================================== */}
-                    <div className="h-[400px] md:h-[420px] relative overflow-hidden">
+                    <div className="h-[250px] sm:h-[280px] md:h-[320px] lg:h-[360px] xl:h-[400px] relative overflow-hidden flex-shrink-0">
                       
                       {project.image ? (
                         <Image
                           src={`${process.env.NODE_ENV === 'production' ? '/korepetycje' : ''}/_resources/${project.image}`}
                           alt={project.title}
-                          width={800}
-                          height={420}
-                          className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
+                          fill
+                          className="object-contain transition-transform duration-700 group-hover:scale-105"
                           draggable={false}
+                          sizes="(max-width: 640px) 90vw, (max-width: 768px) 400px, (max-width: 1024px) 500px, (max-width: 1280px) 600px, 700px"
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-[#1f6feb]/30 to-[#58a6ff]/30 flex items-center justify-center">
                           <div className="text-center">
-                            <Code className="w-16 h-16 text-[#1f6feb] mx-auto mb-3" />
-                            <div className="text-[#c9d1d9] text-base">Projekt w trakcie dokumentacji</div>
+                            <Code className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 text-[#1f6feb] mx-auto mb-2 sm:mb-3" />
+                            <div className="text-[#c9d1d9] text-sm sm:text-base">Projekt w trakcie dokumentacji</div>
                           </div>
                         </div>
                       )}
 
-                      {/* Kategoria w prawym górnym rogu */}
-                      <div className="absolute top-4 right-4">
-                        <span className="bg-[#1f6feb]/90 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-[#1f6feb]/50">
+                      {/* Kategoria w prawym górnym rogu - RESPONSIVE */}
+                      <div className="absolute top-2 sm:top-3 md:top-4 right-2 sm:right-3 md:right-4">
+                        <span className="bg-[#1f6feb]/90 backdrop-blur-sm text-white px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 md:py-2 rounded-full text-xs sm:text-sm font-semibold border border-[#1f6feb]/50">
                           {project.category}
                         </span>
                       </div>
 
-                      {/* Tytuł na dole zdjęcia */}
-                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm p-6">
-                        <h3 className="text-2xl md:text-3xl font-bold text-white">
+                      {/* Tytuł na dole zdjęcia - RESPONSIVE */}
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm p-3 sm:p-4 md:p-6">
+                        <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white leading-tight">
                           {project.title}
                         </h3>
                       </div>
                     </div>
 
                     {/* ==========================================
-                        📝 DOLNY OBSZAR - INFORMACJE
+                        📝 DOLNY OBSZAR - INFORMACJE - RESPONSIVE
                         ========================================== */}
-                    <div className="h-[200px] md:h-[230px] p-6 flex flex-col">
+                    <div className="flex-1 p-3 sm:p-4 md:p-5 lg:p-6 flex flex-col min-h-0">
                       
-                      {/* Opis projektu */}
-                      <div className="mb-4">
-                        <h4 className="text-lg font-bold text-[#f0f6fc] mb-2">O projekcie:</h4>
-                        <p className="text-[#c9d1d9] leading-relaxed text-sm">
+                      {/* Opis projektu - RESPONSIVE */}
+                      <div className="mb-3 sm:mb-4 flex-grow">
+                        <h4 className="text-sm sm:text-base md:text-lg font-bold text-[#f0f6fc] mb-1 sm:mb-2">O projekcie:</h4>
+                        <p className="text-[#c9d1d9] leading-relaxed text-xs sm:text-sm md:text-base line-clamp-3">
                           {project.description}
                         </p>
                       </div>
 
-                      {/* Technologie */}
-                      <div className="flex-grow">
-                        <h4 className="text-lg font-bold text-[#f0f6fc] mb-3">Technologie:</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {project.technologies.map((tech, idx) => (
+                      {/* Technologie - RESPONSIVE */}
+                      <div className="mt-auto">
+                        <h4 className="text-sm sm:text-base md:text-lg font-bold text-[#f0f6fc] mb-2 sm:mb-3">Technologie:</h4>
+                        <div className="flex flex-wrap gap-1 sm:gap-2">
+                          {project.technologies.slice(0, 6).map((tech, idx) => (
                             <span
                               key={idx}
-                              className="px-3 py-1 bg-[#1f6feb]/20 text-[#58a6ff] rounded-full text-sm font-medium border border-[#1f6feb]/30"
+                              className="px-2 sm:px-3 py-1 bg-[#1f6feb]/20 text-[#58a6ff] rounded-full text-xs sm:text-sm font-medium border border-[#1f6feb]/30"
                             >
                               {tech}
                             </span>
                           ))}
+                          {project.technologies.length > 6 && (
+                            <span className="px-2 sm:px-3 py-1 bg-[#8b949e]/20 text-[#8b949e] rounded-full text-xs sm:text-sm font-medium">
+                              +{project.technologies.length - 6}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
 
-                    {/* Hover Glow Effect */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-3xl">
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1f6feb]/5 to-transparent rounded-3xl" />
-                      <div className="absolute inset-0 shadow-2xl shadow-[#1f6feb]/25 rounded-3xl" />
-                    </div>
+                    {/* Hover Glow Effect - DESKTOP ONLY */}
+                    {!isMobile && (
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl sm:rounded-3xl">
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#1f6feb]/5 to-transparent rounded-2xl sm:rounded-3xl" />
+                        <div className="absolute inset-0 shadow-2xl shadow-[#1f6feb]/25 rounded-2xl sm:rounded-3xl" />
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               ))}
             </div>
           </motion.div>
+
+          {/* ==========================================
+              📱 MOBILE SCROLL HINT
+              ========================================== */}
+          {isMobile && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={inView ? { opacity: 1 } : {}}
+              transition={{ duration: 0.8, delay: 1 }}
+              className="text-center mt-4 md:hidden"
+            >
+              <p className="text-xs text-[#8b949e] flex items-center justify-center">
+                <span className="mr-2">👈</span>
+                Przesuń palcem aby zobaczyć więcej projektów
+                <span className="ml-2">👉</span>
+              </p>
+            </motion.div>
+          )}
         </div>
       </section>
 
       {/* ==========================================
-          🖼️ MODAL Z WIĘKSZYM OBRAZKIEM - POZA SEKCJĄ PORTFOLIO!
+          🖼️ RESPONSIVE MODAL
           ========================================== */}
       <AnimatePresence>
         {isModalOpen && selectedProject && (
@@ -1579,8 +1667,7 @@ useEffect(() => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            style={{ cursor: 'default' }} // Dodatkowe zabezpieczenie
+            className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4"
           >
             {/* Backdrop */}
             <motion.div
@@ -1589,82 +1676,78 @@ useEffect(() => {
               exit={{ opacity: 0 }}
               className="absolute inset-0 bg-black/80 backdrop-blur-lg"
               onClick={closeModal}
-              style={{ cursor: 'default' }}
             />
             
-            {/* Modal Content */}
+            {/* Modal Content - RESPONSIVE */}
             <motion.div
               initial={{ scale: 0.8, opacity: 0, y: 50 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.8, opacity: 0, y: 50 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="relative bg-[#161b22] border border-[#30363d] rounded-3xl overflow-hidden max-w-5xl w-full max-h-[90vh] flex flex-col shadow-2xl"
+              className="relative bg-[#161b22] border border-[#30363d] rounded-2xl sm:rounded-3xl overflow-hidden w-full max-w-5xl max-h-[95vh] sm:max-h-[90vh] flex flex-col shadow-2xl"
               onClick={(e) => e.stopPropagation()}
-              style={{ cursor: 'default' }}
             >
               
-              {/* Close Button */}
+              {/* Close Button - RESPONSIVE */}
               <button
                 onClick={closeModal}
-                className="absolute top-4 right-4 z-10 w-10 h-10 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition-all duration-300 border border-white/20"
-                style={{ cursor: 'pointer' }}
+                className="absolute top-2 sm:top-4 right-2 sm:right-4 z-10 w-8 h-8 sm:w-10 sm:h-10 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition-all duration-300 border border-white/20"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
 
-              {/* Image Section */}
-              <div className="h-[60vh] relative bg-gradient-to-br from-[#1f6feb]/20 via-[#161b22] to-[#58a6ff]/20">
+              {/* Image Section - RESPONSIVE */}
+              <div className="h-[40vh] sm:h-[50vh] md:h-[60vh] relative bg-gradient-to-br from-[#1f6feb]/20 via-[#161b22] to-[#58a6ff]/20">
                 {selectedProject.image ? (
                   <Image
                     src={`${process.env.NODE_ENV === 'production' ? '/korepetycje' : ''}/_resources/${selectedProject.image}`}
                     alt={selectedProject.title}
-                    width={800}
-                    height={600}
-                    className="w-full h-full object-contain"
+                    fill
+                    className="object-contain"
                     draggable={false}
-                    style={{ cursor: 'default' }}
+                    sizes="(max-width: 768px) 100vw, 90vw"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <div className="text-center">
-                      <Code className="w-24 h-24 text-[#1f6feb] mx-auto mb-4" />
-                      <div className="text-[#c9d1d9] text-xl">Projekt w trakcie dokumentacji</div>
+                      <Code className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 text-[#1f6feb] mx-auto mb-2 sm:mb-4" />
+                      <div className="text-[#c9d1d9] text-base sm:text-lg md:text-xl">Projekt w trakcie dokumentacji</div>
                     </div>
                   </div>
                 )}
 
-                {/* Category Badge */}
-                <div className="absolute top-4 left-4">
-                  <span className="bg-[#1f6feb]/90 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-semibold border border-[#1f6feb]/50">
+                {/* Category Badge - RESPONSIVE */}
+                <div className="absolute top-2 sm:top-4 left-2 sm:left-4">
+                  <span className="bg-[#1f6feb]/90 backdrop-blur-sm text-white px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 md:py-2 rounded-full text-xs sm:text-sm font-semibold border border-[#1f6feb]/50">
                     {selectedProject.category}
                   </span>
                 </div>
               </div>
 
-              {/* Info Section */}
-              <div className="p-8 flex-grow overflow-y-auto">
+              {/* Info Section - RESPONSIVE */}
+              <div className="p-4 sm:p-6 md:p-8 flex-grow overflow-y-auto">
                 
-                {/* Title */}
-                <h2 className="text-3xl md:text-4xl font-bold text-[#f0f6fc] mb-6">
+                {/* Title - RESPONSIVE */}
+                <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-[#f0f6fc] mb-3 sm:mb-4 md:mb-6 leading-tight">
                   {selectedProject.title}
                 </h2>
 
-                {/* Description */}
-                <div className="mb-6">
-                  <h3 className="text-xl font-bold text-[#1f6feb] mb-3">O projekcie:</h3>
-                  <p className="text-[#c9d1d9] leading-relaxed text-lg">
+                {/* Description - RESPONSIVE */}
+                <div className="mb-4 sm:mb-6">
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-[#1f6feb] mb-2 sm:mb-3">O projekcie:</h3>
+                  <p className="text-[#c9d1d9] leading-relaxed text-sm sm:text-base md:text-lg">
                     {selectedProject.description}
                   </p>
                 </div>
 
-                {/* Technologies */}
+                {/* Technologies - RESPONSIVE */}
                 <div>
-                  <h3 className="text-xl font-bold text-[#1f6feb] mb-4">Technologie:</h3>
-                  <div className="flex flex-wrap gap-3">
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-[#1f6feb] mb-2 sm:mb-3 md:mb-4">Technologie:</h3>
+                  <div className="flex flex-wrap gap-2 sm:gap-3">
                     {selectedProject.technologies.map((tech, idx) => (
                       <span
                         key={idx}
-                        className="px-4 py-2 bg-[#1f6feb]/20 text-[#58a6ff] rounded-full text-base font-medium border border-[#1f6feb]/30"
+                        className="px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 md:py-2 bg-[#1f6feb]/20 text-[#58a6ff] rounded-full text-xs sm:text-sm md:text-base font-medium border border-[#1f6feb]/30"
                       >
                         {tech}
                       </span>
@@ -1681,7 +1764,7 @@ useEffect(() => {
 };
 
 // ==========================================
-// 💼 SERVICES SECTION - "Credit Card" Horizontal Overlap z Always Active Card
+// 💼 RESPONSIVE SERVICES SECTION - Money Maker Mobile First 💰
 // ==========================================
 const ServicesSection = ({ data }: { data: HomePageData }) => {
   const [ref, inView] = useAdvancedInView();
@@ -1698,7 +1781,7 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
   // ==========================================
   // 🆕 STAN DLA ZAWSZE AKTYWNEJ KARTY
   // ==========================================
-  const [activeCardIndex, setActiveCardIndex] = useState<number>(0); // Domyślnie pierwsza karta (angielski)
+  const [activeCardIndex, setActiveCardIndex] = useState<number>(0); // Domyślnie pierwsza karta
   const [dragHoveredCardIndex, setDragHoveredCardIndex] = useState<number | null>(null);
   
   // ==========================================
@@ -1815,10 +1898,10 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
   }, []);
 
   // ==========================================
-  // 🖱️ MOUSE EVENT HANDLERS
+  // 🖱️ MOUSE EVENT HANDLERS - DESKTOP ONLY
   // ==========================================
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (!scrollContainerRef.current) return;
+    if (!scrollContainerRef.current || isMobile) return;
     
     stopMomentumAnimation();
     
@@ -1857,7 +1940,7 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
   };
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDragging || !scrollContainerRef.current) return;
+    if (!isDragging || !scrollContainerRef.current || isMobile) return;
     
     const now = Date.now();
     if (now - lastCallTime.current < 16) return;
@@ -1887,7 +1970,7 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
     
     setLastX(currentX);
     setLastTime(currentTime);
-  }, [isDragging, startX, scrollLeft, lastTime, lastX, getCardIndexUnderCursor]);
+  }, [isDragging, startX, scrollLeft, lastTime, lastX, getCardIndexUnderCursor, isMobile]);
 
   // ==========================================
   // 🆕 FUNKCJA DO USTAWIANIA AKTYWNEJ KARTY
@@ -1899,10 +1982,13 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
   }, [isDragging]);
 
   // ==========================================
-  // 🆕 FUNKCJA DO OBLICZANIA Z-INDEX - ZAWSZE JEDNA AKTYWNA
+  // 🆕 FUNKCJA DO OBLICZANIA Z-INDEX - RESPONSIVE
   // ==========================================
   const getCardZIndex = useCallback((index: number) => {
-    // Aktywna karta zawsze na wierzchu
+    // Na mobile wszystkie karty mają równy z-index
+    if (isMobile) return 10;
+    
+    // Desktop: Aktywna karta zawsze na wierzchu
     if (activeCardIndex === index) return 100;
     
     // Podczas drag pokazuj również drag hover na wierzchu
@@ -1910,32 +1996,49 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
     
     // Pozostałe karty w normalnej kolejności
     return data.services.length - index;
-  }, [activeCardIndex, dragHoveredCardIndex, isDragging, data.services.length]);
+  }, [activeCardIndex, dragHoveredCardIndex, isDragging, data.services.length, isMobile]);
 
   // ==========================================
-  // 🆕 FUNKCJA DO OBLICZANIA SCALE - ZAWSZE JEDNA AKTYWNA
+  // 🆕 FUNKCJA DO OBLICZANIA SCALE - RESPONSIVE
   // ==========================================
   const getCardScale = useCallback((index: number) => {
-    // Aktywna karta zawsze powiększona
+    // Na mobile wyłącz scaling
+    if (isMobile) return 1;
+    
+    // Desktop: Aktywna karta zawsze powiększona
     if (activeCardIndex === index) {
-      return isMobile ? 1.05 : 1.0;
+      return 1.0;
     }
     
     // Podczas drag, karta pod kursorem może być lekko powiększona
     if (isDragging && dragHoveredCardIndex === index) {
-      return isMobile ? 1.02 : 1.05;
+      return 1.05;
     }
     
-    // Pozostałe karty w normalnej skali
-    return isMobile ? 0.9 : 0.8;
+    // Pozostałe karty pomniejszone
+    return 0.8;
   }, [activeCardIndex, dragHoveredCardIndex, isDragging, isMobile]);
 
   // ==========================================
   // 🆕 FUNKCJA DO SPRAWDZANIA CZY KARTA JEST HIGHLIGHTED
   // ==========================================
   const isCardHighlighted = useCallback((index: number) => {
+    // Na mobile nie ma highlight effect
+    if (isMobile) return false;
+    
     return activeCardIndex === index || (isDragging && dragHoveredCardIndex === index);
-  }, [activeCardIndex, dragHoveredCardIndex, isDragging]);
+  }, [activeCardIndex, dragHoveredCardIndex, isDragging, isMobile]);
+
+  // ==========================================
+  // 🆕 RESPONSIVE MARGIN CALCULATION
+  // ==========================================
+  const getCardMargin = useCallback((index: number) => {
+    // Na mobile: normalne spacing
+    if (isMobile) return '0px';
+    
+    // Desktop: overlap effect
+    return index > 0 ? '-200px' : '0px';
+  }, [isMobile]);
 
   // ==========================================
   // 🎯 CLEANUP
@@ -1947,14 +2050,14 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
   return (
     <>
       {/* ==========================================
-          🎨 CUSTOM CURSOR STYLES - Credit Card Theme
+          🎨 CUSTOM CURSOR STYLES - RESPONSIVE
           ========================================== */}
       <style jsx>{`
         .services-scroll-container {
-          cursor: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48' fill='none'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23000000' fill-opacity='0.8' stroke='%231f6feb' stroke-width='2'/%3E%3Cpath d='M14 24l6-6m-6 6l6 6m-6-6h20m-6-6l6 6m-6 6l6-6' stroke='%231f6feb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 24 24, grab;
+          cursor: ${isMobile ? 'default' : `url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48' fill='none'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23000000' fill-opacity='0.8' stroke='%231f6feb' stroke-width='2'/%3E%3Cpath d='M14 24l6-6m-6 6l6 6m-6-6h20m-6-6l6 6m-6 6l6-6' stroke='%231f6feb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 24 24, grab`};
         }
         .services-scroll-container.dragging {
-          cursor: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48' fill='none'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23000000' fill-opacity='0.95' stroke='%231f6feb' stroke-width='2'/%3E%3Cpath d='M14 24l6-6m-6 6l6 6m-6-6h20m-6-6l6 6m-6 6l6-6' stroke='%231f6feb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 24 24, grabbing;
+          cursor: ${isMobile ? 'default' : `url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48' fill='none'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23000000' fill-opacity='0.95' stroke='%231f6feb' stroke-width='2'/%3E%3Cpath d='M14 24l6-6m-6 6l6 6m-6-6h20m-6-6l6 6m-6 6l6-6' stroke='%231f6feb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 24 24, grabbing`};
         }
         .services-scroll-container::-webkit-scrollbar {
           display: none;
@@ -1966,7 +2069,7 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
           cursor: inherit !important;
         }
         
-        /* Credit Card Overlap Effect z Always Active Card */
+        /* Credit Card Overlap Effect - RESPONSIVE */
         .service-card {
           transform-style: preserve-3d;
           transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
@@ -1986,18 +2089,18 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
         /* Mobile optimizations */
         @media (max-width: 768px) {
           .service-card.highlighted {
-            transform: translateY(-10px) scale(1.01);
+            transform: none;
           }
           
           .service-card-content {
             transition: all 0.4s ease-out;
+            transform: scale(1) !important;
           }
           
-          /* Opcjonalnie: wyłącz hover effects na mobile */
-          @media (hover: none) and (pointer: coarse) {
-            .service-card-content {
-              transform: scale(1) !important;
-            }
+          .services-scroll-container {
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
           }
         }
       `}</style>
@@ -2005,30 +2108,30 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
       <section 
         ref={ref} 
         id="services" 
-        className="py-20 bg-[#161b22] overflow-hidden"
+        className="py-12 sm:py-16 md:py-20 bg-[#161b22] overflow-hidden"
       >
         <div className="w-full">
           {/* ==========================================
-              📝 HEADER SECTION
+              📝 HEADER SECTION - RESPONSIVE
               ========================================== */}
           <motion.div
             initial={{ y: 50, opacity: 0 }}
             animate={inView ? { y: 0, opacity: 1 } : {}}
             transition={{ duration: 0.8 }}
-            className="text-center mb-16"
+            className="text-center mb-8 sm:mb-12 md:mb-16"
           >
-            <div className="container mx-auto px-6">
-              <h2 className="text-5xl md:text-6xl font-extrabold mb-8 pb-4 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
+            <div className="container mx-auto px-4 sm:px-6">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 md:mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
                 Usługi
               </h2>
-              <p className="text-xl text-[#c9d1d9] max-w-3xl mx-auto">
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-[#c9d1d9] max-w-3xl mx-auto px-2 sm:px-0">
                 Specjalizuję się w korepetycjach z matematyki, angielskiego, programowania i tworzenia stron internetowych.
               </p>
             </div>
           </motion.div>
 
           {/* ==========================================
-              🎬 HORIZONTAL SCROLLING CONTAINER - Credit Card Style
+              🎬 HORIZONTAL SCROLLING CONTAINER - RESPONSIVE
               ========================================== */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -2038,17 +2141,17 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
           >
             <div
               ref={scrollContainerRef}
-              className={`services-scroll-container flex gap-0 overflow-x-auto scrollbar-hide py-8 px-6 md:px-12 ${isDragging ? 'dragging' : ''}`}
+              className={`services-scroll-container flex ${isMobile ? 'gap-4' : 'gap-0'} overflow-x-auto scrollbar-hide py-4 sm:py-6 md:py-8 px-4 sm:px-6 md:px-8 lg:px-12 ${isDragging ? 'dragging' : ''}`}
               style={{
                 scrollbarWidth: 'none',
                 msOverflowStyle: 'none',
               }}
-              // Na mobile wyłącz drag, zostaw tylko scroll
+              // Desktop events
               onMouseDown={!isMobile ? handleMouseDown : undefined}
               onMouseUp={!isMobile ? handleMouseUp : undefined}
               onMouseLeave={!isMobile ? handleMouseLeave : undefined}
               onMouseMove={!isMobile ? handleMouseMove : undefined}
-              // Dodaj touch events dla mobile hover simulation
+              // Mobile touch events
               onTouchStart={isMobile ? (e) => {
                 const touch = e.touches[0];
                 const cardIndex = getCardIndexUnderCursor(touch.clientX, touch.clientY);
@@ -2058,7 +2161,7 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
               } : undefined}
             >
               {/* ==========================================
-                  💳 SERVICE CARDS MAP - Credit Card Overlap z Always Active Card
+                  💳 SERVICE CARDS MAP - FULLY RESPONSIVE
                   ========================================== */}
               {data.services.map((service, index) => (
                 <motion.div
@@ -2069,20 +2172,20 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
                   className={`service-card flex-shrink-0 group ${isCardHighlighted(index) ? 'highlighted' : ''}`}
                   data-card-index={index}
                   style={{
-                    marginLeft: index > 0 ? '-200px' : '0px',
+                    marginLeft: getCardMargin(index),
                     zIndex: getCardZIndex(index),
                   }}
-                  onMouseEnter={() => handleCardHover(index)}
+                  onMouseEnter={!isMobile ? () => handleCardHover(index) : undefined}
                 >
                   {/* ==========================================
-                      💳 CREDIT CARD DESIGN - Large Wide Card z Always Active Scale
+                      💳 CREDIT CARD DESIGN - RESPONSIVE DIMENSIONS
                       ========================================== */}
                   <div 
-                    className={`service-card-content relative w-[800px] md:w-[900px] lg:w-[1000px] h-[600px] md:h-[650px] bg-gradient-to-br ${
+                    className={`service-card-content relative min-w-[320px] w-[95vw] sm:w-[400px] md:w-[500px] lg:w-[700px] xl:w-[800px] 2xl:w-[900px] h-auto min-h-[400px] sm:min-h-[450px] md:min-h-[500px] lg:min-h-[550px] xl:min-h-[600px] bg-gradient-to-br ${
                       index % 2 === 0 
                         ? 'from-[#1f6feb] via-[#0d1117] to-[#58a6ff]'
                         : 'from-[#58a6ff] via-[#0d1117] to-[#1f6feb]'
-                    } border border-[#30363d] rounded-3xl overflow-hidden shadow-2xl hover:shadow-[#1f6feb]/25 transition-all duration-500`}
+                    } border border-[#30363d] rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl hover:shadow-[#1f6feb]/25 transition-all duration-500 flex flex-col`}
                     style={{
                       transform: `scale(${getCardScale(index)})`,
                     }}
@@ -2099,46 +2202,48 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
                       />
                     </div>
 
-                    {/* Card Content */}
-                    <div className="relative z-10 p-12 h-full flex flex-col">
+                    {/* Card Content - RESPONSIVE PADDING */}
+                    <div className="relative z-10 p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12 h-full flex flex-col">
                       
-                      {/* Top Section - Icon & Title */}
-                      <div className="flex items-start justify-between mb-8">
+                      {/* Top Section - Icon & Title - RESPONSIVE */}
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 sm:mb-6 md:mb-8 gap-4">
                         <div className="flex items-center">
-                          <div className="text-white/90 mr-6 transform group-hover:scale-110 transition-transform duration-300">
-                            {service.icon}
+                          <div className="text-white/90 mr-3 sm:mr-4 md:mr-6 transform group-hover:scale-110 transition-transform duration-300">
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center">
+                              {service.icon}
+                            </div>
                           </div>
                           <div>
-                            <h3 className="text-4xl md:text-5xl font-black text-white mb-2">
+                            <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black text-white mb-1 sm:mb-2 leading-tight">
                               {service.title}
                             </h3>
                           </div>
                         </div>
                         
-                        {/* Price Tag */}
-                        <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 text-center border border-white/30">
-                          <div className="text-3xl font-black text-white mb-1">
+                        {/* Price Tag - RESPONSIVE */}
+                        <div className="bg-white/20 backdrop-blur-sm rounded-xl sm:rounded-2xl p-2 sm:p-3 md:p-4 text-center border border-white/30 flex-shrink-0">
+                          <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-black text-white mb-0.5 sm:mb-1">
                             {service.price}
                           </div>
-                          <div className="text-white/70 text-xl">
+                          <div className="text-white/70 text-xs sm:text-sm md:text-base lg:text-xl">
                             {service.title === 'Strony Internetowe' ? 'za projekt' : 'za godzinę'}
                           </div>
                         </div>
                       </div>
 
-                      {/* Middle Section - Description & Levels */}
-                      <div className="flex-grow mb-8">
-                        <p className="text-white/90 text-xl leading-relaxed mb-6">
+                      {/* Middle Section - Description & Levels - RESPONSIVE */}
+                      <div className="flex-grow mb-4 sm:mb-6 md:mb-8">
+                        <p className="text-white/90 text-sm sm:text-base md:text-lg lg:text-xl leading-relaxed mb-3 sm:mb-4 md:mb-6">
                           {service.description}
                         </p>
                         
-                        <div className="mb-6">
-                          <div className="text-white font-semibold mb-3 text-xl">Poziomy:</div>
-                          <div className="flex flex-wrap gap-3">
+                        <div className="mb-3 sm:mb-4 md:mb-6">
+                          <div className="text-white font-semibold mb-2 sm:mb-3 text-sm sm:text-base md:text-lg lg:text-xl">Poziomy:</div>
+                          <div className="flex flex-wrap gap-1 sm:gap-2 md:gap-3">
                             {service.levels.map((level, idx) => (
                               <span
                                 key={idx}
-                                className="px-4 py-2 bg-white/20 text-white rounded-full text-xl font-medium border border-white/30 backdrop-blur-sm"
+                                className="px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 md:py-2 bg-white/20 text-white rounded-full text-xs sm:text-sm md:text-base lg:text-xl font-medium border border-white/30 backdrop-blur-sm"
                               >
                                 {level}
                               </span>
@@ -2146,30 +2251,37 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
                           </div>
                         </div>
 
-                        {/* Features List */}
-                        <div className="grid md:grid-cols-2 gap-3">
-                          {service.features.slice(0, 6).map((feature, idx) => (
+                        {/* Features List - RESPONSIVE */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-1 sm:gap-2 md:gap-3">
+                          {service.features.slice(0, isMobile ? 4 : 6).map((feature, idx) => (
                             <div key={idx} className="flex items-center text-white/80">
-                              <Check className="w-5 h-5 text-white mr-3 flex-shrink-0" />
-                              <span className="text-xl">{feature}</span>
+                              <Check className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-white mr-2 sm:mr-3 flex-shrink-0" />
+                              <span className="text-xs sm:text-sm md:text-base lg:text-xl leading-tight">{feature}</span>
                             </div>
                           ))}
+                          {service.features.length > (isMobile ? 4 : 6) && (
+                            <div className="flex items-center text-white/60">
+                              <span className="text-xs sm:text-sm md:text-base lg:text-xl">
+                                +{service.features.length - (isMobile ? 4 : 6)} więcej...
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
 
-                      {/* Bottom Section - CTA Button */}
-                      <div className="flex justify-center">
+                      {/* Bottom Section - CTA Button - RESPONSIVE */}
+                      <div className="flex justify-center mt-auto">
                         <motion.button
                           onClick={() => handleBookService(service.title)}
                           whileHover={{ scale: 1.05, y: -3 }}
                           whileTap={{ scale: 0.95 }}
-                          className="bg-white text-[#1f6feb] font-bold py-4 px-8 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl flex items-center group/btn cursor-pointer"
+                          className="bg-white text-[#1f6feb] font-bold py-2 sm:py-3 md:py-4 px-4 sm:px-6 md:px-8 rounded-lg sm:rounded-xl md:rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl flex items-center group/btn cursor-pointer text-sm sm:text-base md:text-lg"
                         >
-                          <span className="mr-2">
+                          <span className="mr-1 sm:mr-2">
                             {service.title === 'Strony Internetowe' ? 'Zamów stronę' : `Umów ${service.title.toLowerCase()}`}
                           </span>
                           <svg 
-                            className="w-5 h-5 transition-transform duration-300 group-hover/btn:translate-x-1" 
+                            className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 transition-transform duration-300 group-hover/btn:translate-x-1" 
                             fill="none" 
                             stroke="currentColor" 
                             viewBox="0 0 24 24"
@@ -2179,23 +2291,25 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
                         </motion.button>
                       </div>
 
-                      {/* Card Number Style Decoration */}
-                      <div className="absolute bottom-6 left-12 text-white/30 font-mono text-lg tracking-wider">
+                      {/* Card Number Style Decoration - RESPONSIVE */}
+                      <div className="absolute bottom-2 sm:bottom-4 md:bottom-6 left-3 sm:left-6 md:left-12 text-white/30 font-mono text-xs sm:text-sm md:text-base lg:text-lg tracking-wider">
                         {`**** **** **** ${String(service.id).padStart(4, '0')}`}
                       </div>
                     </div>
 
-                    {/* Hover Glow Effect */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-3xl">
-                      <div className="absolute inset-0 bg-gradient-to-t from-white/5 to-transparent rounded-3xl" />
-                      <div className="absolute inset-0 shadow-2xl shadow-white/10 rounded-3xl" />
-                    </div>
+                    {/* Hover Glow Effect - DESKTOP ONLY */}
+                    {!isMobile && (
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl sm:rounded-3xl">
+                        <div className="absolute inset-0 bg-gradient-to-t from-white/5 to-transparent rounded-2xl sm:rounded-3xl" />
+                        <div className="absolute inset-0 shadow-2xl shadow-white/10 rounded-2xl sm:rounded-3xl" />
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               ))}
 
               {/* ==========================================
-                  🎁 PACKAGE DEAL CARD - Special Offer z Always Active Scale
+                  🎁 PACKAGE DEAL CARD - RESPONSIVE
                   ========================================== */}
               <motion.div
                 initial={{ x: 100, opacity: 0, rotateY: 15 }}
@@ -2204,13 +2318,13 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
                 className="service-card flex-shrink-0"
                 data-card-index={data.services.length}
                 style={{
-                  marginLeft: '-200px',
+                  marginLeft: getCardMargin(data.services.length),
                   zIndex: getCardZIndex(data.services.length),
                 }}
-                onMouseEnter={() => handleCardHover(data.services.length)}
+                onMouseEnter={!isMobile ? () => handleCardHover(data.services.length) : undefined}
               >
                 <div 
-                  className="service-card-content w-[800px] md:w-[900px] lg:w-[1000px] h-[600px] md:h-[650px] bg-gradient-to-br from-[#58a6ff]/20 to-[#1f6feb]/20 border border-[#1f6feb]/30 rounded-3xl flex flex-col items-center justify-center text-center p-12 backdrop-blur-sm"
+                  className="service-card-content min-w-[320px] w-[95vw] sm:w-[400px] md:w-[500px] lg:w-[700px] xl:w-[800px] 2xl:w-[900px] h-auto min-h-[400px] sm:min-h-[450px] md:min-h-[500px] lg:min-h-[550px] xl:min-h-[600px] bg-gradient-to-br from-[#58a6ff]/20 to-[#1f6feb]/20 border border-[#1f6feb]/30 rounded-2xl sm:rounded-3xl flex flex-col items-center justify-center text-center p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12 backdrop-blur-sm"
                   style={{
                     transform: `scale(${getCardScale(data.services.length)})`,
                   }}
@@ -2219,20 +2333,20 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
                   <motion.div
                     animate={{ rotate: [0, 360] }}
                     transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="w-24 h-24 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] rounded-full flex items-center justify-center mb-8"
+                    className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] rounded-full flex items-center justify-center mb-4 sm:mb-6 md:mb-8"
                   >
-                    <Award className="w-12 h-12 text-white" />
+                    <Award className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-white" />
                   </motion.div>
                   
-                  <h3 className="text-4xl md:text-5xl font-black text-[#f0f6fc] mb-6">
+                  <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-[#f0f6fc] mb-3 sm:mb-4 md:mb-6 leading-tight">
                     Pakiet 10 godzin
                   </h3>
                   
-                  <p className="text-[#c9d1d9] mb-8 leading-relaxed text-xl max-w-2xl">
+                  <p className="text-[#c9d1d9] mb-4 sm:mb-6 md:mb-8 leading-relaxed text-sm sm:text-base md:text-lg lg:text-xl max-w-2xl">
                     Zapisz się na 10 godzin z góry i otrzymaj 20% rabatu! Idealne dla systematycznej nauki.
                   </p>
                   
-                  <div className="text-3xl text-[#1f6feb] font-black mb-8">
+                  <div className="text-xl sm:text-2xl md:text-3xl text-[#1f6feb] font-black mb-4 sm:mb-6 md:mb-8">
                     Oszczędzasz do 120 zł!
                   </div>
                   
@@ -2240,7 +2354,7 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
                     onClick={() => handleBookService('pakiet')}
                     whileHover={{ scale: 1.05, y: -3 }}
                     whileTap={{ scale: 0.95 }}
-                    className="bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 text-xl shadow-lg hover:shadow-xl"
+                    className="bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold py-2 sm:py-3 md:py-4 px-4 sm:px-6 md:px-8 rounded-lg sm:rounded-xl md:rounded-2xl transition-all duration-300 text-sm sm:text-base md:text-lg lg:text-xl shadow-lg hover:shadow-xl"
                   >
                     Umów pakiet 10h
                   </motion.button>
@@ -2248,6 +2362,24 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
               </motion.div>
             </div>
           </motion.div>
+
+          {/* ==========================================
+              📱 MOBILE SCROLL HINT
+              ========================================== */}
+          {isMobile && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={inView ? { opacity: 1 } : {}}
+              transition={{ duration: 0.8, delay: 1 }}
+              className="text-center mt-4 md:hidden"
+            >
+              <p className="text-xs text-[#8b949e] flex items-center justify-center">
+                <span className="mr-2">👈</span>
+                Przesuń palcem aby zobaczyć wszystkie usługi
+                <span className="ml-2">👉</span>
+              </p>
+            </motion.div>
+          )}
         </div>
       </section>
     </>
