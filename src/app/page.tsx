@@ -2485,7 +2485,7 @@ const FaqSection = ({ data }: { data: HomePageData }) => {
 };
 
 // ==========================================
-// 📞 CONTACT SECTION - Prosta ale dobra walidacja
+// 📞 CONTACT SECTION - walidacja
 // ==========================================
 const ContactSection = ({ data }: { data: HomePageData }) => {
   const [ref, inView] = useAdvancedInView();
@@ -2532,6 +2532,8 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
         if (!value.trim()) return 'Imię i nazwisko jest wymagane';
         if (value.trim().length < 2) return 'Minimum 2 znaki';
         if (value.trim().length > 50) return 'Maximum 50 znaków';
+        if (!/^[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ\s\-']+$/.test(value.trim())) return 'Tylko litery, spacje i myślniki';
+
         return '';
 
       case 'email':
