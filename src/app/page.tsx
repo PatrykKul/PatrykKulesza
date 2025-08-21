@@ -3444,20 +3444,12 @@ export default function HomePage() {
       },
       {
         id: 5,
-        name: "*****",
-        grade: "***",
-        result: "***",
-        opinion: "****",
+        name: "Dominik G.",
+        grade: "Matura",
+        result: "50% matematyka, 52% angielski",
+        opinion: "Świetny korepetytor - potrafi w prosty sposób wytłumaczyć nawet najtrudniejsze zagadnienia w bardzo krótkim czasie. Dzięki jego pomocy dobrze przygotowałem się z matematyki i angielskiego, a nauka była przyjemna i skuteczna.",
         rating: 5
-      },
-      {
-        id: 6,
-        name: "*****",
-        grade: "***",
-        result: "***",
-        opinion: "****",
-        rating: 5
-      },
+      }
     ],
     faq: [
       {
