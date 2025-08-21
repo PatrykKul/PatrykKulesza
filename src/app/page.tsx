@@ -169,11 +169,15 @@ const Header = () => {
 
   useEffect(() => {
     const handleScroll = () => {
+      if (typeof window === 'undefined') return;
+      
       setIsScrolled(window.scrollY > 50);
       
       // Active section tracking
-      const sections = MENU_ITEMS.map(item => item.href.substring(1)); // ✅ ZMIEŃ na MENU_ITEMS
+      const sections = MENU_ITEMS.map(item => item.href.substring(1));
       const current = sections.find(section => {
+        if (typeof document === 'undefined') return false;
+        
         const element = document.getElementById(section);
         if (element) {
           const rect = element.getBoundingClientRect();
@@ -187,15 +191,18 @@ const Header = () => {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []); 
+    if (typeof window !== 'undefined') {
+      window.addEventListener('scroll', handleScroll);
+      return () => window.removeEventListener('scroll', handleScroll);
+    }
+  }, []);
+
 
   // Smooth scroll handler
   const handleMenuClick = (href: string) => {
     setIsMenuOpen(false);
     
-    if (href.startsWith('#')) {
+    if (href.startsWith('#') && typeof document !== 'undefined') {
       const element = document.getElementById(href.substring(1));
       if (element) {
         element.scrollIntoView({ 
@@ -478,6 +485,7 @@ const HeroSection = ({ data }: { data: HomePageData }) => {
               className="text-sm sm:text-base md:text-lg lg:text-xl text-[#c9d1d9] font-medium mb-4 sm:mb-6 tracking-wide px-2 lg:px-0"
             >
               Korepetycje Białystok, Zambrów i okolice • Matematyka • Angielski • Programowanie
+              
             </motion.h2>
 
             {/* Description - Mobile Optimized */}
@@ -489,8 +497,9 @@ const HeroSection = ({ data }: { data: HomePageData }) => {
             >
               Specjalizuję się w korepetycjach z{' '}
               <span className="text-[#1f6feb] font-semibold">matematyki</span>,{' '}
-              <span className="text-[#1f6feb] font-semibold">angielskiego</span> i{' '}
-              <span className="text-[#1f6feb] font-semibold">programowania</span>.
+              <span className="text-[#1f6feb] font-semibold">angielskiego</span>,{' '}
+              <span className="text-[#1f6feb] font-semibold">programowania</span> ,a także tworzę{' '}
+              <span className="text-[#1f6feb] font-semibold">strony internetowe</span>.
               <br className="hidden sm:block" />
               <span className="text-[#58a6ff] block sm:inline mt-2 sm:mt-0">
                 Indywidualne podejście = gwarantowane rezultaty.
@@ -505,7 +514,7 @@ const HeroSection = ({ data }: { data: HomePageData }) => {
               className="mb-6 lg:mb-0"
             >
               <div className="text-xs sm:text-sm md:text-base lg:text-xl text-[#cae2ea] font-light px-2 lg:px-0">
-                🔬 Data Science • 💻 Web Development • 🎯 Zambrów & Białystok
+                👨‍🏫 Private Tutor • 🔬 Data Science • 💻 Web Development • 🎯 Zambrów & Białystok
               </div>
             </motion.div>
           </div>
@@ -918,13 +927,17 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
   // ==========================================
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
+      if (typeof window !== 'undefined') {
+        setIsMobile(window.innerWidth <= 768);
+      }
     };
     
     checkMobile();
-    window.addEventListener('resize', checkMobile);
     
-    return () => window.removeEventListener('resize', checkMobile);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', checkMobile);
+      return () => window.removeEventListener('resize', checkMobile);
+    }
   }, []);
 
   // ==========================================
@@ -1292,13 +1305,17 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
   // ==========================================
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
+      if (typeof window !== 'undefined') {
+        setIsMobile(window.innerWidth <= 768);
+      }
     };
     
     checkMobile();
-    window.addEventListener('resize', checkMobile);
     
-    return () => window.removeEventListener('resize', checkMobile);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', checkMobile);
+      return () => window.removeEventListener('resize', checkMobile);
+    }
   }, []);
 
   // ==========================================
@@ -1789,13 +1806,17 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
   // ==========================================
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
+      if (typeof window !== 'undefined') {
+        setIsMobile(window.innerWidth <= 768);
+      }
     };
     
     checkMobile();
-    window.addEventListener('resize', checkMobile);
     
-    return () => window.removeEventListener('resize', checkMobile);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', checkMobile);
+      return () => window.removeEventListener('resize', checkMobile);
+    }
   }, []);
   
   // ==========================================
@@ -1807,7 +1828,6 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
   const momentumAnimationRef = useRef<number | null>(null);
   const lastCallTime = useRef<number>(0);
 
-  // Function to handle service booking
   const handleBookService = (serviceTitle: string) => {
     // Map service titles to form values
     const serviceMapping: { [key: string]: string } = {
@@ -1819,22 +1839,25 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
     
     const serviceValue = serviceMapping[serviceTitle] || serviceTitle.toLowerCase();
     
-    // Scroll to contact section with service parameter
-    const contactSection = document.getElementById('contact');
-    if (contactSection) {
-      // Add service to URL hash for auto-fill
-      window.location.hash = `contact-${serviceValue}`;
-      
-      // Smooth scroll to contact
-      contactSection.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
-      });
-      
-      // Trigger custom event for form auto-fill
-      window.dispatchEvent(new CustomEvent('autoFillService', {
-        detail: { service: serviceValue }
-      }));
+    // Sprawdź czy jesteś w przeglądarce
+    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+      // Scroll to contact section with service parameter
+      const contactSection = document.getElementById('contact');
+      if (contactSection) {
+        // Add service to URL hash for auto-fill
+        window.location.hash = `contact-${serviceValue}`;
+        
+        // Smooth scroll to contact
+        contactSection.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+        
+        // Trigger custom event for form auto-fill
+        window.dispatchEvent(new CustomEvent('autoFillService', {
+          detail: { service: serviceValue }
+        }));
+      }
     }
   };
 
@@ -1842,6 +1865,9 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
   // 🆕 FUNKCJA DO WYKRYWANIA KARTY POD KURSOREM
   // ==========================================
   const getCardIndexUnderCursor = useCallback((clientX: number, clientY: number) => {
+    // Sprawdź czy document istnieje
+    if (typeof document === 'undefined') return null;
+    
     const elements = document.elementsFromPoint(clientX, clientY);
     for (const element of elements) {
       const cardElement = element.closest('.service-card');
@@ -2511,15 +2537,17 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
 
   // Timer cooldown
   useEffect(() => {
-    // Sprawdź localStorage przy ładowaniu
-    const lastSent = localStorage.getItem('email_sent_time');
-    if (lastSent) {
-      const timePassed = Date.now() - parseInt(lastSent);
-      const minutesPassed = timePassed / (1000 * 60);
-      if (minutesPassed < 5) { // 5 minut
-        const remainingSeconds = 300 - Math.floor(timePassed / 1000);
-        if (remainingSeconds > 0) {
-          setCooldownTime(remainingSeconds);
+    // Sprawdź localStorage tylko w przeglądarce
+    if (typeof window !== 'undefined') {
+      const lastSent = localStorage.getItem('email_sent_time');
+      if (lastSent) {
+        const timePassed = Date.now() - parseInt(lastSent);
+        const minutesPassed = timePassed / (1000 * 60);
+        if (minutesPassed < 5) {
+          const remainingSeconds = 300 - Math.floor(timePassed / 1000);
+          if (remainingSeconds > 0) {
+            setCooldownTime(remainingSeconds);
+          }
         }
       }
     }
@@ -2657,12 +2685,14 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
   };
 
   const scrollToContact = () => {
-    const contactElement = document.getElementById('contact');
-    if (contactElement) {
-      contactElement.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start' 
-      });
+    if (typeof document !== 'undefined') {
+      const contactElement = document.getElementById('contact');
+      if (contactElement) {
+        contactElement.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }
     }
   };
 
@@ -2714,7 +2744,10 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
 
       setSubmitStatus('success');
       
-      localStorage.setItem('email_sent_time', Date.now().toString());
+  // Sprawdź localStorage przed zapisem
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('email_sent_time', Date.now().toString());
+      }
 
       // Reset form
       setFormData({
@@ -2736,8 +2769,21 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
         scrollToContact();
       }, 100);
       
-    } catch (error) {
+      } catch (error: any) {
       console.error('Email send failed:', error);
+      
+      // Lepsze komunikaty błędów
+      let errorMessage = 'Wystąpił błąd. Spróbuj ponownie lub zadzwoń bezpośrednio.';
+      
+      if (error?.status === 429) {
+        errorMessage = 'Za dużo zapytań. Poczekaj chwilę i spróbuj ponownie.';
+      } else if (error?.status === 400) {
+        errorMessage = 'Nieprawidłowe dane w formularzu. Sprawdź wszystkie pola.';
+      } else if (error?.text?.includes('network')) {
+        errorMessage = 'Problem z połączeniem internetowym. Sprawdź sieć.';
+      }
+      
+      setErrors({ message: errorMessage });
       setSubmitStatus('error');
       scrollToContact();
     } finally {
@@ -2747,15 +2793,18 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
 
   // Auto-fill service from URL hash or custom event
   useEffect(() => {
-    const checkHash = () => {
-      const hash = window.location.hash;
-      if (hash.startsWith('#contact-')) {
-        const service = hash.replace('#contact-', '');
-        setFormData(prev => ({ ...prev, subject: service }));
-      }
-    };
+  const checkHash = () => {
+    // Sprawdź czy window istnieje
+    if (typeof window === 'undefined') return;
+    
+    const hash = window.location.hash;
+    if (hash.startsWith('#contact-')) {
+      const service = hash.replace('#contact-', '');
+      setFormData(prev => ({ ...prev, subject: service }));
+    }
+  };
 
-const handleAutoFill = (event: CustomEvent) => {
+  const handleAutoFill = (event: CustomEvent) => {
     const { service } = event.detail;
     
     let message = '';
@@ -2774,19 +2823,19 @@ const handleAutoFill = (event: CustomEvent) => {
       message: message
     }));
 
-    // Oznacz pola jako dotknięte i usun błędy walidacji
     setTouchedFields(prev => new Set(prev).add('subject').add('message'));
     setErrors(prev => {
       const newErrors = { ...prev };
-      // Usuń błędy dla pól które zostały wypełnione
       delete newErrors.subject;
       delete newErrors.message;
       return newErrors;
     });
   };
-
   
-    checkHash();
+  checkHash();
+  
+  // Sprawdź czy window istnieje przed dodaniem event listenerów
+  if (typeof window !== 'undefined') {
     window.addEventListener('hashchange', checkHash);
     window.addEventListener('autoFillService', handleAutoFill as EventListener);
 
@@ -2794,6 +2843,7 @@ const handleAutoFill = (event: CustomEvent) => {
       window.removeEventListener('hashchange', checkHash);
       window.removeEventListener('autoFillService', handleAutoFill as EventListener);
     };
+  }
   }, []);
 
   return (
@@ -3359,44 +3409,44 @@ export default function HomePage() {
       },
       {
         id: 2,
-        name: "Michał W.",
-        grade: "Egzamin ósmoklasisty 2024",
-        result: "95%",
-        opinion: "Patryk pomógł mi przygotować się do egzaminu z matematyki. Dzięki jego metodom nauka stała się przyjemna i efektywna.",
+        name: "Julia Z.",
+        grade: "Kwalifikacja Zawodowa INF.02 i INF.03", 
+        result: "95% i 85%",
+        opinion: "Przełamałam stereotypy o dziewczynach w IT dzięki korepetycjom z Patrykiem. Jego cierpliwość i świetne tłumaczenie pomogły mi osiągnąć znakomite wyniki na egzaminach zawodowych.",
         rating: 5
       },
       {
         id: 3,
-        name: "Rodzice Kai",
-        grade: "Klasa 7, podstawówka",
+        name: "Dominika A.",
+        grade: "4 klasa technikum",
         result: "Znaczna poprawa ocen",
-        opinion: "Kaja ma dyskalkulię i miała duże problemy z matematyką. Po zajęciach z Patrykiem jej oceny znacznie się poprawiły. Dziękujemy!",
+        opinion: "Cały rok przygotowywałam się z Patrykiem do sprawdzianów z matmy. Rezultat? Wszystkie zdane! Polecam w 100%.",
         rating: 5
       },
       {
         id: 4,
-        name: "Jakub M.",
-        grade: "Student informatyki",
-        result: "Zaliczenie sesji",
-        opinion: "Pomoc z analizą matematyczną na studiach była nieoceniona. Patryk ma świetne podejście do tłumaczenia skomplikowanych zagadnień.",
+        name: "Rodzice Amelii",
+        grade: "Egzamin 8-klasisty",
+        result: "100% matematyka, 98% angielski", 
+        opinion: "Perfekcyjne przygotowanie do egzaminu ósmoklasisty. Amelia osiągnęła znakomite wyniki dzięki Panu Patrykowi.",
         rating: 5
       },
       {
         id: 5,
-        name: "Marlena S.",
-        grade: "Matura podstawowa 2024",
-        result: "90%",
-        opinion: "Angielski z Patrykiem to była przyjemność! Konwersacje pomogły mi przełamać barierę językową i pewnie zdać maturę.",
+        name: "*****",
+        grade: "***",
+        result: "***",
+        opinion: "****",
         rating: 5
       },
       {
         id: 6,
-        name: "Tomek R.",
-        grade: "Nauka programowania",
-        result: "Pierwsza praca w IT",
-        opinion: "Dzięki kursom Pythona z Patrykiem znalazłem pierwszą pracę w IT! Praktyczne podejście i realne projekty to było to czego potrzebowałem.",
+        name: "*****",
+        grade: "***",
+        result: "***",
+        opinion: "****",
         rating: 5
-      }
+      },
     ],
     faq: [
       {
