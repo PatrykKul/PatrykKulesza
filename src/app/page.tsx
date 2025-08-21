@@ -3358,7 +3358,7 @@ export default function HomePage() {
       id: 3,
       title: "Macro Recorder Pro",
       description: "Zaawansowane narzędzie do nagrywania i odtwarzania makr. Precyzyjne rejestrowanie ruchów myszy, kliknięć i skrótów klawiszowych.",
-      //image: "macro-recorder-preview.png",  
+      image: "macro-recorder-preview.png",  
       technologies: ["Python", "PyQt5", "Win32API", "Automation"],
       type: "tool",
       category: "Productivity Tools"
@@ -3367,7 +3367,7 @@ export default function HomePage() {
       id: 4,
       title: "Bezier Curves Visualizer",
       description: "Interaktywny wizualizator krzywych Beziera z możliwością manipulacji punktów kontrolnych w czasie rzeczywistym.",
-      //image: "bezier-preview.png",  
+      image: "bezier-preview.png",  
       technologies: ["JavaScript", "Canvas API", "Mathematical Algorithms"],
       type: "web",
       category: "Mathematical Visualization"
@@ -3376,7 +3376,7 @@ export default function HomePage() {
       id: 5,
       title: "Spaceship Shooter",
       description: "Klasyczna gra arcade typu space shooter z proceduralnymi wrogami i systemem power-upów.",
-      //image: "spaceship-game-preview.png",  
+      image: "spaceship-game-preview.png",  
       technologies: ["Python", "Pygame"],
       type: "game",
       category: "Pygame"
@@ -3385,7 +3385,7 @@ export default function HomePage() {
       id: 6,
       title: "FPS Shooting Game",
       description: "Pierwszoosobowa strzelanka z zaawansowaną mechaniką broni i systemem AI przeciwników.",
-      //image: "fps-game-preview.png",  
+      image: "fps-game-preview.png",  
       technologies: ["Unity", "C#", "AI Pathfinding", "3D Graphics"],
       type: "game",
       category: "Unity Games"
@@ -3394,7 +3394,7 @@ export default function HomePage() {
       id: 7,
       title: "Racing Car Simulator",
       description: "Realistyczny symulator wyścigów samochodowych z fizyką pojazdów i różnymi torami.",
-      //image: "racing-game-preview.png",
+      image: "racing-game-preview.png",
       technologies: ["Unity", "C#", "Physics Simulation", "Vehicle Dynamics"],
       type: "game",
       category: "Unity Games"
@@ -3403,7 +3403,7 @@ export default function HomePage() {
       id: 8,
       title: "Image Processing Suite",
       description: "Zaawansowany pakiet do przetwarzania obrazów z algorytmami Computer Vision i filtrami real-time.",
-      //image: "image-processing-preview.png", 
+      image: "image-processing-preview.png", 
       technologies: ["Python", "OpenCV", "NumPy", "PIL", "Computer Vision"],
       type: "tool",
       category: "Image Processing"
