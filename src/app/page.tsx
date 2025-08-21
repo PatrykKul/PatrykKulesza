@@ -423,7 +423,7 @@ const Header = () => {
 };
 
 // ==========================================
-// 🚀 CLEAN HERO SECTION - 2 COLUMN LAYOUT
+// 🚀 RESPONSIVE HERO SECTION - Mobile First
 // ==========================================
 const HeroSection = ({ data }: { data: HomePageData }) => {
   const [ref, inView] = useAdvancedInView();
@@ -432,7 +432,7 @@ const HeroSection = ({ data }: { data: HomePageData }) => {
     <section
       ref={ref}
       id="hero"
-      className="min-h-screen flex items-center bg-gradient-to-br from-[#0d1117] via-[#161b22] to-[#1f6feb]/20 relative overflow-hidden pt-20"
+      className="min-h-screen flex items-center bg-gradient-to-br from-[#0d1117] via-[#161b22] to-[#1f6feb]/20 relative overflow-hidden pt-16 md:pt-20"
     >
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
@@ -446,20 +446,20 @@ const HeroSection = ({ data }: { data: HomePageData }) => {
         />
       </div>
 
-      <div className="container mx-auto px-6 relative z-10 pb-4 mb-4">
+      <div className="container mx-auto px-4 sm:px-6 relative z-10">
         
-        {/* MAIN CONTENT - 2 COLUMNS */}
-        <div className="grid lg:grid-cols-5 gap-12 items-center mb-4">
+        {/* MAIN CONTENT - RESPONSIVE LAYOUT */}
+        <div className="flex flex-col lg:grid lg:grid-cols-5 gap-8 lg:gap-12 items-center mb-8 lg:mb-4">
           
-          {/* LEFT COLUMN - TEXT CONTENT (60%) */}
-          <div className="lg:col-span-3">
+          {/* LEFT COLUMN - TEXT CONTENT */}
+          <div className="w-full lg:col-span-3 text-center lg:text-left">
             
-            {/* H1 - Main Title */}
+            {/* H1 - Main Title - Responsive Typography */}
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 leading-tight"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black mb-4 sm:mb-6 leading-tight"
             >
               <span className="bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
                 Twój sukces,
@@ -470,57 +470,59 @@ const HeroSection = ({ data }: { data: HomePageData }) => {
               </span>
             </motion.h1>
 
-            {/* H2 - SEO Optimized Subtitle */}
+            {/* H2 - SEO Optimized Subtitle - Mobile Responsive */}
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-lg md:text-xl text-[#c9d1d9] font-medium mb-6 tracking-wide"
+              className="text-sm sm:text-base md:text-lg lg:text-xl text-[#c9d1d9] font-medium mb-4 sm:mb-6 tracking-wide px-2 lg:px-0"
             >
               Korepetycje Białystok, Zambrów i okolice • Matematyka • Angielski • Programowanie
             </motion.h2>
 
-            {/* Description - Shortened */}
+            {/* Description - Mobile Optimized */}
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.6 }}
-              className="text-xl md:text-2xl text-[#f0f6fc] mb-6 leading-relaxed font-light"
+              className="text-base sm:text-lg md:text-xl lg:text-2xl text-[#f0f6fc] mb-4 sm:mb-6 leading-relaxed font-light px-2 lg:px-0"
             >
               Specjalizuję się w korepetycjach z{' '}
               <span className="text-[#1f6feb] font-semibold">matematyki</span>,{' '}
               <span className="text-[#1f6feb] font-semibold">angielskiego</span> i{' '}
               <span className="text-[#1f6feb] font-semibold">programowania</span>.
-              <br />
-              <span className="text-[#58a6ff]">Indywidualne podejście = gwarantowane rezultaty.</span>
+              <br className="hidden sm:block" />
+              <span className="text-[#58a6ff] block sm:inline mt-2 sm:mt-0">
+                Indywidualne podejście = gwarantowane rezultaty.
+              </span>
             </motion.p>
 
-            {/* Enhanced Credentials */}
+            {/* Enhanced Credentials - Mobile Responsive */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.8 }}
-              className="space-y-2"
+              className="mb-6 lg:mb-0"
             >
-              <div className="text-md md:text-xl text-[#cae2ea] font-light">
+              <div className="text-xs sm:text-sm md:text-base lg:text-xl text-[#cae2ea] font-light px-2 lg:px-0">
                 🔬 Data Science • 💻 Web Development • 🎯 Zambrów & Białystok
               </div>
             </motion.div>
           </div>
 
-          {/* RIGHT COLUMN - BRAIN IMAGE (40%) */}
-          <div className="lg:col-span-2 flex justify-center lg:justify-end">
+          {/* RIGHT COLUMN - BRAIN IMAGE - FULLY RESPONSIVE */}
+          <div className="w-full lg:col-span-2 flex justify-center lg:justify-end order-first lg:order-last">
             <motion.div
               initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
               animate={inView ? { opacity: 1, scale: 1, rotate: 0 } : {}}
               transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
-              className="relative"
+              className="relative w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl"
             >
               {/* Floating Animation Container */}
               <motion.div
                 animate={{ 
-                  y: [-20, 20, -20],
-                  rotate: [-2, 2, -2]
+                  y: [-10, 10, -10],
+                  rotate: [-1, 1, -1]
                 }}
                 transition={{ 
                   duration: 6,
@@ -529,18 +531,18 @@ const HeroSection = ({ data }: { data: HomePageData }) => {
                 }}
                 className="relative"
               >
-                {/* Glow Effect */}
-                <div className="absolute inset-0 bg-[#1f6feb]/20 rounded-full blur-3xl scale-110"></div>
+                {/* Glow Effect - Responsive */}
+                <div className="absolute inset-0 bg-[#1f6feb]/20 rounded-full blur-2xl sm:blur-3xl scale-110"></div>
                 
-                {/* Brain Image */}
-                <div className="relative w-96 h-96 md:w-[500px] md:h-[500px] lg:w-[550px] lg:h-[550px]">
+                {/* Brain Image - RESPONSIVE with aspect ratio */}
+                <div className="relative w-full aspect-square">
                   <Image
                     src={`${process.env.NODE_ENV === 'production' ? '/korepetycje' : ''}/_resources/brain.png`}
                     alt="Neural Network Brain - Korepetycje Programowanie i Matematyka" 
-                    width={550}
-                    height={550}
-                    className="w-full h-full object-contain drop-shadow-2xl"
+                    fill
+                    className="object-contain drop-shadow-2xl"
                     priority
+                    sizes="(max-width: 640px) 280px, (max-width: 768px) 320px, (max-width: 1024px) 400px, (max-width: 1280px) 480px, 550px"
                   />
                 </div>
               </motion.div>
@@ -548,58 +550,58 @@ const HeroSection = ({ data }: { data: HomePageData }) => {
           </div>
         </div>
 
-        {/* STATISTICS - FULL WIDTH */}
+        {/* STATISTICS - FULLY RESPONSIVE */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 1 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 max-w-4xl mx-auto"
+          className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12 max-w-5xl mx-auto"
         >
-          <div className="bg-[#161b22]/50 backdrop-blur-sm border border-[#30363d]/50 rounded-2xl p-8 hover:border-[#1f6feb]/50 transition-all duration-300 text-center">
-            <div className="text-5xl md:text-6xl font-black text-[#1f6feb] mb-2">
+          <div className="bg-[#161b22]/50 backdrop-blur-sm border border-[#30363d]/50 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 hover:border-[#1f6feb]/50 transition-all duration-300 text-center">
+            <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-[#1f6feb] mb-1 sm:mb-2">
               {data.hero.stats.experience}
             </div>
-            <div className="text-[#c9d1d9] text-sm uppercase tracking-wider font-medium">
+            <div className="text-[#c9d1d9] text-xs sm:text-sm uppercase tracking-wider font-medium">
               lat doświadczenia
             </div>
           </div>
           
-          <div className="bg-[#161b22]/50 backdrop-blur-sm border border-[#30363d]/50 rounded-2xl p-8 hover:border-[#1f6feb]/50 transition-all duration-300 text-center">
-            <div className="text-5xl md:text-6xl font-black text-[#1f6feb] mb-2">
+          <div className="bg-[#161b22]/50 backdrop-blur-sm border border-[#30363d]/50 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 hover:border-[#1f6feb]/50 transition-all duration-300 text-center">
+            <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-[#1f6feb] mb-1 sm:mb-2">
               {data.hero.stats.students}
             </div>
-            <div className="text-[#c9d1d9] text-sm uppercase tracking-wider font-medium">
+            <div className="text-[#c9d1d9] text-xs sm:text-sm uppercase tracking-wider font-medium">
               zadowolonych uczniów
             </div>
           </div>
           
-          <div className="bg-[#161b22]/50 backdrop-blur-sm border border-[#30363d]/50 rounded-2xl p-8 hover:border-[#1f6feb]/50 transition-all duration-300 text-center">
-            <div className="text-5xl md:text-6xl font-black text-[#1f6feb] mb-2">
+          <div className="bg-[#161b22]/50 backdrop-blur-sm border border-[#30363d]/50 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 hover:border-[#1f6feb]/50 transition-all duration-300 text-center sm:col-span-1 col-span-1">
+            <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-[#1f6feb] mb-1 sm:mb-2">
               {data.hero.stats.successRate}
             </div>
-            <div className="text-[#c9d1d9] text-sm uppercase tracking-wider font-medium">
+            <div className="text-[#c9d1d9] text-xs sm:text-sm uppercase tracking-wider font-medium">
               zdawalność egzaminów
             </div>
           </div>
         </motion.div>
 
-        {/* CTA BUTTONS */}
+        {/* CTA BUTTONS - RESPONSIVE */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 1.2 }}
-          className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12"
+          className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-8 sm:mb-12 px-4 sm:px-0"
         >
           <motion.a
             href="#contact"
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
-            className="group relative px-8 py-4 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-[#1f6feb]/25 text-lg"
+            className="group relative w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white font-bold rounded-xl sm:rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-[#1f6feb]/25 text-base sm:text-lg text-center"
           >
-            <span className="relative z-10 flex items-center">
+            <span className="relative z-10 flex items-center justify-center">
               {data.hero.cta}
               <svg 
-                className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" 
+                className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform duration-300" 
                 fill="none" 
                 stroke="currentColor" 
                 viewBox="0 0 24 24"
@@ -613,32 +615,31 @@ const HeroSection = ({ data }: { data: HomePageData }) => {
             href="#services"
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
-            className="px-8 py-4 border-2 border-[#1f6feb] text-[#1f6feb] font-bold rounded-2xl hover:bg-[#1f6feb] hover:text-white transition-all duration-300 text-lg"
+            className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 border-2 border-[#1f6feb] text-[#1f6feb] font-bold rounded-xl sm:rounded-2xl hover:bg-[#1f6feb] hover:text-white transition-all duration-300 text-base sm:text-lg text-center"
           >
             Zobacz usługi
           </motion.a>
         </motion.div>
 
-        {/* TRUST INDICATORS - Enhanced */}
+        {/* TRUST INDICATORS - RESPONSIVE */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : {}}
           transition={{ duration: 0.8, delay: 1.4 }}
-          className="flex flex-wrap justify-center items-center gap-8 text-[#c9d1d9] text-sm"
+          className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-4 sm:gap-6 lg:gap-8 text-[#c9d1d9] px-4 sm:px-0"
         >
           <div className="flex items-center gap-2">
-            <svg className="w-6 h-6 text-[#1f6feb]" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-[#1f6feb] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
-            <span className="font-bold text-lg">Online i stacjonarnie</span>
+            <span className="font-bold text-sm sm:text-base lg:text-lg">Online i stacjonarnie</span>
           </div>
           <div className="flex items-center gap-2">
-            <svg className="w-5 h-5 text-[#1f6feb]" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-[#1f6feb] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
-            <span className="font-bold text-lg">Materiały własne</span>
+            <span className="font-bold text-sm sm:text-base lg:text-lg">Materiały własne</span>
           </div>
-          
         </motion.div>
       </div>
     </section>
@@ -1680,7 +1681,7 @@ useEffect(() => {
 };
 
 // ==========================================
-// 💼 SERVICES SECTION - "Credit Card" Horizontal Overlap z Dynamic Scaling
+// 💼 SERVICES SECTION - "Credit Card" Horizontal Overlap z Always Active Card
 // ==========================================
 const ServicesSection = ({ data }: { data: HomePageData }) => {
   const [ref, inView] = useAdvancedInView();
@@ -1692,12 +1693,12 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
-  const [hoveredCardIndex, setHoveredCardIndex] = useState<number | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   
   // ==========================================
-  // 🆕 NOWY STAN DLA DRAG HOVER
+  // 🆕 STAN DLA ZAWSZE AKTYWNEJ KARTY
   // ==========================================
+  const [activeCardIndex, setActiveCardIndex] = useState<number>(0); // Domyślnie pierwsza karta (angielski)
   const [dragHoveredCardIndex, setDragHoveredCardIndex] = useState<number | null>(null);
   
   // ==========================================
@@ -1829,7 +1830,7 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
     setLastTime(Date.now());
     setVelocity(0);
     
-    // 🆕 Ustaw początkowy drag hover
+    // 🆕 Ustaw drag hover ale nie zmieniaj aktywnej karty jeszcze
     const cardIndex = getCardIndexUnderCursor(e.clientX, e.clientY);
     setDragHoveredCardIndex(cardIndex);
   };
@@ -1837,9 +1838,13 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
   const handleMouseUp = () => {
     if (isDragging) {
       startMomentumAnimation(velocity);
+      
+      // 🆕 Jeśli kończymy drag na jakiejś karcie, ustaw ją jako aktywną
+      if (dragHoveredCardIndex !== null) {
+        setActiveCardIndex(dragHoveredCardIndex);
+      }
     }
     setIsDragging(false);
-    // 🆕 Reset drag hover po zakończeniu drag
     setDragHoveredCardIndex(null);
   };
 
@@ -1848,7 +1853,6 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
       startMomentumAnimation(velocity);
     }
     setIsDragging(false);
-    // 🆕 Reset drag hover po opuszczeniu
     setDragHoveredCardIndex(null);
   };
 
@@ -1886,40 +1890,52 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
   }, [isDragging, startX, scrollLeft, lastTime, lastX, getCardIndexUnderCursor]);
 
   // ==========================================
-  // 🆕 FUNKCJA DO OBLICZANIA Z-INDEX
+  // 🆕 FUNKCJA DO USTAWIANIA AKTYWNEJ KARTY
   // ==========================================
-  const getCardZIndex = useCallback((index: number) => {
-    // Prioritet: dragHoveredCardIndex > hoveredCardIndex > default
-    if (dragHoveredCardIndex === index) return 100;
-    if (hoveredCardIndex === index && !isDragging) return 100;
-    return data.services.length - index;
-  }, [dragHoveredCardIndex, hoveredCardIndex, isDragging, data.services.length]);
+  const handleCardHover = useCallback((index: number) => {
+    if (!isDragging) {
+      setActiveCardIndex(index);
+    }
+  }, [isDragging]);
 
   // ==========================================
-  // 🆕 FUNKCJA DO OBLICZANIA SCALE Z MOBILE SUPPORT
+  // 🆕 FUNKCJA DO OBLICZANIA Z-INDEX - ZAWSZE JEDNA AKTYWNA
+  // ==========================================
+  const getCardZIndex = useCallback((index: number) => {
+    // Aktywna karta zawsze na wierzchu
+    if (activeCardIndex === index) return 100;
+    
+    // Podczas drag pokazuj również drag hover na wierzchu
+    if (isDragging && dragHoveredCardIndex === index) return 99;
+    
+    // Pozostałe karty w normalnej kolejności
+    return data.services.length - index;
+  }, [activeCardIndex, dragHoveredCardIndex, isDragging, data.services.length]);
+
+  // ==========================================
+  // 🆕 FUNKCJA DO OBLICZANIA SCALE - ZAWSZE JEDNA AKTYWNA
   // ==========================================
   const getCardScale = useCallback((index: number) => {
-    // Na mobile mniejszy efekt
-    if (isMobile) {
-      if (dragHoveredCardIndex === index || (hoveredCardIndex === index && !isDragging)) {
-        return 1.05; // Mniejszy efekt na mobile
-      }
-      return 0.9; // Mniejsza różnica na mobile
+    // Aktywna karta zawsze powiększona
+    if (activeCardIndex === index) {
+      return isMobile ? 1.05 : 1.0;
     }
     
-    // Desktop - pełny efekt
-    if (dragHoveredCardIndex === index || (hoveredCardIndex === index && !isDragging)) {
-      return 1.0;
+    // Podczas drag, karta pod kursorem może być lekko powiększona
+    if (isDragging && dragHoveredCardIndex === index) {
+      return isMobile ? 1.02 : 1.05;
     }
-    return 0.8;
-  }, [dragHoveredCardIndex, hoveredCardIndex, isDragging, isMobile]);
+    
+    // Pozostałe karty w normalnej skali
+    return isMobile ? 0.9 : 0.8;
+  }, [activeCardIndex, dragHoveredCardIndex, isDragging, isMobile]);
 
   // ==========================================
   // 🆕 FUNKCJA DO SPRAWDZANIA CZY KARTA JEST HIGHLIGHTED
   // ==========================================
   const isCardHighlighted = useCallback((index: number) => {
-    return dragHoveredCardIndex === index || (hoveredCardIndex === index && !isDragging);
-  }, [dragHoveredCardIndex, hoveredCardIndex, isDragging]);
+    return activeCardIndex === index || (isDragging && dragHoveredCardIndex === index);
+  }, [activeCardIndex, dragHoveredCardIndex, isDragging]);
 
   // ==========================================
   // 🎯 CLEANUP
@@ -1950,7 +1966,7 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
           cursor: inherit !important;
         }
         
-        /* Credit Card Overlap Effect z Dynamic Scaling */
+        /* Credit Card Overlap Effect z Always Active Card */
         .service-card {
           transform-style: preserve-3d;
           transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
@@ -1973,7 +1989,6 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
             transform: translateY(-10px) scale(1.01);
           }
           
-          /* Na mobile wyłącz skalowanie lub zmniejsz efekt */
           .service-card-content {
             transition: all 0.4s ease-out;
           }
@@ -2037,14 +2052,13 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
               onTouchStart={isMobile ? (e) => {
                 const touch = e.touches[0];
                 const cardIndex = getCardIndexUnderCursor(touch.clientX, touch.clientY);
-                setHoveredCardIndex(cardIndex);
-              } : undefined}
-              onTouchEnd={isMobile ? () => {
-                setTimeout(() => setHoveredCardIndex(null), 150); // Reset po krótkiej chwili
+                if (cardIndex !== null) {
+                  setActiveCardIndex(cardIndex);
+                }
               } : undefined}
             >
               {/* ==========================================
-                  💳 SERVICE CARDS MAP - Credit Card Overlap z Dynamic Scaling
+                  💳 SERVICE CARDS MAP - Credit Card Overlap z Always Active Card
                   ========================================== */}
               {data.services.map((service, index) => (
                 <motion.div
@@ -2058,11 +2072,10 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
                     marginLeft: index > 0 ? '-200px' : '0px',
                     zIndex: getCardZIndex(index),
                   }}
-                  onMouseEnter={() => !isDragging && setHoveredCardIndex(index)}
-                  onMouseLeave={() => !isDragging && setHoveredCardIndex(null)}
+                  onMouseEnter={() => handleCardHover(index)}
                 >
                   {/* ==========================================
-                      💳 CREDIT CARD DESIGN - Large Wide Card z Dynamic Scale
+                      💳 CREDIT CARD DESIGN - Large Wide Card z Always Active Scale
                       ========================================== */}
                   <div 
                     className={`service-card-content relative w-[800px] md:w-[900px] lg:w-[1000px] h-[600px] md:h-[650px] bg-gradient-to-br ${
@@ -2182,7 +2195,7 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
               ))}
 
               {/* ==========================================
-                  🎁 PACKAGE DEAL CARD - Special Offer z Dynamic Scale
+                  🎁 PACKAGE DEAL CARD - Special Offer z Always Active Scale
                   ========================================== */}
               <motion.div
                 initial={{ x: 100, opacity: 0, rotateY: 15 }}
@@ -2194,8 +2207,7 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
                   marginLeft: '-200px',
                   zIndex: getCardZIndex(data.services.length),
                 }}
-                onMouseEnter={() => !isDragging && setHoveredCardIndex(data.services.length)}
-                onMouseLeave={() => !isDragging && setHoveredCardIndex(null)}
+                onMouseEnter={() => handleCardHover(data.services.length)}
               >
                 <div 
                   className="service-card-content w-[800px] md:w-[900px] lg:w-[1000px] h-[600px] md:h-[650px] bg-gradient-to-br from-[#58a6ff]/20 to-[#1f6feb]/20 border border-[#1f6feb]/30 rounded-3xl flex flex-col items-center justify-center text-center p-12 backdrop-blur-sm"
@@ -2402,7 +2414,7 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
         return '';
 
       case 'subject':
-        if (!value) return 'Wybierz przedmiot/usługę';
+        if (!value) return 'Wybierz opcję';
         return '';
 
       case 'message':
@@ -2912,7 +2924,7 @@ const handleAutoFill = (event: CustomEvent) => {
                         : 'border-[#30363d] focus:border-[#1f6feb]'
                     }`}
                   >
-                    <option value="">Wybierz przedmiot/usługę</option>
+                    <option value="">Wybierz opcję</option>
                     <option value="matematyka">Matematyka</option>
                     <option value="angielski">Angielski</option>
                     <option value="programowanie">Programowanie</option>
