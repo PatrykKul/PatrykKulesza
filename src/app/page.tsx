@@ -3292,7 +3292,7 @@ export default function HomePage() {
         description: "Konwersacje, gramatyka, przygotowanie do egzaminów. Podstawa i rozszerzenie na maturze.",
         icon: <BookOpen className="w-12 h-12" />,
         levels: ["Podstawówka", "Liceum", "Matura", "Konwersacje"],
-        price: "50-70 zł",
+        price: "60-80 zł",
         features: [
           "Konwersacje",
           "Przygotowanie do matury",
@@ -3462,7 +3462,7 @@ export default function HomePage() {
       },
       {
         question: "Jakie są ceny korepetycji?",
-        answer: "Matematyka: 60-80 zł/h, Angielski: 50-70 zł/h, Programowanie: 70-100 zł/h. Cena zależy od poziomu i typu zajęć. Pakiet 10 godzin z rabatem 20%."
+        answer: "Matematyka: 60-80 zł/h, Angielski: 60-80 zł/h, Programowanie: 70-100 zł/h. Cena zależy od poziomu i typu zajęć. Pakiet 10 godzin z rabatem 20%."
       },
       {
         question: "Czy oferujesz zajęcia grupowe?",
