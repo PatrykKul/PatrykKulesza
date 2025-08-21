@@ -2769,24 +2769,35 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
         scrollToContact();
       }, 100);
       
-      } catch (error: any) {
-      console.error('Email send failed:', error);
+  } catch (error: unknown) {
+    console.error('Email send failed:', error);
+    
+    // Sprawdź czy error ma właściwości których potrzebujesz
+    let errorMessage = 'Wystąpił błąd. Spróbuj ponownie lub zadzwoń bezpośrednio.';
+    
+    // Type guard - sprawdź czy error to obiekt z właściwością status
+    if (error && typeof error === 'object' && 'status' in error) {
+      const emailError = error as { status: number; text?: string };
       
-      // Lepsze komunikaty błędów
-      let errorMessage = 'Wystąpił błąd. Spróbuj ponownie lub zadzwoń bezpośrednio.';
-      
-      if (error?.status === 429) {
+      if (emailError.status === 429) {
         errorMessage = 'Za dużo zapytań. Poczekaj chwilę i spróbuj ponownie.';
-      } else if (error?.status === 400) {
+      } else if (emailError.status === 400) {
         errorMessage = 'Nieprawidłowe dane w formularzu. Sprawdź wszystkie pola.';
-      } else if (error?.text?.includes('network')) {
+      }
+    }
+    
+    // Sprawdź czy error ma właściwość text
+    if (error && typeof error === 'object' && 'text' in error) {
+      const textError = error as { text: string };
+      if (textError.text?.includes('network')) {
         errorMessage = 'Problem z połączeniem internetowym. Sprawdź sieć.';
       }
-      
-      setErrors({ message: errorMessage });
-      setSubmitStatus('error');
-      scrollToContact();
-    } finally {
+    }
+    
+    setErrors({ message: errorMessage });
+    setSubmitStatus('error');
+    scrollToContact();
+  } finally {
       setIsSubmitting(false);
     }
   };
