@@ -2511,6 +2511,19 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
 
   // Timer cooldown
   useEffect(() => {
+    // Sprawdź localStorage przy ładowaniu
+    const lastSent = localStorage.getItem('email_sent_time');
+    if (lastSent) {
+      const timePassed = Date.now() - parseInt(lastSent);
+      const minutesPassed = timePassed / (1000 * 60);
+      if (minutesPassed < 5) { // 5 minut
+        const remainingSeconds = 300 - Math.floor(timePassed / 1000);
+        if (remainingSeconds > 0) {
+          setCooldownTime(remainingSeconds);
+        }
+      }
+    }
+
     let interval: NodeJS.Timeout;
     if (cooldownTime > 0) {
       interval = setInterval(() => {
@@ -2701,6 +2714,8 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
 
       setSubmitStatus('success');
       
+      localStorage.setItem('email_sent_time', Date.now().toString());
+
       // Reset form
       setFormData({
         name: '',
@@ -2712,9 +2727,9 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
       });
       setErrors({});
       setTouchedFields(new Set());
-      
-      // Ustaw cooldown na 60 sekund
-      setCooldownTime(60);
+
+      // Ustaw cooldown na 300 sekund
+      setCooldownTime(300);
       
       // Zostań w sekcji contact
       setTimeout(() => {
