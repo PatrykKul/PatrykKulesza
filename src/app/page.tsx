@@ -887,23 +887,23 @@ const AboutSection = () => {
     {
       title: "Angielski C2 Proficient",
       issuer: "EF SET",
-      images: ["efset-certificate.jpg"],
+      images: ["efset-certificate.png"],
       link: "https://cert.efset.org/en/r3Hft9"
     },
     {
       title: "AutoCAD",
       issuer: "Autodesk",
-      images: ["autocad-level1.jpg", "autocad-level2.jpg", "autocad-general.jpg"]
+      images: ["autocad-level1.png", "autocad-level2.png", "autocad-general.png"]
     },
     {
       title: "Programowanie drukarek 3D",
       issuer: "Kwalifikacje zawodowe",
-      images: ["3d-printer-cert.jpg"]
+      images: ["3d-printer-cert.png"]
     },
     {
       title: "Kwalifikacje zawodowe",
       issuer: "Technik informatyk",
-      images: ["inf02-cert.jpg", "inf03-cert.jpg", "diploma.jpg"]
+      images: ["inf02-cert.png", "inf03-cert.png", "diploma.png"]
     }
   ];
 
