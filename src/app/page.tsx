@@ -100,6 +100,41 @@ interface HomePageData {
 }
 
 // ==========================================
+// 📱 CONSTANTS
+// ==========================================
+const ANIMATION_CONFIG = {
+  COOLDOWN_SECONDS: 300,
+  DRAG_MULTIPLIER: 1.5,
+  FRAME_THROTTLE: 16,
+  DECELERATION: 0.95,
+  MIN_VELOCITY: 0.1
+} as const;
+
+// ==========================================
+// 📱 CUSTOM HOOK - MOBILE DETECTION
+// ==========================================
+const useMobileDetection = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const checkMobile = () => {
+      if (typeof window !== 'undefined') {
+        setIsMobile(window.innerWidth <= 768);
+      }
+    };
+    
+    checkMobile();
+    
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', checkMobile);
+      return () => window.removeEventListener('resize', checkMobile);
+    }
+  }, []);
+
+  return isMobile;
+};
+
+// ==========================================
 // 🎯 STRUCTURED DATA FUNCTIONS  
 // ==========================================
 const generateFAQStructuredData = (faqItems: FaqItem[]) => {
@@ -692,8 +727,7 @@ interface Certificate {
 
 const AboutSection = () => {
   const [ref, inView] = useAdvancedInView();
-  const [isMobile, setIsMobile] = useState(false);
-  
+  const isMobile = useMobileDetection();
   // ==========================================
   // 🎨 MODAL STATES
   // ==========================================
@@ -719,24 +753,6 @@ const AboutSection = () => {
   const [lastTime, setLastTime] = useState(0);
   const momentumAnimationRef = useRef<number | null>(null);
   const lastCallTime = useRef<number>(0);
-
-  // ==========================================
-  // 📱 MOBILE DETECTION
-  // ==========================================
-  useEffect(() => {
-    const checkMobile = () => {
-      if (typeof window !== 'undefined') {
-        setIsMobile(window.innerWidth <= 768);
-      }
-    };
-    
-    checkMobile();
-    
-    if (typeof window !== 'undefined') {
-      window.addEventListener('resize', checkMobile);
-      return () => window.removeEventListener('resize', checkMobile);
-    }
-  }, []);
 
   // ==========================================
   // 🚀 MOMENTUM ANIMATION FUNCTION
@@ -1376,7 +1392,7 @@ const AboutSection = () => {
 // ==========================================
 const TestimonialsSection = ({ data }: { data: HomePageData }) => {
   const [ref, inView] = useAdvancedInView();
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useMobileDetection();
   
   // ==========================================
   // 📊 STATES DLA DRAG SCROLLING
@@ -1394,24 +1410,6 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
   const [lastTime, setLastTime] = useState(0);
   const momentumAnimationRef = useRef<number | null>(null);
   const lastCallTime = useRef<number>(0);
-
-  // ==========================================
-  // 📱 MOBILE DETECTION
-  // ==========================================
-  useEffect(() => {
-    const checkMobile = () => {
-      if (typeof window !== 'undefined') {
-        setIsMobile(window.innerWidth <= 768);
-      }
-    };
-    
-    checkMobile();
-    
-    if (typeof window !== 'undefined') {
-      window.addEventListener('resize', checkMobile);
-      return () => window.removeEventListener('resize', checkMobile);
-    }
-  }, []);
 
   // ==========================================
   // 🚀 MOMENTUM ANIMATION FUNCTION
@@ -1747,7 +1745,7 @@ const TestimonialsSection = ({ data }: { data: HomePageData }) => {
 // ==========================================
 const PortfolioSection = ({ data }: { data: HomePageData }) => {
   const [ref, inView] = useAdvancedInView();
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useMobileDetection();
   
   // ==========================================
   // 📊 STATES DLA DRAG SCROLLING
@@ -1772,24 +1770,6 @@ const PortfolioSection = ({ data }: { data: HomePageData }) => {
   const [lastTime, setLastTime] = useState(0);
   const momentumAnimationRef = useRef<number | null>(null);
   const lastCallTime = useRef<number>(0);
-
-  // ==========================================
-  // 📱 MOBILE DETECTION
-  // ==========================================
-  useEffect(() => {
-    const checkMobile = () => {
-      if (typeof window !== 'undefined') {
-        setIsMobile(window.innerWidth <= 768);
-      }
-    };
-    
-    checkMobile();
-    
-    if (typeof window !== 'undefined') {
-      window.addEventListener('resize', checkMobile);
-      return () => window.removeEventListener('resize', checkMobile);
-    }
-  }, []);
 
   // ==========================================
   // 🚀 MOMENTUM ANIMATION FUNCTION
@@ -2266,31 +2246,15 @@ const ServicesSection = ({ data }: { data: HomePageData }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useMobileDetection();
+
   
   // ==========================================
   // 🆕 STAN DLA ZAWSZE AKTYWNEJ KARTY
   // ==========================================
   const [activeCardIndex, setActiveCardIndex] = useState<number>(0); // Domyślnie pierwsza karta
   const [dragHoveredCardIndex, setDragHoveredCardIndex] = useState<number | null>(null);
-  
-  // ==========================================
-  // 📱 MOBILE DETECTION HOOK
-  // ==========================================
-  useEffect(() => {
-    const checkMobile = () => {
-      if (typeof window !== 'undefined') {
-        setIsMobile(window.innerWidth <= 768);
-      }
-    };
-    
-    checkMobile();
-    
-    if (typeof window !== 'undefined') {
-      window.addEventListener('resize', checkMobile);
-      return () => window.removeEventListener('resize', checkMobile);
-    }
-  }, []);
+
   
   // ==========================================
   // 🚀 MOMENTUM SCROLLING STATES
@@ -3008,22 +2972,22 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
     emailjs.init('7K0ksAqXHemL_xEgT');
   }, []);
 
-  // Timer cooldown
-  useEffect(() => {
-    // Sprawdź localStorage tylko w przeglądarce
-    if (typeof window !== 'undefined') {
-      const lastSent = localStorage.getItem('email_sent_time');
-      if (lastSent) {
-        const timePassed = Date.now() - parseInt(lastSent);
-        const minutesPassed = timePassed / (1000 * 60);
-        if (minutesPassed < 5) {
-          const remainingSeconds = 300 - Math.floor(timePassed / 1000);
-          if (remainingSeconds > 0) {
-            setCooldownTime(remainingSeconds);
-          }
+// Timer cooldown
+useEffect(() => {
+  // Sprawdź localStorage tylko w przeglądarce
+  if (typeof window !== 'undefined') {
+    const lastSent = window.localStorage ? localStorage.getItem('email_sent_time') : null;
+    if (lastSent) {
+      const timePassed = Date.now() - parseInt(lastSent);
+      const minutesPassed = timePassed / (1000 * 60);
+      if (minutesPassed < 5) {
+        const remainingSeconds = ANIMATION_CONFIG.COOLDOWN_SECONDS - Math.floor(timePassed / 1000);
+        if (remainingSeconds > 0) {
+          setCooldownTime(remainingSeconds);
         }
       }
     }
+  }
 
     let interval: NodeJS.Timeout;
     if (cooldownTime > 0) {
@@ -3217,8 +3181,8 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
 
       setSubmitStatus('success');
       
-  // Sprawdź localStorage przed zapisem
-      if (typeof window !== 'undefined') {
+       // Sprawdź localStorage przed zapisem
+      if (typeof window !== 'undefined' && window.localStorage) {
         localStorage.setItem('email_sent_time', Date.now().toString());
       }
 
@@ -3235,7 +3199,7 @@ const ContactSection = ({ data }: { data: HomePageData }) => {
       setTouchedFields(new Set());
 
       // Ustaw cooldown na 300 sekund
-      setCooldownTime(300);
+      setCooldownTime(ANIMATION_CONFIG.COOLDOWN_SECONDS);
       
       // Zostań w sekcji contact
       setTimeout(() => {
