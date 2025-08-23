@@ -722,7 +722,7 @@ interface Certificate {
   title: string;
   issuer: string;
   images: string[];
-  link?: string; // Opcjonalny link dla certyfikatów online
+  links?: string[]; // Opcjonalny link dla certyfikatów online
 }
 
 const AboutSection = () => {
@@ -886,9 +886,9 @@ const AboutSection = () => {
       icon: <Calculator className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
     },
     {
-      title: "Angielski EF SET", 
-      value: "C2",
-      description: "71/100 - Proficient Level",
+      title: "Angielski EF SET",
+      value: "C2", 
+      description: "75/100 i 71/100 - Oba poziom biegły",
       icon: <BookOpen className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" />
     },
     {
@@ -900,11 +900,11 @@ const AboutSection = () => {
   ];
 
   const certificates: Certificate[] = [
-    {
+        {
       title: "Angielski C2 Proficient",
       issuer: "EF SET",
-      images: ["efset-certificate.png"],
-      link: "https://cert.efset.org/en/r3Hft9"
+      images: [ "efset-certificate-2.png", "efset-certificate.png"],
+      links: [ "https://cert.efset.org/en/r3Hft9","https://cert.efset.org/en/r3Hft9"]
     },
     {
       title: "AutoCAD",
@@ -951,7 +951,7 @@ const AboutSection = () => {
       {
     category: "Angielski",
     items: [
-      { name: "Certyfikat C2 EF SET"},
+      { name: "2 Certyfikaty C2 EF SET"},
       { name: "Konwersacje"},
       { name: "Gramatyka"},
       { name: "Matura podstawowa"},
@@ -1337,9 +1337,9 @@ const AboutSection = () => {
             </div>
             
             {/* Floating Verification Button (appears on hover over image) */}
-            {selectedCertificate.link && (
+            {selectedCertificate.links && (
               <motion.a
-                href={selectedCertificate.link}
+                href={selectedCertificate.links[0]}
                 target="_blank"
                 rel="noopener noreferrer"
                 initial={{ opacity: 0, scale: 0.8 }}
