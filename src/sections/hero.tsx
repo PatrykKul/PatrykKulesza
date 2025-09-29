@@ -135,32 +135,41 @@ export const HeroSection = ({ data }: { data: HomePageData }) => {
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 1 }}
-          className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12 max-w-5xl mx-auto"
+          className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8 mb-8 sm:mb-12 max-w-6xl mx-auto px-2 sm:px-0"
         >
-          <div className="bg-[#161b22]/50 backdrop-blur-sm border border-[#30363d]/50 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 hover:border-[#1f6feb]/50 transition-all duration-300 text-center">
-            <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-[#1f6feb] mb-1 sm:mb-2">
+          <div className="bg-[#161b22]/50 backdrop-blur-sm border border-[#30363d]/50 rounded-lg sm:rounded-xl lg:rounded-2xl p-3 sm:p-6 lg:p-8 hover:border-[#1f6feb]/50 transition-all duration-300 text-center">
+            <div className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-[#1f6feb] mb-1 sm:mb-2">
               {data.hero.stats.experience}
             </div>
-            <div className="text-[#c9d1d9] text-xs sm:text-sm uppercase tracking-wider font-medium">
+            <div className="text-[#c9d1d9] text-xs sm:text-sm uppercase tracking-wider font-medium leading-tight">
               lat doświadczenia
             </div>
           </div>
           
-          <div className="bg-[#161b22]/50 backdrop-blur-sm border border-[#30363d]/50 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 hover:border-[#1f6feb]/50 transition-all duration-300 text-center">
-            <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-[#1f6feb] mb-1 sm:mb-2">
+          <div className="bg-[#161b22]/50 backdrop-blur-sm border border-[#30363d]/50 rounded-lg sm:rounded-xl lg:rounded-2xl p-3 sm:p-6 lg:p-8 hover:border-[#1f6feb]/50 transition-all duration-300 text-center">
+            <div className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-[#1f6feb] mb-1 sm:mb-2">
               {data.hero.stats.students}
             </div>
-            <div className="text-[#c9d1d9] text-xs sm:text-sm uppercase tracking-wider font-medium">
+            <div className="text-[#c9d1d9] text-xs sm:text-sm uppercase tracking-wider font-medium leading-tight">
               zadowolonych uczniów
             </div>
           </div>
           
-          <div className="bg-[#161b22]/50 backdrop-blur-sm border border-[#30363d]/50 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 hover:border-[#1f6feb]/50 transition-all duration-300 text-center sm:col-span-1 col-span-1">
-            <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-[#1f6feb] mb-1 sm:mb-2">
+          <div className="bg-[#161b22]/50 backdrop-blur-sm border border-[#30363d]/50 rounded-lg sm:rounded-xl lg:rounded-2xl p-3 sm:p-6 lg:p-8 hover:border-[#1f6feb]/50 transition-all duration-300 text-center">
+            <div className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-[#1f6feb] mb-1 sm:mb-2">
               {data.hero.stats.successRate}
             </div>
-            <div className="text-[#c9d1d9] text-xs sm:text-sm uppercase tracking-wider font-medium">
+            <div className="text-[#c9d1d9] text-xs sm:text-sm uppercase tracking-wider font-medium leading-tight">
               zdawalność egzaminów
+            </div>
+          </div>
+
+          <div className="bg-[#161b22]/50 backdrop-blur-sm border border-[#30363d]/50 rounded-lg sm:rounded-xl lg:rounded-2xl p-3 sm:p-6 lg:p-8 hover:border-[#1f6feb]/50 transition-all duration-300 text-center">
+            <div className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-[#1f6feb] mb-1 sm:mb-2">
+              {data.hero.stats.websites}
+            </div>
+            <div className="text-[#c9d1d9] text-xs sm:text-sm uppercase tracking-wider font-medium leading-tight">
+              wykonanych stron
             </div>
           </div>
         </motion.div>

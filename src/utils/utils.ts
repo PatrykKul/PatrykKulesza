@@ -19,10 +19,10 @@ export const ANIMATION_CONFIG = {
 export const MENU_ITEMS = [
   { label: 'Start', href: '#hero' },
   { label: 'O mnie', href: '#about' },
+  { label: 'Portfolio', href: '#portfolio' },
   { label: 'Opinie', href: '#testimonials' },
   { label: 'Materiały', href: '#materials' },
   { label: 'Usługi', href: '#services' },
-  { label: 'Web Dev', href: '#webdev' },
   { label: 'FAQ', href: '#faq' },
   { label: 'Kontakt', href: '#contact' }
 ];

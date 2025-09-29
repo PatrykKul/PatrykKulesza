@@ -58,6 +58,7 @@ import { useMobileDetection, useAdvancedInView } from '../hooks/hooks';
 import  Header from '../sections/header';
 import HeroSection from '../sections/hero';
 import AboutSection from '../sections/about';
+import PortfolioSection from '../sections/portfolio';
 import TestimonialsSection from '@/sections/testimonials';
 import MaterialsSection from '@/sections/materials';
 import ServicesSection from '@/sections/service';
@@ -129,6 +130,9 @@ export default function HomePage() {
 
           {/* 🎓 SEKCJA O MNIE */}
         <AboutSection />
+
+          {/* 🎨 SEKCJA PORTFOLIO */}
+        <PortfolioSection />
 
           {/* ⭐ SEKCJA OPINIE */}
         <TestimonialsSection data={data} />

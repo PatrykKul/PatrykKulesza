@@ -16,6 +16,7 @@ export interface HeroData {
     experience: string;
     students: string;
     successRate: string;
+    websites: string;
   };
 }
 
@@ -89,6 +90,7 @@ export interface EducationStat {
 
 export interface SkillItem {
   name: string;
+  description?: string; // Opcjonalny opis dla cinematic slidera
 }
 
 export interface Skill {
@@ -102,6 +104,17 @@ export interface Certificate {
   issuer: string;
   images: string[];
   links?: string[]; // Opcjonalny link dla certyfikatów online
+}
+
+export interface ExpertiseCategory {
+  id: string;
+  title: string;
+  color: string;
+  gradient: string;
+  icon: React.ReactNode;
+  skills: string[];
+  achievements: string[];
+  symbols: string[];
 }
 
 // ==========================================
@@ -124,6 +137,7 @@ export interface MaterialItem {
 export interface MaterialsData {
   math: MaterialItem[];
   english: MaterialItem[];
+  programming: MaterialItem[];
 }
 
 // ==========================================

@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { Calculator, BookOpen, Code, Globe, FileText, Edit3 } from 'lucide-react';
-import type { HomePageData } from '../types/types';
+import type { HomePageData, Skill } from '../types/types';
 
 // ==========================================
 // 🏠 MAIN WEBSITE DATA
@@ -18,7 +18,8 @@ export const websiteData: HomePageData = {
     stats: {
       experience: "5+",
       students: "60+",
-      successRate: "100%"
+      successRate: "100%",
+      websites: "10+"
     }
   },
   
@@ -164,6 +165,53 @@ export const websiteData: HomePageData = {
           "Raporty i artykuły"
         ],
         files: 10,
+        rating: 4.9,
+        hasVideo: true
+      }
+    ],
+    programming: [
+      {
+        id: 1,
+        title: "Python od Podstaw",
+        description: "Kompletny kurs Pythona od podstaw po zaawansowane tematy - idealne wprowadzenie do programowania.",
+        icon: React.createElement(Code, { className: "w-8 h-8 text-white" }),
+        features: [
+          "Składnia i podstawy języka",
+          "Struktury danych",
+          "Programowanie objektowe",
+          "Biblioteki standardowe"
+        ],
+        files: 20,
+        rating: 4.9,
+        hasVideo: true
+      },
+      {
+        id: 2,
+        title: "Web Development",
+        description: "Tworzenie stron internetowych z Next.js, React i Strapi CMS. Od podstaw do zaawansowanych projektów.",
+        icon: React.createElement(Globe, { className: "w-8 h-8 text-white" }),
+        features: [
+          "HTML, CSS, JavaScript",
+          "React i Next.js",
+          "Strapi CMS",
+          "Deployment i hosting"
+        ],
+        files: 30,
+        rating: 4.8,
+        hasVideo: true
+      },
+      {
+        id: 3,
+        title: "Data Science i AI",
+        description: "Analiza danych, uczenie maszynowe i sztuczna inteligencja z Pythonem - praktyczne projekty.",
+        icon: React.createElement(Calculator, { className: "w-8 h-8 text-white" }),
+        features: [
+          "Pandas i NumPy",
+          "Matplotlib i Seaborn",
+          "Scikit-learn",
+          "Projekty z życia wzięte"
+        ],
+        files: 25,
         rating: 4.9,
         hasVideo: true
       }
@@ -387,3 +435,4 @@ export const websiteData: HomePageData = {
     location: "Białystok i okolice, Zambrów i okolice"
   }
 };
+
