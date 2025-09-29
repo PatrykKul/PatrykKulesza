@@ -231,7 +231,7 @@ export const PortfolioSection = () => {
           className="text-center mb-12 sm:mb-12 md:mb-16"
         >
           <div className="container mx-auto px-4 sm:px-6">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold mb-6 sm:mb-8 tracking-tight bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
+            <h2 className="pb-4 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold mb-6 sm:mb-8 tracking-tight bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
               Moje Projekty
               <span className="block sm:inline"> Stron Internetowych</span>
             </h2>

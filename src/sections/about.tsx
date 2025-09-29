@@ -367,7 +367,7 @@ export const AboutSection = () => {
           transition={{ duration: 0.8, delay: 0.6 }}
           className="mb-12 sm:mb-16"
         >
-          <h3 className="text-2xl sm:text-3xl font-bold text-center mb-4 text-[#f0f6fc]">
+          <h3 className="pb-4 text-2xl sm:text-3xl font-bold text-center mb-4 text-[#f0f6fc]">
             Moja ekspertyza
           </h3>
 
@@ -377,7 +377,7 @@ export const AboutSection = () => {
               <motion.button
                 key={skill.category}
                 onClick={() => handleCategoryChange(skill.category)}
-                className={`
+                className={` cursor-pointer
                   px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-semibold text-sm sm:text-base
                   transition-all duration-300 flex items-center gap-2
                   ${activeCategory === skill.category 
