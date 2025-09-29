@@ -120,18 +120,15 @@ export const PortfolioSection = () => {
     if (!container) return;
     
     let scrollTimeout: NodeJS.Timeout;
-    let isScrolling = false;
     let isAutoScrolling = false; // Flaga zapobiegająca pętli
     
     const handleScroll = () => {
       // Aktualizuj kropki na bieżąco
       clearTimeout(scrollTimeout);
-      isScrolling = true;
       updateActiveIndex();
       
       // Po zakończeniu scrollowania - automatyczne centrowanie
       scrollTimeout = setTimeout(() => {
-        isScrolling = false;
         
         // Sprawdź czy nie trwa animacja, drag lub auto-scroll
         if (isAnimating || isDragging || isAutoScrolling) return;
@@ -187,7 +184,7 @@ export const PortfolioSection = () => {
       container.removeEventListener('scroll', handleScroll);
       clearTimeout(scrollTimeout);
     };
-  }, [updateActiveIndex, isDragging, scrollToIndex]);
+  }, [updateActiveIndex, isDragging, scrollToIndex, isAnimating, scrollContainerRef]);
 
   return (
     <section
@@ -239,8 +236,9 @@ export const PortfolioSection = () => {
               <span className="block sm:inline"> Stron Internetowych</span>
             </h2>
             <p className="text-gray-300 text-base sm:text-lg md:text-xl max-w-4xl mx-auto leading-relaxed px-2 sm:px-0">
-              <span className="block">Oprócz korepetycji, tworzę także nowoczesne strony internetowe. Każdy projekt to połączenie funkcjonalności z estetyką,</span>
-              <span className="block text-center">dostosowane do potrzeb klienta i działające na wszystkich urządzeniach.</span>
+              <span className="block">Oprócz korepetycji, tworzę także nowoczesne strony internetowe. Każdy projekt to połączenie ,</span>
+              <span className="block text-center">funkcjonalności z estetyką dostosowane do potrzeb klienta i działające</span>
+              <span className="block text-center">na wszystkich urządzeniach.</span>
             </p>
           </div>
         </motion.div>

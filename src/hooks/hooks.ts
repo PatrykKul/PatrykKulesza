@@ -70,7 +70,7 @@ export const useScrollContainerStyles = (isMobile: boolean) => {
 // ==========================================
 // 🖱️ DRAG TO SCROLL WITH MOMENTUM HOOK
 // ==========================================
-export const useDragScroll = <T = any>() => {
+export const useDragScroll = <T = Record<string, unknown>>() => {
   const isMobile = useMobileDetection();
 
   // Drag states

@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { Calculator, BookOpen, Code, Globe, FileText, Edit3, Award, Brain } from 'lucide-react';
-import type { HomePageData, Skill, PortfolioItem, EducationStat, Certificate } from '../types/types';
+import type { HomePageData, PortfolioItem } from '../types/types';
 
 // ==========================================
 // 🎨 PORTFOLIO DATA

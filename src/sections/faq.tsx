@@ -107,7 +107,7 @@ export const FaqSection = ({ data }: { data: HomePageData }) => {
         <div className="hidden lg:grid lg:grid-cols-2 lg:gap-8 max-w-7xl mx-auto">
           {/* Left Column */}
           <div className="space-y-6">
-            {leftColumnItems.map((item, index) => {
+            {leftColumnItems.map((item) => {
               const originalIndex = data.faq.findIndex(faqItem => faqItem === item);
               return renderFAQItem(item, originalIndex);
             })}
@@ -115,7 +115,7 @@ export const FaqSection = ({ data }: { data: HomePageData }) => {
 
           {/* Right Column */}
           <div className="space-y-6">
-            {rightColumnItems.map((item, index) => {
+            {rightColumnItems.map((item) => {
               const originalIndex = data.faq.findIndex(faqItem => faqItem === item);
               return renderFAQItem(item, originalIndex);
             })}

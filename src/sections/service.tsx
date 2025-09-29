@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useAdvancedInView } from "../hooks/hooks";
-import { ArrowRight, ArrowUpRight, Calculator, BookOpenCheck, Code, Globe, Sparkles, ChevronDown, Award, Users, Trophy, Clock } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Calculator, BookOpenCheck, Code, Globe, Award } from "lucide-react";
 import type { HomePageData } from '../types/types';
 
 export const ServicesSection = ({ data }: { data: HomePageData }) => {
@@ -86,12 +86,7 @@ export const ServicesSection = ({ data }: { data: HomePageData }) => {
   const serviceIcons = [Calculator, BookOpenCheck, Code, Globe];
   const currentService = data.unifiedServices.services[activeService];
 
-  const scrollToNextSection = () => {
-    const nextSection = document.getElementById('testimonials');
-    if (nextSection) {
-      nextSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+
   
   return (
     <section ref={ref} id="services" className="py-16 bg-[#161b22] relative overflow-hidden">
@@ -108,7 +103,7 @@ export const ServicesSection = ({ data }: { data: HomePageData }) => {
          
           
           <div className="overflow-hidden">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 md:mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
+            <h2 className="pb-3 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 md:mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
               Moje Usługi
             </h2>
           </div>

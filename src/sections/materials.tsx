@@ -11,8 +11,6 @@ import {
   ArrowRight,
   ChevronDown,
   ChevronUp,
-  Download,
-  Play,
   FileText,
   Star
 } from 'lucide-react';

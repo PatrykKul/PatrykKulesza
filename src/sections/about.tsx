@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { Award, BookOpen, Brain, Calculator, X, ExternalLink, ChevronLeft, ChevronRight, Code, Globe } from 'lucide-react';
+import { Brain, Calculator, X, ExternalLink, ChevronLeft, ChevronRight, Code, Globe } from 'lucide-react';
 import { useAdvancedInView, useDragScroll, useScrollContainerStyles } from '../hooks/hooks';
 import { educationStats, certificates, aboutSkills } from '../data/data';
-import { Certificate, EducationStat, Skill } from '../types/types';
+import { Certificate } from '../types/types';
 
 
 export const AboutSection = () => {
@@ -17,7 +17,6 @@ export const AboutSection = () => {
     scrollContainerRef,
     isDragging,
     isMobile,
-    dragDistance,
     handleMouseDown,
     handleMouseUp,
     handleMouseLeave,
@@ -90,10 +89,10 @@ export const AboutSection = () => {
   };
 
 
-  const nextSlide = () => {
+  const nextSlide = useCallback(() => {
     const currentData = getCurrentSkillsData();
     setCurrentSlide((prev) => (prev + 1) % currentData.items.length);
-  };
+  }, [activeCategory]);
 
   const prevSlide = () => {
     const currentData = getCurrentSkillsData();
@@ -119,7 +118,7 @@ export const AboutSection = () => {
         clearInterval(autoPlayRef.current);
       }
     };
-  }, [isAutoPlaying, inView, activeCategory, currentSlide]);
+  }, [isAutoPlaying, inView, activeCategory, currentSlide, nextSlide]);
 
   const handleSlideInteraction = () => {
     setIsAutoPlaying(false);
@@ -162,19 +161,19 @@ export const AboutSection = () => {
     setCurrentImageIndex(0);
   };
 
-  const nextImage = () => {
+  const nextImage = useCallback(() => {
     if (!selectedCertificate) return;
     setCurrentImageIndex((prev) => 
       prev === selectedCertificate.images.length - 1 ? 0 : prev + 1
     );
-  };
+  }, [selectedCertificate]);
 
-  const prevImage = () => {
+  const prevImage = useCallback(() => {
     if (!selectedCertificate) return;
     setCurrentImageIndex((prev) => 
       prev === 0 ? selectedCertificate.images.length - 1 : prev - 1
     );
-  };
+  }, [selectedCertificate]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -192,7 +191,7 @@ export const AboutSection = () => {
 
     document.addEventListener('keydown', handleKeyPress);
     return () => document.removeEventListener('keydown', handleKeyPress);
-  }, [modalOpen]);
+  }, [modalOpen, nextImage, prevImage]);
 
   return (
     <section ref={ref} id="about" className="py-12 sm:py-16 md:py-20 bg-[#0d1117] relative overflow-hidden">

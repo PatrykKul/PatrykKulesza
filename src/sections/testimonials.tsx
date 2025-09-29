@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Star } from 'lucide-react';
-import { TestimonialData } from '../types/types';
 import { useAdvancedInView, useDragScroll, useScrollContainerStyles } from '../hooks/hooks';
 import { generateReviewsStructuredData } from '../utils/utils';
 import { HomePageData } from '../types/types';

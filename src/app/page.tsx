@@ -1,59 +1,5 @@
 'use client';
 
-import Image from 'next/image';
-import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { motion, AnimatePresence, useInView } from 'framer-motion';
-import emailjs from '@emailjs/browser';
-import { 
-  ExternalLink,
-  Phone, 
-  Mail, 
-  MapPin, 
-  Star, 
-  BookOpen, 
-  Calculator, 
-  Code, 
-  Globe,  
-  Brain, 
-  ChevronDown,
-  Menu,
-  X,
-  Github,
-  Linkedin,
-  Check,
-  Award,
-  Send,
-  Facebook,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
-
-// Import utility functions
-import { 
-  ANIMATION_CONFIG, 
-  MENU_ITEMS, 
-  generateFAQStructuredData, 
-  generateReviewsStructuredData
-} from '../utils/utils';
-
-// Import types
-import type {
-  HeroData,
-  ServiceData,
-  PortfolioItem,
-  TestimonialData,
-  FaqItem,
-  FormErrors,
-  HomePageData,
-  EducationStat,
-  SkillItem,
-  Skill,
-  Certificate
-} from '../types/types';
-
-// Import custom hooks
-import { useMobileDetection, useAdvancedInView } from '../hooks/hooks';
-
 // Import section components
 import  Header from '../sections/header';
 import HeroSection from '../sections/hero';
