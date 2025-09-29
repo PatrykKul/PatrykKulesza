@@ -343,7 +343,7 @@ export const ServicesSection = ({ data }: { data: HomePageData }) => {
       {/* Mobile layout */}
       <div className="lg:hidden">
         <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 gap-3 sm:gap-6">
             {data.unifiedServices.services.map((service, index) => (
               <div
                 key={service.id}
@@ -351,33 +351,33 @@ export const ServicesSection = ({ data }: { data: HomePageData }) => {
                   ${visibleServices.includes(index) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
                   transition-all duration-800 ease-out
                   ${service.highlighted ? 'bg-gradient-to-br from-[#1f6feb]/10 to-transparent border-[#1f6feb]/30' : 'bg-[#0d1117]/80 border-[#30363d]'}
-                  border rounded-2xl p-6 backdrop-blur-md
+                  border rounded-2xl p-3 sm:p-6 backdrop-blur-md
                 `}
                 style={{ transitionDelay: `${index * 200}ms` }}
               >
                 <div className="text-center space-y-4">
                   <div className="flex justify-center">
                     {React.createElement(serviceIcons[index], { 
-                      className: "w-12 h-12 text-[#1f6feb]" 
+                      className: "w-8 h-8 sm:w-12 sm:h-12 text-[#1f6feb]" 
                     })}
                   </div>
                   
                   <div>
-                    <span className="text-lg text-[#1f6feb] bg-[#0d1117]/80 px-3 py-1 rounded-full border border-[#1f6feb]/30 font-semibold">
+                    <span className="text-sm sm:text-lg text-[#1f6feb] bg-[#0d1117]/80 px-2 sm:px-3 py-1 rounded-full border border-[#1f6feb]/30 font-semibold">
                       {service.price}
                     </span>
                   </div>
                   
                   <div>
-                    <h3 className="text-xl text-[#f0f6fc] mb-1 font-bold">
+                    <h3 className="text-lg sm:text-xl text-[#f0f6fc] mb-1 font-bold">
                       {service.title}
                     </h3>
-                    <p className="text-sm text-[#1f6feb]">
+                    <p className="text-xs sm:text-sm text-[#1f6feb]">
                       {service.subtitle}
                     </p>
                   </div>
                   
-                  <p className="text-[#c9d1d9] text-sm leading-relaxed">
+                  <p className="text-[#c9d1d9] text-xs sm:text-sm leading-relaxed">
                     {service.description}
                   </p>
                   
@@ -391,7 +391,7 @@ export const ServicesSection = ({ data }: { data: HomePageData }) => {
                   
                   <button
                     onClick={() => handleBookService(service.title)}
-                    className="group inline-flex items-center gap-2 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white px-6 py-3 rounded-full text-sm transition-all duration-300 hover:scale-105 cursor-pointer font-semibold"
+                    className="group inline-flex items-center gap-1 sm:gap-2 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white px-3 sm:px-6 py-2 sm:py-3 rounded-full text-xs sm:text-sm transition-all duration-300 hover:scale-105 cursor-pointer font-semibold"
                   >
                     {service.ctaText}
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -401,14 +401,14 @@ export const ServicesSection = ({ data }: { data: HomePageData }) => {
             ))}
             
             {/* Package 10h - Mobile */}
-            <div className="col-span-full">
-              <div className="bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] rounded-2xl p-6 text-center">
-                <Award className="w-10 h-10 text-white mx-auto mb-4" />
-                <h3 className="text-xl text-white font-bold mb-2">Pakiet 10 godzin</h3>
-                <p className="text-white/90 text-sm mb-4">Oszczędź 20% przy zakupie pakietu!</p>
+            <div className="col-span-2">
+              <div className="bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] rounded-2xl p-4 sm:p-6 text-center">
+                <Award className="w-8 h-8 sm:w-10 sm:h-10 text-white mx-auto mb-3 sm:mb-4" />
+                <h3 className="text-lg sm:text-xl text-white font-bold mb-2">Pakiet 10 godzin</h3>
+                <p className="text-white/90 text-xs sm:text-sm mb-3 sm:mb-4">Oszczędź 20% przy zakupie pakietu!</p>
                 <button
                   onClick={() => handleBookService('pakiet')}
-                  className="bg-white/20 hover:bg-white/30 text-white font-semibold py-2 px-6 rounded-lg transition-all duration-300"
+                  className="bg-white/20 hover:bg-white/30 text-white font-semibold py-2 px-4 sm:px-6 rounded-lg transition-all duration-300 text-sm"
                 >
                   Umów pakiet 10h
                 </button>

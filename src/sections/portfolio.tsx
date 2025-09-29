@@ -231,7 +231,7 @@ export const PortfolioSection = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
-          className="text-center mb-8 sm:mb-12 md:mb-16"
+          className="text-center mb-12 sm:mb-12 md:mb-16"
         >
           <div className="container mx-auto px-4 sm:px-6">
             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold mb-6 sm:mb-8 tracking-tight bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
@@ -239,9 +239,8 @@ export const PortfolioSection = () => {
               <span className="block sm:inline"> Stron Internetowych</span>
             </h2>
             <p className="text-gray-300 text-base sm:text-lg md:text-xl max-w-4xl mx-auto leading-relaxed px-2 sm:px-0">
-              Oprócz korepetycji, twćszę także nowoczesne strony internetowe.
-              Każdy projekt to połączenie funkcjonalności z estetyką,
-              dostosowane do potrzeb klienta i działające na wszystkich urządzeniach.
+              <span className="block">Oprócz korepetycji, tworzę także nowoczesne strony internetowe. Każdy projekt to połączenie funkcjonalności z estetyką,</span>
+              <span className="block text-center">dostosowane do potrzeb klienta i działające na wszystkich urządzeniach.</span>
             </p>
           </div>
         </motion.div>
@@ -379,20 +378,6 @@ export const PortfolioSection = () => {
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
-
-          {/* Mobile scroll hint */}
-          {isMobile && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={inView ? { opacity: 1 } : {}}
-              transition={{ duration: 0.8, delay: 0.8 }}
-              className="text-center mt-4 md:hidden"
-            >
-              <p className="text-xs text-gray-400">
-                Przesuń aby zobaczyć więcej projektów
-              </p>
-            </motion.div>
-          )}
         </motion.div>
       </div>
     </section>

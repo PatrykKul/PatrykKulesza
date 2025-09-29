@@ -357,9 +357,6 @@ export const AboutSection = () => {
               transition={{ duration: 0.8, delay: 0.8 }}
               className="text-center mt-4 md:hidden"
             >
-              <p className="text-xs text-[#8b949e]">
-                Przesuń aby zobaczyć więcej certyfikatów
-              </p>
             </motion.div>
           )}
         </motion.div>
