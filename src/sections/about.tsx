@@ -51,33 +51,43 @@ export const AboutSection = () => {
     return aboutSkills.find(s => s.category === activeCategory) || aboutSkills[0];
   };
 
-  const getBackgroundImages = () => {
-    const images = {
+  const getBackgroundMedia = () => {
+    const media = {
       "Matematyka": [
-        '1635070041078-e2b19650cd33', // Math formulas 
-        '1509228468518-180dd4864904', // Blackboard 
-        '1596495577886-d920f1fb7238', // Calculator
+        { type: 'image', src: 'matematyka1.jpg' },
+        { type: 'image', src: 'matematyka2.jpg' },
+        { type: 'image', src: 'matematyka3.jpg' },
+        { type: 'image', src: 'matematyka4.jpg' },
+        { type: 'image', src: 'matematyka5.jpg' },
+        { type: 'image', src: 'matematyka6.jpg' },
       ],
       "Programowanie": [
-        '1555066931-4365d14bab8c', // Code on screen 
-        '1461749280684-6dad0a0fb56f', // Dark code 
-        '1542831371-29b0f74f9713', // Python 
+        { type: 'image', src: 'programowanie1.jpg' },
+        { type: 'image', src: 'programowanie2.png' },
+        { type: 'image', src: 'programowanie3.png' },
+        { type: 'image', src: 'programowanie4.png' },
+        { type: 'image', src: 'programowanie5.jpg' },
       ],
       "Angielski": [
-        '1456513080510-7bf3a84b82f8', // Books 
-        '1481627834876-b7833e8f5570', // Open book 
-        '1524995997946-a1c2e315a42f', // Dictionary 
+        { type: 'image', src: 'english1.jpg' },
+        { type: 'image', src: 'english2.jpg' },
+        { type: 'image', src: 'english3.jpg' },
+        { type: 'image', src: 'english4.jpg' },
+        { type: 'image', src: 'english3.jpg' },
+        { type: 'image', src: 'english1.jpg' },
       ],
       "Strony Internetowe": [
-        '1498050108023-c5249f4df085', // Design workspace 
-        '1460925895917-afdab827c52f', // Web design
-        '1547658719-da2b51169166', // UI mockup
+        { type: 'image', src: 'next.png' },
+        { type: 'image', src: 'hostinger.png' },
+        { type: 'image', src: 'woocommerce.png' },
+        { type: 'image', src: 'strapi.png' },
+        { type: 'video', src: 'responsive1.mp4' },
+        { type: 'video', src: 'responsive1.mp4' },
       ],
     };
     
-    return images[activeCategory as keyof typeof images] || images["Matematyka"];
+    return media[activeCategory as keyof typeof media] || media["Matematyka"];
   };
-
 
 
   const nextSlide = () => {
@@ -364,9 +374,6 @@ export const AboutSection = () => {
           <h3 className="text-2xl sm:text-3xl font-bold text-center mb-4 text-[#f0f6fc]">
             Moja ekspertyza
           </h3>
-          <p className="text-center text-[#8b949e] mb-8 sm:mb-12 text-sm sm:text-base">
-            Wybierz kategorię aby zobaczyć szczegóły
-          </p>
 
           {/* Category Tabs */}
           <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-8 sm:mb-12">
@@ -404,14 +411,36 @@ export const AboutSection = () => {
                   className="absolute inset-0"
                 >
                   <div className={`absolute inset-0 bg-gradient-to-br ${getCurrentSkillsData().color} opacity-20`} />
-                     <div 
-                      className="absolute inset-0 opacity-30"
-                      style={{
-                        backgroundImage: `url('https://images.unsplash.com/photo-${getBackgroundImages()[currentSlide] || getBackgroundImages()[0]}?w=1200&h=800&fit=crop')`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center'
-                      }}
-                    />
+                     {(() => {
+                              const currentMedia = getBackgroundMedia()[currentSlide] || getBackgroundMedia()[0];
+                              const basePath = `${process.env.NODE_ENV === 'production' ? '/korepetycje' : ''}/_resources/`;
+                              
+                              if (currentMedia.type === 'video') {
+                                return (
+                                  <video 
+                                    key={`${activeCategory}-${currentSlide}-video`}
+                                    className="absolute inset-0 w-full h-full object-cover opacity-30"
+                                    autoPlay
+                                    loop
+                                    muted
+                                    playsInline
+                                  >
+                                    <source src={`${basePath}${currentMedia.src}`} type="video/mp4" />
+                                  </video>
+                                );
+                              } else {
+                                return (
+                                  <div 
+                                    className="absolute inset-0 opacity-30"
+                                    style={{
+                                      backgroundImage: `url('${basePath}${currentMedia.src}')`,
+                                      backgroundSize: 'cover',
+                                      backgroundPosition: 'center'
+                                    }}
+                                  />
+                                );
+                              }
+                            })()}
                   
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0d1117] via-[#0d1117]/80 to-[#0d1117]/60" />
                   

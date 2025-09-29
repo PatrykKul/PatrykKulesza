@@ -99,10 +99,6 @@ export const aboutSkills = [
         description: "Fundamenty web developmentu - solidne podstawy dla każdego developera"
       },
       { 
-        name: "Java",
-        description: "Programowanie obiektowe i aplikacje enterprise"
-      },
-      { 
         name: "PHP & SQL",
         description: "Backend development i zarządzanie bazami danych"
       },
@@ -169,10 +165,6 @@ export const aboutSkills = [
       { 
         name: "Pisanie rozprawek",
         description: "Techniki pisania esejów, argumentacji i strukturyzacji tekstu"
-      },
-      { 
-        name: "Listening & Reading",
-        description: "Rozumienie ze słuchu i czytanie ze zrozumieniem"
       }
     ],
     color: "from-purple-500 to-purple-600"

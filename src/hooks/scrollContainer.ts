@@ -1,6 +1,6 @@
 export const theme = {
-    cursorIdle: '#ffffffff',
-    cursorDragging: '#f5f5f5ff', 
+    cursorIdle: '#1f6febff',
+    cursorDragging: '#58a6ffff', 
     overlayColor: '#959595ff',
     overlayOpacity: '0.2'
 };

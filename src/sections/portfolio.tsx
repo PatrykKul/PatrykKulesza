@@ -121,6 +121,7 @@ export const PortfolioSection = () => {
     
     let scrollTimeout: NodeJS.Timeout;
     let isScrolling = false;
+    let isAutoScrolling = false; // Flaga zapobiegająca pętli
     
     const handleScroll = () => {
       // Aktualizuj kropki na bieżąco
@@ -131,6 +132,9 @@ export const PortfolioSection = () => {
       // Po zakończeniu scrollowania - automatyczne centrowanie
       scrollTimeout = setTimeout(() => {
         isScrolling = false;
+        
+        // Sprawdź czy nie trwa animacja, drag lub auto-scroll
+        if (isAnimating || isDragging || isAutoScrolling) return;
         
         // Miękkie centrowanie po zakończeniu momentum
         const containerCenter = container.scrollLeft + container.clientWidth / 2;
@@ -150,11 +154,32 @@ export const PortfolioSection = () => {
           }
         });
         
-        // Zawsze centruj najbliższą kartę (zmniejszona tolerancja do 15px)
-        if (closestDistance > 15 && !isAnimating) {
-          scrollToIndex(closestIndex);
+        // Centruj jeśli karta nie jest wycentrowana (tolerancja 50px)
+        if (closestDistance > 50) {
+          console.log('Auto-centering from', container.scrollLeft, 'to index:', closestIndex);
+          
+          isAutoScrolling = true; // Zablokuj kolejne auto-scroll
+          
+          // Bezpośrednie centrowanie
+          const targetCard = container.querySelector(`.scroll-item:nth-child(${closestIndex + 1})`) as HTMLElement;
+          
+          if (targetCard) {
+            const containerCenterPos = container.clientWidth / 2;
+            const cardCenter = targetCard.offsetLeft + targetCard.offsetWidth / 2;
+            const scrollLeftPosition = cardCenter - containerCenterPos;
+            
+            container.scrollTo({ 
+              left: Math.max(0, scrollLeftPosition), 
+              behavior: 'smooth' 
+            });
+            
+            // Odblokuj po 800ms (czas na smooth scroll)
+            setTimeout(() => {
+              isAutoScrolling = false;
+            }, 800);
+          }
         }
-      }, 200); // Zwiększony czas oczekiwania dla lepszego wykrywania końca momentum
+      }, 300); // Zwiększony czas dla lepszego wykrywania końca
     };
     
     container.addEventListener('scroll', handleScroll, { passive: true });
