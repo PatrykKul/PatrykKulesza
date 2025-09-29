@@ -273,8 +273,8 @@ export const websiteData: HomePageData = {
     math: [
       {
         id: 1,
-        title: "Wzory Maturalne",
-        description: "Kompletny zbiór wzorów matematycznych potrzebnych na maturze podstawowej i rozszerzonej.",
+        title: "Wzory i Formuły",
+        description: "Najważniejsze wzory matematyczne - od podstaw po poziom maturalny.",
         icon: React.createElement(Calculator, { className: "w-8 h-8 text-white" }),
         features: [
           "Algebra i funkcje",
@@ -288,8 +288,8 @@ export const websiteData: HomePageData = {
       },
       {
         id: 2,
-        title: "Zadania z Rozwiązaniami",
-        description: "Ponad 200 zadań maturalnych z szczegółowymi rozwiązaniami krok po krok.",
+        title: "Zadania Praktyczne",
+        description: "Zbiór zadań z matematyki z wyjaśnieniami - od łatwych do trudnych.",
         icon: React.createElement(FileText, { className: "w-8 h-8 text-white" }),
         features: [
           "Zadania podstawowe",
@@ -303,8 +303,8 @@ export const websiteData: HomePageData = {
       },
       {
         id: 3,
-        title: "Poradniki Krok po Krok",
-        description: "Kompleksowe przewodniki przez najtrudniejsze tematy matematyczne.",
+        title: "Przewodniki Tematyczne",
+        description: "Proste wyjaśnienia trudnych zagadnień matematycznych.",
         icon: React.createElement(BookOpen, { className: "w-8 h-8 text-white" }),
         features: [
           "Funkcje i ich właściwości",
@@ -320,8 +320,8 @@ export const websiteData: HomePageData = {
     english: [
       {
         id: 1,
-        title: "Gramatyka Angielska",
-        description: "Kompletny przewodnik po gramatyce angielskiej z przykładami i ćwiczeniami.",
+        title: "Gramatyka i Podstawy",
+        description: "Angielska gramatyka wyjaśniona prosto - czasy, zdania, słownictwo.",
         icon: React.createElement(BookOpen, { className: "w-8 h-8 text-white" }),
         features: [
           "Wszystkie czasy angielskie",
@@ -335,8 +335,8 @@ export const websiteData: HomePageData = {
       },
       {
         id: 2,
-        title: "Słownictwo Maturalne",
-        description: "2000+ najważniejszych słów i wyrażeń potrzebnych na maturze z angielskiego.",
+        title: "Słownictwo i Rozmowy",
+        description: "Najważniejsze słowa i frazy do swobodnej rozmowy po angielsku.",
         icon: React.createElement(Globe, { className: "w-8 h-8 text-white" }),
         features: [
           "Słownictwo tematyczne",
@@ -367,8 +367,8 @@ export const websiteData: HomePageData = {
     programming: [
       {
         id: 1,
-        title: "Python od Podstaw",
-        description: "Kompletny kurs Pythona od podstaw po zaawansowane tematy - idealne wprowadzenie do programowania.",
+        title: "Programowanie w Python",
+        description: "Nauka programowania od zera - pierwszy język, pierwsze programy, pierwsze sukcesy.",
         icon: React.createElement(Code, { className: "w-8 h-8 text-white" }),
         features: [
           "Składnia i podstawy języka",
@@ -382,8 +382,8 @@ export const websiteData: HomePageData = {
       },
       {
         id: 2,
-        title: "Web Development",
-        description: "Tworzenie stron internetowych z Next.js, React i Strapi CMS. Od podstaw do zaawansowanych projektów.",
+        title: "Tworzenie Stron WWW",
+        description: "Jak stworzyć własną stronę internetową - od pomysłu po gotowy projekt.",
         icon: React.createElement(Globe, { className: "w-8 h-8 text-white" }),
         features: [
           "HTML, CSS, JavaScript",

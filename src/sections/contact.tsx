@@ -372,12 +372,12 @@ export const ContactSection = ({ data }: { data: HomePageData }) => {
     <section ref={ref} id="contact" className="py-20 bg-[#161b22]">
       <div className="container mx-auto px-6">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 50 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="text-center mb-16"
         >
-          <h2 className="text-5xl md:text-6xl font-extrabold mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
+          <h2 className="text-5xl md:text-6xl font-extrabold mb-8 bg-gradient-to-r from-[#58a6ff] via-[#1f6feb] to-[#0969da] bg-clip-text text-transparent">
             Kontakt
           </h2>
           <p className="text-xl text-[#c9d1d9] max-w-3xl mx-auto">

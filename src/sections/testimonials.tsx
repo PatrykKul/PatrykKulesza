@@ -49,12 +49,9 @@ export const TestimonialsSection = ({ data }: { data: HomePageData }) => {
           className="text-center mb-6 sm:mb-8"
         >
           <div className="container mx-auto px-4 sm:px-6">
-            <h2 className="pb-4 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 md:mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
+            <h2 className="pb-4 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 md:mb-8 bg-gradient-to-r from-[#58a6ff] via-[#1f6feb] to-[#0969da] bg-clip-text text-transparent">
               Opinie Uczniów
             </h2>
-            <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-[#c9d1d9] max-w-3xl mx-auto px-2 sm:px-0">
-              Zobacz co mówią o mnie uczniowie i ich rodzice.
-            </p>
           </div>
         </motion.div>
 

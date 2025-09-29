@@ -39,11 +39,11 @@ export const HeroSection = ({ data }: { data: HomePageData }) => {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black mb-4 sm:mb-6 leading-tight"
             >
-              <span className="bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#58a6ff] via-[#1f6feb] to-[#0969da] bg-clip-text text-transparent">
                 Twój sukces,
               </span>
               <br />
-              <span className="bg-gradient-to-r from-[#58a6ff] via-[#1f6feb] to-[#f0f6fc] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#58a6ff] via-[#1f6feb] to-[#0969da] bg-clip-text text-transparent">
                 nasze wspólne dzieło
               </span>
             </motion.h1>

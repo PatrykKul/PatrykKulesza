@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { useAdvancedInView } from "../hooks/hooks";
 import { ArrowRight, ArrowUpRight, Calculator, BookOpenCheck, Code, Globe, Award } from "lucide-react";
 import type { HomePageData } from '../types/types';
@@ -89,7 +90,14 @@ export const ServicesSection = ({ data }: { data: HomePageData }) => {
 
   
   return (
-    <section ref={ref} id="services" className="py-16 bg-[#161b22] relative overflow-hidden">
+    <motion.section 
+      ref={ref} 
+      id="services" 
+      className="py-16 bg-[#161b22] relative overflow-hidden"
+      initial={{ opacity: 0, y: 50 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+    >
       
       {/* Background Effects */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -103,7 +111,7 @@ export const ServicesSection = ({ data }: { data: HomePageData }) => {
          
           
           <div className="overflow-hidden">
-            <h2 className="pb-3 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 md:mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
+            <h2 className="pb-3 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 md:mb-8 bg-gradient-to-r from-[#58a6ff] via-[#1f6feb] to-[#0969da] bg-clip-text text-transparent">
               Moje Usługi
             </h2>
           </div>
@@ -111,7 +119,7 @@ export const ServicesSection = ({ data }: { data: HomePageData }) => {
             <p className="text-sm sm:text-base md:text-lg lg:text-xl text-[#c9d1d9] max-w-4xl mx-auto leading-relaxed">
               Profesjonalne korepetycje z matematyki, angielskiego i programowania oraz tworzenie nowoczesnych stron internetowych. 
               <span className="font-bold"> {data.unifiedServices.stats.experience} lat doświadczenia</span>, <span className="font-bold">
-                {data.unifiedServices.stats.students} zadowolonych uczniów</span>
+                {data.unifiedServices.stats.students} zadowolonych uczniów <br/></span>
               <span className="font-bold"> oraz ponad {data.unifiedServices.stats.projects} zrealizowanych projektów.</span>
             </p>
           </div>
@@ -317,7 +325,7 @@ export const ServicesSection = ({ data }: { data: HomePageData }) => {
                     </p>
                     
                     <div className="text-white/90 font-bold text-lg">
-                      Oszczędzasz do 160 zł!
+                      Oszczędzasz do 120 zł!
                     </div>
                     
                     <button
@@ -338,7 +346,7 @@ export const ServicesSection = ({ data }: { data: HomePageData }) => {
       {/* Mobile layout */}
       <div className="lg:hidden">
         <div className="container mx-auto px-6">
-          <div className="grid grid-cols-2 gap-3 sm:gap-6">
+          <div className="grid grid-cols-2 gap-2 sm:gap-4 md:gap-6">
             {data.unifiedServices.services.map((service, index) => (
               <div
                 key={service.id}
@@ -412,7 +420,7 @@ export const ServicesSection = ({ data }: { data: HomePageData }) => {
           </div>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 };
 

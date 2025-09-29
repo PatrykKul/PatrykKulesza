@@ -69,12 +69,12 @@ export const MaterialsSection = ({ data }: MaterialsSectionProps) => {
       <div className="container mx-auto px-6 relative z-10">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 50 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="text-center mb-16"
         >
-          <h2 className="pb-4 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 md:mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
+          <h2 className="pb-4 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 md:mb-8 bg-gradient-to-r from-[#58a6ff] via-[#1f6feb] to-[#0969da] bg-clip-text text-transparent">
             Materiały Edukacyjne
           </h2>
           <p className="text-xl text-[#c9d1d9] max-w-3xl mx-auto">
@@ -106,7 +106,7 @@ export const MaterialsSection = ({ data }: MaterialsSectionProps) => {
                     <motion.button
                       key={category.id}
                       onClick={() => setActiveCategory(category.id as 'math' | 'english' | 'programming')}
-                      className={`w-full text-left p-4 rounded-xl border transition-all duration-300 ${
+                      className={`cursor-pointer w-full text-left p-4 rounded-xl border transition-all duration-300 ${
                         isActive 
                           ? `bg-gradient-to-r ${category.color} text-white border-transparent shadow-lg`
                           : `${category.bgColor} text-[#f0f6fc] ${category.borderColor} ${category.hoverBorderColor}`
@@ -219,21 +219,12 @@ export const MaterialsSection = ({ data }: MaterialsSectionProps) => {
               {activeCategory === 'programming' && "Python, Web Development i Data Science. Praktyczne projekty i kursy programowania od podstaw."}
             </motion.p>
 
-            {/* Materials Count - Added animation */}
-            <motion.div 
-              className="flex items-center text-[#c9d1d9] mb-8"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.3 }}
-            >
-              <FileText className="w-5 h-5 mr-2" />
-              <span>{data[activeCategory]?.length || 0} dostępnych materiałów</span>
-            </motion.div>
+           
 
             {/* Action Button - Enhanced animation */}
             <motion.button
               onClick={() => window.open(`/${activeCategory === 'math' ? 'matematyka' : activeCategory === 'english' ? 'angielski' : 'programowanie'}`, '_blank')}
-              className={`flex items-center px-8 py-4 bg-gradient-to-r ${currentCategory?.color} text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-lg`}
+              className={`cursor-pointer flex items-center px-8 py-4 bg-gradient-to-r ${currentCategory?.color} text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-lg`}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.6, duration: 0.3 }}

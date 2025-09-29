@@ -214,7 +214,7 @@ export const AboutSection = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-8 sm:mb-12 md:mb-16"
         >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 md:mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 md:mb-8 bg-gradient-to-r from-[#58a6ff] via-[#1f6feb] to-[#0969da] bg-clip-text text-transparent">
             O mnie
           </h2>
           <p className="text-sm sm:text-base md:text-lg lg:text-xl text-[#c9d1d9] max-w-4xl mx-auto leading-relaxed px-2 sm:px-0">
@@ -252,7 +252,7 @@ export const AboutSection = () => {
               </div>
               
               <div className="text-center sm:text-left">
-                <div className="text-2xl sm:text-3xl md:text-4xl font-black mb-1 sm:mb-2 bg-gradient-to-r from-[#f0f6fc] to-[#1f6feb] bg-clip-text text-transparent leading-tight">
+                <div className="text-2xl sm:text-3xl md:text-4xl font-black mb-1 sm:mb-2 bg-gradient-to-r from-[#58a6ff] to-[#0969da] bg-clip-text text-transparent leading-tight">
                   {stat.value}
                 </div>
                 
@@ -293,6 +293,9 @@ export const AboutSection = () => {
           <div
             ref={scrollContainerRef}
             className={`scroll-container flex gap-4 sm:gap-6 md:gap-8 overflow-x-auto py-4 sm:py-6 px-4 sm:px-6 ${isDragging ? 'dragging' : ''}`}
+            style={{
+              width: '100%'
+            }}
             onMouseDown={handleMouseDown}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseLeave}
