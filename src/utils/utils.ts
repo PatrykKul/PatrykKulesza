@@ -20,8 +20,9 @@ export const MENU_ITEMS = [
   { label: 'Start', href: '#hero' },
   { label: 'O mnie', href: '#about' },
   { label: 'Opinie', href: '#testimonials' },
-  { label: 'Portfolio', href: '#portfolio' },
+  { label: 'Materiały', href: '#materials' },
   { label: 'Usługi', href: '#services' },
+  { label: 'Web Dev', href: '#webdev' },
   { label: 'FAQ', href: '#faq' },
   { label: 'Kontakt', href: '#contact' }
 ];

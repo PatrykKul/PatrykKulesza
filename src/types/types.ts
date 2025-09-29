@@ -107,10 +107,85 @@ export interface Certificate {
 // ==========================================
 // 🏠 MAIN PAGE DATA TYPE
 // ==========================================
+// ==========================================
+// 📚 MATERIALS SECTION TYPES
+// ==========================================
+export interface MaterialItem {
+  id: number;
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  features: string[];
+  files: number;
+  rating: number;
+  hasVideo: boolean;
+}
+
+export interface MaterialsData {
+  math: MaterialItem[];
+  english: MaterialItem[];
+}
+
+// ==========================================
+// 🌐 WEB DEVELOPMENT SECTION TYPES
+// ==========================================
+export interface WebDevService {
+  title: string;
+  description: string;
+  price: string;
+  features: string[];
+}
+
+export interface WebDevData {
+  title: string;
+  subtitle: string;
+  description: string;
+  services: WebDevService[];
+  teamUrl: string;
+  stats: {
+    projects: string;
+    clients: string;
+    experience: string;
+  };
+}
+
+// ==========================================
+// 🎯 UNIFIED SERVICES SECTION TYPES (BENTO GRID)
+// ==========================================
+export interface UnifiedService {
+  id: string;
+  title: string;
+  subtitle: string;
+  price: string;
+  description: string;
+  features: string[];
+  levels: string[];
+  ctaText: string;
+  highlighted?: boolean;
+  category: 'korepetycje' | 'webdev';
+}
+
+export interface UnifiedServicesData {
+  title: string;
+  subtitle: string;
+  description: string;
+  services: UnifiedService[];
+  stats: {
+    experience: string;
+    students: string;
+    projects: string;
+  };
+}
+
+// ==========================================
+// 🏠 MAIN PAGE DATA TYPE
+// ==========================================
 export interface HomePageData {
   hero: HeroData;
   services: ServiceData[];
-  portfolio: PortfolioItem[];
+  materials: MaterialsData;
+  webdev: WebDevData;
+  unifiedServices: UnifiedServicesData; // New unified services data
   testimonials: TestimonialData[];
   faq: FaqItem[];
   contact: {

@@ -59,7 +59,7 @@ import  Header from '../sections/header';
 import HeroSection from '../sections/hero';
 import AboutSection from '../sections/about';
 import TestimonialsSection from '@/sections/testimonials';
-import PortfolioSection from '@/sections/portfolio';
+import MaterialsSection from '@/sections/materials';
 import ServicesSection from '@/sections/service';
 import FaqSection from '@/sections/faq';
 import ContactSection from '@/sections/contact';
@@ -133,8 +133,8 @@ export default function HomePage() {
           {/* ⭐ SEKCJA OPINIE */}
         <TestimonialsSection data={data} />
 
-          {/* 🎨 SEKCJA PORTFOLIO */}
-        {/* <PortfolioSection data={data} /> */}
+          {/* 📚 SEKCJA MATERIAŁY */}
+        <MaterialsSection data={data.materials} />
 
           {/* 💼 SEKCJA USŁUGI */}
         <ServicesSection data={data} />

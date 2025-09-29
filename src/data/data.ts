@@ -3,7 +3,7 @@
 // ==========================================
 
 import React from 'react';
-import { Calculator, BookOpen, Code, Globe } from 'lucide-react';
+import { Calculator, BookOpen, Code, Globe, FileText, Edit3 } from 'lucide-react';
 import type { HomePageData } from '../types/types';
 
 // ==========================================
@@ -47,7 +47,7 @@ export const websiteData: HomePageData = {
       levels: ["Podstawówka", "Liceum", "Matura", "Konwersacje"],
       price: "60-80 zł",
       features: [
-        "Konwersacje",
+        "Konwersacje",  
         "Przygotowanie do matury",
         "Gramatyka i słownictwo",
         "Pisanie rozprawek",
@@ -70,100 +70,153 @@ export const websiteData: HomePageData = {
         "Bazy danych SQL/NoSQL",
         "Deploy i hosting"
       ]
-    },
-    {
-      id: 4,
-      title: "Strony Internetowe",
-      description: "Profesjonalne strony internetowe z nowoczesnych technologii. Od prostych wizytówek po zaawansowane aplikacje webowe.",
-      icon: React.createElement(Globe, { className: "w-12 h-12" }),
-      levels: ["Wizytówka", "Sklep online", "Portfolio", "Aplikacja webowa"],
-      price: "od 1000 zł",
-      features: [
-        "Next.js & TypeScript",
-        "Tailwind CSS design",
-        "Strapi CMS",
-        "SEO optymalizacja", 
-        "Hosting i domena",
-        "Website builders"
-      ]
     }
   ],
-  
-  portfolio: [
-    {
-      id: 1,
-      title: "Audio Compressor",
-      description: "Profesjonalny kompresor audio stworzony w Juce framework. Zaawansowane algorytmy DSP z real-time processing.",
-      image: "compressor-preview.png",
-      technologies: ["Juce", "C++", "DSP", "Audio Processing"],
-      type: "desktop",
-      category: "Audio Software"
+
+  materials: {
+    math: [
+      {
+        id: 1,
+        title: "Wzory Maturalne",
+        description: "Kompletny zbiór wzorów matematycznych potrzebnych na maturze podstawowej i rozszerzonej.",
+        icon: React.createElement(Calculator, { className: "w-8 h-8 text-white" }),
+        features: [
+          "Algebra i funkcje",
+          "Geometria i trygonometria", 
+          "Analiza matematyczna",
+          "Statystyka i prawdopodobieństwo"
+        ],
+        files: 15,
+        rating: 4.9,
+        hasVideo: true
+      },
+      {
+        id: 2,
+        title: "Zadania z Rozwiązaniami",
+        description: "Ponad 200 zadań maturalnych z szczegółowymi rozwiązaniami krok po krok.",
+        icon: React.createElement(FileText, { className: "w-8 h-8 text-white" }),
+        features: [
+          "Zadania podstawowe",
+          "Zadania rozszerzone",
+          "Szczegółowe rozwiązania",
+          "Wskazówki i tricks"
+        ],
+        files: 25,
+        rating: 4.8,
+        hasVideo: false
+      },
+      {
+        id: 3,
+        title: "Poradniki Krok po Krok",
+        description: "Kompleksowe przewodniki przez najtrudniejsze tematy matematyczne.",
+        icon: React.createElement(BookOpen, { className: "w-8 h-8 text-white" }),
+        features: [
+          "Funkcje i ich właściwości",
+          "Geometria analityczna",
+          "Ciągi i szeregi",
+          "Rachunek różniczkowy"
+        ],
+        files: 12,
+        rating: 4.9,
+        hasVideo: true
+      }
+    ],
+    english: [
+      {
+        id: 1,
+        title: "Gramatyka Angielska",
+        description: "Kompletny przewodnik po gramatyce angielskiej z przykładami i ćwiczeniami.",
+        icon: React.createElement(BookOpen, { className: "w-8 h-8 text-white" }),
+        features: [
+          "Wszystkie czasy angielskie",
+          "Mowa zależna",
+          "Tryb warunkowy",
+          "Ćwiczenia praktyczne"
+        ],
+        files: 18,
+        rating: 4.8,
+        hasVideo: true
+      },
+      {
+        id: 2,
+        title: "Słownictwo Maturalne",
+        description: "2000+ najważniejszych słów i wyrażeń potrzebnych na maturze z angielskiego.",
+        icon: React.createElement(Globe, { className: "w-8 h-8 text-white" }),
+        features: [
+          "Słownictwo tematyczne",
+          "Phrasal verbs",
+          "Idiomy i wyrażenia",
+          "Karty do nauki"
+        ],
+        files: 22,
+        rating: 4.7,
+        hasVideo: false
+      },
+      {
+        id: 3,
+        title: "Przykładowe Eseje",
+        description: "Wzorcowe rozprawki i eseje z różnych tematów maturalnych.",
+        icon: React.createElement(Edit3, { className: "w-8 h-8 text-white" }),
+        features: [
+          "Eseje opinii",
+          "Eseje za i przeciw",
+          "Listy formalne",
+          "Raporty i artykuły"
+        ],
+        files: 10,
+        rating: 4.9,
+        hasVideo: true
+      }
+    ]
+  },
+
+  webdev: {
+    title: "Web Development",
+    subtitle: "Profesjonalne strony internetowe",
+    description: "Oprócz korepetycji, tworzę nowoczesne strony internetowe z moim doświadczonym zespołem. Specjalizujemy się w najnowszych technologiach i zapewniamy kompleksową obsługę od projektu po wdrożenie.",
+    teamUrl: "https://twoja-zespolowa-strona.pl",
+    stats: {
+      projects: "50",
+      clients: "30", 
+      experience: "3"
     },
-    {
-      id: 2,
-      title: "Weather Chatbot AI",
-      description: "Inteligentny chatbot pogodowy z machine learning, rozpoznawaniem mowy i dynamicznymi animacjami zależnymi od pogody.",
-      image: "weather-chatbot-preview.png",  
-      technologies: ["Python", "PyQt5", "OpenWeather API", "scikit-learn", "TensorFlow", "Speech Recognition"],
-      type: "desktop",
-      category: "AI & Machine Learning"
-    },
-    {
-      id: 3,
-      title: "Macro Recorder Pro",
-      description: "Zaawansowane narzędzie do nagrywania i odtwarzania makr. Precyzyjne rejestrowanie ruchów myszy, kliknięć i skrótów klawiszowych.",
-      image: "macro-recorder-preview.png",  
-      technologies: ["Python", "PyQt5", "Win32API", "Automation"],
-      type: "tool",
-      category: "Productivity Tools"
-    },
-    {
-      id: 4,
-      title: "Bezier Curves Visualizer",
-      description: "Interaktywny wizualizator krzywych Beziera z możliwością manipulacji punktów kontrolnych w czasie rzeczywistym.",
-      image: "bezier-preview.png",  
-      technologies: ["JavaScript", "Canvas API", "Mathematical Algorithms"],
-      type: "web",
-      category: "Mathematical Visualization"
-    },
-    {
-      id: 5,
-      title: "Spaceship Shooter",
-      description: "Klasyczna gra arcade typu space shooter z proceduralnymi wrogami i systemem power-upów.",
-      image: "spaceship-game-preview.png",  
-      technologies: ["Python", "Pygame"],
-      type: "game",
-      category: "Pygame"
-    },
-    {
-      id: 6,
-      title: "FPS Shooting Game",
-      description: "Pierwszoosobowa strzelanka z zaawansowaną mechaniką broni i systemem AI przeciwników.",
-      image: "fps-game-preview.png",  
-      technologies: ["Unity", "C#", "AI Pathfinding", "3D Graphics"],
-      type: "game",
-      category: "Unity Games"
-    },
-    {
-      id: 7,
-      title: "Racing Car Simulator",
-      description: "Realistyczny symulator wyścigów samochodowych z fizyką pojazdów i różnymi torami.",
-      image: "racing-game-preview.png",
-      technologies: ["Unity", "C#", "Physics Simulation", "Vehicle Dynamics"],
-      type: "game",
-      category: "Unity Games"
-    },
-    {
-      id: 8,
-      title: "Image Processing Suite",
-      description: "Zaawansowany pakiet do przetwarzania obrazów z algorytmami Computer Vision i filtrami real-time.",
-      image: "image-processing-preview.png", 
-      technologies: ["Python", "OpenCV", "NumPy", "PIL", "Computer Vision"],
-      type: "tool",
-      category: "Image Processing"
-    }
-  ],
-  
+    services: [
+      {
+        title: "Strony Wizytówkowe",
+        description: "Profesjonalne strony prezentujące Twoją firmę lub usługi. Responsywne, szybkie i zoptymalizowane pod SEO.",
+        price: "od 1500 zł",
+        features: [
+          "Responsywny design",
+          "Optymalizacja SEO",
+          "Panel administracyjny",
+          "Hosting i domena w cenie"
+        ]
+      },
+      {
+        title: "Sklepy Internetowe",
+        description: "Zaawansowane platformy e-commerce z systemem płatności, zarządzaniem produktami i analityką.",
+        price: "od 3000 zł",
+        features: [
+          "Integracja z płatnościami",
+          "Zarządzanie produktami",
+          "System zamówień",
+          "Analityka sprzedaży"
+        ]
+      },
+      {
+        title: "Aplikacje Webowe",
+        description: "Dedykowane aplikacje dostosowane do specyficznych potrzeb Twojego biznesu.",
+        price: "od 5000 zł",
+        features: [
+          "Indywidualny rozwój",
+          "Zaawansowana funkcjonalność",
+          "Integracje z API",
+          "Wsparcie techniczne"
+        ]
+      }
+    ]
+  },
+
   testimonials: [
     {
       id: 1,
@@ -241,6 +294,92 @@ export const websiteData: HomePageData = {
       answer: "Tak, po każdych zajęciach wysyłam skany notatek, zadania do samodzielnego rozwiązania i dodatkowe materiały. Uczniowie mają dostęp do wszystkiego 24/7."
     }
   ],
+
+  unifiedServices: {
+    title: "Usługi",
+    subtitle: "Korepetycje i Web Development",
+    description: "Kompleksowe wsparcie w nauce i profesjonalne rozwiązania webowe. Od matematyki po nowoczesne strony internetowe.",
+    stats: {
+      experience: "5+",
+      students: "60+",
+      projects: "50+"
+    },
+    services: [
+      {
+        id: "matematyka",
+        title: "Matematyka",
+        subtitle: "Od podstaw po studia",
+        price: "60-80 zł/h",
+        description: "Kompleksowe korepetycje z matematyki na każdym poziomie. Przygotowanie do egzaminów, matur i olimpiad. Indywidualne podejście i sprawdzone metody nauczania.",
+        features: [
+          "Indywidualne podejście do ucznia",
+          "Materiały własne i zadania",
+          "Przygotowanie do egzaminów",
+          "Analiza matematyczna na studiach",
+          "Geometria i algebra liniowa",
+          "Statystyka i prawdopodobieństwo"
+        ],
+        levels: ["Podstawówka", "Liceum", "Matura", "Studia"],
+        ctaText: "Umów lekcję matematyki",
+        highlighted: true,
+        category: 'korepetycje' as const
+      },
+      {
+        id: "angielski",
+        title: "Angielski",
+        subtitle: "Konwersacje i egzaminy",
+        price: "60-80 zł/h",
+        description: "Nauka angielskiego z naciskiem na praktyczne umiejętności. Konwersacje, gramatyka, przygotowanie do matury i certyfikatów międzynarodowych.",
+        features: [
+          "Konwersacje z native speakerem",
+          "Przygotowanie do matury",
+          "Gramatyka i słownictwo",
+          "Pisanie rozprawek i esejów",
+          "Listening i reading comprehension",
+          "Certyfikaty Cambridge i IELTS"
+        ],
+        levels: ["Podstawówka", "Liceum", "Matura", "Konwersacje"],
+        ctaText: "Zacznij naukę angielskiego",
+        category: 'korepetycje' as const
+      },
+      {
+        id: "programowanie",
+        title: "Programowanie",
+        subtitle: "Python, Web Development, Data Science",
+        price: "70-100 zł/h",
+        description: "Nauka programowania od podstaw do zaawansowanych projektów. Python, JavaScript, React, Next.js, bazy danych i wiele więcej.",
+        features: [
+          "Python i Data Science",
+          "Next.js i React development",
+          "Strapi i systemy CMS",
+          "FastAPI i backend development",
+          "Bazy danych SQL/NoSQL",
+          "Deploy, hosting i DevOps"
+        ],
+        levels: ["Podstawy", "Średniozaawansowany", "Projekty komercyjne"],
+        ctaText: "Naucz się programować",
+        category: 'korepetycje' as const
+      },
+      {
+        id: "strony-internetowe",
+        title: "Strony Internetowe",
+        subtitle: "Profesjonalne rozwiązania webowe",
+        price: "od 1500 zł",
+        description: "Tworzenie nowoczesnych, responsywnych stron internetowych. Od prostych wizytówek po zaawansowane sklepy internetowe i aplikacje webowe.",
+        features: [
+          "Responsywny design",
+          "Optymalizacja SEO",
+          "Panel administracyjny CMS",
+          "Integracja z płatnościami",
+          "Hosting i domena w cenie",
+          "Wsparcie techniczne"
+        ],
+        levels: ["Strony wizytówkowe", "Sklepy internetowe", "Aplikacje webowe"],
+        ctaText: "Zamów stronę internetową",
+        category: 'webdev' as const
+      }
+    ]
+  },
   
   contact: {
     phone: "+48 662 581 368",
