@@ -184,7 +184,7 @@ export const websiteData: HomePageData = {
       {
         title: "Strony Wizytówkowe",
         description: "Profesjonalne strony prezentujące Twoją firmę lub usługi. Responsywne, szybkie i zoptymalizowane pod SEO.",
-        price: "od 1500 zł",
+        price: "od 1000 zł",
         features: [
           "Responsywny design",
           "Optymalizacja SEO",
@@ -296,9 +296,9 @@ export const websiteData: HomePageData = {
   ],
 
   unifiedServices: {
-    title: "Usługi",
-    subtitle: "Korepetycje i Web Development",
-    description: "Kompleksowe wsparcie w nauce i profesjonalne rozwiązania webowe. Od matematyki po nowoczesne strony internetowe.",
+    title: "Moje Usługi",
+    subtitle: "Edukacja i Technologie",
+    description: "Profesjonalne korepetycje z matematyki, angielskiego i programowania oraz tworzenie nowoczesnych stron internetowych.",
     stats: {
       experience: "5+",
       students: "60+",
@@ -347,7 +347,7 @@ export const websiteData: HomePageData = {
         title: "Programowanie",
         subtitle: "Python, Web Development, Data Science",
         price: "70-100 zł/h",
-        description: "Nauka programowania od podstaw do zaawansowanych projektów. Python, JavaScript, React, Next.js, bazy danych i wiele więcej.",
+        description: "Korepetycje z programowania prowadzone przez technika informatyka z kwalifikacjami EE.08 i EE.09. Od podstaw do zaawansowanych projektów - Python, JavaScript, React, Next.js i wiele więcej.",
         features: [
           "Python i Data Science",
           "Next.js i React development",
@@ -364,7 +364,7 @@ export const websiteData: HomePageData = {
         id: "strony-internetowe",
         title: "Strony Internetowe",
         subtitle: "Profesjonalne rozwiązania webowe",
-        price: "od 1500 zł",
+        price: "od 1000 zł",
         description: "Tworzenie nowoczesnych, responsywnych stron internetowych. Od prostych wizytówek po zaawansowane sklepy internetowe i aplikacje webowe.",
         features: [
           "Responsywny design",

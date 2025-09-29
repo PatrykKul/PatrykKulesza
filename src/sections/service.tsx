@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useAdvancedInView } from "../hooks/hooks";
-import { ArrowRight, Calculator, BookOpenCheck, Code, Globe, Sparkles, ChevronDown, Award, Users, Trophy, Clock } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Calculator, BookOpenCheck, Code, Globe, Sparkles, ChevronDown, Award, Users, Trophy, Clock } from "lucide-react";
 import type { HomePageData } from '../types/types';
 
 export const ServicesSection = ({ data }: { data: HomePageData }) => {
@@ -105,25 +105,19 @@ export const ServicesSection = ({ data }: { data: HomePageData }) => {
       {/* Header */}
       <div className="container mx-auto px-6 mb-16">
         <div className="text-center">
-          <div className="mb-6">
-            <span className="inline-flex items-center gap-2 px-4 py-2 bg-[#1f6feb]/10 rounded-full text-sm text-[#58a6ff] backdrop-blur-sm border border-[#1f6feb]/20">
-              <Sparkles className="w-4 h-4" />
-              {data.unifiedServices.subtitle}
-            </span>
-          </div>
+         
           
           <div className="overflow-hidden">
-            <h2 className="text-5xl lg:text-7xl font-thin text-[#f0f6fc] mb-8 tracking-tight">
-              Twój <span className="italic">sukces</span> w nauce,<br />
-              <span className="font-bold bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
-                wspólne dzieło
-              </span>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 md:mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
+              Moje Usługi
             </h2>
           </div>
           <div className="">
-            <p className="text-center text-xl text-[#c9d1d9] max-w-5xl mx-auto">
-              <span className="font-bold">{data.unifiedServices.stats.experience} lat doświadczenia</span> w korepetycjach i <span className="font-bold">{data.unifiedServices.stats.students}+ zadowolonych uczniów</span>.<br />
-              {data.unifiedServices.description}
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl text-[#c9d1d9] max-w-4xl mx-auto leading-relaxed">
+              Profesjonalne korepetycje z matematyki, angielskiego i programowania oraz tworzenie nowoczesnych stron internetowych. 
+              <span className="font-bold"> {data.unifiedServices.stats.experience} lat doświadczenia</span>, <span className="font-bold">
+                {data.unifiedServices.stats.students} zadowolonych uczniów</span>
+              <span className="font-bold"> oraz ponad {data.unifiedServices.stats.projects} zrealizowanych projektów.</span>
             </p>
           </div>
         </div>
@@ -183,7 +177,11 @@ export const ServicesSection = ({ data }: { data: HomePageData }) => {
                                 {service.price.toUpperCase()}
                               </span>
                             </div>
-                            <ArrowRight className={`w-4 h-4 text-[#0d1117] ml-3 transition-transform duration-300 ${isActive ? 'translate-x-1' : ''}`} />
+                            {isActive ? (
+                              <ArrowUpRight className="w-4 h-4 text-[#1f6feb] ml-3 transition-all duration-300 scale-110" />
+                            ) : (
+                              <ArrowRight className="w-4 h-4 text-[#0d1117] ml-3 transition-all duration-300 hover:translate-x-1" />
+                            )}
                           </div>
                           <div className={`h-px w-full transition-colors duration-300 ${isActive ? 'bg-[#1f6feb]' : 'bg-[#0d1117]/20'}`}></div>
                         </button>
@@ -341,15 +339,6 @@ export const ServicesSection = ({ data }: { data: HomePageData }) => {
         </div>
       </div>
 
-      {/* Scroll Arrow */}
-      <div className="flex justify-center mt-12">
-        <button
-          onClick={scrollToNextSection}
-          className="group p-3 rounded-full bg-[#f0f6fc]/10 hover:bg-[#f0f6fc]/20 transition-all duration-300 cursor-pointer border border-[#1f6feb]/20"
-        >
-          <ChevronDown className="w-6 h-6 text-[#f0f6fc] group-hover:translate-y-1 transition-transform" />
-        </button>
-      </div>
 
       {/* Mobile layout */}
       <div className="lg:hidden">
