@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
+import Image from 'next/image';
 import { MENU_ITEMS } from '../utils/utils';
 
 export const Header = () => {
@@ -75,20 +76,22 @@ export const Header = () => {
               animate={{ opacity: 1, x: 0 }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="flex items-center space-x-3 cursor-pointer"
+              className="flex items-center cursor-pointer"
+              onClick={() => handleMenuClick('#hero')}
             >
               <motion.div 
-                className="w-10 h-10 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white text-sm font-black flex items-center justify-center rounded-xl shadow-lg"
+                className="relative w-30 h-12 md:w-60 md:h-12"
                 whileHover={{ rotate: 5 }}
               >
-                PK
+                <Image
+                  src={`${process.env.NODE_ENV === 'production' ? '/korepetycje' : ''}/_resources/logo-PatrykKulesza.webp`}
+                  alt="Patryk Kulesza - Logo"
+                  fill
+                  className="object-contain"
+                  sizes="(max-width: 768px) 840px, 200px"
+                  priority
+                />
               </motion.div>
-              <motion.span 
-                className="text-xl md:text-2xl font-bold bg-gradient-to-r from-[#f0f6fc] to-[#1f6feb] bg-clip-text text-transparent"
-                whileHover={{ x: 3 }}
-              >
-                Patryk Kulesza
-              </motion.span>
             </motion.div>
 
             {/* Enhanced Desktop Menu */}
@@ -198,14 +201,18 @@ export const Header = () => {
                   initial={{ y: -20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.4, delay: 0.1 }}
-                  className="flex items-center space-x-3 mb-8 pb-6 border-b border-[#30363d]"
+                  className="flex items-center justify-center mb-8 pb-6 border-b border-[#30363d] cursor-pointer"
+                  onClick={() => handleMenuClick('#hero')}
                 >
-                  <div className="w-8 h-8 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] text-white text-xs font-black flex items-center justify-center rounded-lg">
-                    PK
+                  <div className="relative w-24 h-24">
+                    <Image
+                      src={`${process.env.NODE_ENV === 'production' ? '/korepetycje' : ''}/_resources/logo-PatrykKulesza.webp`}
+                      alt="Patryk Kulesza - Logo"
+                      fill
+                      className="object-contain"
+                      sizes="96px"
+                    />
                   </div>
-                  <span className="text-lg font-bold text-[#f0f6fc]">
-                    Patryk Kulesza
-                  </span>
                 </motion.div>
 
                 {/* Menu Items */}
