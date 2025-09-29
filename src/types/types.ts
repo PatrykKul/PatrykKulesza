@@ -42,9 +42,11 @@ export interface PortfolioItem {
   description: string;
   image?: string;
   demoUrl?: string;
-  technologies: string[];
-  type: 'web' | 'desktop' | 'game' | 'ml' | 'tool';
-  category: string;
+  technologies?: string[];
+  type?: 'web' | 'desktop' | 'game' | 'ml' | 'tool';
+  category?: string;
+  liveUrl?: string;
+  href?: string;
 }
 
 // ==========================================
@@ -155,7 +157,7 @@ export interface WebDevData {
   subtitle: string;
   description: string;
   services: WebDevService[];
-  teamUrl: string;
+  portfolioUrl: string;
   stats: {
     projects: string;
     clients: string;

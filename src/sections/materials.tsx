@@ -76,7 +76,7 @@ export const MaterialsSection = ({ data }: MaterialsSectionProps) => {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 md:mb-8 text-[#f0f6fc]">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 md:mb-8 bg-gradient-to-r from-[#f0f6fc] via-[#1f6feb] to-[#58a6ff] bg-clip-text text-transparent">
             Materiały Edukacyjne
           </h2>
           <p className="text-xl text-[#c9d1d9] max-w-3xl mx-auto">
@@ -94,7 +94,7 @@ export const MaterialsSection = ({ data }: MaterialsSectionProps) => {
           {/* Left Menu - Categories */}
           <div className="lg:col-span-1">
             <div className="bg-gradient-to-br from-[#161b22] to-[#0d1117] border border-[#30363d] rounded-2xl p-6 h-fit sticky top-8">
-              <h3 className="text-xl font-bold text-[#f0f6fc] mb-6 flex items-center">
+              <h3 className="text-xl font-bold mb-6 flex items-center text-[#f0f6fc]">
                 <BookOpen className="w-6 h-6 mr-3 text-[#1f6feb]" />
                 Kategorie materiałów
               </h3>
@@ -144,68 +144,124 @@ export const MaterialsSection = ({ data }: MaterialsSectionProps) => {
             </div>
           </div>
 
-          {/* Right Content - Category Details */}
-          <div className="lg:col-span-2">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeCategory}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-                className="h-full"
-              >
-                {(() => {
-                  const currentCategory = materialCategories.find(cat => cat.id === activeCategory);
-                  const IconComponent = currentCategory?.icon || BookOpen;
-                  
-                  return (
-                    <div className="bg-gradient-to-br from-[#161b22] to-[#0d1117] border border-[#30363d] rounded-2xl p-8 h-full flex flex-col justify-center items-center text-center min-h-[400px]">
-                      {/* Large Icon */}
-                      <div className={`w-24 h-24 bg-gradient-to-r ${currentCategory?.color} rounded-2xl flex items-center justify-center mb-8 shadow-lg`}>
-                        <IconComponent className="w-12 h-12 text-white" />
-                      </div>
+{/* Right Content - Category Details */}
+<div className="lg:col-span-2">
+  <AnimatePresence mode="wait">
+    <motion.div
+      key={activeCategory}
+      initial={{ 
+        opacity: 0, 
+        clipPath: 'inset(0 100% 0 0)',
+        transform: 'translateX(50px)'
+      }}
+      animate={{ 
+        opacity: 1, 
+        clipPath: 'inset(0 0% 0 0)',
+        transform: 'translateX(0px)'
+      }}
+      exit={{ 
+        opacity: 0, 
+        clipPath: 'inset(0 0 0 100%)', 
+        transform: 'translateX(-50px)'
+      }}
+      transition={{ 
+        type: "spring",
+        stiffness: 300,
+        damping: 30,
+        opacity: { duration: 0.2 }
+      }}
+      className="h-full origin-right overflow-hidden"
+    >
+      {(() => {
+        const currentCategory = materialCategories.find(cat => cat.id === activeCategory);
+        const IconComponent = currentCategory?.icon || BookOpen;
+        
+        return (
+          <motion.div
+            className="bg-gradient-to-br from-[#161b22] to-[#0d1117] border border-[#30363d] rounded-2xl p-8 h-full flex flex-col justify-center items-center text-center min-h-[400px]"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ 
+              opacity: 1, 
+              scale: 1,
+              transition: {
+                delay: 0.1,
+                duration: 0.3
+              }
+            }}
+          >
+            {/* Large Icon - Added animation */}
+            <motion.div 
+              className={`w-24 h-24 bg-gradient-to-r ${currentCategory?.color} rounded-2xl flex items-center justify-center mb-8 shadow-lg`}
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.3 }}
+            >
+              <IconComponent className="w-12 h-12 text-white" />
+            </motion.div>
 
-                      {/* Category Title */}
-                      <h3 className="text-4xl font-bold text-[#f0f6fc] mb-4">
-                        {currentCategory?.name}
-                      </h3>
+            {/* Category Title - Added animation */}
+            <motion.h3 
+              className="text-4xl font-bold mb-4 text-[#f0f6fc]"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.3 }}
+            >
+              {currentCategory?.name}
+            </motion.h3>
 
-                      {/* Description */}
-                      <p className="text-lg text-[#8b949e] mb-8 max-w-md leading-relaxed">
-                        {activeCategory === 'math' && "Wzory, zadania i poradniki matematyczne. Od podstaw po zaawansowane zagadnienia uniwersyteckie."}
-                        {activeCategory === 'english' && "Gramatyka, słownictwo i przykładowe eseje. Przygotowanie do matury i certyfikatów międzynarodowych."}
-                        {activeCategory === 'programming' && "Python, Web Development i Data Science. Praktyczne projekty i kursy programowania od podstaw."}
-                      </p>
+            {/* Description - Added animation */}
+            <motion.p 
+              className="text-lg text-[#8b949e] mb-8 max-w-md leading-relaxed"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.3 }}
+            >
+              {activeCategory === 'math' && "Wzory, zadania i poradniki matematyczne. Od podstaw po zaawansowane zagadnienia uniwersyteckie."}
+              {activeCategory === 'english' && "Gramatyka, słownictwo i przykładowe eseje. Przygotowanie do matury i certyfikatów międzynarodowych."}
+              {activeCategory === 'programming' && "Python, Web Development i Data Science. Praktyczne projekty i kursy programowania od podstaw."}
+            </motion.p>
 
-                      {/* Materials Count */}
-                      <div className="flex items-center text-[#c9d1d9] mb-8">
-                        <FileText className="w-5 h-5 mr-2" />
-                        <span>{data[activeCategory]?.length || 0} dostępnych materiałów</span>
-                      </div>
+            {/* Materials Count - Added animation */}
+            <motion.div 
+              className="flex items-center text-[#c9d1d9] mb-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.3 }}
+            >
+              <FileText className="w-5 h-5 mr-2" />
+              <span>{data[activeCategory]?.length || 0} dostępnych materiałów</span>
+            </motion.div>
 
-                      {/* Action Button */}
-                      <motion.button
-                        onClick={() => window.open(`/${activeCategory === 'math' ? 'matematyka' : activeCategory === 'english' ? 'angielski' : 'programowanie'}`, '_blank')}
-                        className={`flex items-center px-8 py-4 bg-gradient-to-r ${currentCategory?.color} text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-lg`}
-                        whileHover={{ scale: 1.05, y: -2 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <span>Zobacz wszystkie materiały</span>
-                        <ArrowRight className="w-5 h-5 ml-3" />
-                      </motion.button>
+            {/* Action Button - Enhanced animation */}
+            <motion.button
+              onClick={() => window.open(`/${activeCategory === 'math' ? 'matematyka' : activeCategory === 'english' ? 'angielski' : 'programowanie'}`, '_blank')}
+              className={`flex items-center px-8 py-4 bg-gradient-to-r ${currentCategory?.color} text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-lg`}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.6, duration: 0.3 }}
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <span>Zobacz wszystkie materiały</span>
+              <ArrowRight className="w-5 h-5 ml-3" />
+            </motion.button>
 
-                      {/* Additional Info */}
-                      <div className="mt-6 flex items-center text-sm text-[#8b949e]">
-                        <Star className="w-4 h-4 mr-2 text-yellow-400" />
-                        <span>Darmowe materiały edukacyjne</span>
-                      </div>
-                    </div>
-                  );
-                })()}
-              </motion.div>
-            </AnimatePresence>
-          </div>
+            {/* Additional Info - Added animation */}
+            <motion.div 
+              className="mt-6 flex items-center text-sm text-[#8b949e]"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.7, duration: 0.3 }}
+            >
+              <Star className="w-4 h-4 mr-2 text-yellow-400" />
+              <span>Darmowe materiały edukacyjne</span>
+            </motion.div>
+          </motion.div>
+        );
+      })()}
+    </motion.div>
+  </AnimatePresence>
+</div>
         </motion.div>
 
         {/* Call to Action */}
@@ -216,7 +272,7 @@ export const MaterialsSection = ({ data }: MaterialsSectionProps) => {
           className="text-center mt-16"
         >
           <div className="bg-gradient-to-r from-[#161b22] to-[#0d1117] border border-[#1f6feb]/30 rounded-2xl p-8">
-            <h3 className="text-3xl font-bold text-[#f0f6fc] mb-4">
+            <h3 className="text-3xl font-bold mb-4 text-[#f0f6fc]">
               Potrzebujesz więcej materiałów?
             </h3>
             <p className="text-[#8b949e] mb-6 max-w-2xl mx-auto">

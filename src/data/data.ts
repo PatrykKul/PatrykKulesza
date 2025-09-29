@@ -3,8 +3,211 @@
 // ==========================================
 
 import React from 'react';
-import { Calculator, BookOpen, Code, Globe, FileText, Edit3 } from 'lucide-react';
-import type { HomePageData, Skill } from '../types/types';
+import { Calculator, BookOpen, Code, Globe, FileText, Edit3, Award, Brain } from 'lucide-react';
+import type { HomePageData, Skill, PortfolioItem, EducationStat, Certificate } from '../types/types';
+
+// ==========================================
+// 🎨 PORTFOLIO DATA
+// ==========================================
+export const PROJECT_EXAMPLES: PortfolioItem[] = [
+  {
+    id: 1,
+    title: "Wieslawski Studio",
+    description: "Profesjonalna strona internetowa dla studia fotograficznego. Nowoczesny design z galerią prac i systemem rezerwacji.",
+    image: "wieslawskiStudio.webp",
+    liveUrl: "https://wieslawskistudio.pl",
+    href: "https://wieslawskistudio.pl"
+  },
+  {
+    id: 2,
+    title: "Patryk Kul - Portfolio", 
+    description: "Osobiste portfolio prezentujące projekty i umiejętności. Responsywny design z animacjami i nowoczesnym interfejsem.",
+    image: "patrykkul.webp",
+    liveUrl: "https://patrykkul.pl",
+    href: "https://patrykkul.pl"
+  }
+];
+
+// ==========================================
+// 🎓 ABOUT SECTION DATA
+// ==========================================
+export const educationStats = [
+  {
+    title: "Średnia na studiach",
+    value: "4.76",
+    description: "Stypendium rektorskie 3 lata z rzędu",
+    icon: React.createElement(Award, { className: "w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" })
+  },
+  {
+    title: "Matura matematyka",
+    value: "93%",
+    description: "Poziom rozszerzony",
+    icon: React.createElement(Calculator, { className: "w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" })
+  },
+  {
+    title: "Angielski EF SET",
+    value: "C2", 
+    description: "75/100 i 71/100 - Oba poziom biegły",
+    icon: React.createElement(BookOpen, { className: "w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" })
+  },
+  {
+    title: "Lat doświadczenia",
+    value: "5+",
+    description: "Ponad 60 uczniów",
+    icon: React.createElement(Brain, { className: "w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" })
+  }
+];
+
+export const certificates = [
+  {
+    title: "Angielski C2 Proficient",
+    issuer: "EF SET",
+    images: [ "efset-certificate-2.png", "efset-certificate.png"],
+    links: [ "https://cert.efset.org/en/r3Hft9","https://cert.efset.org/en/r3Hft9"]
+  },
+  {
+    title: "AutoCAD",
+    issuer: "Autodesk",
+    images: ["autocad-level1.png", "autocad-level2.png", "autocad-general.png"]
+  },
+  {
+    title: "Programowanie drukarek 3D",
+    issuer: "Kwalifikacje zawodowe",
+    images: ["3d-printer-cert.png"]
+  },
+  {
+    title: "Kwalifikacje zawodowe",
+    issuer: "Technik informatyk",
+    images: ["inf02-cert.png", "inf03-cert.png", "diploma.png"]
+  }
+];
+
+export const aboutSkills = [
+  {
+    category: "Programowanie",
+    items: [
+      { 
+        name: "Python & Data Science",
+        description: "Analiza danych, machine learning, pandas, numpy i scikit-learn"
+      },
+      { 
+        name: "React, Next.js & TypeScript",
+        description: "Nowoczesne frameworki do budowy interaktywnych aplikacji webowych"
+      },
+      { 
+        name: "HTML, CSS & JavaScript",
+        description: "Fundamenty web developmentu - solidne podstawy dla każdego developera"
+      },
+      { 
+        name: "Java",
+        description: "Programowanie obiektowe i aplikacje enterprise"
+      },
+      { 
+        name: "PHP & SQL",
+        description: "Backend development i zarządzanie bazami danych"
+      },
+      { 
+        name: "C, C++ & C#",
+        description: "Języki niskiego poziomu i programowanie systemowe"
+      }
+    ],
+    color: "from-blue-500 to-blue-600"
+  },
+  {
+    category: "Matematyka",
+    items: [
+      { 
+        name: "Analiza Matematyczna",
+        description: "Granice, pochodne, całki i szeregi - fundament matematyki wyższej"
+      },
+      { 
+        name: "Algebra Liniowa",
+        description: "Macierze, przestrzenie wektorowe i przekształcenia liniowe"
+      },
+      { 
+        name: "Matematyka Dyskretna",
+        description: "Teoria grafów, kombinatoryka i algorytmy dyskretne"
+      },
+      { 
+        name: "Statystyka",
+        description: "Analiza danych statystycznych i wnioskowanie statystyczne"
+      },
+      { 
+        name: "Metody Probabilistyczne",
+        description: "Rachunek prawdopodobieństwa i procesy stochastyczne"
+      },
+      { 
+        name: "Równania Różniczkowe",
+        description: "Modelowanie zjawisk fizycznych i procesów dynamicznych"
+      }
+    ],
+    color: "from-green-500 to-green-600"
+  },
+  {
+    category: "Angielski",
+    items: [
+      { 
+        name: "2 Certyfikaty C2 EF SET",
+        description: "Najwyższy poziom biegłości językowej potwierdzony certyfikatami"
+      },
+      { 
+        name: "Konwersacje",
+        description: "Płynna komunikacja w języku angielskim na każdy temat"
+      },
+      { 
+        name: "Gramatyka",
+        description: "Kompleksowa znajomość struktur gramatycznych i ich zastosowania"
+      },
+      { 
+        name: "Matura podstawowa",
+        description: "Przygotowanie do egzaminu maturalnego - poziom podstawowy"
+      },
+      { 
+        name: "Matura rozszerzona",
+        description: "Zaawansowane przygotowanie do matury rozszerzonej"
+      },
+      { 
+        name: "Pisanie rozprawek",
+        description: "Techniki pisania esejów, argumentacji i strukturyzacji tekstu"
+      },
+      { 
+        name: "Listening & Reading",
+        description: "Rozumienie ze słuchu i czytanie ze zrozumieniem"
+      }
+    ],
+    color: "from-purple-500 to-purple-600"
+  },
+  {
+    category: "Strony Internetowe",
+    items: [
+      { 
+        name: "Next.js & React",
+        description: "Nowoczesne frameworki do budowy szybkich aplikacji webowych"
+      },
+      { 
+        name: "Hostinger Builder",
+        description: "Szybkie tworzenie stron bez kodowania dla klientów biznesowych"
+      },
+      { 
+        name: "WordPress & WooCommerce",
+        description: "Najpopularniejszy CMS i platforma e-commerce na świecie"
+      },
+      { 
+        name: "Strapi CMS",
+        description: "Headless CMS do zarządzania treścią i API"
+      },
+      { 
+        name: "SEO & Performance",
+        description: "Optymalizacja pod wyszukiwarki i szybkość ładowania"
+      },
+      { 
+        name: "Responsywny Design",
+        description: "Strony działające idealnie na wszystkich urządzeniach"
+      }
+    ],
+    color: "from-orange-500 to-red-600"
+  }
+];
 
 // ==========================================
 // 🏠 MAIN WEBSITE DATA
@@ -221,8 +424,8 @@ export const websiteData: HomePageData = {
   webdev: {
     title: "Web Development",
     subtitle: "Profesjonalne strony internetowe",
-    description: "Oprócz korepetycji, tworzę nowoczesne strony internetowe z moim doświadczonym zespołem. Specjalizujemy się w najnowszych technologiach i zapewniamy kompleksową obsługę od projektu po wdrożenie.",
-    teamUrl: "https://twoja-zespolowa-strona.pl",
+    description: "Oprócz korepetycji, zajmuję się również tworzeniem nowoczesnych stron internetowych. Specjalizuję się w najnowszych technologiach i zapewniam kompleksową obsługę od projektu po wdrożenie.",
+    portfolioUrl: "#portfolio",
     stats: {
       projects: "50",
       clients: "30", 
