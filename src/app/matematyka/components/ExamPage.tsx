@@ -862,8 +862,17 @@ export default function ExamPage({
                               const selectedValue = userAnswer.find(a => a.startsWith(`${optIndex}:`))?.split(':')[1];
                               const availableOptions = getQuestionOptions(option);
                               
+                              // Sprawdź poprawność tej części zadania
+                              const correctAnswerForPart = problem.answer.charAt(optIndex);
+                              const isPartCorrect = isChecked && selectedValue === correctAnswerForPart;
+                              const isPartIncorrect = isChecked && selectedValue && selectedValue !== correctAnswerForPart;
+                              
                               return (
-                                <div key={optIndex} className="bg-[#21262d] border border-[#30363d] rounded-lg p-4">
+                                <div key={optIndex} className={`border rounded-lg p-4 ${
+                                  isPartCorrect ? 'bg-green-900/20 border-green-500' :
+                                  isPartIncorrect ? 'bg-red-900/20 border-red-500' :
+                                  'bg-[#21262d] border-[#30363d]'
+                                }`}>
                                   <p className="text-white mb-3">{renderOption(statement)}</p>
                                   <div className="flex gap-3 flex-wrap">
                                     {availableOptions.map((optionValue) => {
@@ -882,6 +891,22 @@ export default function ExamPage({
                                         }
                                       };
                                       
+                                      // Określ kolory dla przycisków
+                                      let buttonClass = '';
+                                      if (selectedValue === optionValue) {
+                                        if (isChecked) {
+                                          if (optionValue === correctAnswerForPart) {
+                                            buttonClass = 'bg-green-600 text-white ring-2 ring-green-500';
+                                          } else {
+                                            buttonClass = 'bg-red-600 text-white ring-2 ring-red-500';
+                                          }
+                                        } else {
+                                          buttonClass = 'bg-[#58a6ff] text-black ring-2 ring-[#58a6ff]';
+                                        }
+                                      } else {
+                                        buttonClass = 'bg-[#30363d] text-white hover:bg-[#40464d]';
+                                      }
+                                      
                                       return (
                                         <button
                                           key={optionValue}
@@ -894,11 +919,7 @@ export default function ExamPage({
                                             }));
                                           }}
                                           disabled={isChecked}
-                                          className={`px-6 py-2 rounded-lg font-semibold transition-all disabled:cursor-not-allowed ${
-                                            selectedValue === optionValue
-                                              ? 'bg-[#58a6ff] text-black ring-2 ring-[#58a6ff]'
-                                              : 'bg-[#30363d] text-white hover:bg-[#40464d]'
-                                          }`}
+                                          className={`px-6 py-2 rounded-lg font-semibold transition-all disabled:cursor-not-allowed ${buttonClass}`}
                                         >
                                           {getOptionLabel(optionValue)}
                                         </button>

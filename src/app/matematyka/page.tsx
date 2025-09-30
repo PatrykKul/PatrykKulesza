@@ -419,8 +419,8 @@ export default function MatematikaPage() {
 
   return (
     <div className="min-h-screen bg-[#0d1117] text-white">
-      {/* Header z powrotem */}
-      <header className="border-b border-[#30363d] bg-[#161b22]">
+      {/* Header z powrotem - Sticky */}
+      <header className="sticky top-0 z-50 border-b border-[#30363d] bg-[#161b22] shadow-lg">
         <div className="container mx-auto px-4 py-4">
           <Link 
             href="/"
@@ -450,9 +450,9 @@ export default function MatematikaPage() {
             </p>
           </div>
 
-          {/* Navigation Menu */}
-          <nav className="mb-8">
-            <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6">
+          {/* Navigation Menu - Sticky */}
+          <nav className="sticky top-[73px] z-40 mb-8 bg-[#0d1117] py-4">
+            <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 shadow-xl">
               <div className="flex flex-wrap justify-center gap-4">
                 {/* Szkoła - Dropdown Menu */}
                 <div className="relative">
