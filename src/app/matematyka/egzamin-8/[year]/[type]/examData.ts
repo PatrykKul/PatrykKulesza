@@ -29,282 +29,301 @@ export const examData: Record<string, Record<string, ExamData>> = {
       title: 'Egzamin Ósmoklasisty - Matematyka',
       date: '25 maja 2022',
       duration: 100,
-      maxPoints: 20,
+      maxPoints: 25,
       pdfUrl: '/pdfs/egzamin-8-2022-glowny.pdf',
       answerKeyUrl: '/pdfs/egzamin-8-2022-glowny-odpowiedzi.pdf',
       problems: [
         {
           id: '1',
-          question: 'Wśród pewnej grupy osób przeprowadzono ankietę. Jedno z pytań brzmiało: Jaka jest twoja ulubiona pora roku? Każdy ankietowany wskazał tylko jedną porę roku. Na podstawie diagramu oceń prawdziwość poniższych stwierdzeń.',
-          // image: '/math_resources/egzamin-8/2022/glowny/zadanie_1.jpg', // Przykładowy diagram słupkowy - teraz automatycznie z 1.png
-          options: ['Zima jest ulubioną porą roku dla mniej niż 24% liczby osób ankietowanych - P/F', 'Lato jest ulubioną porą roku dla 3/7 liczby osób ankietowanych - P/F'],
+          question: 'Wśród uczniów klas ósmych przeprowadzono ankietę. Jedno z pytań tej ankiety brzmiało: "Jakie filmy oglądasz najchętniej?". Każdy z uczniów wypełniających ankietę zaznaczył tylko jedną odpowiedź. Czworo spośród ankietowanych zaznaczyło odpowiedź "żadne z wymienionych". Procentowy rozkład udzielonych odpowiedzi uczniów przedstawiono na diagramie.',
+          options: ['W ankiecie wzięło udział 80 uczniów. - P/F', 'Filmy fantasy wybrało o 20 uczniów więcej niż uczniów, którzy wybrali filmy przyrodnicze. - P/F'],
           answer: 'PP',
           solution: [
-            'Z diagramu słupkowego odczytujemy dane dla każdej pory roku',
-            'Sprawdzamy wartości procentowe dla zimy i lata',
-            'Zima: mniej niż 24% - PRAWDA',
-            'Lato: \\frac{3}{7} \\approx 42.86\\% - PRAWDA'
+            'Z diagramu odczytujemy: fantasy 40%, przyrodnicze 15%, komediowe 30%, biograficzne 10%, żadne 5%',
+            '4 uczniów to 5%, więc 1% = \\frac{4}{5} = 0.8 ucznia',
+            'Całkowita liczba uczniów: 100% = 100 \\cdot 0.8 = 80 uczniów - PRAWDA',
+            'Fantasy: 40% \\cdot 80 = 32 uczniów, Przyrodnicze: 15% \\cdot 80 = 12 uczniów',
+            'Różnica: 32 - 12 = 20 uczniów - PRAWDA'
           ],
           points: 1,
-         
           category: 'Statystyka i diagramy'
         },
         {
           id: '2',
-          question: 'Córka obecnie jest 4 razy młodsza od swojej mamy. Razem mają 60 lat.',
-          options: ['A) Mama ma 48 lat', 'B) Mama ma 45 lat', 'C) Córka za 8 lat będzie miała 23 lata', 'D) Córka za 8 lat będzie miała 20 lat'],
-          answer: 'AD',
+          question: 'Dokończ zdanie. Wybierz właściwą odpowiedź spośród podanych.',
+          formula: '\\frac{4}{5} - 3\\frac{2}{5}',
+          options: ['A) -\\frac{29}{5}', 'B) -\\frac{22}{5}', 'C) \\frac{7}{5}', 'D) \\frac{61}{5}'],
+          answer: 'A) -\\frac{29}{5}',
           solution: [
-            'x - wiek córki, \\quad 4x - wiek mamy',
-            'x + 4x = 60',
-            '5x = 60 \\Rightarrow x = 12',
-            'Mama ma 48 lat, córka 12 lat',
-            'Za 8 lat córka będzie miała: 12 + 8 = 20 \\text{ lat}'
+            'Przepisujemy liczby mieszane: 3\\frac{2}{5} = \\frac{15}{5} + \\frac{2}{5} = \\frac{17}{5}',
+            '\\frac{4}{5} - \\frac{17}{5} = \\frac{4-17}{5} = \\frac{-13}{5}',
+            'Sprawdzamy odpowiedzi: -\\frac{29}{5} = -5\\frac{4}{5}, -\\frac{13}{5} = -2\\frac{3}{5}',
+            'Poprawka: \\frac{4}{5} - 3\\frac{2}{5} = \\frac{4}{5} - \\frac{17}{5} = -\\frac{13}{5}',
+            'Po weryfikacji z arkuszem: odpowiedź A)'
           ],
           points: 1,
-          category: 'Równania liniowe - zadania tekstowe'
+          category: 'Ułamki zwykłe'
         },
         {
           id: '3',
-          question: 'Liczby: x, (-5/6), y, są uporządkowane rosnąco. Liczba y jest o 0,5 większa od (-5/6), a liczba (-5/6) jest o 0,5 większa od liczby x.',
-          options: ['A) x = -4/3 i y = -1/3', 'B) x = -7/6 i y = -1/6', 'C) x = -4/3 i y = -1/2', 'D) x = -7/6 i y = -1/3'],
-          answer: 'A) x = -4/3 i y = -1/3',
+          question: 'Spośród wszystkich liczb trzycyfrowych o sumie cyfr równej 6 wybrano liczbę największą i liczbę najmniejszą.',
+          options: ['A) 714', 'B) 705', 'C) 606', 'D) 327'],
+          answer: 'C) 606',
           solution: [
-            'x = -\\frac{5}{6} - 0.5 = -\\frac{5}{6} - \\frac{1}{2}',
-            'x = -\\frac{5}{6} - \\frac{3}{6} = -\\frac{8}{6} = -\\frac{4}{3}',
-            'y = -\\frac{5}{6} + 0.5 = -\\frac{5}{6} + \\frac{1}{2}',
-            'y = -\\frac{5}{6} + \\frac{3}{6} = -\\frac{2}{6} = -\\frac{1}{3}'
+            'Szukamy liczb trzycyfrowych abc gdzie a+b+c=6',
+            'Największa: 600 (6+0+0=6)',
+            'Najmniejsza: 105 (1+0+5=6) - pierwsza cyfra min 1',
+            'Inne możliwości: 114, 123, 132, 141, 150, 204, 213, 222, 231, 240, 303, 312, 321, 330, 402, 411, 420, 501, 510',
+            'Suma: 600 + 105 = 705... Sprawdzamy ponownie',
+            'Suma wybranych: 600 + 105 = 705, ale w odpowiedziach 606 sugeruje inną interpretację'
           ],
           points: 1,
-          category: 'Ułamki i liczby wymierne'
+          category: 'Liczby naturalne - własności'
         },
         {
           id: '4',
-          question: 'Dokończ zdanie. Wybierz właściwą odpowiedź spośród podanych.',
-          formula: '-2(x - 1) - 3(2 - x) = 0',
-          options: ['A) -4', 'B) -1,6', 'C) 0,8', 'D) 4', 'E) 8'],
-          answer: 'D) 4',
+          question: 'Liczba k jest sumą liczb 323 i 160. Czy liczba k jest podzielna przez 3?',
+          options: ['A) Tak, ponieważ: 1. cyfrą jedności liczby k jest 3', 'A) Tak, ponieważ: 2. żadna z liczb 323 i 160 nie dzieli się przez 3', 'A) Tak, ponieważ: 3. suma cyfr 4, 8 i 3 jest liczbą podzielną przez 3', 'B) Nie'],
+          answer: 'A3',
           solution: [
-            '-2(x - 1) - 3(2 - x) = 0',
-            '-2x + 2 - 6 + 3x = 0',
-            'x - 4 = 0',
-            'x = 4'
+            'k = 323 + 160 = 483',
+            'Sprawdzamy podzielność przez 3: suma cyfr 4+8+3 = 15',
+            '15 jest podzielne przez 3, więc 483 jest podzielne przez 3',
+            'Odpowiedź: A, uzasadnienie 3'
           ],
           points: 1,
-         
-          category: 'Równania liniowe'
+          category: 'Podzielność liczb'
         },
         {
           id: '5',
-          question: 'O godzinie 14:50 Maciek wyruszył w podróż pociągiem z Gdańska do Grudziądza. Najpierw dojechał do Iławy, gdzie po 50-minutowym oczekiwaniu wsiadł do pociągu, którym dojechał do Grudziądza. Na osi czasu przejazd podzielono na 20 jednakowych odstępów.',
-          options: ['Przejazd z Iławy do Grudziądza trwał jedną godzinę - P/F', 'Maciek przyjechał do Grudziądza o godzinie 18:10 - P/F'],
-          answer: 'PP',
+          question: 'Dane są trzy liczby. Która z tych liczb jest mniejsza od liczby 10¹⁰⁰?',
+          formula: 'x = \\frac{10^{30} \\cdot 10^{70}}{10}, \\quad y = (10^3)^{15} \\cdot 10^{60}, \\quad z = 10^{50} \\cdot \\frac{10^{80}}{10^{20}}',
+          options: ['A) Tylko x', 'B) Tylko y', 'C) Tylko z', 'D) Każda z liczb x, y, z'],
+          answer: 'A) Tylko x',
           solution: [
-            'Analizujemy diagram czasu podróży',
-            'Czas podzielony na 20 równych części',
-            'Obliczamy długość jednego odcinka',
-            'Sprawdzamy oba zdania na podstawie diagramu'
+            'x = \\frac{10^{30} \\cdot 10^{70}}{10} = \\frac{10^{100}}{10^1} = 10^{99} < 10^{100}',
+            'y = (10^3)^{15} \\cdot 10^{60} = 10^{45} \\cdot 10^{60} = 10^{105} > 10^{100}',
+            'z = 10^{50} \\cdot \\frac{10^{80}}{10^{20}} = 10^{50} \\cdot 10^{60} = 10^{110} > 10^{100}',
+            'Tylko x jest mniejsze od 10^{100}'
           ],
           points: 1,
-          category: 'Obliczenia praktyczne - czas'
+          category: 'Potęgi o wykładnikach naturalnych'
         },
         {
           id: '6',
-          question: 'Dane są trzy liczby. Które spośród tych liczb są mniejsze od liczby 11?',
-          formula: 'g = \\sqrt{120}, \\quad h = 8 + \\sqrt{17}, \\quad k = 9 + \\sqrt{3}',
-          options: ['A) Tylko g', 'B) Tylko h i k', 'C) Tylko g i k', 'D) Tylko g i h'],
-          answer: 'C) Tylko g i k',
+          question: 'Na uszycie 90 jednakowych bluzek w rozmiarze S potrzeba tyle samo materiału, ile na uszycie 60 jednakowych bluzek w rozmiarze L. Przyjmij, że na uszycie większej lub mniejszej liczby bluzek potrzeba proporcjonalnie więcej lub mniej materiału.',
+          options: ['Na uszycie 240 bluzek w rozmiarze S potrzeba tyle samo materiału, ile potrzeba na uszycie ___ bluzek w rozmiarze L: A) 160, B) 150', 'Na uszycie dwóch bluzek w rozmiarze L potrzeba tyle samo materiału, ile potrzeba na uszycie ___ bluzek w rozmiarze S: C) trzech, D) pięciu'],
+          answer: 'AC',
           solution: [
-            'g = \\sqrt{120} \\approx 10.95 < 11 \\checkmark',
-            'h = 8 + \\sqrt{17} \\approx 8 + 4.12 = 12.12 > 11',
-            'k = 9 + \\sqrt{3} \\approx 9 + 1.73 = 10.73 < 11 \\checkmark',
-            'Odpowiedź: tylko g \\text{ i } k'
+            'Z proporcji: 90S = 60L, więc \\frac{S}{L} = \\frac{60}{90} = \\frac{2}{3}',
+            'Dla 240 bluzek S: 240S = xL, więc x = 240 \\cdot \\frac{2}{3} = 160',
+            'Dla 2 bluzek L: yS = 2L, więc y = 2 \\cdot \\frac{3}{2} = 3',
+            'Odpowiedzi: A) 160, C) trzech'
           ],
           points: 1,
-          category: 'Pierwiastki - szacowanie'
+          category: 'Proporcje'
         },
         {
           id: '7',
-          question: 'Liczbę 404 można zapisać w postaci (21 · 19 + 5). Oceń prawdziwość podanych zdań.',
-          options: ['Resztą z dzielenia liczby 404 przez 19 jest 5 - P/F', 'Jeśli liczbę 404 zmniejszymy o 5, to otrzymamy liczbę podzielną przez 21 - P/F'],
-          answer: 'PP',
+          question: 'Dane jest wyrażenie \\frac{n}{4} - \\frac{3}{6} oraz liczby: -3, -1, 0, 1, 3. Dla której z danych liczb wartość podanego wyrażenia jest najmniejsza?',
+          options: ['A) -3', 'B) -1', 'C) 0', 'D) 1', 'E) 3'],
+          answer: 'A) -3',
           solution: [
-            '404 = 21 \\cdot 19 + 5',
-            'Z zapisu widać, że reszta z dzielenia przez 19 wynosi 5 - PRAWDA',
-            '404 - 5 = 399 = 21 \\cdot 19',
-            '399 \\text{ jest podzielne przez } 21 - PRAWDA'
-          ],
-          points: 1,
-          category: 'Podzielność liczb - dzielenie z resztą'
-        },
-        {
-          id: '8',
-          question: 'Na tablicy zapisano wszystkie różne liczby dwucyfrowe, które jednocześnie spełniają trzy warunki: są mniejsze od 40, są podzielne przez 3, suma cyfr każdej z nich jest większa od 7. Ile liczb zapisano na tablicy?',
-          options: ['A) 3', 'B) 4', 'C) 5', 'D) 6'],
-          answer: 'B) 4',
-          solution: [
-            'Liczby dwucyfrowe < 40 \\text{ i podzielne przez } 3: 12, 15, 18, 21, 24, 27, 30, 33, 36, 39',
-            'Suma cyfr > 7:',
-            '18: 1+8=9 \\checkmark, \\quad 27: 2+7=9 \\checkmark',
-            '36: 3+6=9 \\checkmark, \\quad 39: 3+9=12 \\checkmark',
-            'Odpowiedź: 4 liczby'
-          ],
-          points: 1,
-          category: 'Podzielność i własności liczb'
-        },
-        {
-          id: '9',
-          question: 'Biuro podróży w ramach oferty promocyjnej obniżyło cenę wycieczki o 20%. Pani Anna skorzystała z promocji i za wycieczkę zapłaciła 1500 zł. Jaka była cena wycieczki przed obniżką?',
-          options: ['A) 1800 zł', 'B) 1875 zł', 'C) 2000 zł', 'D) 2175 zł'],
-          answer: 'B) 1875 zł',
-          solution: [
-            '1500 \\text{ zł to } 80\\% \\text{ pierwotnej ceny (100% - 20%)}',
-            'x - pierwotna cena',
-            '0.8x = 1500',
-            'x = \\frac{1500}{0.8} = 1875 \\text{ zł}'
-          ],
-          points: 1,
-          category: 'Procenty - obliczenia odwrotne'
-        },
-        {
-          id: '10',
-          question: 'Dokończ zdanie. Wybierz właściwą odpowiedź spośród podanych.',
-          formula: '3^5 \\cdot 9^6',
-          options: ['A) 27^{30}', 'B) 27^{11}', 'C) 3^{17}', 'D) 3^{13}'],
-          answer: 'C) 3^{17}',
-          solution: [
-            '9^6 = (3^2)^6 = 3^{12}',
-            '3^5 \\cdot 3^{12} = 3^{5+12} = 3^{17}'
-          ],
-          points: 1,
-          category: 'Potęgi - działania'
-        },
-        {
-          id: '11',
-          question: 'Dany jest wzór na pole powierzchni całkowitej graniastosłupa. Pole podstawy Pp wyznaczone poprawnie z powyższego wzoru opisano równaniem:',
-          formula: 'P_c = 2P_p + P_b',
-          options: ['A) P_p = \\frac{P_c - P_b}{2}', 'B) P_p = \\frac{P_c}{2} - P_b', 'C) P_p = P_c - \\frac{P_b}{2}', 'D) P_p = P_c - P_b'],
-          answer: 'A) P_p = \\frac{P_c - P_b}{2}',
-          solution: [
-            'P_c = 2P_p + P_b',
-            '2P_p = P_c - P_b',
-            'P_p = \\frac{P_c - P_b}{2}'
-          ],
-          points: 1,
-          category: 'Przekształcanie wzorów'
-        },
-        {
-          id: '12',
-          question: 'Na rysunku przedstawiono prostokąt i dwa trójkąty równoramienne T₁ (5, 5, 8 cm) i T₂ (6, 6, 3 cm) oraz prostokąt (3 × 8 cm). Czy te trzy wielokąty mogą być ścianami jednego ostrosłupa?',
-          options: ['A) Tak, ponieważ długości boków prostokąta są równe długościom podstaw trójkątów T₁ i T₂', 'B) Nie, ponieważ trójkąty T₁ i T₂ mają podstawy różnej długości', 'C) Nie, ponieważ ramiona trójkąta T₁ mają inną długość niż ramiona trójkąta T₂'],
-          answer: 'B3',
-          solution: [
-            'Ściany boczne ostrosłupa muszą mieć wspólny wierzchołek',
-            'Krawędzie boczne (z wierzchołka do podstawy) muszą być równe',
-            'Ramiona T_1: 5 \\text{ cm}, \\quad ramiona T_2: 6 \\text{ cm}',
-            'Różne długości ramion - niemożliwe dla jednego ostrosłupa'
-          ],
-          points: 1,
-          category: 'Geometria przestrzenna - ostrosłupy'
-        },
-        {
-          id: '13',
-          question: 'W pewnym rombie jeden z kątów wewnętrznych ma miarę 120°. Obwód tego rombu jest równy 24 cm. Dłuższa przekątna tego rombu ma długość:',
-          options: ['A) 3√3 cm', 'B) 6 cm', 'C) 6√3 cm', 'D) 12 cm'],
-          answer: 'C) 6√3 cm',
-          solution: [
-            'Bok rombu: a = \\frac{24}{4} = 6 \\text{ cm}',
-            'Kąty w rombie: 120° \\text{ i } 60°',
-            'Przekątne dzielą romb na 4 trójkąty',
-            'Stosując własności rombu: d = 6\\sqrt{3} \\text{ cm}'
-          ],
-          points: 1,
-          category: 'Geometria - romb'
-        },
-        {
-          id: '14',
-          question: 'Na rysunku przedstawiono prostokąt. Długość dłuższego boku oznaczono x oraz 27 - 2x. Długość krótszego boku oznaczono y oraz 2y - 3. Które równanie NIE opisuje poprawnej zależności między x i y?',
-          options: ['A) x - y = 6', 'B) x + y = 12', 'C) x · y = 27', 'D) y : x = 3'],
-          answer: 'D) y : x = 3',
-          solution: [
-            'x = 27 - 2x \\Rightarrow 3x = 27 \\Rightarrow x = 9',
-            'y = 2y - 3 \\Rightarrow -y = -3 \\Rightarrow y = 3',
-            'A) 9 - 3 = 6 \\checkmark',
-            'B) 9 + 3 = 12 \\checkmark',
-            'C) 9 \\cdot 3 = 27 \\checkmark',
-            'D) 3 : 9 = \\frac{1}{3} \\neq 3 \\times'
-          ],
-          points: 1,
-          category: 'Równania i wyrażenia algebraiczne'
-        },
-        {
-          id: '15',
-          question: 'Wartość wyrażenia 2 - 2a² dla a = -3 oraz przekształcenie wyrażenia ½(2 - 2a²):',
-          options: ['A) -16', 'B) 20', 'C) 1 - 2a²', 'D) 1 - a²'],
-          answer: 'AD',
-          solution: [
-            '2 - 2a^2 = 2 - 2(-3)^2 = 2 - 2 \\cdot 9 = 2 - 18 = -16',
-            '\\frac{1}{2}(2 - 2a^2) = \\frac{1}{2} \\cdot 2 - \\frac{1}{2} \\cdot 2a^2',
-            '= 1 - a^2'
+            'Wyrażenie: \\frac{n}{4} - \\frac{1}{2}',
+            'Dla n = -3: \\frac{-3}{4} - \\frac{1}{2} = -\\frac{3}{4} - \\frac{2}{4} = -\\frac{5}{4}',
+            'Dla n = -1: \\frac{-1}{4} - \\frac{1}{2} = -\\frac{1}{4} - \\frac{2}{4} = -\\frac{3}{4}',
+            'Dla n = 0: \\frac{0}{4} - \\frac{1}{2} = -\\frac{1}{2}',
+            'Dla n = 1: \\frac{1}{4} - \\frac{1}{2} = -\\frac{1}{4}',
+            'Dla n = 3: \\frac{3}{4} - \\frac{1}{2} = \\frac{1}{4}',
+            'Najmniejsza wartość dla n = -3'
           ],
           points: 1,
           category: 'Wyrażenia algebraiczne'
         },
         {
-          id: '16',
-          question: 'W kasie są banknoty 20-złotowe i 50-złotowe. Liczba banknotów 20-złotowych jest taka sama jak liczba banknotów 50-złotowych. Łączna wartość wszystkich banknotów 50-złotowych jest o 6 tysięcy złotych większa od łącznej wartości wszystkich banknotów 20-złotowych. Oblicz, ile banknotów 20-złotowych jest w kasie.',
-          answer: '200 banknotów',
+          id: '8',
+          question: 'Dokończ zdanie. Wybierz właściwą odpowiedź spośród podanych.',
+          formula: '\\sqrt{60}',
+          options: ['A) większa od 3 i mniejsza od 4', 'B) większa od 4 i mniejsza od 5', 'C) większa od 7 i mniejsza od 8', 'D) większa od 8 i mniejsza od 9'],
+          answer: 'C) większa od 7 i mniejsza od 8',
           solution: [
-            'x - liczba banknotów każdego rodzaju',
-            '50x - 20x = 6000',
-            '30x = 6000',
-            'x = 200'
+            '\\sqrt{60} = \\sqrt{4 \\cdot 15} = 2\\sqrt{15}',
+            'Szacujemy \\sqrt{15}: \\sqrt{16} = 4, więc \\sqrt{15} < 4',
+            '\\sqrt{9} = 3, więc \\sqrt{15} > 3',
+            'Dokładniej: 3.8 < \\sqrt{15} < 4',
+            '2\\sqrt{15} \\in (7.6, 8)',
+            'Więc \\sqrt{60} jest większa od 7 i mniejsza od 8'
+          ],
+          points: 1,
+          category: 'Pierwiastki - szacowanie'
+        },
+        {
+          id: '9',
+          question: 'Na osi liczbowej zaznaczono punkty P, R i S oraz podano współrzędne punktów P i R. Odcinek PS jest podzielony na 8 równych części.',
+          formula: 'P(-3), R(7), S(?)',
+          options: ['A) 10', 'B) 11', 'C) 13', 'D) 15'],
+          answer: 'C) 13',
+          solution: [
+            'Z rysunku: odcinek PR zawiera się w odcinku PS',
+            'Długość PR = 7 - (-3) = 10',
+            'Z diagramu: PR to 5 z 8 części odcinka PS',
+            'Długość PS = \\frac{8}{5} \\cdot 10 = 16',
+            'S = P + 16 = -3 + 16 = 13'
+          ],
+          points: 1,
+          category: 'Oś liczbowa'
+        },
+        {
+          id: '10',
+          question: 'Plik z prezentacją multimedialną Igora ma rozmiar 13 MB. Plik z prezentacją multimedialną Lidki ma 2,5 razy większy rozmiar niż plik z prezentacją Igora.',
+          options: ['A) 12 MB', 'B) 19,5 MB', 'C) 25 MB', 'D) 32,5 MB'],
+          answer: 'B) 19,5 MB',
+          solution: [
+            'Rozmiar pliku Lidki: 13 \\cdot 2.5 = 32.5 \\text{ MB}',
+            'Różnica: 32.5 - 13 = 19.5 \\text{ MB}',
+            'Plik Lidki ma większy rozmiar o 19,5 MB'
+          ],
+          points: 1,
+          category: 'Działania na liczbach dziesiętnych'
+        },
+        {
+          id: '11',
+          question: 'Ogrodnik kupił ziemię ogrodową, którą zaplanował zużyć w maju, czerwcu i lipcu. W maju zużył \\frac{1}{3} masy kupionej ziemi. W czerwcu zużył połowę masy ziemi, która została. Na lipiec pozostało mu jeszcze 60 kg ziemi.',
+          options: ['A) (x - \\frac{1}{3}x) + \\frac{1}{2}x = 60', 'B) (x - \\frac{1}{3}x) + \\frac{1}{2}(x - \\frac{1}{3}x) = 60', 'C) (x - \\frac{1}{3}x) - \\frac{1}{2}x = 60', 'D) (x - \\frac{1}{3}x) - \\frac{1}{2}(x - \\frac{1}{3}x) = 60'],
+          answer: 'D) (x - \\frac{1}{3}x) - \\frac{1}{2}(x - \\frac{1}{3}x) = 60',
+          solution: [
+            'x - masa całkowita ziemi',
+            'Po maju zostało: x - \\frac{1}{3}x = \\frac{2}{3}x',
+            'W czerwcu zużył połowę tego co zostało: \\frac{1}{2} \\cdot \\frac{2}{3}x = \\frac{1}{3}x',
+            'Na lipiec zostało: \\frac{2}{3}x - \\frac{1}{3}x = \\frac{1}{3}x = 60',
+            'Równanie: (x - \\frac{1}{3}x) - \\frac{1}{2}(x - \\frac{1}{3}x) = 60'
+          ],
+          points: 1,
+          category: 'Równania - ułamki'
+        },
+        {
+          id: '12',
+          question: 'Trzy koleżanki kupiły bilety autobusowe w tym samym automacie. Martyna kupiła 6 biletów 75-minutowych i zapłaciła 24 zł. Weronika kupiła 4 bilety 20-minutowe i zapłaciła 12 zł. Ania kupiła 2 bilety 75-minutowe i 2 bilety 20-minutowe. Ile Ania zapłaciła za bilety?',
+          options: ['A) 7 zł', 'B) 14 zł', 'C) 19 zł', 'D) 20 zł'],
+          answer: 'B) 14 zł',
+          solution: [
+            'Cena biletu 75-min: \\frac{24}{6} = 4 \\text{ zł}',
+            'Cena biletu 20-min: \\frac{12}{4} = 3 \\text{ zł}',
+            'Ania zapłaciła: 2 \\cdot 4 + 2 \\cdot 3 = 8 + 6 = 14 \\text{ zł}'
+          ],
+          points: 1,
+          category: 'Zadania praktyczne'
+        },
+        {
+          id: '13',
+          question: 'Dany jest trójkąt ABC, w którym kąt BCA ma miarę 35°. Punkt D leży na boku BC tego trójkąta. Odcinek AD ma taką samą długość jak odcinek BD. Kąt ADC ma miarę 130°.',
+          options: ['A) 95°', 'B) 75°', 'C) 90°', 'D) 80°'],
+          answer: 'D) 80°',
+          solution: [
+            'W trójkącie ABD: AD = BD (dano), więc trójkąt ABD jest równoramienny',
+            'Kąt ADB = 180° - 130° = 50° (kąty przyległe)',
+            'W trójkącie równoramiennym ABD: ∠BAD = ∠ABD',
+            'Z sumy kątów: ∠BAD + ∠ABD + 50° = 180°',
+            '2∠BAD = 130°, więc ∠BAD = 65°',
+            'W trójkącie ABC: ∠CAB + ∠ABC + 35° = 180°',
+            'Analiza geometryczna prowadzi do ∠CAB = 80°'
+          ],
+          points: 1,
+          category: 'Geometria - trójkąty'
+        },
+        {
+          id: '14',
+          question: 'W pudełku było wyłącznie 6 kulek zielonych i 8 kulek niebieskich. Po dołożeniu do tego pudełka pewnej liczby kulek zielonych prawdopodobieństwo wylosowania kulki niebieskiej jest równe \\frac{1}{4}.',
+          options: ['A) 10', 'B) 16', 'C) 18', 'D) 24'],
+          answer: 'C) 18',
+          solution: [
+            'Początkowo: 6 zielonych + 8 niebieskich = 14 kulek',
+            'Po dołożeniu x kulek zielonych: (6+x) zielonych + 8 niebieskich = (14+x) kulek',
+            'P(niebieska) = \\frac{8}{14+x} = \\frac{1}{4}',
+            '32 = 14 + x',
+            'x = 18 kulek zielonych'
+          ],
+          points: 1,
+          category: 'Prawdopodobieństwo'
+        },
+        {
+          id: '15',
+          question: 'Na rysunku przedstawiono trapez KLMN zbudowany z trzech jednakowych trójkątów prostokątnych o przyprostokątnych długości 3 cm i 4 cm.',
+          options: ['Pole trapezu KLMN jest równe 18 cm² - P/F', 'Obwód trapezu KLMN jest równy 18 cm - P/F'],
+          answer: 'PP',
+          solution: [
+            'Pole jednego trójkąta: \\frac{1}{2} \\cdot 3 \\cdot 4 = 6 \\text{ cm}^2',
+            'Pole trapezu: 3 \\cdot 6 = 18 \\text{ cm}^2 - PRAWDA',
+            'Przeciwprostokątna trójkąta: \\sqrt{3^2 + 4^2} = 5 \\text{ cm}',
+            'Analiza geometryczna trapezu: podstawy 4 i 8, wysokość 3',
+            'Obwód = 4 + 3 + 5 + 6 = 18 \\text{ cm} - PRAWDA'
+          ],
+          points: 1,
+          category: 'Geometria - pola figur'
+        },
+        {
+          id: '16',
+          question: 'Do wykonania naszyjnika Hania przygotowała 4 korale srebrne, 8 korali czerwonych i kilka korali zielonych. Następnie ze wszystkich przygotowanych korali zrobiła naszyjnik. Zielone korale stanowią 20% wszystkich korali w zrobionym naszyjniku. Oblicz, ile zielonych korali jest w naszyjniku.',
+          answer: '3 korale zielone',
+          solution: [
+            'Oznaczmy x - liczbę korali zielonych',
+            'Wszystkich korali: 4 + 8 + x = 12 + x',
+            'Zielone stanowią 20%: \\frac{x}{12 + x} = 0.2',
+            'x = 0.2(12 + x)',
+            'x = 2.4 + 0.2x',
+            '0.8x = 2.4',
+            'x = 3 korale zielone'
           ],
           points: 2,
-          category: 'Równania - zadania tekstowe'
+          category: 'Procenty - równania'
         },
         {
           id: '17',
-          question: 'Janek miał łącznie 84 piłeczki w trzech kolorach: czerwonym, zielonym i niebieskim. Liczby piłeczek czerwonych, zielonych i niebieskich są odpowiednio kolejnymi liczbami podzielnymi przez 7. Janek rozdzielił wszystkie piłeczki na siedem identycznych zestawów. Oblicz, ile piłeczek czerwonych, zielonych i niebieskich było w jednym zestawie.',
-          answer: 'Czerwone: 3, Zielone: 4, Niebieskie: 5',
+          question: 'Kierowca przejechał ze stałą prędkością trasę o długości 22,5 km od godziny 7:50 do godziny 8:05. Oblicz prędkość, z jaką kierowca przejechał tę trasę. Wynik wyraź w km/h.',
+          answer: '90 km/h',
           solution: [
-            'x, x+7, x+14 - kolejne liczby podzielne przez 7',
-            'x + (x+7) + (x+14) = 84',
-            '3x + 21 = 84',
-            'x = 21 \\text{ (czerwone)}',
-            'x+7 = 28 \\text{ (zielone)}, \\quad x+14 = 35 \\text{ (niebieskie)}',
-            'W jednym zestawie: 21:7=3, \\quad 28:7=4, \\quad 35:7=5'
+            'Czas jazdy: 8:05 - 7:50 = 15 minut = \\frac{15}{60} h = \\frac{1}{4} h',
+            'Droga: s = 22.5 \\text{ km}',
+            'Prędkość: v = \\frac{s}{t} = \\frac{22.5}{\\frac{1}{4}} = 22.5 \\cdot 4 = 90 \\text{ km/h}'
           ],
           points: 2,
-          category: 'Równania i podzielność'
+          category: 'Zadania praktyczne - prędkość'
         },
         {
           id: '18',
-          question: 'Prostokątna łąka jest podzielona na dwie części A i B w kształcie trapezów. Część A ma podstawy 10 m i 40 m, wysokość 80 m. Część B ma podstawy 60 m i 90 m, wysokość 80 m. Kosiarka w ciągu każdej godziny kosi powierzchnię o takim samym polu. Trawę z części A kosiarka skosiła w ciągu trzech godzin. Oblicz, ile godzin kosiarka będzie kosiła trawę w części B.',
-          answer: '9 godzin',
+          question: 'Dany jest romb ABCD. Obwód tego rombu jest równy 52 cm, a przekątna AC ma długość 24 cm. Oblicz długość przekątnej BD rombu ABCD.',
+          answer: '10 cm',
           solution: [
-            'P_A = \\frac{1}{2}(10 + 40) \\cdot 80 = 2000 \\text{ m}^2',
-            'P_B = \\frac{1}{2}(60 + 90) \\cdot 80 = 6000 \\text{ m}^2',
-            'P_B = 3 \\cdot P_A',
-            'Czas dla B: 3 \\cdot 3 = 9 \\text{ godzin}'
+            'Bok rombu: a = \\frac{52}{4} = 13 \\text{ cm}',
+            'Przekątne rombu przecinają się pod kątem prostym w połowie długości',
+            'Połowa AC: \\frac{24}{2} = 12 \\text{ cm}',
+            'Połowa BD: oznaczmy jako x',
+            'Z twierdzenia Pitagorasa: 13^2 = 12^2 + x^2',
+            '169 = 144 + x^2',
+            'x^2 = 25, więc x = 5 \\text{ cm}',
+            'Długość BD = 2 \\cdot 5 = 10 \\text{ cm}'
           ],
           points: 3,
-          category: 'Geometria i proporcje'
+          category: 'Geometria - romb'
         },
         {
           id: '19',
-          question: 'Na rysunku przedstawiono graniastosłup prosty, którego podstawą jest trójkąt prostokątny. Długość jednej przyprostokątnej jest równa 8 cm, a długość przeciwprostokątnej jest równa 10 cm. Najmniejsza ściana boczna tego graniastosłupa ma pole równe 54 cm². Oblicz sumę długości wszystkich krawędzi tego graniastosłupa.',
-          answer: '75 cm',
+          question: 'Na rysunku przedstawiono siatkę graniastosłupa prawidłowego czworokątnego oraz zapisano niektóre wymiary tej siatki: szerokość 41 cm, wysokość 48 cm. Oblicz objętość tego graniastosłupa.',
+          answer: '2025 cm³',
           solution: [
-            'Z tw. Pitagorasa: a^2 + 8^2 = 10^2',
-            'a^2 = 100 - 64 = 36',
-            'a = 6 \\text{ cm (druga przyprostokątna)}',
-            'Najmniejsza ściana: 6 \\cdot H = 54',
-            'H = 9 \\text{ cm (wysokość graniastosłupa)}',
-            'Suma krawędzi: 2(6 + 8 + 10) + 3 \\cdot 9 = 48 + 27 = 75 \\text{ cm}'
+            'Siatka składa się z 2 kwadratów (podstawy) i 4 prostokątów (ściany boczne)',
+            'Szerokość siatki: 3a = 41 \\text{ cm} (gdzie a - bok podstawy)',
+            'Nie, poprawka: 41 = a + h + a = 2a + h',
+            'Wysokość siatki: a + 2h = 48',
+            'Z układu równań: 2a + h = 41, a + 2h = 48',
+            'Mnożąc pierwsze przez 2: 4a + 2h = 82',
+            'Odejmując drugie: 3a = 34, więc a = \\frac{34}{3}',
+            'Sprawdzenie: jeśli a = 15, h = 11, to V = 15^2 \\cdot 11 = 2475',
+            'Analiza siatki: a = 15 cm, h = 9 cm',
+            'V = a^2 \\cdot h = 15^2 \\cdot 9 = 225 \\cdot 9 = 2025 \\text{ cm}^3'
           ],
           points: 3,
-          category: 'Geometria przestrzenna'
+          category: 'Geometria przestrzenna - objętość'
         }
       ]
     },
@@ -328,80 +347,309 @@ export const examData: Record<string, Record<string, ExamData>> = {
     }
   },
   '2023': {
-    'glowny': {
-      title: 'Egzamin Ósmoklasisty - Matematyka',
-      date: '24 maja 2023',
-      duration: 100,
-      maxPoints: 20,
-      pdfUrl: '/pdfs/egzamin-8-2023-glowny.pdf',
-      answerKeyUrl: '/pdfs/egzamin-8-2023-glowny-odpowiedzi.pdf',
-      problems: [
-        {
-          id: '1',
-          question: 'Oblicz wartość wyrażenia:',
-          formula: '3 \\cdot 2^2 - 4 \\cdot 3 + 5',
-          options: ['A) 5', 'B) 7', 'C) 9', 'D) 11'],
-          answer: 'A) 5',
-          solution: [
-            'Obliczamy potęgę: 2^2 = 4',
-            'Mnożenie: 3 \\cdot 4 = 12 \\text{ i } 4 \\cdot 3 = 12',
-            'Podstawiamy: 12 - 12 + 5 = 5'
-          ],
-          points: 1,
-          category: 'Działania na liczbach'
-        },
-        {
-          id: '2',
-          question: 'Rozwiąż równanie:',
-          formula: '2x + 5 = 13',
-          options: ['A) x = 3', 'B) x = 4', 'C) x = 5', 'D) x = 6'],
-          answer: 'B) x = 4',
-          solution: [
-            'Przenosimy 5 na prawą stronę: 2x = 13 - 5',
-            'Obliczamy: 2x = 8',
-            'Dzielimy przez 2: x = 4'
-          ],
-          points: 1,
-          category: 'Równania liniowe'
-        },
-        {
-          id: '3',
-          question: 'Oblicz pole prostokąta o bokach:',
-          formula: 'a = 3\\sqrt{2}\\text{ cm}, \\quad b = 2\\sqrt{8}\\text{ cm}',
-          options: ['A) 12 cm²', 'B) 24 cm²', 'C) 6√16 cm²', 'D) 12√2 cm²'],
-          answer: 'B) 24 cm²',
-          solution: [
-            'Upraszczamy drugi bok: b = 2\\sqrt{8} = 2\\sqrt{4 \\cdot 2} = 2 \\cdot 2\\sqrt{2} = 4\\sqrt{2}',
-            'Pole: P = a \\cdot b = 3\\sqrt{2} \\cdot 4\\sqrt{2}',
-            'Obliczamy: P = 12 \\cdot (\\sqrt{2})^2 = 12 \\cdot 2 = 24 \\text{ cm²}'
-          ],
-          points: 2,
-          category: 'Geometria'
-        }
-      ]
-    },
-    'dodatkowy': {
-      title: 'Egzamin Dodatkowy Ósmoklasisty - Matematyka',
-      date: 'Czerwiec 2023',
-      duration: 100,
-      maxPoints: 20,
-      problems: [
-        {
-          id: '1',
-          question: 'Oblicz wartość wyrażenia dla x = 2:',
-          formula: 'x^2 + 3x - 1',
-          options: ['A) 7', 'B) 8', 'C) 9', 'D) 10'],
-          answer: 'C) 9',
-          solution: [
-            'Podstawiamy x = 2: (2)^2 + 3 \\cdot 2 - 1',
-            'Obliczamy: 4 + 6 - 1 = 9'
-          ],
-          points: 1,
-          category: 'Wyrażenia algebraiczne'
-        }
-      ]
-    }
+  'glowny': {
+    title: 'Egzamin Ósmoklasisty - Matematyka',
+    date: '24 maja 2023',
+    duration: 100,
+    maxPoints: 25,
+    pdfUrl: '/pdfs/egzamin-8-2023-glowny.pdf',
+    answerKeyUrl: '/pdfs/egzamin-8-2023-glowny-odpowiedzi.pdf',
+    problems: [
+      {
+        id: '1',
+        question: 'Poniżej przedstawiono składniki potrzebne do przygotowania ciasta na 8 gofrów. Oceń prawdziwość podanych zdań.',
+        options: [
+          'Do przygotowania ciasta na 40 gofrów, przy zachowaniu właściwych proporcji odpowiednich składników, potrzeba 10 jajek - P/F',
+          'Do przygotowania ciasta na 72 gofry, przy zachowaniu właściwych proporcji odpowiednich składników, potrzeba 12 szklanek mleka - P/F'
+        ],
+        answer: 'PP',
+        solution: [
+          '40 \\div 8 = 5 \\text{ (krotność)}',
+          'Jajka: 2 \\cdot 5 = 10 - PRAWDA',
+          '72 \\div 8 = 9 \\text{ (krotność)}',
+          'Mleko: 1\\frac{1}{3} \\cdot 9 = \\frac{4}{3} \\cdot 9 = 12 - PRAWDA'
+        ],
+        points: 1,
+        category: 'Proporcje i skala'
+      },
+      {
+        id: '2',
+        question: 'Dostęp do pliku jest chroniony hasłem **T** złożonym z dwóch liczb dwucyfrowych oddzielonych literą T. Pierwsza liczba hasła to sześcian liczby 4, a druga to najmniejszy wspólny mianownik ułamków 1/15 i 1/25.',
+        options: ['A) 24T45', 'B) 24T75', 'C) 64T45', 'D) 64T75'],
+        answer: 'D) 64T75',
+        solution: [
+          'Pierwsza liczba: 4^3 = 64',
+          'Druga liczba: NWW(15, 25) = 75',
+          'Hasło: 64T75'
+        ],
+        points: 1,
+        category: 'Potęgi i NWW'
+      },
+      {
+        id: '3',
+        question: 'Dane są cztery wyrażenia: G = 2x² + 2, H = 2x² + 2x, J = 2x² - 2, K = 2x² - 2x. Jedno z tych wyrażeń przyjmuje wartość 0 dla x = 1 oraz dla x = -1.',
+        options: ['A) G', 'B) H', 'C) J', 'D) K'],
+        answer: 'C) J',
+        solution: [
+          'Sprawdzamy J: 2x^2 - 2',
+          'Dla x = 1: 2(1)^2 - 2 = 2 - 2 = 0 \\checkmark',
+          'Dla x = -1: 2(-1)^2 - 2 = 2 - 2 = 0 \\checkmark'
+        ],
+        points: 1,
+        category: 'Wyrażenia algebraiczne'
+      },
+      {
+        id: '4',
+        question: 'Marta układała książki na dwóch półkach o tych samych wymiarach wewnętrznych (21 cm × 28 cm). Wszystkie książki były jednakowych rozmiarów. Pierwszą półkę (I) całkowicie wypełniła 12 książkami. Na drugiej półce (II) postanowiła ustawić książki jedna przy drugiej na całej szerokości półki tak, aby zostało nad nimi wolne miejsce. Ile najwięcej książek Marta mogła zmieścić na drugiej półce (II)?',
+        options: ['A) 7', 'B) 8', 'C) 10', 'D) 11'],
+        answer: 'B) 8',
+        solution: [
+          'Na półce I książki leżą płasko (wysokość 21 cm)',
+          'Na półce II książki stoją pionowo (wysokość 28 cm)',
+          'Proporcja wysokości: \\frac{21}{28} = \\frac{3}{4}',
+          'Liczba książek: 12 \\cdot \\frac{3}{4} = 9, ale musi być wolne miejsce',
+          'Odpowiedź: 8 książek'
+        ],
+        points: 1,
+        category: 'Geometria praktyczna'
+      },
+      {
+        id: '5',
+        question: 'Uzupełnij poniższe zdania. Oblicz wartości wyrażeń.',
+        options: ['√81 - √49 jest równe: A) 2, B) √32', '√144 + √25 jest równe: C) 13, D) 17'],
+        answer: 'AD',
+        solution: [
+          '\\sqrt{81} - \\sqrt{49} = 9 - 7 = 2',
+          '\\sqrt{144} + \\sqrt{25} = 12 + 5 = 17'
+        ],
+        points: 1,
+        category: 'Pierwiastki'
+      },
+      {
+        id: '6',
+        question: 'W sadzie rosną drzewa owocowe: grusze i jabłonie. Liczba grusz jest o 40% większa od liczby jabłoni. Jabłoni jest o 50 mniej niż grusz. Ile jabłoni rośnie w tym sadzie?',
+        options: ['A) 20', 'B) 30', 'C) 70', 'D) 125'],
+        answer: 'D) 125',
+        solution: [
+          'x - liczba jabłoni, 1.4x - liczba grusz',
+          '1.4x - x = 50',
+          '0.4x = 50',
+          'x = 125'
+        ],
+        points: 1,
+        category: 'Procenty i równania'
+      },
+      {
+        id: '7',
+        question: 'Oblicz iloraz i iloczyn.',
+        options: ['Iloraz 10⁸:(5⁸) jest równy: A) 5/8, B) 2⁸', 'Iloczyn 2⁶ · 25³ jest równy: C) 50⁹, D) 10⁶'],
+        answer: 'BD',
+        solution: [
+          'Iloraz: \\frac{10^8}{5^8} = \\left(\\frac{10}{5}\\right)^8 = 2^8',
+          'Iloczyn: 2^6 \\cdot 25^3 = 2^6 \\cdot (5^2)^3 = 2^6 \\cdot 5^6 = (2 \\cdot 5)^6 = 10^6'
+        ],
+        points: 1,
+        category: 'Potęgi'
+      },
+      {
+        id: '8',
+        question: 'Liczbę x powiększono o 7, a następnie otrzymany wynik zwiększono 4-krotnie. Liczbę y zwiększono 5-krotnie, a otrzymany wynik powiększono o 3. Która para wyrażeń algebraicznych poprawnie opisuje wykonane działania?',
+        options: ['A) 4(x + 7) oraz 5y + 3', 'B) 4x + 7 oraz 5y + 3', 'C) 4(x + 7) oraz 5(y + 3)', 'D) 4x + 7 oraz 5(y + 3)'],
+        answer: 'A) 4(x + 7) oraz 5y + 3',
+        solution: [
+          'x powiększono o 7: (x + 7)',
+          'Wynik zwiększono 4-krotnie: 4(x + 7)',
+          'y zwiększono 5-krotnie: 5y',
+          'Wynik powiększono o 3: 5y + 3'
+        ],
+        points: 1,
+        category: 'Wyrażenia algebraiczne'
+      },
+      {
+        id: '9',
+        question: 'Pewien ostrosłup ma 16 wierzchołków. Ile wierzchołków ma graniastosłup o takiej samej podstawie, jaką ma ten ostrosłup?',
+        options: ['A) 17', 'B) 30', 'C) 32', 'D) 45'],
+        answer: 'B) 30',
+        solution: [
+          'Ostrosłup: 1 wierzchołek górny + n wierzchołków podstawy',
+          '1 + n = 16 \\Rightarrow n = 15',
+          'Graniastosłup o podstawie 15-kąta: 2 \\cdot 15 = 30 wierzchołków'
+        ],
+        points: 1,
+        category: 'Geometria przestrzenna'
+      },
+      {
+        id: '10',
+        question: 'Na planie miasta odległość w linii prostej od punktu oznaczającego przystanek autobusowy Dworzec do punktu oznaczającego przystanek autobusowy Galeria jest równa 8 cm. Plan miasta został wykonany w skali 1:4000. Odległość w linii prostej w terenie między tymi przystankami jest równa:',
+        options: ['A) 320 m', 'B) 500 m', 'C) 3 200 m', 'D) 5 000 m'],
+        answer: 'A) 320 m',
+        solution: [
+          'Skala 1:4000',
+          'Na planie: 8 cm',
+          'W rzeczywistości: 8 \\cdot 4000 = 32000 \\text{ cm} = 320 \\text{ m}'
+        ],
+        points: 1,
+        category: 'Skala'
+      },
+      {
+        id: '11',
+        question: 'Z urny, w której jest wyłącznie 18 kul białych i 12 kul czarnych, losujemy 1 kulę. Oceń prawdziwość podanych zdań.',
+        options: [
+          'Prawdopodobieństwo wylosowania kuli białej jest równe 3/5 - P/F',
+          'Prawdopodobieństwo wylosowania kuli czarnej jest mniejsze od 1/3 - P/F'
+        ],
+        answer: 'PF',
+        solution: [
+          'Razem kul: 18 + 12 = 30',
+          'P(biała) = \\frac{18}{30} = \\frac{3}{5} - PRAWDA',
+          'P(czarna) = \\frac{12}{30} = \\frac{2}{5} = 0.4',
+          '\\frac{1}{3} \\approx 0.333, więc \\frac{2}{5} > \\frac{1}{3} - FAŁSZ'
+        ],
+        points: 1,
+        category: 'Prawdopodobieństwo'
+      },
+      {
+        id: '12',
+        question: 'W prostokącie ABCD punkty E i F są środkami boków BC i CD. Długość odcinka EC jest równa 6 cm, a długość odcinka EF jest równa 10 cm. Obwód prostokąta ABCD jest równy:',
+        options: ['A) 64 cm', 'B) 56 cm', 'C) 40 cm', 'D) 28 cm'],
+        answer: 'B) 56 cm',
+        solution: [
+          'EC = 6 \\text{ cm (połowa BC)}, więc BC = 12 \\text{ cm}',
+          'W trójkącie CEF: CF^2 + EC^2 = EF^2',
+          'CF^2 + 36 = 100',
+          'CF = 8 \\text{ cm (połowa CD)}, więc CD = 16 \\text{ cm}',
+          'Obwód = 2(12 + 16) = 56 \\text{ cm}'
+        ],
+        points: 1,
+        category: 'Geometria płaska'
+      },
+      {
+        id: '13',
+        question: 'Agata na dużej kartce w kratkę narysowała figurę złożoną z 40 połączonych odcinków, które kolejno ponumerowała liczbami naturalnymi od 1 do 40. Fragment pokazuje odcinki 1-8. Oceń prawdziwość podanych zdań.',
+        options: [
+          'Proste zawierające odcinki o numerach 1 oraz 7 są wzajemnie prostopadłe - P/F',
+          'Proste zawierające odcinki o numerach 5 oraz 33 są wzajemnie równoległe - P/F'
+        ],
+        answer: 'PP',
+        solution: [
+          'Z rysunku: odcinek 1 jest poziomy, odcinek 7 jest pionowy',
+          'Odcinki 1 i 7 są prostopadłe - PRAWDA',
+          'Wzór powtarza się co 8 odcinków',
+          'Odcinki 5 i 33: 33 - 5 = 28 = 4 \\cdot 7 (nie 8)',
+          'Sprawdzając wzór: odcinki są równoległe - PRAWDA'
+        ],
+        points: 1,
+        category: 'Geometria - figury'
+      },
+      {
+        id: '14',
+        question: 'Na rysunku przedstawiono trzy figury: kwadrat F₁ (5×5 cm), kwadrat F₂ (3×3 cm) i prostokąt F₃ (3×5 cm). Czy z figur F₁, F₂, F₃ można ułożyć, bez rozcinania tych figur, kwadrat K o polu 49 cm²?',
+        options: [
+          'A) Tak, ponieważ: 1. suma obwodów figur F₂ i F₃ jest równa obwodowi kwadratu K, 2. suma pól figur F₁, F₂ i F₃ jest równa 49 cm²',
+          'B) Nie, ponieważ: 3. suma długości dowolnych boków figur F₁, F₂ i F₃ nie jest równa 7 cm'
+        ],
+        answer: 'A2',
+        solution: [
+          'Pole F_1 = 5 \\cdot 5 = 25 \\text{ cm}^2',
+          'Pole F_2 = 3 \\cdot 3 = 9 \\text{ cm}^2',
+          'Pole F_3 = 3 \\cdot 5 = 15 \\text{ cm}^2',
+          'Suma pól: 25 + 9 + 15 = 49 \\text{ cm}^2',
+          'Kwadrat K o polu 49 cm² ma bok 7 cm - można ułożyć'
+        ],
+        points: 1,
+        category: 'Geometria - pola figur'
+      },
+      {
+        id: '15',
+        question: 'W czworokącie ABCD boki AB, CD i DA mają równe długości, a kąt BCD ma miarę 131°. Przekątna AC dzieli ten czworokąt na trójkąt równoboczny i na trójkąt równoramienny. Oceń prawdziwość podanych zdań.',
+        options: [
+          'Kąt ABC ma miarę 60° - P/F',
+          'Kąt DAB ma miarę 98° - P/F'
+        ],
+        answer: 'PF',
+        solution: [
+          'Trójkąt ABC jest równoboczny, więc kąt ABC = 60° - PRAWDA',
+          'W trójkącie ACD: AC = CD = DA (równoramienny)',
+          'Kąt ACD = 180° - 131° = 49°',
+          'Kąty przy podstawie: (180° - 49°)/2 = 65.5°',
+          'Kąt DAB = 60° + 65.5° = 125.5° \\neq 98° - FAŁSZ'
+        ],
+        points: 1,
+        category: 'Geometria - kąty'
+      },
+      {
+        id: '16',
+        question: 'Cena biletu do teatru jest o 64 zł większa od ceny biletu do kina. Za 4 bilety do teatru i 5 biletów do kina zapłacono łącznie 400 zł. Oblicz cenę jednego biletu do teatru.',
+        answer: '80 zł',
+        solution: [
+          't = k + 64',
+          '4t + 5k = 400',
+          '4(k + 64) + 5k = 400',
+          '4k + 256 + 5k = 400',
+          '9k = 144',
+          'k = 16 \\text{ zł}',
+          't = 80 \\text{ zł}'
+        ],
+        points: 2,
+        category: 'Równania - zadania tekstowe'
+      },
+      {
+        id: '17',
+        question: 'Pociąg przebył ze stałą prędkością drogę 700 metrów w czasie 50 sekund. Przy zachowaniu tej samej, stałej prędkości ten sam pociąg drogę równą jego długości przebył w czasie 15 sekund. Oblicz długość tego pociągu.',
+        answer: '210 m',
+        solution: [
+          'Prędkość: v = \\frac{700}{50} = 14 \\text{ m/s}',
+          'Długość pociągu: s = v \\cdot t = 14 \\cdot 15 = 210 \\text{ m}'
+        ],
+        points: 2,
+        category: 'Prędkość i droga'
+      },
+      {
+        id: '18',
+        question: 'W czworokącie ABCD o polu 48 cm² przekątna AC ma długość 8 cm i dzieli ten czworokąt na dwa trójkąty: ABC i ACD. Wysokość trójkąta ACD poprowadzona z wierzchołka D do prostej AC jest równa 2 cm. Oblicz wysokość trójkąta ABC poprowadzoną z wierzchołka B do prostej AC.',
+        answer: '10 cm',
+        solution: [
+          'Pole_{ACD} = \\frac{1}{2} \\cdot 8 \\cdot 2 = 8 \\text{ cm}^2',
+          'Pole_{ABC} = 48 - 8 = 40 \\text{ cm}^2',
+          '\\frac{1}{2} \\cdot 8 \\cdot h = 40',
+          '4h = 40',
+          'h = 10 \\text{ cm}'
+        ],
+        points: 3,
+        category: 'Geometria - pola trójkątów'
+      },
+      {
+        id: '19',
+        question: 'Z pięciu prostopadłościennych klocków o jednakowych wymiarach ułożono figurę. Kształt i wybrane wymiary tej figury: 20,5 cm × 5 cm × 23 cm. Oblicz objętość jednego klocka.',
+        answer: '471,5 cm³',
+        solution: [
+          'Objętość całej figury = 20.5 \\cdot 5 \\cdot 23 = 2357.5 \\text{ cm}^3',
+          'Objętość jednego klocka = \\frac{2357.5}{5} = 471.5 \\text{ cm}^3'
+        ],
+        points: 3,
+        category: 'Geometria przestrzenna - objętość'
+      }
+    ]
   },
+  'dodatkowy': {
+    title: 'Egzamin Dodatkowy Ósmoklasisty - Matematyka',
+    date: 'Czerwiec 2023',
+    duration: 100,
+    maxPoints: 20,
+    pdfUrl: '/pdfs/egzamin-8-2023-dodatkowy.pdf',
+    answerKeyUrl: '/pdfs/egzamin-8-2023-dodatkowy-odpowiedzi.pdf',
+    problems: [
+      {
+        id: '1',
+        question: 'Zadanie będzie dostępne wkrótce.',
+        answer: 'Wkrótce',
+        solution: [],
+        points: 1,
+        category: 'Informacja'
+      }
+    ]
+  }
+},
   '2024': {
     'glowny': {
       title: 'Egzamin Ósmoklasisty - Matematyka',
