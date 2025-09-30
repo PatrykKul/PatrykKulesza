@@ -19,8 +19,6 @@ export interface ExamData {
   duration: number;
   maxPoints: number;
   problems: MathProblem[];
-  pdfUrl?: string;
-  answerKeyUrl?: string;
 }
 
 export const examData: Record<string, Record<string, ExamData>> = {
@@ -30,8 +28,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
     date: '25 maja 2022',
     duration: 100,
     maxPoints: 25,
-    pdfUrl: '/pdfs/egzamin-8-2022-glowny.pdf',
-    answerKeyUrl: '/pdfs/egzamin-8-2022-glowny-odpowiedzi.pdf',
     problems: [
       {
         id: '1',
@@ -42,14 +38,14 @@ export const examData: Record<string, Record<string, ExamData>> = {
         ],
         answer: 'PP',
         solution: [
-          'Z diagramu: fantasy 40%, przyrodnicze 15%, komediowe 30%, biograficzne 10%, żadne 5%',
-          'Czworo uczniów zaznaczyło "żadne", co stanowi 5%',
-          'Jeśli 5\\% = 4 uczniów, to 100\\% = \\frac{4 \\cdot 100}{5} = 80 uczniów',
-          'Pierwsze zdanie: PRAWDA',
-          'Fantasy: 40\\% \\cdot 80 = 32 uczniów',
-          'Przyrodnicze: 15\\% \\cdot 80 = 12 uczniów',
-          'Różnica: 32 - 12 = 20 uczniów',
-          'Drugie zdanie: PRAWDA'
+          'Z diagramu: | fantasy 40\\%, przyrodnicze 15\\%, komediowe 30\\%, biograficzne 10\\%, żadne 5\\%',
+          'Czworo uczniów zaznaczyło "żadne", co stanowi | 5\\%',
+          'Jeśli 5% = 4 uczniów, to 100% = | \\frac{4 \\cdot 100}{5} = 80',
+          'Pierwsze zdanie: | PRAWDA',
+          'Fantasy: | 40\\% \\cdot 80 = 32 \\text{ uczniów}',
+          'Przyrodnicze: | 15\\% \\cdot 80 = 12 \\text{ uczniów}',
+          'Różnica: | 32 - 12 = 20 \\text{ uczniów}',
+          'Drugie zdanie: | PRAWDA'
         ],
         points: 1,
         category: 'Statystyka i diagramy'
@@ -66,11 +62,11 @@ export const examData: Record<string, Record<string, ExamData>> = {
         ],
         answer: 'A) -\\frac{29}{5}',
         solution: [
-          'Obliczamy potęgi: 4^2 = 16, 3^2 = 9',
-          '\\frac{4^2}{5} - 3^2 = \\frac{16}{5} - 9',
-          'Zamieniamy 9 na ułamek o mianowniku 5: 9 = \\frac{45}{5}',
-          '\\frac{16}{5} - \\frac{45}{5} = \\frac{16 - 45}{5} = \\frac{-29}{5}',
-          'Odpowiedź: A) -\\frac{29}{5}'
+          'Obliczamy potęgi: | 4^2 = 16, \\quad 3^2 = 9',
+          'Podstawiamy: | \\frac{4^2}{5} - 3^2 = \\frac{16}{5} - 9',
+          'Zamieniamy 9 na ułamek o mianowniku 5: | 9 = \\frac{45}{5}',
+          'Obliczamy: | \\frac{16}{5} - \\frac{45}{5} = \\frac{16 - 45}{5} = \\frac{-29}{5}',
+          'Odpowiedź: | A) -\\frac{29}{5}'
         ],
         points: 1,
         category: 'Ułamki i potęgi'
@@ -81,10 +77,10 @@ export const examData: Record<string, Record<string, ExamData>> = {
         options: ['A) 714', 'B) 705', 'C) 606', 'D) 327'],
         answer: 'B) 705',
         solution: [
-          'Największa liczba trzycyfrowa o sumie cyfr 6: 600 (6+0+0=6)',
-          'Najmniejsza liczba trzycyfrowa o sumie cyfr 6: 105 (1+0+5=6)',
-          'Suma: 600 + 105 = 705',
-          'Odpowiedź: B) 705'
+          'Największa liczba trzycyfrowa o sumie cyfr 6: | 600 \\text{ (bo } 6+0+0=6\\text{)}',
+          'Najmniejsza liczba trzycyfrowa o sumie cyfr 6: | 105 \\text{ (bo } 1+0+5=6\\text{)}',
+          'Suma: | 600 + 105 = 705',
+          'Odpowiedź: | B) 705'
         ],
         points: 1,
         category: 'Liczby naturalne'
@@ -98,13 +94,13 @@ export const examData: Record<string, Record<string, ExamData>> = {
   ],
         answer: 'A3',
         solution: [
-          'k = 323 + 160 = 483',
-          'Cecha podzielności przez 3: liczba jest podzielna przez 3, gdy suma jej cyfr dzieli się przez 3',
-          'Suma cyfr: 4 + 8 + 3 = 15',
-          '15 : 3 = 5, więc 15 dzieli się przez 3',
-          'Zatem 483 jest podzielna przez 3',
-          'Prawidłowa odpowiedź: A (Tak)',
-          'Prawidłowe uzasadnienie: 3 (suma cyfr 4, 8 i 3 jest liczbą podzielną przez 3)'
+          'Obliczamy k: | k = 323 + 160 = 483',
+          'Cecha podzielności przez 3: | \\text{liczba jest podzielna przez 3, gdy suma jej cyfr dzieli się przez 3}',
+          'Suma cyfr: | 4 + 8 + 3 = 15',
+          'Sprawdzamy podzielność: | 15 : 3 = 5 \\text{, więc 15 dzieli się przez 3}',
+          'Wniosek: | \\text{Zatem 483 jest podzielna przez 3}',
+          'Prawidłowa odpowiedź: | A \\text{ (Tak)}',
+          'Prawidłowe uzasadnienie: | 3 \\text{ (suma cyfr 4, 8 i 3 jest liczbą podzielną przez 3)}'
         ],
         points: 1,
         category: 'Podzielność liczb'
@@ -116,11 +112,11 @@ export const examData: Record<string, Record<string, ExamData>> = {
         options: ['A) Tylko x', 'B) Tylko y', 'C) Tylko z', 'D) Każda z liczb x, y, z'],
         answer: 'A) Tylko x',
         solution: [
-          'x = \\frac{10^{30} \\cdot 10^{70}}{10} = \\frac{10^{100}}{10^1} = 10^{99} < 10^{100}',
-          'y = (10^3)^{15} \\cdot 10^{60} = 10^{45} \\cdot 10^{60} = 10^{105} > 10^{100}',
-          'z = 10^{50} \\cdot \\frac{10^{80}}{10^{20}} = 10^{50} \\cdot 10^{60} = 10^{110} > 10^{100}',
-          'Tylko x jest mniejsze od 10^{100}',
-          'Odpowiedź: A) Tylko x'
+          'Obliczamy x: | x = \\frac{10^{30} \\cdot 10^{70}}{10} = \\frac{10^{100}}{10^1} = 10^{99} < 10^{100}',
+          'Obliczamy y: | y = (10^3)^{15} \\cdot 10^{60} = 10^{45} \\cdot 10^{60} = 10^{105} > 10^{100}',
+          'Obliczamy z: | z = 10^{50} \\cdot \\frac{10^{80}}{10^{20}} = 10^{50} \\cdot 10^{60} = 10^{110} > 10^{100}',
+          'Wniosek: | \\text{Tylko x jest mniejsze od } 10^{100}',
+          'Odpowiedź: | A) \\text{Tylko x}'
         ],
         points: 1,
         category: 'Potęgi'
@@ -134,15 +130,13 @@ export const examData: Record<string, Record<string, ExamData>> = {
         ],
         answer: 'AC',
         solution: [
-          'Z danych: 90S = 60L (pod względem zużycia materiału)',
-          'Proporcja: \\frac{S}{L} = \\frac{60}{90} = \\frac{2}{3}',
-          'Pierwsze pytanie: 240 bluzek S = x bluzek L',
-          'x = 240 \\cdot \\frac{2}{3} = 160 bluzek L',
-          'Odpowiedź na pierwsze pytanie: A) 160',
-          'Drugie pytanie: y bluzek S = 2 bluzki L',
-          'y = 2 \\cdot \\frac{3}{2} = 3 bluzki S',
-          'Odpowiedź na drugie pytanie: C) trzech',
-          'Łącznie: AC'
+          'Z danych: | 90S = 60L \\text{ (pod względem zużycia materiału)}',
+          'Proporcja: | \\frac{S}{L} = \\frac{60}{90} = \\frac{2}{3}',
+          'Pierwsze pytanie - 240 bluzek S = x bluzek L: | x = 240 \\cdot \\frac{2}{3} = 160 \\text{ bluzek L}',
+          'Odpowiedź na pierwsze pytanie: | A) 160',
+          'Drugie pytanie - y bluzek S = 2 bluzki L: | y = 2 \\cdot \\frac{3}{2} = 3 \\text{ bluzki S}',
+          'Odpowiedź na drugie pytanie: | C) \\text{trzech}',
+          'Łączna odpowiedź: | AC'
         ],
         points: 1,
         category: 'Proporcje'
@@ -154,14 +148,14 @@ export const examData: Record<string, Record<string, ExamData>> = {
         options: ['A) -3', 'B) -1', 'C) 0', 'D) 1', 'E) 3'],
         answer: 'C) 0',
         solution: [
-          'Obliczamy wartość \\frac{n^4 - 3}{6} dla każdej liczby:',
-          'n = -3: \\frac{(-3)^4 - 3}{6} = \\frac{81 - 3}{6} = \\frac{78}{6} = 13',
-          'n = -1: \\frac{(-1)^4 - 3}{6} = \\frac{1 - 3}{6} = \\frac{-2}{6} = -\\frac{1}{3} \\approx -0{,}33',
-          'n = 0: \\frac{0^4 - 3}{6} = \\frac{0 - 3}{6} = \\frac{-3}{6} = -\\frac{1}{2} = -0{,}5',
-          'n = 1: \\frac{1^4 - 3}{6} = \\frac{1 - 3}{6} = \\frac{-2}{6} = -\\frac{1}{3} \\approx -0{,}33',
-          'n = 3: \\frac{3^4 - 3}{6} = \\frac{81 - 3}{6} = \\frac{78}{6} = 13',
-          'Najmniejsza wartość: -\\frac{1}{2} = -0{,}5 (dla n = 0)',
-          'Odpowiedź: C) 0'
+          'Obliczamy wartość wyrażenia dla każdej liczby: | \\frac{n^4 - 3}{6}',
+          'Dla n = -3: | \\frac{(-3)^4 - 3}{6} = \\frac{81 - 3}{6} = \\frac{78}{6} = 13',
+          'Dla n = -1: | \\frac{(-1)^4 - 3}{6} = \\frac{1 - 3}{6} = \\frac{-2}{6} = -\\frac{1}{3} \\approx -0,33',
+          'Dla n = 0: | \\frac{0^4 - 3}{6} = \\frac{0 - 3}{6} = \\frac{-3}{6} = -\\frac{1}{2} = -0,5',
+          'Dla n = 1: | \\frac{1^4 - 3}{6} = \\frac{1 - 3}{6} = \\frac{-2}{6} = -\\frac{1}{3} \\approx -0,33',
+          'Dla n = 3: | \\frac{3^4 - 3}{6} = \\frac{81 - 3}{6} = \\frac{78}{6} = 13',
+          'Najmniejsza wartość: | -\\frac{1}{2} = -0,5 \\text{ (dla n = 0)}',
+          'Odpowiedź: | C) 0'
         ],
         points: 1,
         category: 'Wyrażenia algebraiczne'
@@ -178,14 +172,14 @@ export const examData: Record<string, Record<string, ExamData>> = {
         ],
         answer: 'C) większa od 7 i mniejsza od 8',
         solution: [
-          '\\sqrt{60} = \\sqrt{4 \\cdot 15} = \\sqrt{4} \\cdot \\sqrt{15} = 2\\sqrt{15}',
-          'Szacujemy \\sqrt{15}:',
-          '\\sqrt{16} = 4, więc \\sqrt{15} < 4',
-          '\\sqrt{9} = 3, więc \\sqrt{15} > 3',
-          'Dokładniej: \\sqrt{15} \\approx 3{,}87',
-          'Zatem: 2\\sqrt{15} \\approx 2 \\cdot 3{,}87 = 7{,}74',
-          'Wniosek: 7 < \\sqrt{60} < 8',
-          'Odpowiedź: C) większa od 7 i mniejsza od 8'
+          'Rozkład na czynniki: | \\sqrt{60} = \\sqrt{4 \\cdot 15} = \\sqrt{4} \\cdot \\sqrt{15} = 2\\sqrt{15}',
+          'Szacujemy pierwiastek: | \\sqrt{15}',
+          'Górne ograniczenie: | \\sqrt{16} = 4, \\text{ więc } \\sqrt{15} < 4',
+          'Dolne ograniczenie: | \\sqrt{9} = 3, \\text{ więc } \\sqrt{15} > 3',
+          'Dokładniej: | \\sqrt{15} \\approx 3,87',
+          'Zatem: | 2\\sqrt{15} \\approx 2 \\cdot 3,87 = 7,74',
+          'Wniosek: | 7 < \\sqrt{60} < 8',
+          'Odpowiedź: | C) \\text{większa od 7 i mniejsza od 8}'
         ],
         points: 1,
         category: 'Pierwiastki'
@@ -197,11 +191,11 @@ export const examData: Record<string, Record<string, ExamData>> = {
         options: ['A) 10', 'B) 11', 'C) 13', 'D) 15'],
         answer: 'C) 13',
         solution: [
-          'Długość odcinka PR: |PR| = 7 - (-3) = 10',
-          'Z rysunku: punkt R dzieli odcinek PS tak, że PR stanowi 5 części z 8',
-          'Długość całego odcinka PS: |PS| = \\frac{8}{5} \\cdot 10 = 16',
-          'Współrzędna punktu S: S = P + |PS| = -3 + 16 = 13',
-          'Odpowiedź: C) 13'
+          'Długość odcinka PR: | |PR| = 7 - (-3) = 10',
+          'Z rysunku: | \\text{punkt R dzieli odcinek PS tak, że PR stanowi 5 części z 8}',
+          'Długość całego odcinka PS: | |PS| = \\frac{8}{5} \\cdot 10 = 16',
+          'Współrzędna punktu S: | S = P + |PS| = -3 + 16 = 13',
+          'Odpowiedź: | C) 13'
         ],
         points: 1,
         category: 'Oś liczbowa'
@@ -212,17 +206,17 @@ export const examData: Record<string, Record<string, ExamData>> = {
         options: ['A) 12 MB', 'B) 19,5 MB', 'C) 25 MB', 'D) 32,5 MB'],
         answer: 'B) 19,5 MB',
         solution: [
-          'Rozmiar pliku Igora: 13 MB',
-          'Rozmiar pliku Lidki: 13 \\cdot 2{,}5 = 32{,}5 MB',
-          'Różnica rozmiarów: 32{,}5 - 13 = 19{,}5 MB',
-          'Odpowiedź: B) 19,5 MB'
+          'Rozmiar pliku Igora: | 13 \\text{ MB}',
+          'Rozmiar pliku Lidki: | 13 \\cdot 2,5 = 32,5 \\text{ MB}',
+          'Różnica rozmiarów: | 32,5 - 13 = 19,5 \\text{ MB}',
+          'Odpowiedź: | B) 19,5 \\text{ MB}'
         ],
         points: 1,
         category: 'Działania na liczbach'
       },
       {
         id: '11',
-        question: 'Ogrodnik kupił ziemię ogrodową, którą zaplanował zużyć w maju, czerwcu i lipcu. W maju zużył 1/3 masy kupionej ziemi. W czerwcu zużył połowę masy ziemi, która została. Na lipiec pozostało mu jeszcze 60 kg ziemi. Dokończ zdanie. Wybierz właściwą odpowiedź spośród podanych. Jeżeli przez x oznaczymy masę zakupionej ziemi, to sytuację przedstawioną w zadaniu opisuje równanie:',
+        question: 'Ogrodnik kupił ziemię ogrodową, którą zaplanował zużyć w maju, czerwcu i lipcu. W maju zużył \\frac{1}{3} masy kupionej ziemi. W czerwcu zużył połowę masy ziemi, która została. Na lipiec pozostało mu jeszcze 60 kg ziemi. Dokończ zdanie. Wybierz właściwą odpowiedź spośród podanych. Jeżeli przez x oznaczymy masę zakupionej ziemi, to sytuację przedstawioną w zadaniu opisuje równanie:',
         options: [
           'A) (x - \\frac{1}{3}x) + \\frac{1}{2}x = 60',
           'B) (x - \\frac{1}{3}x) + \\frac{1}{2}(x - \\frac{1}{3}x) = 60',
@@ -231,11 +225,11 @@ export const examData: Record<string, Record<string, ExamData>> = {
         ],
         answer: 'D) (x - \\frac{1}{3}x) - \\frac{1}{2}(x - \\frac{1}{3}x) = 60',
         solution: [
-          'x - masa całkowita kupionej ziemi (w kg)',
-          'Po maju zostało: x - \\frac{1}{3}x = \\frac{2}{3}x',
-          'W czerwcu zużył połowę tego co zostało: \\frac{1}{2}(x - \\frac{1}{3}x) = \\frac{1}{2} \\cdot \\frac{2}{3}x = \\frac{1}{3}x',
-          'Na lipiec zostało: (x - \\frac{1}{3}x) - \\frac{1}{2}(x - \\frac{1}{3}x) = 60',
-          'Odpowiedź: D'
+          'Oznaczenie zmiennej: | x \\text{ - masa całkowita kupionej ziemi (w kg)}',
+          'Po maju zostało: | x - \\frac{1}{3}x = \\frac{2}{3}x',
+          'W czerwcu zużył połowę tego co zostało: | \\frac{1}{2}(x - \\frac{1}{3}x) = \\frac{1}{2} \\cdot \\frac{2}{3}x = \\frac{1}{3}x',
+          'Na lipiec zostało: | (x - \\frac{1}{3}x) - \\frac{1}{2}(x - \\frac{1}{3}x) = 60',
+          'Odpowiedź: | D'
         ],
         points: 1,
         category: 'Równania'
@@ -246,11 +240,11 @@ export const examData: Record<string, Record<string, ExamData>> = {
         options: ['A) 7 zł', 'B) 14 zł', 'C) 19 zł', 'D) 20 zł'],
         answer: 'B) 14 zł',
         solution: [
-          'Cena jednego biletu 75-minutowego: \\frac{24}{6} = 4 zł',
-          'Cena jednego biletu 20-minutowego: \\frac{12}{4} = 3 zł',
-          'Ania kupiła: 2 bilety 75-min i 2 bilety 20-min',
-          'Koszt dla Ani: 2 \\cdot 4 + 2 \\cdot 3 = 8 + 6 = 14 zł',
-          'Odpowiedź: B) 14 zł'
+          'Cena jednego biletu 75-minutowego: | \\frac{24}{6} = 4 \\text{ zł}',
+          'Cena jednego biletu 20-minutowego: | \\frac{12}{4} = 3 \\text{ zł}',
+          'Ania kupiła: | 2 \\text{ bilety 75-min i } 2 \\text{ bilety 20-min}',
+          'Koszt dla Ani: | 2 \\cdot 4 + 2 \\cdot 3 = 8 + 6 = 14 \\text{ zł}',
+          'Odpowiedź: | B) 14 \\text{ zł}'
         ],
         points: 1,
         category: 'Zadania tekstowe'
@@ -261,37 +255,37 @@ export const examData: Record<string, Record<string, ExamData>> = {
         options: ['A) 95°', 'B) 75°', 'C) 90°', 'D) 80°'],
         answer: 'D) 80°',
         solution: [
-          'Dane: |AD| = |BD|, \\angle BCA = 35°, \\angle ADC = 130°',
-          'Trójkąt ABD jest równoramienny, ponieważ |AD| = |BD|',
-          'Kąty ADB i ADC są kątami przyległymi: \\angle ADB + \\angle ADC = 180°',
-          '\\angle ADB = 180° - 130° = 50°',
-          'W trójkącie równoramiennym ABD kąty przy podstawie są równe: \\angle DAB = \\angle DBA',
-          'Suma kątów w trójkącie ABD: \\angle DAB + \\angle DBA + \\angle ADB = 180°',
-          '2\\angle DAB + 50° = 180°',
-          '\\angle DAB = 65°',
-          'W trójkącie ADC: \\angle DAC + \\angle ACD + \\angle ADC = 180°',
-          '\\angle DAC + 35° + 130° = 180°',
-          '\\angle DAC = 15°',
-          'Szukany kąt CAB = \\angle DAB + \\angle DAC = 65° + 15° = 80°',
-          'Odpowiedź: D) 80°'
+          'Dane: | |AD| = |BD|, \\angle BCA = 35°, \\angle ADC = 130°',
+          'Trójkąt ABD jest równoramienny, ponieważ: | |AD| = |BD|',
+          'Kąty ADB i ADC są kątami przyległymi: | \\angle ADB + \\angle ADC = 180°',
+          'Obliczamy kąt ADB: | \\angle ADB = 180° - 130° = 50°',
+          'W trójkącie równoramiennym ABD kąty przy podstawie są równe: | \\angle DAB = \\angle DBA',
+          'Suma kątów w trójkącie ABD: | \\angle DAB + \\angle DBA + \\angle ADB = 180°',
+          'Stąd: | 2\\angle DAB + 50° = 180°',
+          'Więc: | \\angle DAB = 65°',
+          'W trójkącie ADC suma kątów: | \\angle DAC + \\angle ACD + \\angle ADC = 180°',
+          'Podstawiamy: | \\angle DAC + 35° + 130° = 180°',
+          'Stąd: | \\angle DAC = 15°',
+          'Szukany kąt CAB: | \\angle CAB = \\angle DAB + \\angle DAC = 65° + 15° = 80°',
+          'Odpowiedź: | D) 80°'
         ],
         points: 1,
         category: 'Geometria - trójkąty'
       },
       {
         id: '14',
-        question: 'W pudełku było wyłącznie 6 kulek zielonych i 8 kulek niebieskich. Po dołożeniu do tego pudełka pewnej liczby kulek zielonych prawdopodobieństwo wylosowania kulki niebieskiej jest równe 1/4. Ile kulek zielonych dołożono do pudełka? Wybierz właściwą odpowiedź spośród podanych.',
+        question: 'W pudełku było wyłącznie 6 kulek zielonych i 8 kulek niebieskich. Po dołożeniu do tego pudełka pewnej liczby kulek zielonych prawdopodobieństwo wylosowania kulki niebieskiej jest równe \\frac{1}{4}. Ile kulek zielonych dołożono do pudełka? Wybierz właściwą odpowiedź spośród podanych.',
         options: ['A) 10', 'B) 16', 'C) 18', 'D) 24'],
         answer: 'C) 18',
         solution: [
-          'Początkowo: 6 kulek zielonych + 8 kulek niebieskich = 14 kulek',
-          'Po dołożeniu x kulek zielonych: (6 + x) zielonych + 8 niebieskich = (14 + x) kulek razem',
-          'Prawdopodobieństwo wylosowania niebieskiej kulki: P = \\frac{8}{14 + x} = \\frac{1}{4}',
-          'Rozwiązujemy równanie: 8 \\cdot 4 = 1 \\cdot (14 + x)',
-          '32 = 14 + x',
-          'x = 18',
-          'Sprawdzenie: P = \\frac{8}{14 + 18} = \\frac{8}{32} = \\frac{1}{4} \\checkmark',
-          'Odpowiedź: C) 18 kulek zielonych'
+          'Początkowo: | 6 \\text{ kulek zielonych} + 8 \\text{ kulek niebieskich} = 14 \\text{ kulek}',
+          'Po dołożeniu x kulek zielonych: | (6 + x) \\text{ zielonych} + 8 \\text{ niebieskich} = (14 + x) \\text{ kulek razem}',
+          'Prawdopodobieństwo wylosowania niebieskiej kulki: | P = \\frac{8}{14 + x} = \\frac{1}{4}',
+          'Rozwiązujemy równanie: | 8 \\cdot 4 = 1 \\cdot (14 + x)',
+          'Upraszczamy: | 32 = 14 + x',
+          'Stąd: | x = 18',
+          'Sprawdzenie: | P = \\frac{8}{14 + 18} = \\frac{8}{32} = \\frac{1}{4} \\checkmark',
+          'Odpowiedź: | C) 18 \\text{ kulek zielonych}'
         ],
         points: 1,
         category: 'Prawdopodobieństwo'
@@ -305,13 +299,13 @@ export const examData: Record<string, Record<string, ExamData>> = {
         ],
         answer: 'PP',
         solution: [
-          'Pole jednego trójkąta prostokątnego: P = \\frac{1}{2} \\cdot 3 \\cdot 4 = 6 cm^2',
-          'Trapez składa się z trzech takich trójkątów',
-          'Pole trapezu: P_{trapez} = 3 \\cdot 6 = 18 cm^2 - PRAWDA',
-          'Przeciwprostokątna trójkąta (z tw. Pitagorasa): c = \\sqrt{3^2 + 4^2} = \\sqrt{25} = 5 cm',
-          'Analizując układ trzech trójkątów w trapez:',
-          'Obwód trapezu = 4 + 3 + 5 + 3 + 3 = 18 cm - PRAWDA',
-          '(dokładny obwód zależy od układu, ale według klucza wynosi 18 cm)'
+          'Pole jednego trójkąta prostokątnego: | P = \\frac{1}{2} \\cdot 3 \\cdot 4 = 6 \\text{ cm}^2',
+          'Trapez składa się z trzech takich trójkątów: | \\text{3 trójkąty}',
+          'Pole trapezu: | P_{trapez} = 3 \\cdot 6 = 18 \\text{ cm}^2 \\text{ - PRAWDA}',
+          'Przeciwprostokątna trójkąta (z tw. Pitagorasa): | c = \\sqrt{3^2 + 4^2} = \\sqrt{25} = 5 \\text{ cm}',
+          'Analizując układ trzech trójkątów w trapez: | \\text{wymiary boków trapezu}',
+          'Obwód trapezu: | 4 + 3 + 5 + 3 + 3 = 18 \\text{ cm - PRAWDA}',
+          'Uwaga: | \\text{dokładny obwód zależy od układu, ale według klucza wynosi 18 cm}'
         ],
         points: 1,
         category: 'Geometria płaska'
@@ -321,18 +315,18 @@ export const examData: Record<string, Record<string, ExamData>> = {
         question: 'Do wykonania naszyjnika Hania przygotowała 4 korale srebrne, 8 korali czerwonych i kilka korali zielonych. Następnie ze wszystkich przygotowanych korali zrobiła naszyjnik. Zielone korale stanowią 20% wszystkich korali w zrobionym naszyjniku. Oblicz, ile zielonych korali jest w naszyjniku. Zapisz obliczenia.',
         answer: '3 korale zielone',
         solution: [
-          'Oznaczenia: x - liczba korali zielonych',
-          'Liczba korali srebrnych i czerwonych: 4 + 8 = 12',
-          'Wszystkich korali w naszyjniku: 12 + x',
-          'Zielone korale stanowią 20% wszystkich korali',
-          'Zapisujemy równanie: \\frac{x}{12 + x} = 0{,}2',
-          'Rozwiązujemy: x = 0{,}2(12 + x)',
-          'x = 2{,}4 + 0{,}2x',
-          'x - 0{,}2x = 2{,}4',
-          '0{,}8x = 2{,}4',
-          'x = \\frac{2{,}4}{0{,}8} = 3',
-          'Sprawdzenie: \\frac{3}{15} = \\frac{1}{5} = 20\\% \\checkmark',
-          'Odpowiedź: W naszyjniku są 3 korale zielone'
+          'Oznaczenia: | x \\text{ - liczba korali zielonych}',
+          'Liczba korali srebrnych i czerwonych: | 4 + 8 = 12',
+          'Wszystkich korali w naszyjniku: | 12 + x',
+          'Zielone korale stanowią 20% wszystkich korali: | \\text{warunek zadania}',
+          'Zapisujemy równanie: | \\frac{x}{12 + x} = 0,2',
+          'Rozwiązujemy: | x = 0,2(12 + x)',
+          'Rozwijamy: | x = 2,4 + 0,2x',
+          'Przekształcamy: | x - 0,2x = 2,4',
+          'Upraszczamy: | 0,8x = 2,4',
+          'Stąd: | x = \\frac{2,4}{0,8} = 3',
+          'Sprawdzenie: | \\frac{3}{15} = \\frac{1}{5} = 20\\% \\checkmark',
+          'Odpowiedź: | \\text{W naszyjniku są 3 korale zielone}'
         ],
         points: 2,
         category: 'Procenty - równania'
@@ -342,12 +336,12 @@ export const examData: Record<string, Record<string, ExamData>> = {
         question: 'Kierowca przejechał ze stałą prędkością trasę o długości 22,5 km od godziny 7:50 do godziny 8:05. Oblicz prędkość, z jaką kierowca przejechał tę trasę. Wynik wyraź w km/h. Zapisz obliczenia.',
         answer: '90 km/h',
         solution: [
-          'Obliczamy czas przejazdu: 8:05 - 7:50 = 15 minut',
-          'Zamieniamy minuty na godziny: 15 min = \\frac{15}{60} h = \\frac{1}{4} h = 0{,}25 h',
-          'Dane: droga s = 22{,}5 km, czas t = \\frac{1}{4} h',
-          'Stosujemy wzór na prędkość: v = \\frac{s}{t}',
-          'Podstawiamy: v = \\frac{22{,}5}{\\frac{1}{4}} = 22{,}5 \\cdot 4 = 90 km/h',
-          'Odpowiedź: Kierowca jechał z prędkością 90 km/h'
+          'Obliczamy czas przejazdu: | 8:05 - 7:50 = 15 \\text{ minut}',
+          'Zamieniamy minuty na godziny: | 15 \\text{ min} = \\frac{15}{60} \\text{ h} = \\frac{1}{4} \\text{ h} = 0,25 \\text{ h}',
+          'Dane: | s = 22,5 \\text{ km}, \\quad t = \\frac{1}{4} \\text{ h}',
+          'Stosujemy wzór na prędkość: | v = \\frac{s}{t}',
+          'Podstawiamy: | v = \\frac{22,5}{\\frac{1}{4}} = 22,5 \\cdot 4 = 90 \\text{ km/h}',
+          'Odpowiedź: | \\text{Kierowca jechał z prędkością 90 km/h}'
         ],
         points: 2,
         category: 'Prędkość'
@@ -357,19 +351,18 @@ export const examData: Record<string, Record<string, ExamData>> = {
         question: 'Dany jest romb ABCD. Obwód tego rombu jest równy 52 cm, a przekątna AC ma długość 24 cm (zobacz rysunek). Oblicz długość przekątnej BD rombu ABCD. Zapisz obliczenia.',
         answer: '10 cm',
         solution: [
-          'Obliczamy długość boku rombu: a = \\frac{52}{4} = 13 cm',
-          'Przekątne rombu przecinają się pod kątem prostym i dzielą się na połowy',
-          'Oznaczamy punkt przecięcia przekątnych jako E',
-          'Połowa przekątnej AC: |AE| = \\frac{24}{2} = 12 cm',
-          'Oznaczamy połowę przekątnej BD jako x: |BE| = x',
-          'W trójkącie prostokątnym ABE stosujemy twierdzenie Pitagorasa:',
-          '|AB|^2 = |AE|^2 + |BE|^2',
-          '13^2 = 12^2 + x^2',
-          '169 = 144 + x^2',
-          'x^2 = 25',
-          'x = 5 cm',
-          'Długość przekątnej BD = 2x = 2 \\cdot 5 = 10 cm',
-          'Odpowiedź: Przekątna BD ma długość 10 cm'
+          'Obliczamy długość boku rombu: | a = \\frac{52}{4} = 13 \\text{ cm}',
+          'Właściwość rombu: | \\text{przekątne przecinają się pod kątem prostym i dzielą się na połowy}',
+          'Oznaczamy punkt przecięcia przekątnych jako: | E',
+          'Połowa przekątnej AC: | |AE| = \\frac{24}{2} = 12 \\text{ cm}',
+          'Oznaczamy połowę przekątnej BD jako x: | |BE| = x',
+          'W trójkącie prostokątnym ABE stosujemy twierdzenie Pitagorasa: | |AB|^2 = |AE|^2 + |BE|^2',
+          'Podstawiamy: | 13^2 = 12^2 + x^2',
+          'Obliczamy: | 169 = 144 + x^2',
+          'Stąd: | x^2 = 25',
+          'Więc: | x = 5 \\text{ cm}',
+          'Długość przekątnej BD: | |BD| = 2x = 2 \\cdot 5 = 10 \\text{ cm}',
+          'Odpowiedź: | \\text{Przekątna BD ma długość 10 cm}'
         ],
         points: 3,
         category: 'Geometria - romb'
@@ -379,15 +372,15 @@ export const examData: Record<string, Record<string, ExamData>> = {
         question: 'Na rysunku przedstawiono siatkę graniastosłupa prawidłowego czworokątnego oraz zapisano niektóre wymiary tej siatki (szerokość 48 cm, wysokość 41 cm). Oblicz objętość tego graniastosłupa. Zapisz obliczenia.',
         answer: '6400 cm³',
         solution: [
-          'Graniastosłup prawidłowy czworokątny ma w podstawie kwadrat',
-          'Oznaczenia: a - długość krawędzi podstawy (bok kwadratu), H - wysokość graniastosłupa',
-          'Z układu siatki: szerokość to trzy kwadraty obok siebie, więc 3a = 48 cm',
-          'a = \\frac{48}{3} = 16 cm',
-          'Z układu siatki: wysokość to kwadrat plus wysokość graniastosłupa, więc a + H = 41 cm',
-          'H = 41 - 16 = 25 cm',
-          'Obliczamy objętość graniastosłupa: V = P_{podstawy} \\cdot H = a^2 \\cdot H',
-          'V = 16^2 \\cdot 25 = 256 \\cdot 25 = 6400 cm^3',
-          'Odpowiedź: Objętość graniastosłupa wynosi 6400 cm³'
+          'Graniastosłup prawidłowy czworokątny ma w podstawie: | \\text{kwadrat}',
+          'Oznaczenia: | a \\text{ - długość krawędzi podstawy (bok kwadratu), } H \\text{ - wysokość graniastosłupa}',
+          'Z układu siatki - szerokość to trzy kwadraty obok siebie: | 3a = 48 \\text{ cm}',
+          'Stąd: | a = \\frac{48}{3} = 16 \\text{ cm}',
+          'Z układu siatki - wysokość to kwadrat plus wysokość graniastosłupa: | a + H = 41 \\text{ cm}',
+          'Więc: | H = 41 - 16 = 25 \\text{ cm}',
+          'Obliczamy objętość graniastosłupa: | V = P_{podstawy} \\cdot H = a^2 \\cdot H',
+          'Podstawiamy: | V = 16^2 \\cdot 25 = 256 \\cdot 25 = 6400 \\text{ cm}^3',
+          'Odpowiedź: | \\text{Objętość graniastosłupa wynosi 6400 cm³}'
         ],
         points: 3,
         category: 'Geometria przestrzenna'
@@ -399,8 +392,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
     date: '14 czerwca 2022',
     duration: 100,
     maxPoints: 20,
-    pdfUrl: '/pdfs/egzamin-8-2022-dodatkowy.pdf',
-    answerKeyUrl: '/pdfs/egzamin-8-2022-dodatkowy-odpowiedzi.pdf',
     problems: [
       {
         id: '1',
@@ -419,8 +410,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
     date: '24 maja 2023',
     duration: 100,
     maxPoints: 25,
-    pdfUrl: '/pdfs/egzamin-8-2023-glowny.pdf',
-    answerKeyUrl: '/pdfs/egzamin-8-2023-glowny-odpowiedzi.pdf',
     problems: [
       {
         id: '1',
@@ -441,13 +430,13 @@ export const examData: Record<string, Record<string, ExamData>> = {
       },
       {
         id: '2',
-        question: 'Dostęp do pliku jest chroniony hasłem **T** złożonym z dwóch liczb dwucyfrowych oddzielonych literą T. Pierwsza liczba hasła to sześcian liczby 4, a druga to najmniejszy wspólny mianownik ułamków 1/15 i 1/25.',
+        question: 'Dostęp do pliku jest chroniony hasłem **T** złożonym z dwóch liczb dwucyfrowych oddzielonych literą T. Pierwsza liczba hasła to sześcian liczby 4, a druga to najmniejszy wspólny mianownik ułamków \\frac{1}{15} i \\frac{1}{25}.',
         options: ['A) 24T45', 'B) 24T75', 'C) 64T45', 'D) 64T75'],
         answer: 'D) 64T75',
         solution: [
-          'Pierwsza liczba: 4^3 = 64',
-          'Druga liczba: NWW(15, 25) = 75',
-          'Hasło: 64T75'
+          'Pierwsza liczba - sześcian liczby 4: | 4^3 = 64',
+          'Druga liczba - NWM ułamków \\frac{1}{15} i \\frac{1}{25}: | NWW(15, 25) = 75',
+          'Hasło: | 64T75'
         ],
         points: 1,
         category: 'Potęgi i NWW'
@@ -458,9 +447,9 @@ export const examData: Record<string, Record<string, ExamData>> = {
         options: ['A) G', 'B) H', 'C) J', 'D) K'],
         answer: 'C) J',
         solution: [
-          'Sprawdzamy J: 2x^2 - 2',
-          'Dla x = 1: 2(1)^2 - 2 = 2 - 2 = 0 \\checkmark',
-          'Dla x = -1: 2(-1)^2 - 2 = 2 - 2 = 0 \\checkmark'
+          'Sprawdzamy wyrażenie J: | 2x^2 - 2',
+          'Dla x = 1: | 2(1)^2 - 2 = 2 - 2 = 0 \\checkmark',
+          'Dla x = -1: | 2(-1)^2 - 2 = 2 - 2 = 0 \\checkmark'
         ],
         points: 1,
         category: 'Wyrażenia algebraiczne'
@@ -471,11 +460,11 @@ export const examData: Record<string, Record<string, ExamData>> = {
         options: ['A) 7', 'B) 8', 'C) 10', 'D) 11'],
         answer: 'B) 8',
         solution: [
-          'Na półce I książki leżą płasko (wysokość 21 cm)',
-          'Na półce II książki stoją pionowo (wysokość 28 cm)',
-          'Proporcja wysokości: \\frac{21}{28} = \\frac{3}{4}',
-          'Liczba książek: 12 \\cdot \\frac{3}{4} = 9, ale musi być wolne miejsce',
-          'Odpowiedź: 8 książek'
+          'Na półce I książki leżą płasko: | \\text{wykorzystana wysokość 21 cm}',
+          'Na półce II książki stoją pionowo: | \\text{wykorzystana wysokość 28 cm}',
+          'Proporcja wysokości: | \\frac{21}{28} = \\frac{3}{4}',
+          'Liczba książek gdyby całkowicie wypełnić: | 12 \\cdot \\frac{3}{4} = 9',
+          'Ale musi być wolne miejsce, więc: | \\text{8 książek}'
         ],
         points: 1,
         category: 'Geometria praktyczna'
@@ -486,8 +475,8 @@ export const examData: Record<string, Record<string, ExamData>> = {
         options: ['√81 - √49 jest równe: A) 2, B) √32', '√144 + √25 jest równe: C) 13, D) 17'],
         answer: 'AD',
         solution: [
-          '\\sqrt{81} - \\sqrt{49} = 9 - 7 = 2',
-          '\\sqrt{144} + \\sqrt{25} = 12 + 5 = 17'
+          'Pierwsze wyrażenie: | \\sqrt{81} - \\sqrt{49} = 9 - 7 = 2',
+          'Drugie wyrażenie: | \\sqrt{144} + \\sqrt{25} = 12 + 5 = 17'
         ],
         points: 1,
         category: 'Pierwiastki'
@@ -498,10 +487,10 @@ export const examData: Record<string, Record<string, ExamData>> = {
         options: ['A) 20', 'B) 30', 'C) 70', 'D) 125'],
         answer: 'D) 125',
         solution: [
-          'x - liczba jabłoni, 1.4x - liczba grusz',
-          '1.4x - x = 50',
-          '0.4x = 50',
-          'x = 125'
+          'Oznaczenia: | x \\text{ - liczba jabłoni, } 1{,}4x \\text{ - liczba grusz}',
+          'Z warunków zadania: | 1{,}4x - x = 50',
+          'Upraszczamy: | 0{,}4x = 50',
+          'Stąd: | x = 125'
         ],
         points: 1,
         category: 'Procenty i równania'
@@ -512,8 +501,8 @@ export const examData: Record<string, Record<string, ExamData>> = {
         options: ['Iloraz 10⁸:(5⁸) jest równy: A) 5/8, B) 2⁸', 'Iloczyn 2⁶ · 25³ jest równy: C) 50⁹, D) 10⁶'],
         answer: 'BD',
         solution: [
-          'Iloraz: \\frac{10^8}{5^8} = \\left(\\frac{10}{5}\\right)^8 = 2^8',
-          'Iloczyn: 2^6 \\cdot 25^3 = 2^6 \\cdot (5^2)^3 = 2^6 \\cdot 5^6 = (2 \\cdot 5)^6 = 10^6'
+          'Iloraz: | \\frac{10^8}{5^8} = \\left(\\frac{10}{5}\\right)^8 = 2^8',
+          'Iloczyn: | 2^6 \\cdot 25^3 = 2^6 \\cdot (5^2)^3 = 2^6 \\cdot 5^6 = (2 \\cdot 5)^6 = 10^6'
         ],
         points: 1,
         category: 'Potęgi'
@@ -524,10 +513,10 @@ export const examData: Record<string, Record<string, ExamData>> = {
         options: ['A) 4(x + 7) oraz 5y + 3', 'B) 4x + 7 oraz 5y + 3', 'C) 4(x + 7) oraz 5(y + 3)', 'D) 4x + 7 oraz 5(y + 3)'],
         answer: 'A) 4(x + 7) oraz 5y + 3',
         solution: [
-          'x powiększono o 7: (x + 7)',
-          'Wynik zwiększono 4-krotnie: 4(x + 7)',
-          'y zwiększono 5-krotnie: 5y',
-          'Wynik powiększono o 3: 5y + 3'
+          'Liczbę x powiększono o 7: | (x + 7)',
+          'Wynik zwiększono 4-krotnie: | 4(x + 7)',
+          'Liczbę y zwiększono 5-krotnie: | 5y',
+          'Wynik powiększono o 3: | 5y + 3'
         ],
         points: 1,
         category: 'Wyrażenia algebraiczne'
@@ -551,9 +540,9 @@ export const examData: Record<string, Record<string, ExamData>> = {
         options: ['A) 320 m', 'B) 500 m', 'C) 3 200 m', 'D) 5 000 m'],
         answer: 'A) 320 m',
         solution: [
-          'Skala 1:4000',
-          'Na planie: 8 cm',
-          'W rzeczywistości: 8 \\cdot 4000 = 32000 \\text{ cm} = 320 \\text{ m}'
+          'Skala planu: | 1:4000',
+          'Odległość na planie: | 8 \\text{ cm}',
+          'Odległość w rzeczywistości: | 8 \\cdot 4000 = 32000 \\text{ cm} = 320 \\text{ m}'
         ],
         points: 1,
         category: 'Skala'
@@ -562,15 +551,15 @@ export const examData: Record<string, Record<string, ExamData>> = {
         id: '11',
         question: 'Z urny, w której jest wyłącznie 18 kul białych i 12 kul czarnych, losujemy 1 kulę. Oceń prawdziwość podanych zdań.',
         options: [
-          'Prawdopodobieństwo wylosowania kuli białej jest równe 3/5 - P/F',
-          'Prawdopodobieństwo wylosowania kuli czarnej jest mniejsze od 1/3 - P/F'
+          'Prawdopodobieństwo wylosowania kuli białej jest równe \\frac{3}{5} - P/F',
+          'Prawdopodobieństwo wylosowania kuli czarnej jest mniejsze od \\frac{1}{3} - P/F'
         ],
         answer: 'PF',
         solution: [
-          'Razem kul: 18 + 12 = 30',
-          'P(biała) = \\frac{18}{30} = \\frac{3}{5} - PRAWDA',
-          'P(czarna) = \\frac{12}{30} = \\frac{2}{5} = 0.4',
-          '\\frac{1}{3} \\approx 0.333, więc \\frac{2}{5} > \\frac{1}{3} - FAŁSZ'
+          'Łączna liczba kul: | 18 + 12 = 30',
+          'P(kula biała): | P = \\frac{18}{30} = \\frac{3}{5} \\text{ - PRAWDA}',
+          'P(kula czarna): | P = \\frac{12}{30} = \\frac{2}{5} = 0{,}4',
+          'Porównanie z \\frac{1}{3}: | \\frac{1}{3} \\approx 0{,}333, \\text{ więc } \\frac{2}{5} > \\frac{1}{3} \\text{ - FAŁSZ}'
         ],
         points: 1,
         category: 'Prawdopodobieństwo'
@@ -581,11 +570,11 @@ export const examData: Record<string, Record<string, ExamData>> = {
         options: ['A) 64 cm', 'B) 56 cm', 'C) 40 cm', 'D) 28 cm'],
         answer: 'B) 56 cm',
         solution: [
-          'EC = 6 \\text{ cm (połowa BC)}, więc BC = 12 \\text{ cm}',
-          'W trójkącie CEF: CF^2 + EC^2 = EF^2',
-          'CF^2 + 36 = 100',
-          'CF = 8 \\text{ cm (połowa CD)}, więc CD = 16 \\text{ cm}',
-          'Obwód = 2(12 + 16) = 56 \\text{ cm}'
+          'E jest środkiem BC: | EC = 6 \\text{ cm (połowa BC)}, \\text{ więc } BC = 12 \\text{ cm}',
+          'W trójkącie prostokątnym CEF: | CF^2 + EC^2 = EF^2',
+          'Podstawiamy: | CF^2 + 36 = 100',
+          'Stąd: | CF = 8 \\text{ cm (połowa CD)}, \\text{ więc } CD = 16 \\text{ cm}',
+          'Obwód prostokąta: | 2(12 + 16) = 56 \\text{ cm}'
         ],
         points: 1,
         category: 'Geometria płaska'
@@ -599,11 +588,11 @@ export const examData: Record<string, Record<string, ExamData>> = {
         ],
         answer: 'PP',
         solution: [
-          'Z rysunku: odcinek 1 jest poziomy, odcinek 7 jest pionowy',
-          'Odcinki 1 i 7 są prostopadłe - PRAWDA',
-          'Wzór powtarza się co 8 odcinków',
-          'Odcinki 5 i 33: 33 - 5 = 28 = 4 \\cdot 7 (nie 8)',
-          'Sprawdzając wzór: odcinki są równoległe - PRAWDA'
+          'Z rysunku: | \\text{odcinek 1 jest poziomy, odcinek 7 jest pionowy}',
+          'Wniosek: | \\text{odcinki 1 i 7 są prostopadłe - PRAWDA}',
+          'Wzorzec powtarza się: | \\text{co 8 odcinków}',
+          'Analiza odcinków 5 i 33: | 33 - 5 = 28 = 8 \\cdot 3 + 4',
+          'Wniosek: | \\text{odcinki są równoległe - PRAWDA}'
         ],
         points: 1,
         category: 'Geometria - figury'
@@ -617,11 +606,11 @@ export const examData: Record<string, Record<string, ExamData>> = {
         ],
         answer: 'A2',
         solution: [
-          'Pole F_1 = 5 \\cdot 5 = 25 \\text{ cm}^2',
-          'Pole F_2 = 3 \\cdot 3 = 9 \\text{ cm}^2',
-          'Pole F_3 = 3 \\cdot 5 = 15 \\text{ cm}^2',
-          'Suma pól: 25 + 9 + 15 = 49 \\text{ cm}^2',
-          'Kwadrat K o polu 49 cm² ma bok 7 cm - można ułożyć'
+          'Pole figury F₁: | 5 \\cdot 5 = 25 \\text{ cm}^2',
+          'Pole figury F₂: | 3 \\cdot 3 = 9 \\text{ cm}^2',
+          'Pole figury F₃: | 3 \\cdot 5 = 15 \\text{ cm}^2',
+          'Suma pól: | 25 + 9 + 15 = 49 \\text{ cm}^2',
+          'Kwadrat K o polu 49 cm²: | \\text{ma bok } \\sqrt{49} = 7 \\text{ cm - można ułożyć}'
         ],
         points: 1,
         category: 'Geometria - pola figur'
@@ -635,11 +624,11 @@ export const examData: Record<string, Record<string, ExamData>> = {
         ],
         answer: 'PF',
         solution: [
-          'Trójkąt ABC jest równoboczny, więc kąt ABC = 60° - PRAWDA',
-          'W trójkącie ACD: AC = CD = DA (równoramienny)',
-          'Kąt ACD = 180° - 131° = 49°',
-          'Kąty przy podstawie: (180° - 49°)/2 = 65.5°',
-          'Kąt DAB = 60° + 65.5° = 125.5° \\neq 98° - FAŁSZ'
+          'Trójkąt ABC jest równoboczny: | \\angle ABC = 60° \\text{ - PRAWDA}',
+          'W trójkącie ACD: | AC = CD = DA \\text{ (równoramienny)}',
+          'Kąt przy wierzchołku C: | \\angle ACD = 180° - 131° = 49°',
+          'Kąty przy podstawie AD: | \\frac{180° - 49°}{2} = 65{,}5°',
+          'Kąt DAB: | 60° + 65{,}5° = 125{,}5° \\neq 98° \\text{ - FAŁSZ}'
         ],
         points: 1,
         category: 'Geometria - kąty'
@@ -649,13 +638,14 @@ export const examData: Record<string, Record<string, ExamData>> = {
         question: 'Cena biletu do teatru jest o 64 zł większa od ceny biletu do kina. Za 4 bilety do teatru i 5 biletów do kina zapłacono łącznie 400 zł. Oblicz cenę jednego biletu do teatru.',
         answer: '80 zł',
         solution: [
-          't = k + 64',
-          '4t + 5k = 400',
-          '4(k + 64) + 5k = 400',
-          '4k + 256 + 5k = 400',
-          '9k = 144',
-          'k = 16 \\text{ zł}',
-          't = 80 \\text{ zł}'
+          'Oznaczenia: | t \\text{ - cena biletu do teatru, } k \\text{ - cena biletu do kina}',
+          'Z warunków zadania: | t = k + 64',
+          'Równanie kosztowe: | 4t + 5k = 400',
+          'Podstawiamy t = k + 64: | 4(k + 64) + 5k = 400',
+          'Rozwijamy: | 4k + 256 + 5k = 400',
+          'Upraszczamy: | 9k = 144',
+          'Stąd: | k = 16 \\text{ zł}',
+          'Cena biletu do teatru: | t = 16 + 64 = 80 \\text{ zł}'
         ],
         points: 2,
         category: 'Równania - zadania tekstowe'
@@ -665,8 +655,8 @@ export const examData: Record<string, Record<string, ExamData>> = {
         question: 'Pociąg przebył ze stałą prędkością drogę 700 metrów w czasie 50 sekund. Przy zachowaniu tej samej, stałej prędkości ten sam pociąg drogę równą jego długości przebył w czasie 15 sekund. Oblicz długość tego pociągu.',
         answer: '210 m',
         solution: [
-          'Prędkość: v = \\frac{700}{50} = 14 \\text{ m/s}',
-          'Długość pociągu: s = v \\cdot t = 14 \\cdot 15 = 210 \\text{ m}'
+          'Obliczamy prędkość pociągu: | v = \\frac{700}{50} = 14 \\text{ m/s}',
+          'Długość pociągu przy tej prędkości: | s = v \\cdot t = 14 \\cdot 15 = 210 \\text{ m}'
         ],
         points: 2,
         category: 'Prędkość i droga'
@@ -676,13 +666,13 @@ export const examData: Record<string, Record<string, ExamData>> = {
         question: 'W czworokącie ABCD o polu 48 cm² przekątna AC ma długość 8 cm i dzieli ten czworokąt na dwa trójkąty: ABC i ACD. Wysokość trójkąta ACD poprowadzona z wierzchołka D do prostej AC jest równa 2 cm. Oblicz wysokość trójkąta ABC poprowadzoną z wierzchołka B do prostej AC.',
         answer: '10 cm',
         solution: [
-          'Pole trójkąta ACD: P_{ACD} = \\frac{1}{2} \\cdot |AC| \\cdot h_D',
-          'P_{ACD} = \\frac{1}{2} \\cdot 8 \\cdot 2 = 8 \\text{ cm}^2',
-          'Pole trójkąta ABC: P_{ABC} = P_{ABCD} - P_{ACD}',
-          'P_{ABC} = 48 - 8 = 40 \\text{ cm}^2',
-          'Z wzoru na pole: P_{ABC} = \\frac{1}{2} \\cdot |AC| \\cdot h_B',
-          '40 = \\frac{1}{2} \\cdot 8 \\cdot h_B',
-          '40 = 4h_B \\Rightarrow h_B = 10 \\text{ cm}'
+          'Obliczamy pole trójkąta ACD: | P_{ACD} = \\frac{1}{2} \\cdot |AC| \\cdot h_D',
+          'Podstawiamy dane: | P_{ACD} = \\frac{1}{2} \\cdot 8 \\cdot 2 = 8 \\text{ cm}^2',
+          'Pole trójkąta ABC: | P_{ABC} = P_{ABCD} - P_{ACD}',
+          'Obliczamy: | P_{ABC} = 48 - 8 = 40 \\text{ cm}^2',
+          'Z wzoru na pole trójkąta ABC: | P_{ABC} = \\frac{1}{2} \\cdot |AC| \\cdot h_B',
+          'Podstawiamy: | 40 = \\frac{1}{2} \\cdot 8 \\cdot h_B',
+          'Rozwiązujemy: | 40 = 4h_B \\Rightarrow h_B = 10 \\text{ cm}'
         ],
         points: 3,
         category: 'Geometria - pola trójkątów'
@@ -692,11 +682,11 @@ export const examData: Record<string, Record<string, ExamData>> = {
         question: 'Z pięciu prostopadłościennych klocków o jednakowych wymiarach ułożono figurę. Kształt i wybrane wymiary tej figury: 20,5 cm × 5 cm × 23 cm. Oblicz objętość jednego klocka.',
         answer: '471,5 cm³',
         solution: [
-          'Wymiary całej figury: 20,5 cm × 5 cm × 23 cm',
-          'Objętość całej figury: V = 20,5 \\cdot 5 \\cdot 23',
-          'V = 102,5 \\cdot 23 = 2357,5 \\text{ cm}^3',
-          'Figura składa się z 5 jednakowych klocków',
-          'Objętość jednego klocka: V_1 = \\frac{2357,5}{5} = 471,5 \\text{ cm}^3'
+          'Wymiary całej figury: | 20{,}5 \\text{ cm} \\times 5 \\text{ cm} \\times 23 \\text{ cm}',
+          'Objętość całej figury: | V = 20{,}5 \\cdot 5 \\cdot 23',
+          'Obliczamy: | V = 102{,}5 \\cdot 23 = 2357{,}5 \\text{ cm}^3',
+          'Figura składa się z pięciu jednakowych klocków: | \\text{podział na 5}',
+          'Objętość jednego klocka: | V_1 = \\frac{2357{,}5}{5} = 471{,}5 \\text{ cm}^3'
         ],
         points: 3,
         category: 'Geometria przestrzenna - objętość'
@@ -708,8 +698,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
     date: 'Czerwiec 2023',
     duration: 100,
     maxPoints: 20,
-    pdfUrl: '/pdfs/egzamin-8-2023-dodatkowy.pdf',
-    answerKeyUrl: '/pdfs/egzamin-8-2023-dodatkowy-odpowiedzi.pdf',
     problems: [
       {
         id: '1',
@@ -728,8 +716,7 @@ export const examData: Record<string, Record<string, ExamData>> = {
       date: '15 maja 2024',
       duration: 100,
       maxPoints: 25,
-      pdfUrl: '/pdfs/egzamin-8-2024-glowny.pdf',
-      answerKeyUrl: '/pdfs/egzamin-8-2024-glowny-odpowiedzi.pdf',
+
       problems: [
         {
           id: '1',
@@ -740,11 +727,11 @@ export const examData: Record<string, Record<string, ExamData>> = {
           ],
           answer: 'PP',
           solution: [
-            'Z diagramu: pn=30, wt=20, śr=40, czw=40 minut',
-            'Suma: 30 + 20 + 40 + 40 = 130 \\text{ min} = 2h \\text{ i } 10 \\text{ min} - PRAWDA',
-            'Piątek: 50 min, Sobota: 30 min',
-            '40\\% \\text{ z } 50 = 0.4 \\cdot 50 = 20',
-            '50 - 20 = 30 \\text{ min} - PRAWDA'
+            'Z diagramu odczytujemy: | \\text{pn}=30, \\text{wt}=20, \\text{śr}=40, \\text{czw}=40 \\text{ minut}',
+            'Łączny czas nauki od pn do czw: | 30 + 20 + 40 + 40 = 130 \\text{ min} = 2\\text{h } 10\\text{min - PRAWDA}',
+            'Czas nauki w piątek i sobotę: | \\text{piątek: 50 min, sobota: 30 min}',
+            'Obliczamy 40% z piątku: | 40\\% \\cdot 50 = 0{,}4 \\cdot 50 = 20 \\text{ min}',
+            'Różnica: | 50 - 20 = 30 \\text{ min (równe sobocie) - PRAWDA}'
           ],
           points: 1,
           category: 'Statystyka i procenty'
@@ -761,14 +748,10 @@ export const examData: Record<string, Record<string, ExamData>> = {
         ],
         answer: 'A) -\\frac{29}{5}',
         solution: [
-          'Zamieniamy liczbę mieszaną na ułamek niewłaściwy:',
-          '3\\frac{2}{5} = \\frac{3 \\cdot 5 + 2}{5} = \\frac{15 + 2}{5} = \\frac{17}{5}',
-          'Wykonujemy odejmowanie:',
-          '\\frac{4}{5} - \\frac{17}{5} = \\frac{4 - 17}{5} = \\frac{-13}{5} = -\\frac{13}{5}',
-          'To NIE jest żadna z podanych odpowiedzi!',
-          'Sprawdzam ponownie obliczenia... -13/5 = -2,6',
-          'Według klucza odpowiedzi CKE: A) -29/5',
-          'Możliwy błąd w kluczu lub w treści zadania'
+          'Zamieniamy liczbę mieszaną na ułamek niewłaściwy: | 3\\frac{2}{5} = \\frac{3 \\cdot 5 + 2}{5} = \\frac{17}{5}',
+          'Wykonujemy odejmowanie: | \\frac{4}{5} - \\frac{17}{5} = \\frac{4 - 17}{5} = -\\frac{13}{5}',
+          'Sprawdzenie treści zadania: | \\text{może być błąd w treści lub kluczu}',
+          'Według klucza CKE poprawna odpowiedź: | A) -\\frac{29}{5}'
         ],
         points: 1,
         category: 'Ułamki zwykłe'
@@ -782,28 +765,28 @@ export const examData: Record<string, Record<string, ExamData>> = {
           ],
           answer: 'PF',
           solution: [
-            '\\frac{12 + 14 + k}{3} = 16',
-            '26 + k = 48',
-            'k = 22 - PRAWDA',
-            'Średnia pięciu liczb: \\frac{12 + 14 + 22 + 11 + 17}{5} = \\frac{76}{5} = 15.2',
-            '15.2 < 16 - FAŁSZ'
+            'Równanie średniej arytmetycznej: | \\frac{12 + 14 + k}{3} = 16',
+            'Mnożymy przez 3: | 26 + k = 48',
+            'Stąd: | k = 22 \\text{ - PRAWDA}',
+            'Średnia pięciu liczb: | \\frac{12 + 14 + 22 + 11 + 17}{5} = \\frac{76}{5} = 15{,}2',
+            'Porównanie: | 15{,}2 < 16 \\text{ - FAŁSZ}'
           ],
           points: 1,
           category: 'Średnia arytmetyczna'
         },
         {
           id: '4',
-          question: 'Dane są dwie liczby x i y: x = 4/5 · (-4/3), y = 4/5 + (-4/3). Uzupełnij zdania.',
+          question: 'Dane są dwie liczby x i y: x = \\frac{4}{5} · (-\\frac{4}{3}), y = \\frac{4}{5} + (-\\frac{4}{3}). Uzupełnij zdania.',
           options: [
             'Liczba y jest liczbą: A) ujemną, B) dodatnią',
             'Liczba x jest od liczby y: C) mniejsza, D) większa'
           ],
           answer: 'AC',
           solution: [
-            'y = \\frac{4}{5} - \\frac{4}{3} = \\frac{12}{15} - \\frac{20}{15} = -\\frac{8}{15}',
-            'y jest ujemna - A',
-            'x = \\frac{4}{5} \\cdot (-\\frac{4}{3}) = -\\frac{16}{15}',
-            '-\\frac{16}{15} < -\\frac{8}{15}, więc x < y - C'
+            'Obliczamy y: | y = \\frac{4}{5} + \\left(-\\frac{4}{3}\\right) = \\frac{12}{15} - \\frac{20}{15} = -\\frac{8}{15}',
+            'Znak y: | y < 0 \\text{, więc y jest ujemna - A}',
+            'Obliczamy x: | x = \\frac{4}{5} \\cdot \\left(-\\frac{4}{3}\\right) = -\\frac{16}{15}',
+            'Porównanie: | -\\frac{16}{15} < -\\frac{8}{15} \\Rightarrow x < y \\text{ - C}'
           ],
           points: 1,
           category: 'Działania na ułamkach'
@@ -814,9 +797,9 @@ export const examData: Record<string, Record<string, ExamData>> = {
           options: ['A) 55°', 'B) 50°', 'C) 45°', 'D) 20°'],
           answer: 'C) 45°',
           solution: [
-            'AB \\parallel DC, więc kąt DAB + kąt ADC = 180°',
-            'Kąt ADC = 135°, więc kąt DAB = 45°',
-            'EC \\parallel AD, więc α = kąt DAB = 45°'
+            'Właściwość trapezu: | AB \\parallel DC \\Rightarrow \\angle DAB + \\angle ADC = 180°',
+            'Z danych: | \\angle ADC = 135° \\Rightarrow \\angle DAB = 180° - 135° = 45°',
+            'Właściwość prostych równoległych: | EC \\parallel AD \\Rightarrow \\alpha = \\angle DAB = 45°'
           ],
           points: 1,
           category: 'Geometria - kąty w trapezach'
@@ -827,11 +810,11 @@ export const examData: Record<string, Record<string, ExamData>> = {
           options: ['A) I i II', 'B) II i III', 'C) I i III', 'D) I, II, III'],
           answer: 'C) I i III',
           solution: [
-            'Z równania 5x = \\frac{y}{w}',
-            'I. x = \\frac{y}{5w} \\checkmark',
-            'II. y = 5xw \\Rightarrow 5x \\cdot w = y \\checkmark',
-            'III. w = \\frac{y}{5x} \\checkmark',
-            'Jednak poprawna odpowiedź to C (I i III)'
+            'Z równania wyjściowego: | 5x = \\frac{y}{w}',
+            'Sprawdzamy I: | x = \\frac{y}{5w} \\text{ (dzielimy obie strony przez 5)} \\checkmark',
+            'Sprawdzamy II: | y = 5xw \\text{ (mnożymy obie strony przez w)} \\checkmark',
+            'Sprawdzamy III: | w = \\frac{y}{5x} \\text{ (z II: } w = \\frac{y}{5x} \\text{)} \\checkmark',
+            'Wszystkie są poprawne, ale odpowiedź to: | \\text{C (I i III)}'
           ],
           points: 1,
           category: 'Przekształcanie równań'
@@ -845,8 +828,8 @@ export const examData: Record<string, Record<string, ExamData>> = {
           ],
           answer: 'PP',
           solution: [
-            '3 \\cdot 9^5 = 3 \\cdot (3^2)^5 = 3 \\cdot 3^{10} = 3^{11} - PRAWDA',
-            '\\frac{2^8 \\cdot 2^7}{2^{10}} = \\frac{2^{15}}{2^{10}} = 2^5 - PRAWDA'
+            'Pierwszy iloczyn: | 3 \\cdot 9^5 = 3 \\cdot (3^2)^5 = 3 \\cdot 3^{10} = 3^{11} \\text{ - PRAWDA}',
+            'Drugie wyrażenie: | \\frac{2^8 \\cdot 2^7}{2^{10}} = \\frac{2^{15}}{2^{10}} = 2^5 \\text{ - PRAWDA}'
           ],
           points: 1,
           category: 'Potęgi'
@@ -854,7 +837,7 @@ export const examData: Record<string, Record<string, ExamData>> = {
         {
           id: '8',
           question: 'Karolina kupiła jedno pudełko balonów (10 czerwonych, 8 niebieskich, 6 zielonych, 8 żółtych). Pierwsze dwa wyjęte balony były w kolorze czerwonym. Jakie jest prawdopodobieństwo, że trzeci balon losowo wyjęty będzie w kolorze czerwonym?',
-          options: ['A) 1/3', 'B) 5/16', 'C) 4/15', 'D) 1/4'],
+          options: ['A) \\frac{1}{3}', 'B) \\frac{5}{16}', 'C) \\frac{4}{15}', 'D) \\frac{1}{4}'],
           answer: 'C) 4/15',
           solution: [
             'Początkowa liczba balonów: 10 + 8 + 6 + 8 = 32',
@@ -953,9 +936,9 @@ export const examData: Record<string, Record<string, ExamData>> = {
         },
         {
           id: '15',
-          question: 'Dany jest ostrosłup prawidłowy czworokątny. Pole powierzchni całkowitej tej bryły jest równe P, a jedna ściana boczna ma pole równe (2/9)P. Uzupełnij zdania.',
+          question: 'Dany jest ostrosłup prawidłowy czworokątny. Pole powierzchni całkowitej tej bryły jest równe P, a jedna ściana boczna ma pole równe \\frac{2}{9}P. Uzupełnij zdania.',
           options: [
-            'Pole powierzchni bocznej tego ostrosłupa jest równe: A) (6/9)P, B) (8/9)P',
+            'Pole powierzchni bocznej tego ostrosłupa jest równe: A) \\frac{6}{9}P, B) \\frac{8}{9}P',
             'Pole powierzchni podstawy tego ostrosłupa jest dwa razy niż pole powierzchni jego jednej ściany bocznej: C) mniejsze, D) większe'
           ],
           answer: 'BC',
@@ -970,7 +953,7 @@ export const examData: Record<string, Record<string, ExamData>> = {
         },
         {
           id: '16',
-          question: 'Ela i Ania dostały w prezencie po jednym zestawie puzzli o takiej samej liczbie elementów. Ela ułożyła 2/5 swoich puzzli, a Ania 1/3 swoich. Dziewczynki ułożyły łącznie 440 elementów. Oblicz, z ilu elementów składa się jeden zestaw puzzli.',
+          question: 'Ela i Ania dostały w prezencie po jednym zestawie puzzli o takiej samej liczbie elementów. Ela ułożyła \\frac{2}{5} swoich puzzli, a Ania \\frac{1}{3} swoich. Dziewczynki ułożyły łącznie 440 elementów. Oblicz, z ilu elementów składa się jeden zestaw puzzli.',
           answer: '600 elementów',
           solution: [
             'x - liczba elementów w zestawie',
@@ -1061,8 +1044,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
       date: '14 maja 2025',
       duration: 125,
       maxPoints: 30,
-      pdfUrl: '/pdfs/egzamin-8-2025-glowny.pdf',
-      answerKeyUrl: '/pdfs/egzamin-8-2025-glowny-odpowiedzi.pdf',
       problems: [
         {
           id: '1',
@@ -1073,11 +1054,11 @@ export const examData: Record<string, Record<string, ExamData>> = {
           ],
           answer: 'BD',
           solution: [
-            'Z diagramu: styczeń=50zł, luty=40zł, marzec=60zł',
-            'Styczeń + luty = 50 + 40 = 90 zł',
-            '\\frac{90}{180} = 0.5 = 50\\% - B',
-            'Marzec - styczeń = 60 - 50 = 10 zł',
-            '\\frac{10}{50} = 0.2 = 20\\% - D'
+            'Z diagramu odczytujemy: | \\text{styczeń}=50\\text{zł}, \\text{luty}=40\\text{zł}, \\text{marzec}=60\\text{zł}',
+            'Suma ze stycznia i lutego: | 50 + 40 = 90 \\text{ zł}',
+            'Procent z całości: | \\frac{90}{180} = 0{,}5 = 50\\% \\text{ - B}',
+            'Różnica marzec-styczeń: | 60 - 50 = 10 \\text{ zł}',
+            'Procent wzrostu względem stycznia: | \\frac{10}{50} = 0{,}2 = 20\\% \\text{ - D}'
           ],
           points: 1,
           category: 'Procenty - obliczenia praktyczne'
@@ -1088,9 +1069,9 @@ export const examData: Record<string, Record<string, ExamData>> = {
           options: ['A) -1 8/15', 'B) -1 7/15', 'C) 1 7/15', 'D) 1 8/15'],
           answer: 'C) 1 7/15',
           solution: [
-            '2.4 - 5\\frac{1}{3} = \\frac{12}{5} - \\frac{16}{3}',
-            '= \\frac{36}{15} - \\frac{80}{15} = -\\frac{44}{15}',
-            '-\\frac{44}{15} : (-2) = \\frac{44}{30} = \\frac{22}{15} = 1\\frac{7}{15}'
+            'Zamieniamy na ułamki zwykłe: | 2{,}4 - 5\\frac{1}{3} = \\frac{12}{5} - \\frac{16}{3}',
+            'Sprowadzamy do wspólnego mianownika: | \\frac{36}{15} - \\frac{80}{15} = -\\frac{44}{15}',
+            'Dzielimy przez (-2): | -\\frac{44}{15} : (-2) = \\frac{44}{30} = \\frac{22}{15} = 1\\frac{7}{15}'
           ],
           points: 1,
           category: 'Działania na ułamkach'
@@ -1101,9 +1082,9 @@ export const examData: Record<string, Record<string, ExamData>> = {
           options: ['A) 91', 'B) 92', 'C) 95', 'D) 97'],
           answer: 'C) 95',
           solution: [
-            '91 = 7 \\cdot 13 + 0 (reszta 0)',
-            '92 = 7 \\cdot 13 + 1 (reszta 1)',
-            '91 \\div 7 = 13 \\text{ reszta } 0',
+            'Sprawdzamy 91: | 91 = 7 \\cdot 13 + 0 \\text{ (reszta 0)}',
+            'Sprawdzamy 92: | 92 = 7 \\cdot 13 + 1 \\text{ (reszta 1)}',
+            'Sprawdzamy 95: | 95 = 7 \\cdot 13 + 6 \\text{ (reszta 6, nie 1)}',
             '92 \\div 7 = 13 \\text{ reszta } 1',
             '95 \\div 7 = 13 \\text{ reszta } 4',
             '97 \\div 7 = 13 \\text{ reszta } 6',
@@ -1163,7 +1144,7 @@ export const examData: Record<string, Record<string, ExamData>> = {
         },
         {
           id: '7',
-          question: 'Dane są wyrażenia: K = (1/9)·√(1/16) - (1/16)·√(1/9) oraz L = 9·√16 - 16·√9. Oceń prawdziwość podanych zdań.',
+          question: 'Dane są wyrażenia: K = \\frac{1}{9}·√\\frac{1}{16} - \\frac{1}{16}·√\\frac{1}{9} oraz L = 9·√16 - 16·√9. Oceń prawdziwość podanych zdań.',
           options: [
             'Wyrażenie K ma wartość ujemną - P/F',
             'Wartość wyrażenia L jest większa od wartości wyrażenia K - P/F'
@@ -1300,7 +1281,7 @@ export const examData: Record<string, Record<string, ExamData>> = {
         },
         {
           id: '16',
-          question: 'Liczbę 1/5, a drugi 7/15 zapisano w postaci sumy trzech ułamków zwykłych, z których jeden jest równy 1/6. Uzasadnij, że trzeci składnik tej sumy można przedstawić w postaci ułamka zwykłego, którego licznik jest równy 1, a mianownik jest liczbą całkowitą dodatnią.',
+          question: 'Liczbę \\frac{1}{5}, a drugi \\frac{7}{15} zapisano w postaci sumy trzech ułamków zwykłych, z których jeden jest równy \\frac{1}{6}. Uzasadnij, że trzeci składnik tej sumy można przedstawić w postaci ułamka zwykłego, którego licznik jest równy 1, a mianownik jest liczbą całkowitą dodatnią.',
           answer: '1/10',
           solution: [
             '\\frac{1}{5} + \\frac{7}{15} = \\frac{3}{15} + \\frac{7}{15} = \\frac{10}{15} = \\frac{2}{3}',

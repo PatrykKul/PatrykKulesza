@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Calculator, Clock, Award, FileText, Download, Eye, EyeOff, CheckCircle, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Calculator, Clock, Award, FileText, Download, Eye, EyeOff, CheckCircle, RotateCcw, PenTool, Eraser, Trash2, Minus, Plus } from 'lucide-react';
 import { InlineMath, BlockMath } from 'react-katex';
 import 'katex/dist/katex.min.css';
 import { useImageScan } from '@/hooks/useImageScan';
@@ -12,11 +12,11 @@ export interface MathProblem {
   id: string;
   question: string;
   formula?: string;
-  image?: string; // Ścieżka do zdjęcia zadania (opcjonalne - jeśli nie podane, automatycznie skanuje folder)
+  image?: string;
   options?: string[];
   answer: string;
   solution?: string[];
-  solutionImages?: string[]; // Zdjęcia w rozwiązaniu (opcjonalne - jeśli nie podane, automatycznie skanuje folder)
+  solutionImages?: string[];
   points: number;
   difficulty: 'easy' | 'medium' | 'hard';
   category: string;
@@ -38,7 +38,7 @@ interface ExamPageProps {
   type: string;
   examType?: string;
   basePath?: string;
-  level?: string; // dla matury: 'podstawowa' lub 'rozszerzona'
+  level?: string;
 }
 
 export default function ExamPage({ 
@@ -52,6 +52,7 @@ export default function ExamPage({
   const [visibleSolutions, setVisibleSolutions] = useState<Record<string, boolean>>({});
   const [userAnswers, setUserAnswers] = useState<Record<string, string[]>>({});
   const [checkedAnswers, setCheckedAnswers] = useState<Record<string, boolean>>({});
+  const [showCanvas, setShowCanvas] = useState<Record<string, boolean>>({});
   
   // Automatyczne skanowanie folderów z obrazami
   const { imageData, loading: imagesLoading } = useImageScan(examType, year, type, level);
@@ -75,6 +76,13 @@ export default function ExamPage({
 
   const toggleSolution = (problemId: string) => {
     setVisibleSolutions(prev => ({
+      ...prev,
+      [problemId]: !prev[problemId]
+    }));
+  };
+
+  const toggleCanvas = (problemId: string) => {
+    setShowCanvas(prev => ({
       ...prev,
       [problemId]: !prev[problemId]
     }));
@@ -188,7 +196,6 @@ export default function ExamPage({
       .trim();
   };
 
-  // Funkcja do wykrywania opcji w zadaniu wielopoziomowym
   const getQuestionOptions = (option: string) => {
     if (option.includes('P/F') || option.includes('- P F')) {
       return ['P', 'F'];
@@ -205,68 +212,404 @@ export default function ExamPage({
     return [];
   };
 
-const renderOption = (option: string) => {
-  // Sprawdź czy tekst zawiera LaTeX - jeśli tak, renderuj całość jako LaTeX z fallbackiem
-  const hasLatex = /\\[a-zA-Z]+|\\frac|\\sqrt|\{[^}]*\}|\\cdot|\\times|\\div|\^|\\_/.test(option);
-  
-  if (hasLatex) {
-    // Przetwórz polskie oznaczenia dziesiętne przed renderowaniem
+  const renderOption = (option: string) => {
+    const parseTextSegments = (text: string) => {
+      const segments: Array<{ type: 'text' | 'math', content: string }> = [];
+      const mathPattern = /\\frac\{[^}]+\}\{[^}]+\}|\\sqrt\{[^}]+\}|\\[a-zA-Z]+(?:\{[^}]*\})*|\^\{[^}]+\}|\_{[^}]+}/g;
+      
+      let lastIndex = 0;
+      let match;
+      
+      while ((match = mathPattern.exec(text)) !== null) {
+        if (match.index > lastIndex) {
+          const textSegment = text.substring(lastIndex, match.index);
+          if (textSegment.trim()) {
+            segments.push({ type: 'text', content: textSegment });
+          }
+        }
+        
+        segments.push({ type: 'math', content: match[0] });
+        lastIndex = match.index + match[0].length;
+      }
+      
+      if (lastIndex < text.length) {
+        const textSegment = text.substring(lastIndex);
+        if (textSegment.trim()) {
+          segments.push({ type: 'text', content: textSegment });
+        }
+      }
+      
+      if (segments.length === 0) {
+        segments.push({ type: 'text', content: text });
+      }
+      
+      return segments;
+    };
+
+    const hasLatex = /\\[a-zA-Z]+|\\frac|\\sqrt|\{[^}]*\}|\\cdot|\\times|\\div|\^|\\_/.test(option);
+    
+    if (!hasLatex) {
+      return <span>{option}</span>;
+    }
+
     let processedOption = option.replace(/\{,\}/g, ',');
+    const segments = parseTextSegments(processedOption);
     
     return (
-      <span className="inline-flex items-baseline">
-        <InlineMath 
-          math={processedOption}
-          renderError={(error) => {
-            // Jeśli pełne renderowanie LaTeX nie działa, spróbuj renderować po kawałkach
-            console.warn('LaTeX render error:', error, 'for:', processedOption);
-            
-            // Fallback - podziel na części i renderuj każdą z osobna
-            const parts = [];
-            let text = processedOption;
-            
-            // Najpierw wyciągnij i wyrenderuj ułamki
-            const fractionMatches = text.match(/\\frac\{[^}]+\}\{[^}]+\}/g);
-            if (fractionMatches) {
-              fractionMatches.forEach((frac, index) => {
-                const [before, after] = text.split(frac, 2);
-                if (before) parts.push(<span key={`text-${index}-before`}>{before}</span>);
-                parts.push(
-                  <InlineMath 
-                    key={`frac-${index}`} 
-                    math={frac}
-                    renderError={() => <span className="text-white">{frac.replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '$1/$2')}</span>}
-                  />
-                );
-                text = after || '';
-              });
-              if (text) parts.push(<span key="text-end">{text}</span>);
-              return <span className="inline-flex items-baseline flex-wrap">{parts}</span>;
-            }
-            
-            // Jeśli nic nie działa, pokaż zwykły tekst z podstawowymi zastąpieniami
+      <span className="inline-flex items-baseline flex-wrap">
+        {segments.map((segment, index) => {
+          if (segment.type === 'text') {
+            return <span key={index}>{segment.content}</span>;
+          } else {
             return (
-              <span className="text-white">
-                {processedOption
+              <InlineMath 
+                key={index}
+                math={segment.content}
+                renderError={(error) => {
+                  console.warn('LaTeX render error:', error);
+                  
+                  const fallbackText = segment.content
+                    .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '$1/$2')
+                    .replace(/\\cdot/g, '·')
+                    .replace(/\\times/g, '×')
+                    .replace(/\\div/g, '÷')
+                    .replace(/\\approx/g, '≈')
+                    .replace(/\\Rightarrow/g, '⇒')
+                    .replace(/\\checkmark/g, '✓')
+                    .replace(/\\text\{([^}]+)\}/g, '$1')
+                    .replace(/\\sqrt\{([^}]+)\}/g, '√($1)')
+                    .replace(/\^?\{([^}]+)\}/g, '^$1')
+                    .replace(/\\_\{([^}]+)\}/g, '_$1')
+                    .replace(/\\/g, '');
+
+                  return <span>{fallbackText}</span>;
+                }}
+              />
+            );
+          }
+        })}
+      </span>
+    );
+  };
+
+  const renderSolutionStep = (step: string) => {
+    if (step.includes(' | ')) {
+      const [comment, math] = step.split(' | ', 2);
+      return (
+        <span className="inline-flex items-baseline flex-wrap gap-1">
+          <span className="text-white">{comment.trim()}</span>
+          <span className="text-blue-200">
+            <InlineMath 
+              math={math.trim().replace(/\{,\}/g, ',')}
+              renderError={() => {
+                const fallbackText = math.trim()
                   .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '$1/$2')
                   .replace(/\\cdot/g, '·')
                   .replace(/\\times/g, '×')
                   .replace(/\\div/g, '÷')
+                  .replace(/\\approx/g, '≈')
                   .replace(/\\Rightarrow/g, '⇒')
                   .replace(/\\checkmark/g, '✓')
-                  .replace(/\\/g, '')
-                }
-              </span>
-            );
-          }}
-        />
-      </span>
+                  .replace(/\\text\{([^}]+)\}/g, '$1')
+                  .replace(/\\sqrt\{([^}]+)\}/g, '√($1)')
+                  .replace(/\^?\{([^}]+)\}/g, '^$1')
+                  .replace(/\\_\{([^}]+)\}/g, '_$1')
+                  .replace(/\\/g, '');
+
+                return <span>{fallbackText}</span>;
+              }}
+            />
+          </span>
+        </span>
+      );
+    }
+    
+    return renderOption(step);
+  };
+
+  // Komponent Canvas do rysowania
+  const DrawingCanvas = ({ problemId }: { problemId: string }) => {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [isDrawing, setIsDrawing] = useState(false);
+    const [tool, setTool] = useState<'pen' | 'eraser'>('pen');
+    const [color, setColor] = useState('#000000');
+    const [lineWidth, setLineWidth] = useState(2);
+
+    useEffect(() => {
+      const canvas = canvasRef.current;
+      const container = containerRef.current;
+      if (!canvas || !container) return;
+
+      // Ustaw rozmiar canvas na rozmiar kontenera
+      canvas.width = container.clientWidth;
+      canvas.height = 500; // Stała wysokość
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      // Załaduj zapisany rysunek z localStorage
+      const savedDrawing = localStorage.getItem(`canvas-${problemId}`);
+      if (savedDrawing) {
+        const img = new Image();
+        img.onload = () => {
+          ctx.drawImage(img, 0, 0);
+        };
+        img.src = savedDrawing;
+      } else {
+        // Narysuj białe tło
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Narysuj kratkę
+        const gridSize = 10;
+        ctx.strokeStyle = '#e5e7eb';
+        ctx.lineWidth = 0.5;
+
+        for (let x = 0; x <= canvas.width; x += gridSize) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, canvas.height);
+          ctx.stroke();
+        }
+
+        for (let y = 0; y <= canvas.height; y += gridSize) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(canvas.width, y);
+          ctx.stroke();
+        }
+
+        // Co 5 kratek - grubsza linia
+        ctx.strokeStyle = '#d1d5db';
+        ctx.lineWidth = 1;
+
+        for (let x = 0; x <= canvas.width; x += gridSize * 5) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, canvas.height);
+          ctx.stroke();
+        }
+
+        for (let y = 0; y <= canvas.height; y += gridSize * 5) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(canvas.width, y);
+          ctx.stroke();
+        }
+      }
+    }, [problemId]);
+
+    const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      setIsDrawing(true);
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+    };
+
+    const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
+      if (!isDrawing) return;
+
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      if (tool === 'eraser') {
+        // Gumka - maluj białym kolorem
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = lineWidth * 4;
+      } else {
+        // Ołówek - maluj wybranym kolorem
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lineWidth;
+      }
+
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    };
+
+    const stopDrawing = () => {
+      if (!isDrawing) return;
+      setIsDrawing(false);
+
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      // Zapisz rysunek do localStorage
+      const dataURL = canvas.toDataURL();
+      localStorage.setItem(`canvas-${problemId}`, dataURL);
+    };
+
+    const clearCanvas = () => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      // Wyczyść canvas
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Narysuj kratkę ponownie
+      const gridSize = 10;
+      ctx.strokeStyle = '#e5e7eb';
+      ctx.lineWidth = 0.5;
+
+      for (let x = 0; x <= canvas.width; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+
+      for (let y = 0; y <= canvas.height; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+
+      ctx.strokeStyle = '#d1d5db';
+      ctx.lineWidth = 1;
+
+      for (let x = 0; x <= canvas.width; x += gridSize * 5) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+
+      for (let y = 0; y <= canvas.height; y += gridSize * 5) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+
+      // Usuń z localStorage
+      localStorage.removeItem(`canvas-${problemId}`);
+    };
+
+    const colors = [
+      { name: 'Czarny', value: '#000000' },
+      { name: 'Niebieski', value: '#2563eb' },
+      { name: 'Czerwony', value: '#dc2626' },
+      { name: 'Zielony', value: '#16a34a' },
+    ];
+
+    const lineWidths = [
+      { name: 'Cienka', value: 2 },
+      { name: 'Średnia', value: 4 },
+      { name: 'Gruba', value: 6 },
+    ];
+
+    return (
+      <div className="bg-[#21262d] border border-[#30363d] rounded-lg p-4 mt-4">
+        <div className="flex flex-wrap items-center gap-3 mb-4 pb-4 border-b border-[#30363d]">
+          {/* Narzędzia */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setTool('pen')}
+              className={`p-2 rounded-lg transition-all ${
+                tool === 'pen'
+                  ? 'bg-[#58a6ff] text-black'
+                  : 'bg-[#30363d] text-white hover:bg-[#40464d]'
+              }`}
+              title="Ołówek"
+            >
+              <PenTool className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => setTool('eraser')}
+              className={`p-2 rounded-lg transition-all ${
+                tool === 'eraser'
+                  ? 'bg-[#58a6ff] text-black'
+                  : 'bg-[#30363d] text-white hover:bg-[#40464d]'
+              }`}
+              title="Gumka"
+            >
+              <Eraser className="w-5 h-5" />
+            </button>
+            <button
+              onClick={clearCanvas}
+              className="p-2 rounded-lg bg-red-900/30 text-red-400 hover:bg-red-900/50 transition-all border border-red-500/30"
+              title="Wyczyść wszystko"
+            >
+              <Trash2 className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Kolory */}
+          {tool === 'pen' && (
+            <div className="flex gap-2 pl-3 border-l border-[#30363d]">
+              {colors.map((c) => (
+                <button
+                  key={c.value}
+                  onClick={() => setColor(c.value)}
+                  className={`w-8 h-8 rounded-lg transition-all ${
+                    color === c.value ? 'ring-2 ring-[#58a6ff] ring-offset-2 ring-offset-[#21262d]' : ''
+                  }`}
+                  style={{ backgroundColor: c.value }}
+                  title={c.name}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Grubość linii */}
+          {tool === 'pen' && (
+            <div className="flex gap-2 pl-3 border-l border-[#30363d]">
+              {lineWidths.map((lw) => (
+                <button
+                  key={lw.value}
+                  onClick={() => setLineWidth(lw.value)}
+                  className={`px-3 py-2 rounded-lg text-sm transition-all ${
+                    lineWidth === lw.value
+                      ? 'bg-[#58a6ff] text-black'
+                      : 'bg-[#30363d] text-white hover:bg-[#40464d]'
+                  }`}
+                >
+                  {lw.name}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Canvas */}
+        <div ref={containerRef} className="w-full">
+          <canvas
+            ref={canvasRef}
+            onMouseDown={startDrawing}
+            onMouseMove={draw}
+            onMouseUp={stopDrawing}
+            onMouseLeave={stopDrawing}
+            className="w-full border-2 border-[#30363d] rounded-lg cursor-crosshair shadow-lg bg-white"
+            style={{ touchAction: 'none' }}
+          />
+        </div>
+      </div>
     );
-  }
-  
-  // Jeśli nie ma LaTeX, zwróć zwykły tekst
-  return <span>{option}</span>;
-};
+  };
 
   const totalScore = useMemo(() => {
     let earned = 0;
@@ -284,6 +627,28 @@ const renderOption = (option: string) => {
 
   return (
     <div className="min-h-screen bg-[#0d1117] text-white">
+      {/* Style dla drukowania - zachowaj kolory */}
+      <style>{`
+        @media print {
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+          }
+          
+          body {
+            background-color: #0d1117 !important;
+          }
+          
+          /* Ukryj elementy niepotrzebne w PDF */
+          header,
+          footer,
+          .no-print {
+            display: none !important;
+          }
+        }
+      `}</style>
+      
       {/* Header - sticky */}
       <header className="sticky top-0 z-20 border-b border-[#30363d] bg-[#161b22] shadow-lg">
         <div className="container mx-auto px-4 py-4">
@@ -296,31 +661,13 @@ const renderOption = (option: string) => {
               Powrót do materiałów
             </Link>
             
-            <div className="flex gap-4">
-              {examData.pdfUrl && (
-                <a
-                  href={examData.pdfUrl}
-                  className="inline-flex items-center gap-2 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-4 py-2 rounded-lg transition-colors"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Download className="w-4 h-4" />
-                  Pobierz PDF
-                </a>
-              )}
-              
-              {examData.answerKeyUrl && (
-                <a
-                  href={examData.answerKeyUrl}
-                  className="inline-flex items-center gap-2 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-4 py-2 rounded-lg transition-colors"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <FileText className="w-4 h-4" />
-                  Klucz odpowiedzi
-                </a>
-              )}
-            </div>
+            <button
+              onClick={() => window.print()}
+              className="inline-flex items-center gap-2 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-4 py-2 rounded-lg transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              Pobierz PDF
+            </button>
           </div>
         </div>
       </header>
@@ -423,7 +770,7 @@ const renderOption = (option: string) => {
                   {/* Treść zadania */}
                   <div className="mb-6">
                     <p className="text-lg text-white mb-4">
-                      {problem.question}
+                      {renderOption(problem.question)}
                     </p>
                     
                     {problem.formula && (
@@ -441,7 +788,6 @@ const renderOption = (option: string) => {
 
                     {/* Renderowanie obrazu zadania */}
                     {(() => {
-                      // Sprawdź czy obraz istnieje - najpierw jawnie zdefiniowany, potem automatycznie zeskanowany
                       const hasScannedImage = !imagesLoading && imageData.problemImages.includes(parseInt(problem.id));
                       const imageSrc = problem.image || (hasScannedImage ? getImagePath(problem.id) : null);
                       
@@ -522,7 +868,6 @@ const renderOption = (option: string) => {
                                   <p className="text-white mb-3">{renderOption(statement)}</p>
                                   <div className="flex gap-3 flex-wrap">
                                     {availableOptions.map((optionValue) => {
-                                      // Mapowanie wartości na etykiety
                                       const getOptionLabel = (value: string) => {
                                         switch(value) {
                                           case 'P': return 'Prawda (P)';
@@ -647,6 +992,14 @@ const renderOption = (option: string) => {
                     )}
 
                     <button
+                      onClick={() => toggleCanvas(problem.id)}
+                      className="inline-flex items-center gap-2 bg-[#8b5cf6] hover:bg-[#7c3aed] text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+                    >
+                      <PenTool className="w-4 h-4" />
+                      {showCanvas[problem.id] ? 'Ukryj rozwiązywanie' : 'Rozwiązuj'}
+                    </button>
+
+                    <button
                       onClick={() => toggleSolution(problem.id)}
                       className="inline-flex items-center gap-2 bg-[#58a6ff] hover:bg-[#4493f8] text-black px-4 py-2 rounded-lg font-semibold transition-colors"
                     >
@@ -663,6 +1016,9 @@ const renderOption = (option: string) => {
                       )}
                     </button>
                   </div>
+
+                  {/* Canvas do rysowania */}
+                  {showCanvas[problem.id] && <DrawingCanvas problemId={problem.id} />}
 
                   {/* Odpowiedź i rozwiązanie */}
                   {visibleSolutions[problem.id] && (
@@ -682,7 +1038,7 @@ const renderOption = (option: string) => {
                               <li key={stepIndex} className="text-white">
                                 <span className="text-blue-400 mr-2">{stepIndex + 1}.</span>
                                 <span className="inline-block">
-                                  {renderOption(step)}
+                                  {renderSolutionStep(step)}
                                 </span>
                               </li>
                             ))}
@@ -690,7 +1046,6 @@ const renderOption = (option: string) => {
                           
                           {/* Zdjęcia w rozwiązaniu */}
                           {(() => {
-                            // Jeśli są jawnie zdefiniowane obrazy rozwiązań
                             if (problem.solutionImages && problem.solutionImages.length > 0) {
                               return (
                                 <div className="mt-4 space-y-3">
@@ -708,7 +1063,6 @@ const renderOption = (option: string) => {
                               );
                             }
                             
-                            // Sprawdź zeskanowane obrazy rozwiązań
                             const problemId = parseInt(problem.id);
                             const scannedSolutionImages = !imagesLoading && imageData.solutionImages[problemId];
                             
