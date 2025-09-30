@@ -151,12 +151,12 @@ export default function ExamPage({
       return false;
     }
     
-    if (problem?.options && isTrueFalseQuestion(problem.options)) {
-      const userPF = userAnswer
+    if (problem?.options && isMultiLevelQuestion(problem.options)) {
+      const userResponse = userAnswer
         .sort((a, b) => parseInt(a.split(':')[0]) - parseInt(b.split(':')[0]))
         .map(a => a.split(':')[1])
         .join('');
-      return userPF === correctAnswer;
+      return userResponse === correctAnswer;
     }
     
     if (hasMultipleAnswers(correctAnswer)) {
@@ -171,46 +171,102 @@ export default function ExamPage({
     return normalizedUser === normalizedCorrect;
   };
 
-  const isTrueFalseQuestion = (options: string[]) => {
-    return options.some(opt => opt.includes('P/F') || opt.includes('- P F'));
+  const isMultiLevelQuestion = (options: string[]) => {
+    return options.some(opt => 
+      opt.includes('P/F') || opt.includes('- P F') ||
+      opt.includes('A/B') || opt.includes('C/D') ||
+      opt.includes('1/2/3') || opt.includes('- 1/2/3')
+    );
   };
 
   const extractStatement = (option: string) => {
-    return option.replace(/\s*-?\s*P\s*\/?\s*F\s*$/i, '').trim();
+    return option
+      .replace(/\s*-?\s*P\s*\/?\s*F\s*$/i, '')
+      .replace(/\s*-?\s*A\s*\/?\s*B\s*$/i, '')
+      .replace(/\s*-?\s*C\s*\/?\s*D\s*$/i, '')
+      .replace(/\s*-?\s*1\s*\/?\s*2\s*\/?\s*3\s*$/i, '')
+      .trim();
   };
 
-  const renderOption = (option: string) => {
-    const latexPattern = /(\d+\s*\^\s*\{\d+\}|\d+\^\d+|\\frac\{[^}]*\}\{[^}]*\}|\\sqrt\{[^}]*\}|\\text\{[^}]*\}|\\cdot|\\quad|P_[a-z]|[A-Z]\))/g;
-    
-    const parts = option.split(latexPattern);
+  // Funkcja do wykrywania opcji w zadaniu wielopoziomowym
+  const getQuestionOptions = (option: string) => {
+    if (option.includes('P/F') || option.includes('- P F')) {
+      return ['P', 'F'];
+    }
+    if (option.includes('A/B')) {
+      return ['A', 'B'];
+    }
+    if (option.includes('C/D')) {
+      return ['C', 'D'];
+    }
+    if (option.includes('1/2/3') || option.includes('- 1/2/3')) {
+      return ['1', '2', '3'];
+    }
+    return [];
+  };
+
+const renderOption = (option: string) => {
+  // Sprawdź czy tekst zawiera LaTeX - jeśli tak, renderuj całość jako LaTeX z fallbackiem
+  const hasLatex = /\\[a-zA-Z]+|\\frac|\\sqrt|\{[^}]*\}|\\cdot|\\times|\\div|\^|\\_/.test(option);
+  
+  if (hasLatex) {
+    // Przetwórz polskie oznaczenia dziesiętne przed renderowaniem
+    let processedOption = option.replace(/\{,\}/g, ',');
     
     return (
-      <span className="inline-flex items-center gap-1 flex-wrap">
-        {parts.map((part, idx) => {
-          if (!part) return null;
-          
-          if (/\d+\s*\^\s*\{?\d+\}?/.test(part)) {
-            const cleaned = part.replace(/\s/g, '');
+      <span className="inline-flex items-baseline">
+        <InlineMath 
+          math={processedOption}
+          renderError={(error) => {
+            // Jeśli pełne renderowanie LaTeX nie działa, spróbuj renderować po kawałkach
+            console.warn('LaTeX render error:', error, 'for:', processedOption);
+            
+            // Fallback - podziel na części i renderuj każdą z osobna
+            const parts = [];
+            let text = processedOption;
+            
+            // Najpierw wyciągnij i wyrenderuj ułamki
+            const fractionMatches = text.match(/\\frac\{[^}]+\}\{[^}]+\}/g);
+            if (fractionMatches) {
+              fractionMatches.forEach((frac, index) => {
+                const [before, after] = text.split(frac, 2);
+                if (before) parts.push(<span key={`text-${index}-before`}>{before}</span>);
+                parts.push(
+                  <InlineMath 
+                    key={`frac-${index}`} 
+                    math={frac}
+                    renderError={() => <span className="text-white">{frac.replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '$1/$2')}</span>}
+                  />
+                );
+                text = after || '';
+              });
+              if (text) parts.push(<span key="text-end">{text}</span>);
+              return <span className="inline-flex items-baseline flex-wrap">{parts}</span>;
+            }
+            
+            // Jeśli nic nie działa, pokaż zwykły tekst z podstawowymi zastąpieniami
             return (
-              <span key={idx} className="inline-block">
-                <InlineMath math={cleaned} />
+              <span className="text-white">
+                {processedOption
+                  .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '$1/$2')
+                  .replace(/\\cdot/g, '·')
+                  .replace(/\\times/g, '×')
+                  .replace(/\\div/g, '÷')
+                  .replace(/\\Rightarrow/g, '⇒')
+                  .replace(/\\checkmark/g, '✓')
+                  .replace(/\\/g, '')
+                }
               </span>
             );
-          }
-          
-          if (part.includes('\\') || /P_[a-z]/.test(part)) {
-            return (
-              <span key={idx} className="inline-block">
-                <InlineMath math={part} />
-              </span>
-            );
-          }
-          
-          return <span key={idx}>{part}</span>;
-        })}
+          }}
+        />
       </span>
     );
-  };
+  }
+  
+  // Jeśli nie ma LaTeX, zwróć zwykły tekst
+  return <span>{option}</span>;
+};
 
   const totalScore = useMemo(() => {
     let earned = 0;
@@ -371,11 +427,13 @@ export default function ExamPage({
                     </p>
                     
                     {problem.formula && (
-                      <div className="bg-[#21262d] border border-[#30363d] rounded-lg p-4 mb-4">
+                      <div className="bg-[#21262d] border border-[#30363d] rounded-lg p-4 mb-4 overflow-x-auto">
                         <BlockMath 
                           math={problem.formula}
                           renderError={(error) => (
-                            <span className="text-red-400">Błąd renderowania formuły</span>
+                            <span className="text-red-400 font-mono text-sm">
+                              Błąd renderowania: {problem.formula}
+                            </span>
                           )}
                         />
                       </div>
@@ -452,52 +510,56 @@ export default function ExamPage({
 
                     {problem.options && (
                       <>
-                        {isTrueFalseQuestion(problem.options) ? (
+                        {isMultiLevelQuestion(problem.options) ? (
                           <div className="space-y-4 mt-4">
                             {problem.options.map((option, optIndex) => {
                               const statement = extractStatement(option);
                               const selectedValue = userAnswer.find(a => a.startsWith(`${optIndex}:`))?.split(':')[1];
+                              const availableOptions = getQuestionOptions(option);
                               
                               return (
                                 <div key={optIndex} className="bg-[#21262d] border border-[#30363d] rounded-lg p-4">
                                   <p className="text-white mb-3">{renderOption(statement)}</p>
-                                  <div className="flex gap-3">
-                                    <button
-                                      onClick={() => {
-                                        const newAnswer = userAnswer.filter(a => !a.startsWith(`${optIndex}:`));
-                                        selectSingleAnswer(problem.id, '');
-                                        setUserAnswers(prev => ({
-                                          ...prev,
-                                          [problem.id]: [...newAnswer, `${optIndex}:P`]
-                                        }));
-                                      }}
-                                      disabled={isChecked}
-                                      className={`px-6 py-2 rounded-lg font-semibold transition-all disabled:cursor-not-allowed ${
-                                        selectedValue === 'P'
-                                          ? 'bg-[#58a6ff] text-black ring-2 ring-[#58a6ff]'
-                                          : 'bg-[#30363d] text-white hover:bg-[#40464d]'
-                                      }`}
-                                    >
-                                      Prawda (P)
-                                    </button>
-                                    <button
-                                      onClick={() => {
-                                        const newAnswer = userAnswer.filter(a => !a.startsWith(`${optIndex}:`));
-                                        selectSingleAnswer(problem.id, '');
-                                        setUserAnswers(prev => ({
-                                          ...prev,
-                                          [problem.id]: [...newAnswer, `${optIndex}:F`]
-                                        }));
-                                      }}
-                                      disabled={isChecked}
-                                      className={`px-6 py-2 rounded-lg font-semibold transition-all disabled:cursor-not-allowed ${
-                                        selectedValue === 'F'
-                                          ? 'bg-[#58a6ff] text-black ring-2 ring-[#58a6ff]'
-                                          : 'bg-[#30363d] text-white hover:bg-[#40464d]'
-                                      }`}
-                                    >
-                                      Fałsz (F)
-                                    </button>
+                                  <div className="flex gap-3 flex-wrap">
+                                    {availableOptions.map((optionValue) => {
+                                      // Mapowanie wartości na etykiety
+                                      const getOptionLabel = (value: string) => {
+                                        switch(value) {
+                                          case 'P': return 'Prawda (P)';
+                                          case 'F': return 'Fałsz (F)';
+                                          case 'A': return 'A';
+                                          case 'B': return 'B';
+                                          case 'C': return 'C';
+                                          case 'D': return 'D';
+                                          case '1': return '1';
+                                          case '2': return '2';
+                                          case '3': return '3';
+                                          default: return value;
+                                        }
+                                      };
+                                      
+                                      return (
+                                        <button
+                                          key={optionValue}
+                                          onClick={() => {
+                                            const newAnswer = userAnswer.filter(a => !a.startsWith(`${optIndex}:`));
+                                            selectSingleAnswer(problem.id, '');
+                                            setUserAnswers(prev => ({
+                                              ...prev,
+                                              [problem.id]: [...newAnswer, `${optIndex}:${optionValue}`]
+                                            }));
+                                          }}
+                                          disabled={isChecked}
+                                          className={`px-6 py-2 rounded-lg font-semibold transition-all disabled:cursor-not-allowed ${
+                                            selectedValue === optionValue
+                                              ? 'bg-[#58a6ff] text-black ring-2 ring-[#58a6ff]'
+                                              : 'bg-[#30363d] text-white hover:bg-[#40464d]'
+                                          }`}
+                                        >
+                                          {getOptionLabel(optionValue)}
+                                        </button>
+                                      );
+                                    })}
                                   </div>
                                 </div>
                               );
@@ -607,22 +669,21 @@ export default function ExamPage({
                     <div className="border-t border-[#30363d] pt-6 mt-6">
                       <div className="bg-green-900/20 border border-green-600/30 rounded-lg p-4 mb-4">
                         <h4 className="text-green-400 font-semibold mb-2">Odpowiedź:</h4>
-                        <p className="text-white">{problem.answer}</p>
+                        <div className="text-white">
+                          {renderOption(problem.answer)}
+                        </div>
                       </div>
 
                       {problem.solution && problem.solution.length > 0 && (
                         <div className="bg-blue-900/20 border border-blue-600/30 rounded-lg p-4">
                           <h4 className="text-blue-400 font-semibold mb-3">Rozwiązanie:</h4>
                           <ol className="space-y-2">
-                            {problem.solution.map((step, stepIndex) => (
+                           {problem.solution.map((step, stepIndex) => (
                               <li key={stepIndex} className="text-white">
                                 <span className="text-blue-400 mr-2">{stepIndex + 1}.</span>
-                                <InlineMath 
-                                  math={step}
-                                  renderError={(error) => (
-                                    <span>{step}</span>
-                                  )}
-                                />
+                                <span className="inline-block">
+                                  {renderOption(step)}
+                                </span>
                               </li>
                             ))}
                           </ol>
