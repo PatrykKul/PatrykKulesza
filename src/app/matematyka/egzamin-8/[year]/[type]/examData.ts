@@ -4,11 +4,12 @@ export interface MathProblem {
   id: string;
   question: string;
   formula?: string;
+  image?: string; // Ścieżka do zdjęcia zadania
   options?: string[];
   answer: string;
   solution?: string[];
+  solutionImages?: string[]; // Zdjęcia w rozwiązaniu (wykresy, diagramy)
   points: number;
-  difficulty: 'easy' | 'medium' | 'hard';
   category: string;
 }
 
@@ -34,7 +35,8 @@ export const examData: Record<string, Record<string, ExamData>> = {
       problems: [
         {
           id: '1',
-          question: 'Wśród pewnej grupy osób przeprowadzono ankietę. Jedno z pytań brzmiało: Jaka jest twoja ulubiona pora roku? Każdy ankietowany wskazał tylko jedną porę roku.',
+          question: 'Wśród pewnej grupy osób przeprowadzono ankietę. Jedno z pytań brzmiało: Jaka jest twoja ulubiona pora roku? Każdy ankietowany wskazał tylko jedną porę roku. Na podstawie diagramu oceń prawdziwość poniższych stwierdzeń.',
+          // image: '/math_resources/egzamin-8/2022/glowny/zadanie_1.jpg', // Przykładowy diagram słupkowy - teraz automatycznie z 1.png
           options: ['Zima jest ulubioną porą roku dla mniej niż 24% liczby osób ankietowanych - P/F', 'Lato jest ulubioną porą roku dla 3/7 liczby osób ankietowanych - P/F'],
           answer: 'PP',
           solution: [
@@ -44,7 +46,7 @@ export const examData: Record<string, Record<string, ExamData>> = {
             'Lato: \\frac{3}{7} \\approx 42.86\\% - PRAWDA'
           ],
           points: 1,
-          difficulty: 'easy',
+         
           category: 'Statystyka i diagramy'
         },
         {
@@ -60,7 +62,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
             'Za 8 lat córka będzie miała: 12 + 8 = 20 \\text{ lat}'
           ],
           points: 1,
-          difficulty: 'easy',
           category: 'Równania liniowe - zadania tekstowe'
         },
         {
@@ -75,7 +76,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
             'y = -\\frac{5}{6} + \\frac{3}{6} = -\\frac{2}{6} = -\\frac{1}{3}'
           ],
           points: 1,
-          difficulty: 'medium',
           category: 'Ułamki i liczby wymierne'
         },
         {
@@ -91,7 +91,7 @@ export const examData: Record<string, Record<string, ExamData>> = {
             'x = 4'
           ],
           points: 1,
-          difficulty: 'medium',
+         
           category: 'Równania liniowe'
         },
         {
@@ -106,7 +106,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
             'Sprawdzamy oba zdania na podstawie diagramu'
           ],
           points: 1,
-          difficulty: 'medium',
           category: 'Obliczenia praktyczne - czas'
         },
         {
@@ -122,7 +121,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
             'Odpowiedź: tylko g \\text{ i } k'
           ],
           points: 1,
-          difficulty: 'medium',
           category: 'Pierwiastki - szacowanie'
         },
         {
@@ -137,7 +135,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
             '399 \\text{ jest podzielne przez } 21 - PRAWDA'
           ],
           points: 1,
-          difficulty: 'medium',
           category: 'Podzielność liczb - dzielenie z resztą'
         },
         {
@@ -153,7 +150,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
             'Odpowiedź: 4 liczby'
           ],
           points: 1,
-          difficulty: 'medium',
           category: 'Podzielność i własności liczb'
         },
         {
@@ -168,7 +164,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
             'x = \\frac{1500}{0.8} = 1875 \\text{ zł}'
           ],
           points: 1,
-          difficulty: 'medium',
           category: 'Procenty - obliczenia odwrotne'
         },
         {
@@ -182,7 +177,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
             '3^5 \\cdot 3^{12} = 3^{5+12} = 3^{17}'
           ],
           points: 1,
-          difficulty: 'medium',
           category: 'Potęgi - działania'
         },
         {
@@ -197,7 +191,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
             'P_p = \\frac{P_c - P_b}{2}'
           ],
           points: 1,
-          difficulty: 'easy',
           category: 'Przekształcanie wzorów'
         },
         {
@@ -212,7 +205,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
             'Różne długości ramion - niemożliwe dla jednego ostrosłupa'
           ],
           points: 1,
-          difficulty: 'hard',
           category: 'Geometria przestrzenna - ostrosłupy'
         },
         {
@@ -227,7 +219,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
             'Stosując własności rombu: d = 6\\sqrt{3} \\text{ cm}'
           ],
           points: 1,
-          difficulty: 'hard',
           category: 'Geometria - romb'
         },
         {
@@ -244,7 +235,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
             'D) 3 : 9 = \\frac{1}{3} \\neq 3 \\times'
           ],
           points: 1,
-          difficulty: 'medium',
           category: 'Równania i wyrażenia algebraiczne'
         },
         {
@@ -258,7 +248,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
             '= 1 - a^2'
           ],
           points: 1,
-          difficulty: 'medium',
           category: 'Wyrażenia algebraiczne'
         },
         {
@@ -272,7 +261,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
             'x = 200'
           ],
           points: 2,
-          difficulty: 'medium',
           category: 'Równania - zadania tekstowe'
         },
         {
@@ -288,7 +276,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
             'W jednym zestawie: 21:7=3, \\quad 28:7=4, \\quad 35:7=5'
           ],
           points: 2,
-          difficulty: 'hard',
           category: 'Równania i podzielność'
         },
         {
@@ -302,7 +289,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
             'Czas dla B: 3 \\cdot 3 = 9 \\text{ godzin}'
           ],
           points: 3,
-          difficulty: 'hard',
           category: 'Geometria i proporcje'
         },
         {
@@ -318,7 +304,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
             'Suma krawędzi: 2(6 + 8 + 10) + 3 \\cdot 9 = 48 + 27 = 75 \\text{ cm}'
           ],
           points: 3,
-          difficulty: 'hard',
           category: 'Geometria przestrzenna'
         }
       ]
@@ -337,7 +322,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
           answer: 'Wkrótce',
           solution: [],
           points: 1,
-          difficulty: 'easy',
           category: 'Informacja'
         }
       ]
@@ -364,7 +348,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
             'Podstawiamy: 12 - 12 + 5 = 5'
           ],
           points: 1,
-          difficulty: 'easy',
           category: 'Działania na liczbach'
         },
         {
@@ -379,7 +362,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
             'Dzielimy przez 2: x = 4'
           ],
           points: 1,
-          difficulty: 'easy',
           category: 'Równania liniowe'
         },
         {
@@ -394,7 +376,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
             'Obliczamy: P = 12 \\cdot (\\sqrt{2})^2 = 12 \\cdot 2 = 24 \\text{ cm²}'
           ],
           points: 2,
-          difficulty: 'medium',
           category: 'Geometria'
         }
       ]
@@ -416,7 +397,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
             'Obliczamy: 4 + 6 - 1 = 9'
           ],
           points: 1,
-          difficulty: 'easy',
           category: 'Wyrażenia algebraiczne'
         }
       ]
@@ -441,7 +421,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
             'Podstawiamy: 25 - 12 + 7 = 20'
           ],
           points: 1,
-          difficulty: 'easy',
           category: 'Działania na liczbach'
         }
       ]
@@ -464,7 +443,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
             'Dzielimy przez 3: x = 7'
           ],
           points: 1,
-          difficulty: 'easy',
           category: 'Równania liniowe'
         }
       ]
@@ -483,7 +461,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
           answer: 'Wkrótce dostępne',
           solution: [],
           points: 1,
-          difficulty: 'easy',
           category: 'Informacja'
         }
       ]
@@ -500,7 +477,6 @@ export const examData: Record<string, Record<string, ExamData>> = {
           answer: 'Wkrótce dostępne',
           solution: [],
           points: 1,
-          difficulty: 'easy',
           category: 'Informacja'
         }
       ]

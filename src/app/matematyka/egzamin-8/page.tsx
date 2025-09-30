@@ -228,9 +228,9 @@ const mathTopicsData: Record<string, TopicSection> = {
         description: 'Materiały i zadania maturalne 2025', 
         href: '#',
         submenu: [
-          { title: 'Sesja główna', description: 'Arkusze z sesji głównej maj 2025', href: '/matematyka/matura/podstawowa/2025/glowna' },
-          { title: 'Sesja próbna', description: 'Arkusze próbne 2025', href: '/matematyka/matura/podstawowa/2025/probna' },
-          { title: 'Sesja poprawkowa', description: 'Arkusze z sesji poprawkowej sierpień 2025', href: '/matematyka/matura/podstawowa/2025/poprawkowa' }
+          { title: 'Sesja główna', description: 'Arkusze z sesji głównej maj 2025', href: '/matura-podstawowa/2025/glowna' },
+          { title: 'Sesja próbna', description: 'Arkusze próbne 2025', href: '/matura-podstawowa/2025/probna' },
+          { title: 'Sesja poprawkowa', description: 'Arkusze z sesji poprawkowej sierpień 2025', href: '/matura-podstawowa/2025/poprawkowa' }
         ]
       },
       { 
@@ -238,9 +238,9 @@ const mathTopicsData: Record<string, TopicSection> = {
         description: 'Arkusze i rozwiązania z 2024', 
         href: '#',
         submenu: [
-          { title: 'Sesja główna', description: 'Arkusze z sesji głównej maj 2024', href: '/matematyka/matura/podstawowa/2024/glowna' },
-          { title: 'Sesja próbna', description: 'Arkusze próbne 2024', href: '/matematyka/matura/podstawowa/2024/probna' },
-          { title: 'Sesja poprawkowa', description: 'Arkusze z sesji poprawkowej sierpień 2024', href: '/matematyka/matura/podstawowa/2024/poprawkowa' }
+          { title: 'Sesja główna', description: 'Arkusze z sesji głównej maj 2024', href: '/matura-podstawowa/2024/glowna' },
+          { title: 'Sesja próbna', description: 'Arkusze próbne 2024', href: '/matura-podstawowa/2024/probna' },
+          { title: 'Sesja poprawkowa', description: 'Arkusze z sesji poprawkowej sierpień 2024', href: '/matura-podstawowa/2024/poprawkowa' }
         ]
       },
       { 
@@ -248,9 +248,9 @@ const mathTopicsData: Record<string, TopicSection> = {
         description: 'Arkusze i rozwiązania z 2023', 
         href: '#',
         submenu: [
-          { title: 'Sesja główna', description: 'Arkusze z sesji głównej maj 2023', href: '/matematyka/matura/podstawowa/2023/glowna' },
-          { title: 'Sesja próbna', description: 'Arkusze próbne 2023', href: '/matematyka/matura/podstawowa/2023/probna' },
-          { title: 'Sesja poprawkowa', description: 'Arkusze z sesji poprawkowej sierpień 2023', href: '/matematyka/matura/podstawowa/2023/poprawkowa' }
+          { title: 'Sesja główna', description: 'Arkusze z sesji głównej maj 2023', href: '/matura-podstawowa/2023/glowna' },
+          { title: 'Sesja próbna', description: 'Arkusze próbne 2023', href: '/matura-podstawowa/2023/probna' },
+          { title: 'Sesja poprawkowa', description: 'Arkusze z sesji poprawkowej sierpień 2023', href: '/matura-podstawowa/2023/poprawkowa' }
         ]
       },
       { 
@@ -258,9 +258,9 @@ const mathTopicsData: Record<string, TopicSection> = {
         description: 'Arkusze i rozwiązania z 2022', 
         href: '#',
         submenu: [
-          { title: 'Sesja główna', description: 'Arkusze z sesji głównej maj 2022', href: '/matematyka/matura/podstawowa/2022/glowna' },
-          { title: 'Sesja próbna', description: 'Arkusze próbne 2022', href: '/matematyka/matura/podstawowa/2022/probna' },
-          { title: 'Sesja poprawkowa', description: 'Arkusze z sesji poprawkowej sierpień 2022', href: '/matematyka/matura/podstawowa/2022/poprawkowa' }
+          { title: 'Sesja główna', description: 'Arkusze z sesji głównej maj 2022', href: '/matura-podstawowa/2022/glowna' },
+          { title: 'Sesja próbna', description: 'Arkusze próbne 2022', href: '/matura-podstawowa/2022/probna' },
+          { title: 'Sesja poprawkowa', description: 'Arkusze z sesji poprawkowej sierpień 2022', href: '/matura-podstawowa/2022/poprawkowa' }
         ]
       }
     ]
@@ -274,9 +274,9 @@ const mathTopicsData: Record<string, TopicSection> = {
         description: 'Materiały rozszerzone 2025', 
         href: '#',
         submenu: [
-          { title: 'Sesja główna', description: 'Arkusze rozszerzone z sesji głównej maj 2025', href: '/matematyka/matura/rozszerzona/2025/glowna' },
-          { title: 'Sesja próbna', description: 'Arkusze próbne poziom rozszerzony 2025', href: '/matematyka/matura/rozszerzona/2025/probna' },
-          { title: 'Sesja poprawkowa', description: 'Arkusze rozszerzone z sesji poprawkowej sierpień 2025', href: '/matematyka/matura/rozszerzona/2025/poprawkowa' }
+          { title: 'Sesja główna', description: 'Arkusze rozszerzone z sesji głównej maj 2025', href: '/matura-rozszerzona/2025/glowna' },
+          { title: 'Sesja próbna', description: 'Arkusze próbne poziom rozszerzony 2025', href: '/matura-rozszerzona/2025/probna' },
+          { title: 'Sesja poprawkowa', description: 'Arkusze rozszerzone z sesji poprawkowej sierpień 2025', href: '/matura-rozszerzona/2025/poprawkowa' }
         ]
       },
       { 
@@ -284,9 +284,9 @@ const mathTopicsData: Record<string, TopicSection> = {
         description: 'Arkusze rozszerzone z 2024', 
         href: '#',
         submenu: [
-          { title: 'Sesja główna', description: 'Arkusze rozszerzone z sesji głównej maj 2024', href: '/matematyka/matura/rozszerzona/2024/glowna' },
-          { title: 'Sesja próbna', description: 'Arkusze próbne poziom rozszerzony 2024', href: '/matematyka/matura/rozszerzona/2024/probna' },
-          { title: 'Sesja poprawkowa', description: 'Arkusze rozszerzone z sesji poprawkowej sierpień 2024', href: '/matematyka/matura/rozszerzona/2024/poprawkowa' }
+          { title: 'Sesja główna', description: 'Arkusze rozszerzone z sesji głównej maj 2024', href: '/matura-rozszerzona/2024/glowna' },
+          { title: 'Sesja próbna', description: 'Arkusze próbne poziom rozszerzony 2024', href: '/matura-rozszerzona/2024/probna' },
+          { title: 'Sesja poprawkowa', description: 'Arkusze rozszerzone z sesji poprawkowej sierpień 2024', href: '/matura-rozszerzona/2024/poprawkowa' }
         ]
       },
       { 
@@ -294,9 +294,9 @@ const mathTopicsData: Record<string, TopicSection> = {
         description: 'Arkusze rozszerzone z 2023', 
         href: '#',
         submenu: [
-          { title: 'Sesja główna', description: 'Arkusze rozszerzone z sesji głównej maj 2023', href: '/matematyka/matura/rozszerzona/2023/glowna' },
-          { title: 'Sesja próbna', description: 'Arkusze próbne poziom rozszerzony 2023', href: '/matematyka/matura/rozszerzona/2023/probna' },
-          { title: 'Sesja poprawkowa', description: 'Arkusze rozszerzone z sesji poprawkowej sierpień 2023', href: '/matematyka/matura/rozszerzona/2023/poprawkowa' }
+          { title: 'Sesja główna', description: 'Arkusze rozszerzone z sesji głównej maj 2023', href: '/matura-rozszerzona/2023/glowna' },
+          { title: 'Sesja próbna', description: 'Arkusze próbne poziom rozszerzony 2023', href: '/matura-rozszerzona/2023/probna' },
+          { title: 'Sesja poprawkowa', description: 'Arkusze rozszerzone z sesji poprawkowej sierpień 2023', href: '/matura-rozszerzona/2023/poprawkowa' }
         ]
       },
       { 
@@ -304,9 +304,9 @@ const mathTopicsData: Record<string, TopicSection> = {
         description: 'Arkusze rozszerzone z 2022', 
         href: '#',
         submenu: [
-          { title: 'Sesja główna', description: 'Arkusze rozszerzone z sesji głównej maj 2022', href: '/matematyka/matura/rozszerzona/2022/glowna' },
-          { title: 'Sesja próbna', description: 'Arkusze próbne poziom rozszerzony 2022', href: '/matematyka/matura/rozszerzona/2022/probna' },
-          { title: 'Sesja poprawkowa', description: 'Arkusze rozszerzone z sesji poprawkowej sierpień 2022', href: '/matematyka/matura/rozszerzona/2022/poprawkowa' }
+          { title: 'Sesja główna', description: 'Arkusze rozszerzone z sesji głównej maj 2022', href: '/matura-rozszerzona/2022/glowna' },
+          { title: 'Sesja próbna', description: 'Arkusze próbne poziom rozszerzony 2022', href: '/matura-rozszerzona/2022/probna' },
+          { title: 'Sesja poprawkowa', description: 'Arkusze rozszerzone z sesji poprawkowej sierpień 2022', href: '/matura-rozszerzona/2022/poprawkowa' }
         ]
       }
     ]
@@ -321,7 +321,7 @@ const mathTopicsData: Record<string, TopicSection> = {
         href: '#',
         submenu: [
           { title: 'Egzamin główny', description: 'Oficjalny egzamin maj 2025', href: '/matematyka/egzamin-8/2025/glowny' },
-          { title: 'Egzamin dodatkowy', description: 'Dodatkowy egzamin 2025', href: '/matematyka/egzamin-8/2025/dodatkowy' }
+          { title: 'Egzamin próbny', description: 'Próbne egzaminy 2025', href: '/matematyka/egzamin-8/2025/probny' }
         ]
       },
       { 
@@ -330,7 +330,7 @@ const mathTopicsData: Record<string, TopicSection> = {
         href: '#',
         submenu: [
           { title: 'Egzamin główny', description: 'Oficjalny egzamin maj 2024', href: '/matematyka/egzamin-8/2024/glowny' },
-          { title: 'Egzamin dodatkowy', description: 'Dodatkowy egzamin 2024', href: '/matematyka/egzamin-8/2024/dodatkowy' }
+          { title: 'Egzamin próbny', description: 'Próbne egzaminy 2024', href: '/matematyka/egzamin-8/2024/probny' }
         ]
       },
       { 
@@ -339,7 +339,7 @@ const mathTopicsData: Record<string, TopicSection> = {
         href: '#',
         submenu: [
           { title: 'Egzamin główny', description: 'Oficjalny egzamin maj 2023', href: '/matematyka/egzamin-8/2023/glowny' },
-          { title: 'Egzamin dodatkowy', description: 'Dodatkowy egzamin 2023', href: '/matematyka/egzamin-8/2023/dodatkowy' }
+          { title: 'Egzamin próbny', description: 'Próbne egzaminy 2023', href: '/matematyka/egzamin-8/2023/probny' }
         ]
       },
       { 
@@ -348,7 +348,7 @@ const mathTopicsData: Record<string, TopicSection> = {
         href: '#',
         submenu: [
           { title: 'Egzamin główny', description: 'Oficjalny egzamin maj 2022', href: '/matematyka/egzamin-8/2022/glowny' },
-          { title: 'Egzamin dodatkowy', description: 'Dodatkowy egzamin 2022', href: '/matematyka/egzamin-8/2022/dodatkowy' }
+          { title: 'Egzamin próbny', description: 'Próbne egzaminy 2022', href: '/matematyka/egzamin-8/2022/probny' }
         ]
       }
     ]

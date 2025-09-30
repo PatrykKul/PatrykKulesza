@@ -5,40 +5,73 @@ import Link from 'next/link';
 import { ArrowLeft, Calculator, Clock, Award, FileText, Download, Eye, EyeOff, CheckCircle, RotateCcw } from 'lucide-react';
 import { InlineMath, BlockMath } from 'react-katex';
 import 'katex/dist/katex.min.css';
+import { useImageScan } from '@/hooks/useImageScan';
 
-// Import danych egzaminów
-import { examData } from './examData';
+// Types
+export interface MathProblem {
+  id: string;
+  question: string;
+  formula?: string;
+  image?: string; // Ścieżka do zdjęcia zadania (opcjonalne - jeśli nie podane, automatycznie skanuje folder)
+  options?: string[];
+  answer: string;
+  solution?: string[];
+  solutionImages?: string[]; // Zdjęcia w rozwiązaniu (opcjonalne - jeśli nie podane, automatycznie skanuje folder)
+  points: number;
+  difficulty: 'easy' | 'medium' | 'hard';
+  category: string;
+}
 
-export default function EgzaminPage({ 
-  params 
-}: { 
-  params: Promise<{ year: string; type: string }> 
-}) {
+export interface ExamData {
+  title: string;
+  date: string;
+  duration: number;
+  maxPoints: number;
+  problems: MathProblem[];
+  pdfUrl?: string;
+  answerKeyUrl?: string;
+}
+
+interface ExamPageProps {
+  examData: ExamData;
+  year: string;
+  type: string;
+  examType?: string;
+  basePath?: string;
+  level?: string; // dla matury: 'podstawowa' lub 'rozszerzona'
+}
+
+export default function ExamPage({ 
+  examData, 
+  year, 
+  type,
+  examType = 'egzamin',
+  basePath = '/matematyka',
+  level
+}: ExamPageProps) {
   const [visibleSolutions, setVisibleSolutions] = useState<Record<string, boolean>>({});
   const [userAnswers, setUserAnswers] = useState<Record<string, string[]>>({});
   const [checkedAnswers, setCheckedAnswers] = useState<Record<string, boolean>>({});
+  
+  // Automatyczne skanowanie folderów z obrazami
+  const { imageData, loading: imagesLoading } = useImageScan(examType, year, type, level);
 
-  const { year, type } = React.use(params);
-  const examInfo = examData[year]?.[type];
-
-  if (!examInfo) {
-    return (
-      <div className="min-h-screen bg-[#0d1117] text-white flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4 text-red-400">Egzamin nie znaleziony</h1>
-          <p className="text-gray-400 mb-6">
-            Egzamin z roku {year} ({type}) nie istnieje.
-          </p>
-          <Link
-            href="/matematyka"
-            className="text-[#58a6ff] hover:text-[#1f6feb] transition-colors"
-          >
-            ← Powrót do materiałów
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  // Funkcja do automatycznego generowania ścieżki obrazu
+  const getImagePath = (problemId: string, imageType: 'problem' | 'solution' = 'problem', imageIndex?: number): string => {
+    let basePath = '/math_resources/';
+    
+    if (examType === 'egzamin-8') {
+      basePath += `egzamin-8/${year}/${type}/`;
+    } else if (examType === 'matura' && level) {
+      basePath += `matura/${level}/${year}/${type}/`;
+    }
+    
+    if (imageType === 'solution' && imageIndex !== undefined) {
+      return `${basePath}${problemId}-solution-${imageIndex + 1}.png`;
+    }
+    
+    return `${basePath}${problemId}.png`;
+  };
 
   const toggleSolution = (problemId: string) => {
     setVisibleSolutions(prev => ({
@@ -47,7 +80,6 @@ export default function EgzaminPage({
     }));
   };
 
-  // Sprawdź czy zadanie ma wiele poprawnych odpowiedzi (AD, PP, itp.)
   const hasMultipleAnswers = (answer: string) => {
     return answer.length === 2 && !answer.includes(')') && !answer.includes(' ');
   };
@@ -96,7 +128,6 @@ export default function EgzaminPage({
     });
   };
 
-  // Funkcja resetowania całego egzaminu
   const resetAllProblems = () => {
     if (confirm('Czy na pewno chcesz zresetować wszystkie odpowiedzi i zacząć od początku?')) {
       setUserAnswers({});
@@ -111,9 +142,8 @@ export default function EgzaminPage({
     if (!userAnswer || userAnswer.length === 0) return null;
     if (!checkedAnswers[problemId]) return null;
     
-    const problem = examInfo.problems.find(p => p.id === problemId);
+    const problem = examData.problems.find(p => p.id === problemId);
     
-    // Self-assessment dla zadań otwartych
     if (userAnswer[0] === 'SELF_YES') {
       return true;
     }
@@ -121,7 +151,6 @@ export default function EgzaminPage({
       return false;
     }
     
-    // Dla zadań P/F sprawdzamy format "0:P", "1:F"
     if (problem?.options && isTrueFalseQuestion(problem.options)) {
       const userPF = userAnswer
         .sort((a, b) => parseInt(a.split(':')[0]) - parseInt(b.split(':')[0]))
@@ -130,32 +159,27 @@ export default function EgzaminPage({
       return userPF === correctAnswer;
     }
     
-    // Dla odpowiedzi typu "AD" lub "PP"
     if (hasMultipleAnswers(correctAnswer)) {
       const correctLetters = correctAnswer.split('');
       const userLetters = userAnswer.map(opt => opt.charAt(0)).sort();
       return correctLetters.sort().join('') === userLetters.join('');
     }
     
-    // Dla pojedynczych odpowiedzi
     const normalizedUser = userAnswer[0].trim().toLowerCase();
     const normalizedCorrect = correctAnswer.trim().toLowerCase();
     
     return normalizedUser === normalizedCorrect;
   };
 
-  // Sprawdź czy to zadanie P/F
   const isTrueFalseQuestion = (options: string[]) => {
     return options.some(opt => opt.includes('P/F') || opt.includes('- P F'));
   };
 
-  // Wyciągnij statement z opcji P/F
   const extractStatement = (option: string) => {
     return option.replace(/\s*-?\s*P\s*\/?\s*F\s*$/i, '').trim();
   };
 
   const renderOption = (option: string) => {
-    // Lepszy regex dla LaTeX - obsługuje potęgi, ułamki, pierwiastki itp.
     const latexPattern = /(\d+\s*\^\s*\{\d+\}|\d+\^\d+|\\frac\{[^}]*\}\{[^}]*\}|\\sqrt\{[^}]*\}|\\text\{[^}]*\}|\\cdot|\\quad|P_[a-z]|[A-Z]\))/g;
     
     const parts = option.split(latexPattern);
@@ -165,7 +189,6 @@ export default function EgzaminPage({
         {parts.map((part, idx) => {
           if (!part) return null;
           
-          // Wykryj potęgi typu 27^{11} lub 3^5
           if (/\d+\s*\^\s*\{?\d+\}?/.test(part)) {
             const cleaned = part.replace(/\s/g, '');
             return (
@@ -175,7 +198,6 @@ export default function EgzaminPage({
             );
           }
           
-          // Inne LaTeX
           if (part.includes('\\') || /P_[a-z]/.test(part)) {
             return (
               <span key={idx} className="inline-block">
@@ -190,20 +212,19 @@ export default function EgzaminPage({
     );
   };
 
-  // Obliczanie punktów
   const totalScore = useMemo(() => {
     let earned = 0;
-    examInfo.problems.forEach(problem => {
+    examData.problems.forEach(problem => {
       if (isAnswerCorrect(problem.id, problem.answer) === true) {
         earned += problem.points;
       }
     });
     return earned;
-  }, [userAnswers, checkedAnswers, examInfo.problems]);
+  }, [userAnswers, checkedAnswers, examData.problems]);
 
   const answeredCount = Object.keys(userAnswers).filter(key => userAnswers[key].length > 0).length;
   const checkedCount = Object.keys(checkedAnswers).filter(key => checkedAnswers[key]).length;
-  const totalProblems = examInfo.problems.length;
+  const totalProblems = examData.problems.length;
 
   return (
     <div className="min-h-screen bg-[#0d1117] text-white">
@@ -212,7 +233,7 @@ export default function EgzaminPage({
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link 
-              href="/matematyka"
+              href={basePath}
               className="inline-flex items-center gap-2 text-[#58a6ff] hover:text-[#1f6feb] transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -220,9 +241,9 @@ export default function EgzaminPage({
             </Link>
             
             <div className="flex gap-4">
-              {examInfo.pdfUrl && (
+              {examData.pdfUrl && (
                 <a
-                  href={examInfo.pdfUrl}
+                  href={examData.pdfUrl}
                   className="inline-flex items-center gap-2 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-4 py-2 rounded-lg transition-colors"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -232,9 +253,9 @@ export default function EgzaminPage({
                 </a>
               )}
               
-              {examInfo.answerKeyUrl && (
+              {examData.answerKeyUrl && (
                 <a
-                  href={examInfo.answerKeyUrl}
+                  href={examData.answerKeyUrl}
                   className="inline-flex items-center gap-2 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-4 py-2 rounded-lg transition-colors"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -258,21 +279,21 @@ export default function EgzaminPage({
             </div>
             
             <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#58a6ff] via-[#1f6feb] to-[#0969da] bg-clip-text text-transparent">
-              {examInfo.title}
+              {examData.title}
             </h1>
             
             <div className="flex flex-wrap justify-center gap-6 text-gray-300 mb-6">
               <div className="flex items-center gap-2">
                 <Clock className="w-5 h-5 text-[#58a6ff]" />
-                <span>Czas: {examInfo.duration} minut</span>
+                <span>Czas: {examData.duration} minut</span>
               </div>
               <div className="flex items-center gap-2">
                 <Award className="w-5 h-5 text-[#58a6ff]" />
-                <span>Punkty: {examInfo.maxPoints}</span>
+                <span>Punkty: {examData.maxPoints}</span>
               </div>
               <div className="flex items-center gap-2">
                 <FileText className="w-5 h-5 text-[#58a6ff]" />
-                <span>Data: {examInfo.date}</span>
+                <span>Data: {examData.date}</span>
               </div>
             </div>
           </div>
@@ -286,11 +307,10 @@ export default function EgzaminPage({
                     Sprawdzone: {checkedCount} / {totalProblems}
                   </div>
                   <div className="text-2xl font-bold text-[#58a6ff]">
-                    Twój wynik: {totalScore} / {examInfo.maxPoints} pkt
+                    Twój wynik: {totalScore} / {examData.maxPoints} pkt
                   </div>
                 </div>
                 
-                {/* Przycisk reset - pokazuje się tylko gdy coś już zaznaczono */}
                 {(answeredCount > 0 || checkedCount > 0) && (
                   <button
                     onClick={resetAllProblems}
@@ -306,7 +326,7 @@ export default function EgzaminPage({
 
           {/* Zadania */}
           <div className="space-y-8">
-            {examInfo.problems.map((problem, index) => {
+            {examData.problems.map((problem, index) => {
               const userAnswer = userAnswers[problem.id] || [];
               const isChecked = checkedAnswers[problem.id];
               const isCorrect = isAnswerCorrect(problem.id, problem.answer);
@@ -333,7 +353,6 @@ export default function EgzaminPage({
                       </div>
                     </div>
 
-                    {/* Wskaźnik poprawności */}
                     {isChecked && isCorrect !== null && (
                       <div className={`px-4 py-2 rounded-lg font-semibold ${
                         isCorrect 
@@ -362,16 +381,34 @@ export default function EgzaminPage({
                       </div>
                     )}
 
-                    {/* Wskazówka dla wielokrotnego wyboru */}
+                    {/* Renderowanie obrazu zadania */}
+                    {(() => {
+                      // Sprawdź czy obraz istnieje - najpierw jawnie zdefiniowany, potem automatycznie zeskanowany
+                      const hasScannedImage = !imagesLoading && imageData.problemImages.includes(parseInt(problem.id));
+                      const imageSrc = problem.image || (hasScannedImage ? getImagePath(problem.id) : null);
+                      
+                      if (!imageSrc) return null;
+                      
+                      return (
+                        <div className="bg-[#21262d] border border-[#30363d] rounded-lg p-4 mb-4">
+                          <img 
+                            src={imageSrc} 
+                            alt={`Ilustracja do zadania ${problem.id}`}
+                            className="max-w-full h-auto mx-auto rounded-lg"
+                            loading="lazy"
+                          />
+                        </div>
+                      );
+                    })()}
+
                     {isMultiChoice && !isChecked && (
                       <div className="bg-blue-900/20 border border-blue-600/30 rounded-lg p-3 mb-4">
                         <p className="text-blue-400 text-sm">
-                          💡 To zadanie ma więcej niż jedną poprawną odpowiedź. Zaznacz wszystkie.
+                          💡 Zaznacz wszystkie prawidłowe odpowiedzi.
                         </p>
                       </div>
                     )}
 
-                    {/* Self-assessment dla zadań otwartych (bez opcji) */}
                     {!problem.options && (
                       <div className="bg-[#21262d] border border-[#30363d] rounded-lg p-6 mt-4">
                         <p className="text-white text-lg mb-4">
@@ -413,15 +450,12 @@ export default function EgzaminPage({
                       </div>
                     )}
 
-                    {/* Opcje odpowiedzi */}
                     {problem.options && (
                       <>
                         {isTrueFalseQuestion(problem.options) ? (
-                          // Format P/F - każde pytanie z przyciskami P i F
                           <div className="space-y-4 mt-4">
                             {problem.options.map((option, optIndex) => {
                               const statement = extractStatement(option);
-                              const questionKey = `${problem.id}-${optIndex}`;
                               const selectedValue = userAnswer.find(a => a.startsWith(`${optIndex}:`))?.split(':')[1];
                               
                               return (
@@ -470,7 +504,6 @@ export default function EgzaminPage({
                             })}
                           </div>
                         ) : (
-                          // Format normalny - checkboxy lub radio buttons
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
                             {problem.options.map((option, optIndex) => {
                               const isSelected = userAnswer.includes(option);
@@ -530,7 +563,6 @@ export default function EgzaminPage({
 
                   {/* Przyciski akcji */}
                   <div className="flex flex-wrap gap-3">
-                    {/* Przycisk sprawdź odpowiedź - tylko dla zadań z opcjami */}
                     {problem.options && !isChecked && (
                       <button
                         onClick={() => checkAnswer(problem.id)}
@@ -542,7 +574,6 @@ export default function EgzaminPage({
                       </button>
                     )}
 
-                    {/* Przycisk spróbuj ponownie */}
                     {isChecked && isCorrect === false && (
                       <button
                         onClick={() => resetProblem(problem.id)}
@@ -553,7 +584,6 @@ export default function EgzaminPage({
                       </button>
                     )}
 
-                    {/* Przycisk pokaż/ukryj rozwiązanie */}
                     <button
                       onClick={() => toggleSolution(problem.id)}
                       className="inline-flex items-center gap-2 bg-[#58a6ff] hover:bg-[#4493f8] text-black px-4 py-2 rounded-lg font-semibold transition-colors"
@@ -596,6 +626,50 @@ export default function EgzaminPage({
                               </li>
                             ))}
                           </ol>
+                          
+                          {/* Zdjęcia w rozwiązaniu */}
+                          {(() => {
+                            // Jeśli są jawnie zdefiniowane obrazy rozwiązań
+                            if (problem.solutionImages && problem.solutionImages.length > 0) {
+                              return (
+                                <div className="mt-4 space-y-3">
+                                  {problem.solutionImages.map((imageSrc, imageIndex) => (
+                                    <div key={imageIndex} className="bg-[#21262d] border border-[#30363d] rounded-lg p-3">
+                                      <img 
+                                        src={imageSrc} 
+                                        alt={`Ilustracja rozwiązania ${imageIndex + 1}`}
+                                        className="max-w-full h-auto mx-auto rounded-lg"
+                                        loading="lazy"
+                                      />
+                                    </div>
+                                  ))}
+                                </div>
+                              );
+                            }
+                            
+                            // Sprawdź zeskanowane obrazy rozwiązań
+                            const problemId = parseInt(problem.id);
+                            const scannedSolutionImages = !imagesLoading && imageData.solutionImages[problemId];
+                            
+                            if (scannedSolutionImages && scannedSolutionImages.length > 0) {
+                              return (
+                                <div className="mt-4 space-y-3">
+                                  {scannedSolutionImages.map((solutionIndex, arrayIndex) => (
+                                    <div key={arrayIndex} className="bg-[#21262d] border border-[#30363d] rounded-lg p-3">
+                                      <img 
+                                        src={getImagePath(problem.id, 'solution', solutionIndex - 1)} 
+                                        alt={`Ilustracja rozwiązania ${solutionIndex}`}
+                                        className="max-w-full h-auto mx-auto rounded-lg"
+                                        loading="lazy"
+                                      />
+                                    </div>
+                                  ))}
+                                </div>
+                              );
+                            }
+                            
+                            return null;
+                          })()}
                         </div>
                       )}
                     </div>
@@ -612,10 +686,10 @@ export default function EgzaminPage({
                 Gratulacje! Ukończyłeś egzamin
               </h2>
               <div className="text-5xl font-bold text-white mb-2">
-                {totalScore} / {examInfo.maxPoints}
+                {totalScore} / {examData.maxPoints}
               </div>
               <p className="text-xl text-white/90">
-                {Math.round((totalScore / examInfo.maxPoints) * 100)}% poprawnych odpowiedzi
+                {Math.round((totalScore / examData.maxPoints) * 100)}% poprawnych odpowiedzi
               </p>
             </div>
           )}
