@@ -18,7 +18,6 @@ export interface MathProblem {
   solution?: string[];
   solutionImages?: string[];
   points: number;
-  difficulty: 'easy' | 'medium' | 'hard';
   category: string;
 }
 

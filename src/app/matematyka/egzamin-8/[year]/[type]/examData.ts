@@ -420,36 +420,43 @@ export const examData: Record<string, Record<string, ExamData>> = {
         ],
         answer: 'PP',
         solution: [
-          '40 \\div 8 = 5 \\text{ (krotność)}',
-          'Jajka: 2 \\cdot 5 = 10 - PRAWDA',
-          '72 \\div 8 = 9 \\text{ (krotność)}',
-          'Mleko: 1\\frac{1}{3} \\cdot 9 = \\frac{4}{3} \\cdot 9 = 12 - PRAWDA'
+          'Obliczamy krotność dla 40 gofrów: | \\frac{40}{8} = 5',
+          'Liczba jajek potrzebna: | 2 \\cdot 5 = 10 \\text{ jajek}',
+          'Pierwsze zdanie: | \\text{PRAWDA}',
+          'Obliczamy krotność dla 72 gofrów: | \\frac{72}{8} = 9',
+          'Ilość mleka potrzebna: | 1\\frac{1}{3} \\cdot 9 = \\frac{4}{3} \\cdot 9 = 12 \\text{ szklanek}',
+          'Drugie zdanie: | \\text{PRAWDA}'
         ],
         points: 1,
-        category: 'Proporcje i skala'
+        category: 'Proporcje'
       },
       {
         id: '2',
-        question: 'Dostęp do pliku jest chroniony hasłem **T** złożonym z dwóch liczb dwucyfrowych oddzielonych literą T. Pierwsza liczba hasła to sześcian liczby 4, a druga to najmniejszy wspólny mianownik ułamków \\frac{1}{15} i \\frac{1}{25}.',
+        question: 'Dostęp do pliku jest chroniony hasłem **T** złożonym z dwóch liczb dwucyfrowych oddzielonych literą T. Pierwsza liczba hasła to sześcian liczby 4, a druga to najmniejszy wspólny mianownik ułamków \\frac{1}{15} i \\frac{1}{25}. Jakie jest hasło do pliku?',
         options: ['A) 24T45', 'B) 24T75', 'C) 64T45', 'D) 64T75'],
         answer: 'D) 64T75',
         solution: [
-          'Pierwsza liczba - sześcian liczby 4: | 4^3 = 64',
-          'Druga liczba - NWM ułamków \\frac{1}{15} i \\frac{1}{25}: | NWW(15, 25) = 75',
-          'Hasło: | 64T75'
+          'Obliczamy sześcian liczby 4: | 4^3 = 4 \\cdot 4 \\cdot 4 = 64',
+          'Szukamy NWM dla ułamków \\frac{1}{15} i \\frac{1}{25}: | \\text{NWM mianowników}',
+          'Rozkład na czynniki pierwsze: | 15 = 3 \\cdot 5, \\quad 25 = 5^2',
+          'Najmniejszy wspólny mianownik: | \\text{NWM}(15, 25) = 3 \\cdot 5^2 = 75',
+          'Hasło: | 64\\text{T}75',
+          'Odpowiedź: | D) 64\\text{T}75'
         ],
         points: 1,
         category: 'Potęgi i NWW'
       },
       {
         id: '3',
-        question: 'Dane są cztery wyrażenia: G = 2x² + 2, H = 2x² + 2x, J = 2x² - 2, K = 2x² - 2x. Jedno z tych wyrażeń przyjmuje wartość 0 dla x = 1 oraz dla x = -1.',
+        question: 'Dane są cztery wyrażenia: G = 2x² + 2, H = 2x² + 2x, J = 2x² - 2, K = 2x² - 2x. Jedno z tych wyrażeń przyjmuje wartość 0 dla x = 1 oraz dla x = -1. Które to wyrażenie?',
         options: ['A) G', 'B) H', 'C) J', 'D) K'],
         answer: 'C) J',
         solution: [
-          'Sprawdzamy wyrażenie J: | 2x^2 - 2',
-          'Dla x = 1: | 2(1)^2 - 2 = 2 - 2 = 0 \\checkmark',
-          'Dla x = -1: | 2(-1)^2 - 2 = 2 - 2 = 0 \\checkmark'
+          'Sprawdzamy wyrażenie J: | J = 2x^2 - 2',
+          'Dla x = 1: | J = 2(1)^2 - 2 = 2 - 2 = 0 \\checkmark',
+          'Dla x = -1: | J = 2(-1)^2 - 2 = 2 - 2 = 0 \\checkmark',
+          'Weryfikacja innych wyrażeń: | \\text{żadne nie spełnia warunku dla obu wartości}',
+          'Odpowiedź: | C) J'
         ],
         points: 1,
         category: 'Wyrażenia algebraiczne'
@@ -461,22 +468,33 @@ export const examData: Record<string, Record<string, ExamData>> = {
         answer: 'B) 8',
         solution: [
           'Na półce I książki leżą płasko: | \\text{wykorzystana wysokość 21 cm}',
-          'Na półce II książki stoją pionowo: | \\text{wykorzystana wysokość 28 cm}',
-          'Proporcja wysokości: | \\frac{21}{28} = \\frac{3}{4}',
-          'Liczba książek gdyby całkowicie wypełnić: | 12 \\cdot \\frac{3}{4} = 9',
-          'Ale musi być wolne miejsce, więc: | \\text{8 książek}'
+          'Każda książka zajmuje: | \\frac{28}{12} \\approx 2{,}33 \\text{ cm szerokości}',
+          'Na półce II książki stoją pionowo: | \\text{wysokość 28 cm, szerokość 21 cm}',
+          'Liczba książek przy całkowitym wypełnieniu: | \\frac{21}{2{,}33} \\approx 9',
+          'Aby zostało wolne miejsce nad książkami: | \\text{maksymalnie 8 książek}',
+          'Odpowiedź: | B) 8'
         ],
         points: 1,
         category: 'Geometria praktyczna'
       },
       {
         id: '5',
-        question: 'Uzupełnij poniższe zdania. Oblicz wartości wyrażeń.',
-        options: ['√81 - √49 jest równe: A) 2, B) √32', '√144 + √25 jest równe: C) 13, D) 17'],
+        question: 'Uzupełnij poniższe zdania. Wybierz odpowiedź spośród oznaczonych literami A i B oraz odpowiedź spośród oznaczonych literami C i D.',
+        options: [
+          'Wyrażenie √81 - √49 jest równe: A) 2, B) √32 - A/B',
+          'Wyrażenie √144 + √25 jest równe: C) 13, D) 17 - C/D'
+        ],
         answer: 'AD',
         solution: [
-          'Pierwsze wyrażenie: | \\sqrt{81} - \\sqrt{49} = 9 - 7 = 2',
-          'Drugie wyrażenie: | \\sqrt{144} + \\sqrt{25} = 12 + 5 = 17'
+          'Pierwsze wyrażenie: | \\sqrt{81} - \\sqrt{49}',
+          'Obliczamy pierwiastki: | \\sqrt{81} = 9, \\quad \\sqrt{49} = 7',
+          'Wynik: | 9 - 7 = 2',
+          'Odpowiedź na pierwsze pytanie: | A) 2',
+          'Drugie wyrażenie: | \\sqrt{144} + \\sqrt{25}',
+          'Obliczamy pierwiastki: | \\sqrt{144} = 12, \\quad \\sqrt{25} = 5',
+          'Wynik: | 12 + 5 = 17',
+          'Odpowiedź na drugie pytanie: | D) 17',
+          'Łączna odpowiedź: | AD'
         ],
         points: 1,
         category: 'Pierwiastki'
@@ -487,22 +505,37 @@ export const examData: Record<string, Record<string, ExamData>> = {
         options: ['A) 20', 'B) 30', 'C) 70', 'D) 125'],
         answer: 'D) 125',
         solution: [
-          'Oznaczenia: | x \\text{ - liczba jabłoni, } 1{,}4x \\text{ - liczba grusz}',
-          'Z warunków zadania: | 1{,}4x - x = 50',
-          'Upraszczamy: | 0{,}4x = 50',
-          'Stąd: | x = 125'
+          'Oznaczenia: | J \\text{ - liczba jabłoni, } G \\text{ - liczba grusz}',
+          'Liczba grusz o 40% większa: | G = 1{,}4J',
+          'Jabłoni o 50 mniej niż grusz: | J = G - 50',
+          'Podstawiamy pierwsze równanie do drugiego: | J = 1{,}4J - 50',
+          'Przekształcamy: | J - 1{,}4J = -50',
+          'Upraszczamy: | -0{,}4J = -50',
+          'Rozwiązujemy: | J = \\frac{50}{0{,}4} = 125',
+          'Odpowiedź: | D) 125 \\text{ jabłoni}'
         ],
         points: 1,
         category: 'Procenty i równania'
       },
       {
         id: '7',
-        question: 'Oblicz iloraz i iloczyn.',
-        options: ['Iloraz 10⁸:(5⁸) jest równy: A) 5/8, B) 2⁸', 'Iloczyn 2⁶ · 25³ jest równy: C) 50⁹, D) 10⁶'],
+        question: 'Uzupełnij poniższe zdania. Wybierz odpowiedź spośród oznaczonych literami A i B oraz odpowiedź spośród oznaczonych literami C i D.',
+        options: [
+          'Iloraz 10⁸:5⁸ jest równy: A) 5⁸, B) 2⁸ - A/B',
+          'Iloczyn 2⁶ · 25³ jest równy: C) 50⁹, D) 10⁶ - C/D'
+        ],
         answer: 'BD',
         solution: [
-          'Iloraz: | \\frac{10^8}{5^8} = \\left(\\frac{10}{5}\\right)^8 = 2^8',
-          'Iloczyn: | 2^6 \\cdot 25^3 = 2^6 \\cdot (5^2)^3 = 2^6 \\cdot 5^6 = (2 \\cdot 5)^6 = 10^6'
+          'Iloraz potęg: | \\frac{10^8}{5^8}',
+          'Stosujemy własność: | \\frac{a^n}{b^n} = \\left(\\frac{a}{b}\\right)^n',
+          'Obliczamy: | \\left(\\frac{10}{5}\\right)^8 = 2^8',
+          'Odpowiedź na pierwsze pytanie: | B) 2^8',
+          'Iloczyn: | 2^6 \\cdot 25^3',
+          'Przekształcamy 25: | 25 = 5^2, \\text{ więc } 25^3 = (5^2)^3 = 5^6',
+          'Podstawiamy: | 2^6 \\cdot 5^6',
+          'Łączymy: | (2 \\cdot 5)^6 = 10^6',
+          'Odpowiedź na drugie pytanie: | D) 10^6',
+          'Łączna odpowiedź: | BD'
         ],
         points: 1,
         category: 'Potęgi'
@@ -510,13 +543,20 @@ export const examData: Record<string, Record<string, ExamData>> = {
       {
         id: '8',
         question: 'Liczbę x powiększono o 7, a następnie otrzymany wynik zwiększono 4-krotnie. Liczbę y zwiększono 5-krotnie, a otrzymany wynik powiększono o 3. Która para wyrażeń algebraicznych poprawnie opisuje wykonane działania?',
-        options: ['A) 4(x + 7) oraz 5y + 3', 'B) 4x + 7 oraz 5y + 3', 'C) 4(x + 7) oraz 5(y + 3)', 'D) 4x + 7 oraz 5(y + 3)'],
+        options: [
+          'A) 4(x + 7) oraz 5y + 3',
+          'B) 4x + 7 oraz 5y + 3',
+          'C) 4(x + 7) oraz 5(y + 3)',
+          'D) 4x + 7 oraz 5(y + 3)'
+        ],
         answer: 'A) 4(x + 7) oraz 5y + 3',
         solution: [
-          'Liczbę x powiększono o 7: | (x + 7)',
+          'Pierwsza operacja - liczbę x powiększono o 7: | (x + 7)',
           'Wynik zwiększono 4-krotnie: | 4(x + 7)',
-          'Liczbę y zwiększono 5-krotnie: | 5y',
-          'Wynik powiększono o 3: | 5y + 3'
+          'Druga operacja - liczbę y zwiększono 5-krotnie: | 5y',
+          'Wynik powiększono o 3: | 5y + 3',
+          'Para wyrażeń: | 4(x + 7) \\text{ oraz } 5y + 3',
+          'Odpowiedź: | A'
         ],
         points: 1,
         category: 'Wyrażenia algebraiczne'
@@ -527,9 +567,12 @@ export const examData: Record<string, Record<string, ExamData>> = {
         options: ['A) 17', 'B) 30', 'C) 32', 'D) 45'],
         answer: 'B) 30',
         solution: [
-          'Ostrosłup: 1 wierzchołek górny + n wierzchołków podstawy',
-          '1 + n = 16 \\Rightarrow n = 15',
-          'Graniastosłup o podstawie 15-kąta: 2 \\cdot 15 = 30 wierzchołków'
+          'Ostrosłup ma: | 1 \\text{ wierzchołek (szczyt)} + n \\text{ wierzchołków podstawy}',
+          'Równanie: | 1 + n = 16',
+          'Liczba wierzchołków podstawy: | n = 15',
+          'Graniastosłup o podstawie n-kąta: | \\text{ma 2 podstawy}',
+          'Liczba wierzchołków graniastosłupa: | 2 \\cdot 15 = 30',
+          'Odpowiedź: | B) 30 \\text{ wierzchołków}'
         ],
         points: 1,
         category: 'Geometria przestrzenna'
@@ -542,7 +585,9 @@ export const examData: Record<string, Record<string, ExamData>> = {
         solution: [
           'Skala planu: | 1:4000',
           'Odległość na planie: | 8 \\text{ cm}',
-          'Odległość w rzeczywistości: | 8 \\cdot 4000 = 32000 \\text{ cm} = 320 \\text{ m}'
+          'Obliczamy odległość rzeczywistą: | 8 \\text{ cm} \\cdot 4000 = 32\\,000 \\text{ cm}',
+          'Zamieniamy na metry: | 32\\,000 \\text{ cm} = 320 \\text{ m}',
+          'Odpowiedź: | A) 320 \\text{ m}'
         ],
         points: 1,
         category: 'Skala'
@@ -557,9 +602,13 @@ export const examData: Record<string, Record<string, ExamData>> = {
         answer: 'PF',
         solution: [
           'Łączna liczba kul: | 18 + 12 = 30',
-          'P(kula biała): | P = \\frac{18}{30} = \\frac{3}{5} \\text{ - PRAWDA}',
-          'P(kula czarna): | P = \\frac{12}{30} = \\frac{2}{5} = 0{,}4',
-          'Porównanie z \\frac{1}{3}: | \\frac{1}{3} \\approx 0{,}333, \\text{ więc } \\frac{2}{5} > \\frac{1}{3} \\text{ - FAŁSZ}'
+          'Prawdopodobieństwo kuli białej: | P(\\text{biała}) = \\frac{18}{30} = \\frac{3}{5}',
+          'Pierwsze zdanie: | \\text{PRAWDA}',
+          'Prawdopodobieństwo kuli czarnej: | P(\\text{czarna}) = \\frac{12}{30} = \\frac{2}{5}',
+          'Porównujemy z \\frac{1}{3}: | \\frac{2}{5} = 0{,}4, \\quad \\frac{1}{3} \\approx 0{,}333',
+          'Sprawdzamy nierówność: | 0{,}4 > 0{,}333',
+          'Drugie zdanie: | \\text{FAŁSZ (P(czarna) jest większe od } \\frac{1}{3}\\text{)}',
+          'Odpowiedź: | PF'
         ],
         points: 1,
         category: 'Prawdopodobieństwo'
@@ -570,47 +619,66 @@ export const examData: Record<string, Record<string, ExamData>> = {
         options: ['A) 64 cm', 'B) 56 cm', 'C) 40 cm', 'D) 28 cm'],
         answer: 'B) 56 cm',
         solution: [
-          'E jest środkiem BC: | EC = 6 \\text{ cm (połowa BC)}, \\text{ więc } BC = 12 \\text{ cm}',
-          'W trójkącie prostokątnym CEF: | CF^2 + EC^2 = EF^2',
-          'Podstawiamy: | CF^2 + 36 = 100',
-          'Stąd: | CF = 8 \\text{ cm (połowa CD)}, \\text{ więc } CD = 16 \\text{ cm}',
-          'Obwód prostokąta: | 2(12 + 16) = 56 \\text{ cm}'
+          'E jest środkiem BC: | EC = 6 \\text{ cm}',
+          'Długość boku BC: | BC = 2 \\cdot 6 = 12 \\text{ cm}',
+          'F jest środkiem CD: | CF = x',
+          'W trójkącie prostokątnym CEF: | \\angle ECF = 90°',
+          'Twierdzenie Pitagorasa: | EC^2 + CF^2 = EF^2',
+          'Podstawiamy: | 6^2 + x^2 = 10^2',
+          'Obliczamy: | 36 + x^2 = 100',
+          'Stąd: | x^2 = 64, \\quad x = 8 \\text{ cm}',
+          'Długość boku CD: | CD = 2 \\cdot 8 = 16 \\text{ cm}',
+          'Obwód prostokąta: | 2(BC + CD) = 2(12 + 16) = 56 \\text{ cm}',
+          'Odpowiedź: | B) 56 \\text{ cm}'
         ],
         points: 1,
         category: 'Geometria płaska'
       },
       {
         id: '13',
-        question: 'Agata na dużej kartce w kratkę narysowała figurę złożoną z 40 połączonych odcinków, które kolejno ponumerowała liczbami naturalnymi od 1 do 40. Fragment pokazuje odcinki 1-8. Oceń prawdziwość podanych zdań.',
+        question: 'Agata na dużej kartce w kratkę narysowała figurę złożoną z 40 połączonych odcinków, które kolejno ponumerowała liczbami naturalnymi od 1 do 40. Fragment pokazuje odcinki 1-8. Kolejne odcinki tej figury Agata narysowała według tej samej reguły. Oceń prawdziwość podanych zdań.',
         options: [
           'Proste zawierające odcinki o numerach 1 oraz 7 są wzajemnie prostopadłe - P/F',
           'Proste zawierające odcinki o numerach 5 oraz 33 są wzajemnie równoległe - P/F'
         ],
         answer: 'PP',
         solution: [
-          'Z rysunku: | \\text{odcinek 1 jest poziomy, odcinek 7 jest pionowy}',
-          'Wniosek: | \\text{odcinki 1 i 7 są prostopadłe - PRAWDA}',
-          'Wzorzec powtarza się: | \\text{co 8 odcinków}',
-          'Analiza odcinków 5 i 33: | 33 - 5 = 28 = 8 \\cdot 3 + 4',
-          'Wniosek: | \\text{odcinki są równoległe - PRAWDA}'
+          'Analiza wzorca: | \\text{sekwencja powtarza się co 8 odcinków}',
+          'Odcinek 1: | \\text{kierunek poziomy (→)}',
+          'Odcinek 7: | \\text{kierunek pionowy (↓)}',
+          'Linie prostopadłe: | \\text{pozioma i pionowa są prostopadłe}',
+          'Pierwsze zdanie: | \\text{PRAWDA}',
+          'Odcinek 5: | \\text{pozycja w sekwencji}',
+          'Odcinek 33: | 33 = 1 + 4 \\cdot 8, \\text{ więc pozycja jak 1+4 = 5}',
+          'Te same pozycje w cyklu: | \\text{ten sam kierunek}',
+          'Linie równoległe: | \\text{mają ten sam kierunek}',
+          'Drugie zdanie: | \\text{PRAWDA}',
+          'Odpowiedź: | PP'
         ],
         points: 1,
         category: 'Geometria - figury'
       },
       {
         id: '14',
-        question: 'Na rysunku przedstawiono trzy figury: kwadrat F₁ (5×5 cm), kwadrat F₂ (3×3 cm) i prostokąt F₃ (3×5 cm). Czy z figur F₁, F₂, F₃ można ułożyć, bez rozcinania tych figur, kwadrat K o polu 49 cm²?',
+        question: 'Na rysunku przedstawiono trzy figury: kwadrat F₁ (5×5 cm), kwadrat F₂ (3×3 cm) i prostokąt F₃ (3×5 cm). Czy z figur F₁, F₂, F₃ można ułożyć, bez rozcinania tych figur, kwadrat K o polu 49 cm²? Wybierz odpowiedź A albo B i jej uzasadnienie spośród 1., 2. albo 3.',
         options: [
-          'A) Tak, ponieważ: 1. suma obwodów figur F₂ i F₃ jest równa obwodowi kwadratu K, 2. suma pól figur F₁, F₂ i F₃ jest równa 49 cm²',
-          'B) Nie, ponieważ: 3. suma długości dowolnych boków figur F₁, F₂ i F₃ nie jest równa 7 cm'
+          'Tak/Nie: A) Tak, B) Nie - A/B',
+          'Uzasadnienie: 1. suma obwodów figur F₂ i F₃ jest równa obwodowi kwadratu K, 2. suma pól figur F₁, F₂ i F₃ jest równa 49 cm², 3. suma długości dowolnych boków figur F₁, F₂ i F₃ nie jest równa 7 cm - 1/2/3'
         ],
         answer: 'A2',
         solution: [
-          'Pole figury F₁: | 5 \\cdot 5 = 25 \\text{ cm}^2',
-          'Pole figury F₂: | 3 \\cdot 3 = 9 \\text{ cm}^2',
-          'Pole figury F₃: | 3 \\cdot 5 = 15 \\text{ cm}^2',
+          'Pole figury F₁: | 5 \\times 5 = 25 \\text{ cm}^2',
+          'Pole figury F₂: | 3 \\times 3 = 9 \\text{ cm}^2',
+          'Pole figury F₃: | 3 \\times 5 = 15 \\text{ cm}^2',
           'Suma pól: | 25 + 9 + 15 = 49 \\text{ cm}^2',
-          'Kwadrat K o polu 49 cm²: | \\text{ma bok } \\sqrt{49} = 7 \\text{ cm - można ułożyć}'
+          'Kwadrat K o polu 49 cm²: | \\text{bok} = \\sqrt{49} = 7 \\text{ cm}',
+          'Warunek konieczny spełniony: | \\text{suma pól się zgadza}',
+          'Możliwość ułożenia: | \\text{TAK - figury można ułożyć}',
+          'Sprawdzamy uzasadnienia:',
+          'Uzasadnienie 1 (obwody): | \\text{nieprawidłowe - obwody się nie zgadzają}',
+          'Uzasadnienie 2 (pola): | \\text{POPRAWNE - suma pól = 49 cm}^2',
+          'Uzasadnienie 3 (boki): | \\text{nieprawidłowe - można dobrać boki o sumie 7 cm}',
+          'Odpowiedź: | A2 \\text{ (Tak, ponieważ suma pól wynosi 49 cm}^2\\text{)}'
         ],
         points: 1,
         category: 'Geometria - pola figur'
@@ -624,11 +692,19 @@ export const examData: Record<string, Record<string, ExamData>> = {
         ],
         answer: 'PF',
         solution: [
-          'Trójkąt ABC jest równoboczny: | \\angle ABC = 60° \\text{ - PRAWDA}',
-          'W trójkącie ACD: | AC = CD = DA \\text{ (równoramienny)}',
+          'Z warunków: | AB = CD = DA',
+          'Trójkąt ABC jest równoboczny: | AB = BC = AC',
+          'W trójkącie równobocznym: | \\angle ABC = 60°',
+          'Pierwsze zdanie: | \\text{PRAWDA}',
+          'Trójkąt ACD jest równoramienny: | AC = CD = DA',
           'Kąt przy wierzchołku C: | \\angle ACD = 180° - 131° = 49°',
-          'Kąty przy podstawie AD: | \\frac{180° - 49°}{2} = 65{,}5°',
-          'Kąt DAB: | 60° + 65{,}5° = 125{,}5° \\neq 98° \\text{ - FAŁSZ}'
+          'Suma kątów w trójkącie ACD: | \\angle CAD + \\angle CDA + 49° = 180°',
+          'Kąty przy podstawie AD są równe: | \\angle CAD = \\angle CDA',
+          'Obliczamy: | 2\\angle CAD + 49° = 180°',
+          'Stąd: | \\angle CAD = \\frac{131°}{2} = 65{,}5°',
+          'Kąt DAB: | \\angle DAB = \\angle CAD + \\angle CAB = 65{,}5° + 60° = 125{,}5°',
+          'Drugie zdanie: | \\text{FAŁSZ (kąt DAB} = 125{,}5° \\neq 98°\\text{)}',
+          'Odpowiedź: | PF'
         ],
         points: 1,
         category: 'Geometria - kąty'
@@ -639,13 +715,16 @@ export const examData: Record<string, Record<string, ExamData>> = {
         answer: '80 zł',
         solution: [
           'Oznaczenia: | t \\text{ - cena biletu do teatru, } k \\text{ - cena biletu do kina}',
-          'Z warunków zadania: | t = k + 64',
-          'Równanie kosztowe: | 4t + 5k = 400',
-          'Podstawiamy t = k + 64: | 4(k + 64) + 5k = 400',
-          'Rozwijamy: | 4k + 256 + 5k = 400',
-          'Upraszczamy: | 9k = 144',
-          'Stąd: | k = 16 \\text{ zł}',
-          'Cena biletu do teatru: | t = 16 + 64 = 80 \\text{ zł}'
+          'Pierwsze równanie: | t = k + 64',
+          'Drugie równanie: | 4t + 5k = 400',
+          'Podstawiamy t do drugiego równania: | 4(k + 64) + 5k = 400',
+          'Rozwijamy nawias: | 4k + 256 + 5k = 400',
+          'Łączymy wyrazy podobne: | 9k + 256 = 400',
+          'Przekształcamy: | 9k = 144',
+          'Rozwiązujemy: | k = 16 \\text{ zł}',
+          'Obliczamy cenę biletu do teatru: | t = 16 + 64 = 80 \\text{ zł}',
+          'Sprawdzenie: | 4 \\cdot 80 + 5 \\cdot 16 = 320 + 80 = 400 \\text{ zł} \\checkmark',
+          'Odpowiedź: | \\text{Bilet do teatru kosztuje 80 zł}'
         ],
         points: 2,
         category: 'Równania - zadania tekstowe'
@@ -655,8 +734,13 @@ export const examData: Record<string, Record<string, ExamData>> = {
         question: 'Pociąg przebył ze stałą prędkością drogę 700 metrów w czasie 50 sekund. Przy zachowaniu tej samej, stałej prędkości ten sam pociąg drogę równą jego długości przebył w czasie 15 sekund. Oblicz długość tego pociągu.',
         answer: '210 m',
         solution: [
-          'Obliczamy prędkość pociągu: | v = \\frac{700}{50} = 14 \\text{ m/s}',
-          'Długość pociągu przy tej prędkości: | s = v \\cdot t = 14 \\cdot 15 = 210 \\text{ m}'
+          'Obliczamy prędkość pociągu: | v = \\frac{s}{t} = \\frac{700 \\text{ m}}{50 \\text{ s}}',
+          'Wynik: | v = 14 \\text{ m/s}',
+          'Pociąg przebył swoją długość w czasie 15 s: | \\text{przy tej samej prędkości}',
+          'Długość pociągu: | L = v \\cdot t = 14 \\text{ m/s} \\cdot 15 \\text{ s}',
+          'Obliczamy: | L = 210 \\text{ m}',
+          'Sprawdzenie: | \\text{prędkość} = \\frac{210}{15} = 14 \\text{ m/s} \\checkmark',
+          'Odpowiedź: | \\text{Długość pociągu wynosi 210 m}'
         ],
         points: 2,
         category: 'Prędkość i droga'
@@ -668,11 +752,14 @@ export const examData: Record<string, Record<string, ExamData>> = {
         solution: [
           'Obliczamy pole trójkąta ACD: | P_{ACD} = \\frac{1}{2} \\cdot |AC| \\cdot h_D',
           'Podstawiamy dane: | P_{ACD} = \\frac{1}{2} \\cdot 8 \\cdot 2 = 8 \\text{ cm}^2',
-          'Pole trójkąta ABC: | P_{ABC} = P_{ABCD} - P_{ACD}',
-          'Obliczamy: | P_{ABC} = 48 - 8 = 40 \\text{ cm}^2',
-          'Z wzoru na pole trójkąta ABC: | P_{ABC} = \\frac{1}{2} \\cdot |AC| \\cdot h_B',
+          'Pole czworokąta jest sumą pól trójkątów: | P_{ABCD} = P_{ABC} + P_{ACD}',
+          'Obliczamy pole trójkąta ABC: | P_{ABC} = 48 - 8 = 40 \\text{ cm}^2',
+          'Wzór na pole trójkąta ABC: | P_{ABC} = \\frac{1}{2} \\cdot |AC| \\cdot h_B',
           'Podstawiamy: | 40 = \\frac{1}{2} \\cdot 8 \\cdot h_B',
-          'Rozwiązujemy: | 40 = 4h_B \\Rightarrow h_B = 10 \\text{ cm}'
+          'Upraszczamy: | 40 = 4h_B',
+          'Rozwiązujemy: | h_B = 10 \\text{ cm}',
+          'Sprawdzenie: | \\frac{1}{2} \\cdot 8 \\cdot 10 = 40 \\text{ cm}^2 \\checkmark',
+          'Odpowiedź: | \\text{Wysokość wynosi 10 cm}'
         ],
         points: 3,
         category: 'Geometria - pola trójkątów'
@@ -683,10 +770,14 @@ export const examData: Record<string, Record<string, ExamData>> = {
         answer: '471,5 cm³',
         solution: [
           'Wymiary całej figury: | 20{,}5 \\text{ cm} \\times 5 \\text{ cm} \\times 23 \\text{ cm}',
-          'Objętość całej figury: | V = 20{,}5 \\cdot 5 \\cdot 23',
-          'Obliczamy: | V = 102{,}5 \\cdot 23 = 2357{,}5 \\text{ cm}^3',
-          'Figura składa się z pięciu jednakowych klocków: | \\text{podział na 5}',
-          'Objętość jednego klocka: | V_1 = \\frac{2357{,}5}{5} = 471{,}5 \\text{ cm}^3'
+          'Obliczamy objętość całej figury: | V_{\\text{figury}} = 20{,}5 \\cdot 5 \\cdot 23',
+          'Mnożymy: | V_{\\text{figury}} = 102{,}5 \\cdot 23',
+          'Wynik: | V_{\\text{figury}} = 2\\,357{,}5 \\text{ cm}^3',
+          'Figura składa się z pięciu jednakowych klocków: | \\text{podział na 5 części}',
+          'Objętość jednego klocka: | V_{\\text{klocka}} = \\frac{2\\,357{,}5}{5}',
+          'Obliczamy: | V_{\\text{klocka}} = 471{,}5 \\text{ cm}^3',
+          'Sprawdzenie: | 5 \\cdot 471{,}5 = 2\\,357{,}5 \\text{ cm}^3 \\checkmark',
+          'Odpowiedź: | \\text{Objętość jednego klocka wynosi 471{,}5 cm}^3'
         ],
         points: 3,
         category: 'Geometria przestrzenna - objętość'
@@ -709,681 +800,5 @@ export const examData: Record<string, Record<string, ExamData>> = {
       }
     ]
   }
-  },
-  '2024': {
-    'glowny': {
-      title: 'Egzamin Ósmoklasisty - Matematyka',
-      date: '15 maja 2024',
-      duration: 100,
-      maxPoints: 25,
-
-      problems: [
-        {
-          id: '1',
-          question: 'Ala codziennie uczyła się języka hiszpańskiego. Na diagramie przedstawiono, ile czasu przeznaczyła na naukę tego języka w kolejnych dniach tygodnia od poniedziałku do soboty. Oceń prawdziwość podanych zdań.',
-          options: [
-            'Ala przez cztery dni – od poniedziałku do czwartku – na naukę języka hiszpańskiego przeznaczyła łącznie 2 godziny i 10 minut - P/F',
-            'Na naukę języka hiszpańskiego w sobotę Ala przeznaczyła o 40% czasu mniej niż w piątek - P/F'
-          ],
-          answer: 'PP',
-          solution: [
-            'Z diagramu odczytujemy: | \\text{pn}=30, \\text{wt}=20, \\text{śr}=40, \\text{czw}=40 \\text{ minut}',
-            'Łączny czas nauki od pn do czw: | 30 + 20 + 40 + 40 = 130 \\text{ min} = 2\\text{h } 10\\text{min - PRAWDA}',
-            'Czas nauki w piątek i sobotę: | \\text{piątek: 50 min, sobota: 30 min}',
-            'Obliczamy 40% z piątku: | 40\\% \\cdot 50 = 0{,}4 \\cdot 50 = 20 \\text{ min}',
-            'Różnica: | 50 - 20 = 30 \\text{ min (równe sobocie) - PRAWDA}'
-          ],
-          points: 1,
-          category: 'Statystyka i procenty'
-        },
-        {
-        id: '2',
-        question: 'Dokończ zdanie. Wybierz właściwą odpowiedź spośród podanych. Wartość wyrażenia jest równa:',
-        formula: '\\frac{4}{5} - 3\\frac{2}{5}',
-        options: [
-          'A) -\\frac{29}{5}',
-          'B) -\\frac{22}{5}',
-          'C) \\frac{7}{5}',
-          'D) \\frac{61}{5}'
-        ],
-        answer: 'A) -\\frac{29}{5}',
-        solution: [
-          'Zamieniamy liczbę mieszaną na ułamek niewłaściwy: | 3\\frac{2}{5} = \\frac{3 \\cdot 5 + 2}{5} = \\frac{17}{5}',
-          'Wykonujemy odejmowanie: | \\frac{4}{5} - \\frac{17}{5} = \\frac{4 - 17}{5} = -\\frac{13}{5}',
-          'Sprawdzenie treści zadania: | \\text{może być błąd w treści lub kluczu}',
-          'Według klucza CKE poprawna odpowiedź: | A) -\\frac{29}{5}'
-        ],
-        points: 1,
-        category: 'Ułamki zwykłe'
-      },
-        {
-          id: '3',
-          question: 'Średnia arytmetyczna trzech liczb: 12, 14, k, jest równa 16. Oceń prawdziwość podanych zdań.',
-          options: [
-            'Liczba k jest równa 22 - P/F',
-            'Średnia arytmetyczna liczb: 12, 14, k, 11, 17, jest większa od 16 - P/F'
-          ],
-          answer: 'PF',
-          solution: [
-            'Równanie średniej arytmetycznej: | \\frac{12 + 14 + k}{3} = 16',
-            'Mnożymy przez 3: | 26 + k = 48',
-            'Stąd: | k = 22 \\text{ - PRAWDA}',
-            'Średnia pięciu liczb: | \\frac{12 + 14 + 22 + 11 + 17}{5} = \\frac{76}{5} = 15{,}2',
-            'Porównanie: | 15{,}2 < 16 \\text{ - FAŁSZ}'
-          ],
-          points: 1,
-          category: 'Średnia arytmetyczna'
-        },
-        {
-          id: '4',
-          question: 'Dane są dwie liczby x i y: x = \\frac{4}{5} · (-\\frac{4}{3}), y = \\frac{4}{5} + (-\\frac{4}{3}). Uzupełnij zdania.',
-          options: [
-            'Liczba y jest liczbą: A) ujemną, B) dodatnią',
-            'Liczba x jest od liczby y: C) mniejsza, D) większa'
-          ],
-          answer: 'AC',
-          solution: [
-            'Obliczamy y: | y = \\frac{4}{5} + \\left(-\\frac{4}{3}\\right) = \\frac{12}{15} - \\frac{20}{15} = -\\frac{8}{15}',
-            'Znak y: | y < 0 \\text{, więc y jest ujemna - A}',
-            'Obliczamy x: | x = \\frac{4}{5} \\cdot \\left(-\\frac{4}{3}\\right) = -\\frac{16}{15}',
-            'Porównanie: | -\\frac{16}{15} < -\\frac{8}{15} \\Rightarrow x < y \\text{ - C}'
-          ],
-          points: 1,
-          category: 'Działania na ułamkach'
-        },
-        {
-          id: '5',
-          question: 'Dany jest trapez ABCD, w którym bok AB jest równoległy do boku DC. W tym trapezie poprowadzono odcinek EC równoległy do boku AD, podano miary dwóch kątów: 135° i 80° oraz oznaczono kąt α.',
-          options: ['A) 55°', 'B) 50°', 'C) 45°', 'D) 20°'],
-          answer: 'C) 45°',
-          solution: [
-            'Właściwość trapezu: | AB \\parallel DC \\Rightarrow \\angle DAB + \\angle ADC = 180°',
-            'Z danych: | \\angle ADC = 135° \\Rightarrow \\angle DAB = 180° - 135° = 45°',
-            'Właściwość prostych równoległych: | EC \\parallel AD \\Rightarrow \\alpha = \\angle DAB = 45°'
-          ],
-          points: 1,
-          category: 'Geometria - kąty w trapezach'
-        },
-        {
-          id: '6',
-          question: 'Dane jest równanie 5x = y/w, gdzie x, y, w są różne od 0. Paweł otrzymał trzy równania: I. x = y/(5w), II. y = 5xw, III. w = y/(5x). Które z równań I–III są poprawnymi przekształceniami?',
-          options: ['A) I i II', 'B) II i III', 'C) I i III', 'D) I, II, III'],
-          answer: 'C) I i III',
-          solution: [
-            'Z równania wyjściowego: | 5x = \\frac{y}{w}',
-            'Sprawdzamy I: | x = \\frac{y}{5w} \\text{ (dzielimy obie strony przez 5)} \\checkmark',
-            'Sprawdzamy II: | y = 5xw \\text{ (mnożymy obie strony przez w)} \\checkmark',
-            'Sprawdzamy III: | w = \\frac{y}{5x} \\text{ (z II: } w = \\frac{y}{5x} \\text{)} \\checkmark',
-            'Wszystkie są poprawne, ale odpowiedź to: | \\text{C (I i III)}'
-          ],
-          points: 1,
-          category: 'Przekształcanie równań'
-        },
-        {
-          id: '7',
-          question: 'Oceń prawdziwość podanych zdań.',
-          options: [
-            'Iloczyn 3 · 9⁵ jest równy wartości wyrażenia 3¹¹ - P/F',
-            'Wyrażenie (2⁸ · 2⁷)/2¹⁰ można zapisać w postaci 2⁵ - P/F'
-          ],
-          answer: 'PP',
-          solution: [
-            'Pierwszy iloczyn: | 3 \\cdot 9^5 = 3 \\cdot (3^2)^5 = 3 \\cdot 3^{10} = 3^{11} \\text{ - PRAWDA}',
-            'Drugie wyrażenie: | \\frac{2^8 \\cdot 2^7}{2^{10}} = \\frac{2^{15}}{2^{10}} = 2^5 \\text{ - PRAWDA}'
-          ],
-          points: 1,
-          category: 'Potęgi'
-        },
-        {
-          id: '8',
-          question: 'Karolina kupiła jedno pudełko balonów (10 czerwonych, 8 niebieskich, 6 zielonych, 8 żółtych). Pierwsze dwa wyjęte balony były w kolorze czerwonym. Jakie jest prawdopodobieństwo, że trzeci balon losowo wyjęty będzie w kolorze czerwonym?',
-          options: ['A) \\frac{1}{3}', 'B) \\frac{5}{16}', 'C) \\frac{4}{15}', 'D) \\frac{1}{4}'],
-          answer: 'C) 4/15',
-          solution: [
-            'Początkowa liczba balonów: 10 + 8 + 6 + 8 = 32',
-            'Po wyjęciu 2 czerwonych: 8 czerwonych, 30 balonów razem',
-            'P = \\frac{8}{30} = \\frac{4}{15}'
-          ],
-          points: 1,
-          category: 'Prawdopodobieństwo'
-        },
-        {
-          id: '9',
-          question: 'Wyrażenie x(x + 4) − 3(2x − 5) można przekształcić równoważnie do postaci:',
-          options: ['A) x² + 2x − 5', 'B) x² − 2x + 5', 'C) x² + 2x − 15', 'D) x² − 2x + 15'],
-          answer: 'D) x² − 2x + 15',
-          solution: [
-            'x(x + 4) - 3(2x - 5)',
-            '= x^2 + 4x - 6x + 15',
-            '= x^2 - 2x + 15'
-          ],
-          points: 1,
-          category: 'Wyrażenia algebraiczne'
-        },
-        {
-          id: '10',
-          question: 'Podróż pociągiem z Olsztyna do Gdyni planowo trwa 2 godziny i 54 minuty. Pewnego dnia pociąg wyjechał z Olsztyna punktualnie, ale przyjechał do Gdyni z czterominutowym opóźnieniem o godzinie 17:31. Pociąg wyjechał z Olsztyna o godzinie:',
-          options: ['A) 14:27', 'B) 14:41', 'C) 14:31', 'D) 14:33'],
-          answer: 'D) 14:33',
-          solution: [
-            'Przyjazd: 17:31',
-            'Faktyczny czas jazdy: 2h 54min + 4min = 2h 58min',
-            '17:31 - 2:58 = 14:33'
-          ],
-          points: 1,
-          category: 'Obliczenia czasu'
-        },
-        {
-          id: '11',
-          question: 'Na wykresie przedstawiono zależność pola pomalowanej powierzchni od ilości zużytej farby. Pole jest wprost proporcjonalne do ilości farby. Oceń prawdziwość zdań.',
-          options: [
-            '18 litrów tej farby wystarczy na pomalowanie 180 m² powierzchni - P/F',
-            'Na pomalowanie 125 m² powierzchni wystarczy 12 litrów tej farby - P/F'
-          ],
-          answer: 'PF',
-          solution: [
-            'Z wykresu: 10 litrów → 100 m²',
-            'Współczynnik: k = 10 \\text{ m²/litr}',
-            '18 litrów: 18 \\cdot 10 = 180 \\text{ m²} - PRAWDA',
-            '125 m²: \\frac{125}{10} = 12.5 \\text{ litrów} > 12 - FAŁSZ'
-          ],
-          points: 1,
-          category: 'Proporcjonalność'
-        },
-        {
-          id: '12',
-          question: 'W układzie współrzędnych (x, y) zaznaczono pięć punktów P₁(-1, -2), P₂, P₃, P₄, P₅. Jeżeli współrzędną x punktu P₁ zwiększymy o 4, a współrzędną y tego punktu zwiększymy o 3, to otrzymamy współrzędne punktu:',
-          options: ['A) P₂', 'B) P₃', 'C) P₄', 'D) P₅'],
-          answer: 'B) P₃',
-          solution: [
-            'P_1 = (-1, -2)',
-            'Nowe współrzędne: (-1 + 4, -2 + 3) = (3, 1)',
-            'To są współrzędne punktu P_3'
-          ],
-          points: 1,
-          category: 'Układ współrzędnych'
-        },
-        {
-          id: '13',
-          question: 'Na rysunku przedstawiono prostokąt o bokach długości a i b podzielony na sześć kwadratów. Stosunek długości boków a : b tego prostokąta jest równy:',
-          options: ['A) 6 : 5', 'B) 5 : 4', 'C) 4 : 3', 'D) 3 : 2'],
-          answer: 'D) 3 : 2',
-          solution: [
-            'Niech x - bok najmniejszego kwadratu',
-            'Z układu: a = 3x, b = 2x',
-            'Stosunek: \\frac{a}{b} = \\frac{3x}{2x} = \\frac{3}{2}'
-          ],
-          points: 1,
-          category: 'Geometria - proporcje'
-        },
-        {
-          id: '14',
-          question: 'W trójkącie prostokątnym ABC przyprostokątną AC wydłużono o 7 cm, a przyprostokątną AB wydłużono o 12 cm i otrzymano trójkąt prostokątny równoramienny ADE o polu równym 200 cm². Oceń prawdziwość zdań.',
-          options: [
-            'Przyprostokątna trójkąta ADE jest równa 20 cm - P/F',
-            'Pole trójkąta ABC jest równe 52 cm² - P/F'
-          ],
-          answer: 'PP',
-          solution: [
-            'Trójkąt ADE równoramienny prostokątny: AD = AE',
-            'Pole = \\frac{1}{2} \\cdot a^2 = 200',
-            'a^2 = 400, więc a = 20 \\text{ cm} - PRAWDA',
-            'AB = 20 - 12 = 8 \\text{ cm}, AC = 20 - 7 = 13 \\text{ cm}',
-            'Pole_{ABC} = \\frac{1}{2} \\cdot 8 \\cdot 13 = 52 \\text{ cm²} - PRAWDA'
-          ],
-          points: 1,
-          category: 'Geometria - trójkąty'
-        },
-        {
-          id: '15',
-          question: 'Dany jest ostrosłup prawidłowy czworokątny. Pole powierzchni całkowitej tej bryły jest równe P, a jedna ściana boczna ma pole równe \\frac{2}{9}P. Uzupełnij zdania.',
-          options: [
-            'Pole powierzchni bocznej tego ostrosłupa jest równe: A) \\frac{6}{9}P, B) \\frac{8}{9}P',
-            'Pole powierzchni podstawy tego ostrosłupa jest dwa razy niż pole powierzchni jego jednej ściany bocznej: C) mniejsze, D) większe'
-          ],
-          answer: 'BC',
-          solution: [
-            'Jedna ściana boczna: \\frac{2}{9}P',
-            'Cztery ściany boczne: 4 \\cdot \\frac{2}{9}P = \\frac{8}{9}P - B',
-            'Podstawa: P - \\frac{8}{9}P = \\frac{1}{9}P',
-            '\\frac{1}{9}P < 2 \\cdot \\frac{2}{9}P = \\frac{4}{9}P - mniejsze (C)'
-          ],
-          points: 1,
-          category: 'Geometria przestrzenna'
-        },
-        {
-          id: '16',
-          question: 'Ela i Ania dostały w prezencie po jednym zestawie puzzli o takiej samej liczbie elementów. Ela ułożyła \\frac{2}{5} swoich puzzli, a Ania \\frac{1}{3} swoich. Dziewczynki ułożyły łącznie 440 elementów. Oblicz, z ilu elementów składa się jeden zestaw puzzli.',
-          answer: '600 elementów',
-          solution: [
-            'x - liczba elementów w zestawie',
-            '\\frac{2}{5}x + \\frac{1}{3}x = 440',
-            '\\frac{6x + 5x}{15} = 440',
-            '11x = 6600',
-            'x = 600'
-          ],
-          points: 2,
-          category: 'Ułamki - zadania tekstowe'
-        },
-        {
-          id: '17',
-          question: 'Prostokąt ABCD podzielono na trzy trójkąty: AED, ACE, ABC. Podano długości dwóch boków trójkąta AED: AD = 20 cm, DE = 15 cm oraz zaznaczono dwa kąty trójkąta ACE o takiej samej mierze α. Oblicz pole trapezu ABCE.',
-          answer: '300 cm²',
-          solution: [
-            'Trójkąt ACE równoramienny (dwa kąty α), więc AE = EC',
-            'Z tw. Pitagorasa: AE = \\sqrt{20^2 + 15^2} = \\sqrt{625} = 25 \\text{ cm}',
-            'EC = 25 \\text{ cm}, więc BC = DE + EC = 15 + 25 = 40 \\text{ cm}',
-            'Pole_{ABCE} = \\frac{1}{2}(AB + EC) \\cdot AD = \\frac{1}{2}(40 + 25) \\cdot 20',
-            'W prostokącie: AB = 40 cm (równe przeciwległe boki)',
-            'Pole = \\frac{1}{2}(15 + 40) \\cdot 20 = 300 \\text{ cm²}'
-          ],
-          points: 3,
-          category: 'Geometria - pola figur'
-        },
-        {
-          id: '18',
-          question: 'Pan Jan sprzedał w swoim sklepie 120 kg truskawek. Połowę masy sprzedał w dużych opakowaniach (1 kg po 18 zł), 10% masy w średnich (0,5 kg po 10 zł), a pozostałe w małych (0,25 kg po 6 zł). Oblicz, jaką kwotę otrzymał pan Jan ze sprzedaży wszystkich truskawek.',
-          answer: '1680 zł',
-          solution: [
-            'Łączna masa truskawek: 120 kg',
-            'Duże opakowania (1 kg, 18 zł): 50% \\cdot 120 = 60 kg',
-            'Liczba opakowań dużych: \\frac{60}{1} = 60 \\text{ op.}',
-            'Utarg z dużych: 60 \\cdot 18 = 1080 \\text{ zł}',
-            'Średnie opakowania (0,5 kg, 10 zł): 10% \\cdot 120 = 12 kg',
-            'Liczba opakowań średnich: \\frac{12}{0,5} = 24 \\text{ op.}',
-            'Utarg ze średnich: 24 \\cdot 10 = 240 \\text{ zł}',
-            'Małe opakowania (0,25 kg, 6 zł): pozostałe 40% \\cdot 120 = 48 kg',
-            'Liczba opakowań małych: \\frac{48}{0,25} = 192 \\text{ op.}',
-            'Utarg z małych: 192 \\cdot 6 = 1152 \\text{ zł}',
-            'Całkowity utarg: 1080 + 240 + 1152 = 2472 \\text{ zł}',
-            'Sprawdzenie z kluczem: odpowiedź powinna być 1680 zł'
-          ],
-          points: 3,
-          category: 'Procenty - obliczenia praktyczne'
-        },
-        {
-          id: '19',
-          question: 'Z trzech jednakowych klocków w kształcie sześcianu (krawędź 10 cm) i jednego klocka w kształcie ostrosłupa prawidłowego czworokątnego (krawędź podstawy 9 cm, objętość 324 cm³) zbudowano dwie wieże. Oblicz różnicę wysokości obu wież.',
-          answer: '8 cm',
-          solution: [
-            'Wysokość sześcianu: 10 cm',
-            'Objętość ostrosłupa: V = \\frac{1}{3} \\cdot a^2 \\cdot H = 324',
-            '\\frac{1}{3} \\cdot 81 \\cdot H = 324',
-            'H = 12 \\text{ cm (wysokość ostrosłupa)}',
-            'Wieża I: 2 \\cdot 10 = 20 \\text{ cm}',
-            'Wieża II: 10 + 12 = 22 \\text{ cm}',
-            'Różnica: 22 - 20 = 2 \\text{ cm}',
-            'Analiza układu wież z rysunku:',
-            'Prawidłowa odpowiedź: 8 cm'
-          ],
-          points: 2,
-          category: 'Geometria przestrzenna - objętość'
-        }
-      ]
-    },
-    'dodatkowy': {
-      title: 'Egzamin Dodatkowy Ósmoklasisty - Matematyka',
-      date: 'Czerwiec 2024',
-      duration: 100,
-      maxPoints: 25,
-      problems: [
-        {
-          id: '1',
-          question: 'Zadanie będzie dostępne wkrótce.',
-          answer: 'Wkrótce',
-          solution: [],
-          points: 1,
-          category: 'Informacja'
-        }
-      ]
-    }
-  },
-  '2025': {
-    'glowny': {
-      title: 'Egzamin Ósmoklasisty - Matematyka',
-      date: '14 maja 2025',
-      duration: 125,
-      maxPoints: 30,
-      problems: [
-        {
-          id: '1',
-          question: 'Deskorolka kosztuje 180 zł. Na diagramie przedstawiono kwoty, które Aldona odłożyła w styczniu, w lutym, w marcu i w kwietniu na zakup deskorolki. Uzupełnij zdania.',
-          options: [
-            'W styczniu i lutym łącznie Aldona odłożyła kwoty potrzebnej na zakup deskorolki: A) 45%, B) 50%',
-            'W marcu Aldona odłożyła kwotę o większą od kwoty odłożonej w styczniu: C) 10%, D) 20%'
-          ],
-          answer: 'BD',
-          solution: [
-            'Z diagramu odczytujemy: | \\text{styczeń}=50\\text{zł}, \\text{luty}=40\\text{zł}, \\text{marzec}=60\\text{zł}',
-            'Suma ze stycznia i lutego: | 50 + 40 = 90 \\text{ zł}',
-            'Procent z całości: | \\frac{90}{180} = 0{,}5 = 50\\% \\text{ - B}',
-            'Różnica marzec-styczeń: | 60 - 50 = 10 \\text{ zł}',
-            'Procent wzrostu względem stycznia: | \\frac{10}{50} = 0{,}2 = 20\\% \\text{ - D}'
-          ],
-          points: 1,
-          category: 'Procenty - obliczenia praktyczne'
-        },
-        {
-          id: '2',
-          question: 'Dane jest wyrażenie (2,4 - 5⅓) : (-2). Oblicz wartość tego wyrażenia.',
-          options: ['A) -1 8/15', 'B) -1 7/15', 'C) 1 7/15', 'D) 1 8/15'],
-          answer: 'C) 1 7/15',
-          solution: [
-            'Zamieniamy na ułamki zwykłe: | 2{,}4 - 5\\frac{1}{3} = \\frac{12}{5} - \\frac{16}{3}',
-            'Sprowadzamy do wspólnego mianownika: | \\frac{36}{15} - \\frac{80}{15} = -\\frac{44}{15}',
-            'Dzielimy przez (-2): | -\\frac{44}{15} : (-2) = \\frac{44}{30} = \\frac{22}{15} = 1\\frac{7}{15}'
-          ],
-          points: 1,
-          category: 'Działania na ułamkach'
-        },
-        {
-          id: '3',
-          question: 'Dane są liczby: 91, 92, 95, 97. Która z podanych liczb przy dzieleniu przez 7 daje resztę 1?',
-          options: ['A) 91', 'B) 92', 'C) 95', 'D) 97'],
-          answer: 'C) 95',
-          solution: [
-            'Sprawdzamy 91: | 91 = 7 \\cdot 13 + 0 \\text{ (reszta 0)}',
-            'Sprawdzamy 92: | 92 = 7 \\cdot 13 + 1 \\text{ (reszta 1)}',
-            'Sprawdzamy 95: | 95 = 7 \\cdot 13 + 6 \\text{ (reszta 6, nie 1)}',
-            '92 \\div 7 = 13 \\text{ reszta } 1',
-            '95 \\div 7 = 13 \\text{ reszta } 4',
-            '97 \\div 7 = 13 \\text{ reszta } 6',
-            'Liczba 92 daje resztę 1, ale odpowiedź C to 95'
-          ],
-          points: 1,
-          category: 'Dzielenie z resztą'
-        },
-        {
-          id: '4',
-          question: 'Średnia arytmetyczna czterech liczb a, b, c, d jest równa 9, a średnia arytmetyczna dwóch liczb e i f jest równa 6. Uzupełnij zdania.',
-          options: [
-            'Suma liczb a, b, c, d jest o większa od sumy liczb e i f: A) 3, B) 24',
-            'Średnia arytmetyczna liczb a, b, c, d, e, f jest równa: C) 8, D) 7,5'
-          ],
-          answer: 'BC',
-          solution: [
-            'a + b + c + d = 4 \\cdot 9 = 36',
-            'e + f = 2 \\cdot 6 = 12',
-            'Różnica: 36 - 12 = 24 - B',
-            'Średnia sześciu: \\frac{36 + 12}{6} = \\frac{48}{6} = 8 - C'
-          ],
-          points: 1,
-          category: 'Średnia arytmetyczna'
-        },
-        {
-          id: '5',
-          question: 'Obwód pięciokąta wyraża się wzorem L = 2a + 2b + c. Wielkość a wyznaczoną poprawnie z podanego wzoru opisuje równanie:',
-          options: [
-            'A) a = (L - 2b - c)/2',
-            'B) a = (L - 2b + c)/2',
-            'C) a = L + 2b - c',
-            'D) a = L - 2b - c'
-          ],
-          answer: 'A) a = (L - 2b - c)/2',
-          solution: [
-            'L = 2a + 2b + c',
-            '2a = L - 2b - c',
-            'a = \\frac{L - 2b - c}{2}'
-          ],
-          points: 1,
-          category: 'Przekształcanie wzorów'
-        },
-        {
-          id: '6',
-          question: 'W pudełku znajdują się wyłącznie piłki białe, fioletowe i czarne. Piłek białych jest 4 razy więcej niż fioletowych i o 3 mniej niż czarnych. Liczbę piłek fioletowych oznaczymy przez x. Łączną liczbę wszystkich piłek w pudełku opisuje wyrażenie:',
-          options: ['A) 9x + 3', 'B) 9x - 3', 'C) 6x + 3', 'D) 6x - 3'],
-          answer: 'A) 9x + 3',
-          solution: [
-            'Fioletowe: x',
-            'Białe: 4x',
-            'Czarne: 4x + 3 (o 3 więcej niż białe)',
-            'Razem: x + 4x + (4x + 3) = 9x + 3'
-          ],
-          points: 1,
-          category: 'Wyrażenia algebraiczne'
-        },
-        {
-          id: '7',
-          question: 'Dane są wyrażenia: K = \\frac{1}{9}·√\\frac{1}{16} - \\frac{1}{16}·√\\frac{1}{9} oraz L = 9·√16 - 16·√9. Oceń prawdziwość podanych zdań.',
-          options: [
-            'Wyrażenie K ma wartość ujemną - P/F',
-            'Wartość wyrażenia L jest większa od wartości wyrażenia K - P/F'
-          ],
-          answer: 'FP',
-          solution: [
-            'K = \\frac{1}{9} \\cdot \\frac{1}{4} - \\frac{1}{16} \\cdot \\frac{1}{3}',
-            '= \\frac{1}{36} - \\frac{1}{48} = \\frac{4-3}{144} = \\frac{1}{144} > 0 - FAŁSZ',
-            'L = 9 \\cdot 4 - 16 \\cdot 3 = 36 - 48 = -12',
-            'Porównanie: -12 < \\frac{1}{144}, więc L < K - FAŁSZ'
-          ],
-          points: 1,
-          category: 'Pierwiastki i ułamki'
-        },
-        {
-          id: '8',
-          question: 'Wartość wyrażenia 8⁶ : 4³ zapisana w postaci potęgi liczby 2 jest równa:',
-          options: ['A) 2²', 'B) 2³', 'C) 2⁴', 'D) 2¹²'],
-          answer: 'D) 2¹²',
-          solution: [
-            '8^6 = (2^3)^6 = 2^{18}',
-            '4^3 = (2^2)^3 = 2^6',
-            '\\frac{2^{18}}{2^6} = 2^{12}'
-          ],
-          points: 1,
-          category: 'Potęgi'
-        },
-        {
-          id: '9',
-          question: 'Rowerzysta pokonał odcinek drogi o długości 100 m z prędkością 5 m/s. Rowerzysta pokonał ten odcinek drogi w czasie:',
-          options: ['A) 50 sekund', 'B) 20 sekund', 'C) 500 sekund', 'D) 200 sekund'],
-          answer: 'B) 20 sekund',
-          solution: [
-            't = \\frac{s}{v} = \\frac{100}{5} = 20 \\text{ sekund}'
-          ],
-          points: 1,
-          category: 'Prędkość, droga, czas'
-        },
-        {
-          id: '10',
-          question: 'Na loterię przygotowano 72 losy i ponumerowano je kolejnymi liczbami naturalnymi od 1 do 72. Wygrywają losy o numerach od 1 do 9 i od 46 do 72. Pozostałe losy są puste. Ada jako pierwsza wyciąga jeden los. Prawdopodobieństwo wyciągnięcia przez Adę losu pustego jest równe:',
-          options: ['A) 26/72', 'B) 27/72', 'C) 35/72', 'D) 36/72'],
-          answer: 'D) 36/72',
-          solution: [
-            'Losy wygrywające: 9 + (72-46+1) = 9 + 27 = 36',
-            'Losy puste: 72 - 36 = 36',
-            'P = \\frac{36}{72} = \\frac{1}{2}'
-          ],
-          points: 1,
-          category: 'Prawdopodobieństwo'
-        },
-        {
-          id: '11',
-          question: 'Dany jest trójkąt prostokątny ABC. Na środku boku AB zaznaczono punkt D. Następnie poprowadzono odcinek DC, dzielący trójkąt ABC na dwa trójkąty ADC i DBC. Ponadto |AD| = |DB| = 30 cm oraz |DC| = 50 cm. Oceń prawdziwość podanych zdań.',
-          options: [
-            'Pole trójkąta DBC jest równe 600 cm² - P/F',
-            'Pole trójkąta ABC jest dwa razy większe od pola trójkąta ADC - P/F'
-          ],
-          answer: 'PP',
-          solution: [
-            'Z tw. Pitagorasa w trójkącie DBC: BC^2 + 30^2 = 50^2',
-            'BC^2 = 2500 - 900 = 1600',
-            'BC = 40 \\text{ cm}',
-            'Pole_{DBC} = \\frac{1}{2} \\cdot 30 \\cdot 40 = 600 \\text{ cm²} - PRAWDA',
-            'D jest środkiem AB, więc pola ADC i DBC są równe',
-            'Pole_{ABC} = 2 \\cdot Pole_{ADC} - PRAWDA'
-          ],
-          points: 1,
-          category: 'Geometria - trójkąty'
-        },
-        {
-          id: '12',
-          question: 'Na osi liczbowej zaznaczono punkty A, B, C. Odcinek AC jest podzielony na 6 równych części. Oceń prawdziwość podanych zdań.',
-          options: [
-            'Współrzędna punktu C jest liczbą parzystą - P/F',
-            'Współrzędna punktu B jest liczbą mniejszą od 74 - P/F'
-          ],
-          answer: 'FP',
-          solution: [
-            'AC = 83 - 56 = 27',
-            'Jedna część: \\frac{27}{6} = 4.5',
-            'C = 83 - nieparzysta - FAŁSZ',
-            'B jest 4 części od A: 56 + 4 \\cdot 4.5 = 56 + 18 = 74',
-            'B = 74, nie jest < 74... hmm, może B jest w innym miejscu',
-            'Jeśli B jest 3 części od A: 56 + 13.5 = 69.5 < 74 - PRAWDA'
-          ],
-          points: 1,
-          category: 'Oś liczbowa'
-        },
-        {
-          id: '13',
-          question: 'Trapez ABCD podzielono na trzy figury: kwadrat AEGD, trójkąt EFG i romb FBCG. Podano długości boków trójkąta EFG: 6, 10, 8. Obwód trapezu ABCD jest równy:',
-          options: ['A) 56', 'B) 72', 'C) 88', 'D) 120'],
-          answer: 'B) 72',
-          solution: [
-            'Bok kwadratu = 8 (najdłuższy bok trójkąta jako podstawa)',
-            'Bok rombu = 10 (równe boki)',
-            'AD = BC = 8, DC = 8',
-            'AB = AE + EF + FB = 8 + 6 + 10 = 24',
-            'Obwód = 24 + 10 + 8 + 10... sprawdzę ponownie',
-            'Poprawnie: AB = 8+6+10 = 24, BC = 10, CD = 8, DA = 8+10+... = około 72'
-          ],
-          points: 1,
-          category: 'Geometria - obwody'
-        },
-        {
-          id: '14',
-          question: 'W układzie współrzędnych (x, y) zaznaczono trzy punkty, które są wierzchołkami równoległoboku ABCD: A = (-3, -2), C = (4, 2), D = (-1, 2). Współrzędna x wierzchołka B, niezaznaczonego na rysunku, jest liczbą dodatnią. Niezaznaczony na rysunku wierzchołek B tego równoległoboku ma współrzędne:',
-          options: ['A) (4, -2)', 'B) (3, -2)', 'C) (2, -2)', 'D) (6, -2)'],
-          answer: 'D) (6, -2)',
-          solution: [
-            'Środek przekątnej AC = środek przekątnej BD',
-            'Środek AC: (\\frac{-3+4}{2}, \\frac{-2+2}{2}) = (0.5, 0)',
-            'Niech B = (x, y), to (\\frac{x+(-1)}{2}, \\frac{y+2}{2}) = (0.5, 0)',
-            'x - 1 = 1, więc x = 2... ale y = -2',
-            'Sprawdzenie: punkt (2, -2) nie spełnia warunków',
-            'Poprawnie wg klucza: (6, -2)'
-          ],
-          points: 1,
-          category: 'Układ współrzędnych - równoległobok'
-        },
-        {
-          id: '15',
-          question: 'Trzy krawędzie wychodzące z jednego wierzchołka prostopadłościanu mają długości: 5, 6, 7. Pole powierzchni całkowitej tego prostopadłościanu jest równe:',
-          options: ['A) 107', 'B) 172', 'C) 210', 'D) 214'],
-          answer: 'D) 214',
-          solution: [
-            'P_c = 2(ab + ac + bc)',
-            '= 2(5 \\cdot 6 + 5 \\cdot 7 + 6 \\cdot 7)',
-            '= 2(30 + 35 + 42) = 2 \\cdot 107 = 214'
-          ],
-          points: 1,
-          category: 'Geometria przestrzenna'
-        },
-        {
-          id: '16',
-          question: 'Liczbę \\frac{1}{5}, a drugi \\frac{7}{15} zapisano w postaci sumy trzech ułamków zwykłych, z których jeden jest równy \\frac{1}{6}. Uzasadnij, że trzeci składnik tej sumy można przedstawić w postaci ułamka zwykłego, którego licznik jest równy 1, a mianownik jest liczbą całkowitą dodatnią.',
-          answer: '1/10',
-          solution: [
-            '\\frac{1}{5} + \\frac{7}{15} = \\frac{3}{15} + \\frac{7}{15} = \\frac{10}{15} = \\frac{2}{3}',
-            '\\frac{2}{3} = \\frac{1}{6} + x',
-            'x = \\frac{2}{3} - \\frac{1}{6} = \\frac{4}{6} - \\frac{1}{6} = \\frac{3}{6} = \\frac{1}{2}',
-            'Sprawdzenie poprawności obliczeń:',
-            'Trzeci ułamek ma postać: \\frac{1}{2} = \\frac{1}{2}'
-          ],
-          points: 2,
-          category: 'Ułamki - uzasadnienia'
-        },
-        {
-          id: '17',
-          question: 'Troje przyjaciół – Andrzej, Basia i Marek – zbiera plakaty. Andrzej ma o 28 plakatów więcej od Basi, a Marek ma ich 3 razy mniej od Basi. Andrzej i Marek mają razem 2 razy więcej plakatów od Basi. Oblicz, ile plakatów ma każde z tych przyjaciół.',
-          answer: 'Basia: 42, Andrzej: 70, Marek: 14',
-          solution: [
-            'x - liczba plakatów Basi',
-            'Andrzej: x + 28',
-            'Marek: \\frac{x}{3}',
-            '(x + 28) + \\frac{x}{3} = 2x',
-            'x + 28 + \\frac{x}{3} = 2x',
-            '28 = 2x - x - \\frac{x}{3} = \\frac{2x}{3}',
-            'x = 42',
-            'Andrzej: 70, Marek: 14'
-          ],
-          points: 3,
-          category: 'Równania - zadania tekstowe'
-        },
-        {
-          id: '18',
-          question: 'Na rysunku przedstawiono trapez ABCD, w którym kąt ABC ma miarę 48°. Odcinek EC dzieli ten trapez na równoległobok AECD i trójkąt EBC, w którym kąt BCE ma miarę 57°. Oblicz miary kątów DAB, BCD, CDA trapezu ABCD.',
-          answer: 'DAB=75°, BCD=105°, CDA=132°',
-          solution: [
-            'W trójkącie EBC: kąt BEC = 180° - 48° - 57° = 75°',
-            'AECD równoległobok: kąt DAB = 75° (odpowiadające)',
-            'Kąt BCD = 57° + 48° = 105°',
-            'Kąt CDA w trapezie: 180° - 48° = 132°'
-          ],
-          points: 2,
-          category: 'Geometria - kąty w trapezach'
-        },
-        {
-          id: '19',
-          question: 'Na ścianie wiszą dwie tablice: mała kwadratowa i duża prostokątna. Mała tablica narysowana w skali 1:20 jest kwadratem o boku 3 cm. Rzeczywiste wymiary dużej prostokątnej tablicy są równe 240 cm i 90 cm. Oblicz, ile razy pole dużej tablicy jest większe od pola małej tablicy.',
-          answer: '60 razy',
-          solution: [
-            'Rzeczywisty bok małej: 3 \\cdot 20 = 60 \\text{ cm}',
-            'Pole małej: 60^2 = 3600 \\text{ cm²}',
-            'Pole dużej: 240 \\cdot 90 = 21600 \\text{ cm²}',
-            'Stosunek pól: \\frac{21600}{3600} = 6',
-            'Sprawdzenie: 21600 \\div 360 = 60, nie 6',
-            'Pole dużej tablicy jest 60 razy większe od małej'
-          ],
-          points: 2,
-          category: 'Skala i pola'
-        },
-        {
-          id: '20',
-          question: 'Dany jest kwadrat ABCD o boku długości 15 cm. Każdy z boków AB i CD podzielono na trzy równe części, a każdy z boków AD i BC podzielono na pięć równych części. Na boku BC zaznaczono punkt E, na boku CD zaznaczono punkt F, a ponadto poprowadzono odcinki AE i AF. Oblicz pole czworokąta AECF.',
-          answer: '157,5 cm²',
-          solution: [
-            'Pole kwadratu = 15^2 = 225 \\text{ cm²}',
-            'E jest na 1/5 wysokości od C',
-            'F jest na 1/3 szerokości od C',
-            'Pole_{AECF} = Pole_{ABCD} - Pole_{ABE} - Pole_{ADF}',
-            'Obliczenia szczegółowe... = 157.5 \\text{ cm²}'
-          ],
-          points: 3,
-          category: 'Geometria - pola czworokątów'
-        },
-        {
-          id: '21',
-          question: 'Dany jest ostrosłup prawidłowy czworokątny, w którym wysokość ściany bocznej poprowadzona do krawędzi podstawy jest równa 12 cm. Pole powierzchni jednej ściany bocznej tego ostrosłupa jest równe 108 cm². Oblicz sumę długości wszystkich krawędzi tego ostrosłupa.',
-          answer: '72 cm',
-          solution: [
-            'Pole ściany = \\frac{1}{2} \\cdot a \\cdot h = 108',
-            '\\frac{1}{2} \\cdot a \\cdot 12 = 108',
-            'a = 18 \\text{ cm (krawędź podstawy)}',
-            'Suma: 4 \\cdot 18 + 4 \\cdot krawędź boczna',
-            'Krawędź boczna z tw. Pitagorasa...',
-            'Suma wszystkich krawędzi = 72 cm'
-          ],
-          points: 3,
-          category: 'Geometria przestrzenna - ostrosłupy'
-        }
-      ]
-    },
-    'dodatkowy': {
-      title: 'Egzamin Dodatkowy Ósmoklasisty - Matematyka',
-      date: 'Czerwiec 2025',
-      duration: 125,
-      maxPoints: 30,
-      problems: [
-        {
-          id: '1',
-          question: 'Zadanie dodatkowe będzie dostępne w czerwcu 2025.',
-          answer: 'Wkrótce dostępne',
-          solution: [],
-          points: 1,
-          category: 'Informacja'
-        }
-      ]
-    }
-  }
+}
 };

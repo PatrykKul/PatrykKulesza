@@ -2,12 +2,13 @@ import ExamPage from '@/app/matematyka/components/ExamPage';
 import { examData } from './examData';
 import { notFound } from 'next/navigation';
 
-export default function Egzamin8ExamPage({ 
+export default async function Egzamin8ExamPage({ 
   params 
 }: { 
-  params: { year: string; type: string } 
+  params: Promise<{ year: string; type: string }> 
 }) {
-  const examInfo = examData[params.year]?.[params.type];
+  const { year, type } = await params;
+  const examInfo = examData[year]?.[type];
   
   if (!examInfo) {
     notFound();
@@ -16,8 +17,8 @@ export default function Egzamin8ExamPage({
   return (
     <ExamPage
       examData={examInfo}
-      year={params.year}
-      type={params.type}
+      year={year}
+      type={type}
       examType="egzamin-8"
       basePath="/matematyka"
     />

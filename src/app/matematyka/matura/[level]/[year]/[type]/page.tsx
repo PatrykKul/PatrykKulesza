@@ -2,12 +2,13 @@ import ExamPage from '@/app/matematyka/components/ExamPage';
 import { examData } from './examData';
 import { notFound } from 'next/navigation';
 
-export default function MaturaExamPage({ 
+export default async function MaturaExamPage({ 
   params 
 }: { 
-  params: { level: string; year: string; type: string } 
+  params: Promise<{ level: string; year: string; type: string }> 
 }) {
-  const examInfo = examData[params.level]?.[params.year]?.[params.type];
+  const { level, year, type } = await params;
+  const examInfo = examData[level]?.[year]?.[type];
   
   if (!examInfo) {
     notFound();
@@ -16,10 +17,10 @@ export default function MaturaExamPage({
   return (
     <ExamPage
       examData={examInfo}
-      year={params.year}
-      type={params.type}
+      year={year}
+      type={type}
       examType="matura"
-      level={params.level}
+      level={level}
       basePath="/matematyka"
     />
   );
