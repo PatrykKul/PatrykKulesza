@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Calculator, Clock, Award, FileText, Download, Eye, EyeOff, CheckCircle, RotateCcw, PenTool, Eraser, Trash2, Minus, Plus } from 'lucide-react';
+import { ArrowLeft, Calculator, Clock, Award, FileText, Download, Eye, EyeOff, CheckCircle, RotateCcw, PenTool, Eraser, Trash2 } from 'lucide-react';
 import { InlineMath, BlockMath } from 'react-katex';
 import 'katex/dist/katex.min.css';
 import { useImageScan } from '@/hooks/useImageScan';
@@ -55,6 +55,71 @@ export default function ExamPage({
   
   // Automatyczne skanowanie folderów z obrazami
   const { imageData, loading: imagesLoading } = useImageScan(examType, year, type, level);
+
+  // Funkcja do generowania rozszerzonego tytułu z rokiem i typem
+  const getExtendedTitle = () => {
+    const baseTitle = examData.title;
+    
+    // Funkcja do ładnego formatowania typu egzaminu
+    const formatType = (type: string) => {
+      const typeMap: Record<string, string> = {
+        'glowny': 'Maj',
+        'dodatkowy': 'Czerwiec', 
+        'podstawowa': 'Podstawowa',
+        'rozszerzona': 'Rozszerzona'
+      };
+      return typeMap[type] || type.charAt(0).toUpperCase() + type.slice(1);
+    };
+
+    // Funkcja do formatowania typu egzaminu
+    const formatExamType = (examType: string) => {
+      const examTypeMap: Record<string, string> = {
+        'egzamin-8': 'Egzamin Ósmoklasisty',
+        'matura': 'Matura'
+      };
+      return examTypeMap[examType] || examType;
+    };
+
+    let titleParts = [];
+    
+    // Dodaj typ egzaminu jeśli nie jest już w tytule
+    const formattedExamType = formatExamType(examType || 'egzamin');
+    if (!baseTitle.includes('Egzamin') && !baseTitle.includes('Matura')) {
+      titleParts.push(formattedExamType);
+    }
+    
+     // Dodaje Miesiąc
+    const formattedMonth = formatType(type);
+    if (!baseTitle.includes(formattedMonth)) {
+      titleParts.push(formattedMonth);
+    }
+
+    // Dodaj rok
+    titleParts.push(year);
+    
+    // Dodaj poziom dla matury
+    if (level && examType === 'matura') {
+      const formattedLevel = formatType(level);
+      if (!baseTitle.includes(formattedLevel)) {
+        titleParts.push(formattedLevel);
+      }
+    }
+
+    // Jeśli tytuł już zawiera wszystkie informacje, zwróć go bez zmian
+    const hasYear = baseTitle.includes(year);
+    const hasType = baseTitle.toLowerCase().includes(type.toLowerCase());
+    
+    if (hasYear && hasType) {
+      return baseTitle;
+    }
+
+    // W przeciwnym razie dodaj brakujące informacje
+    if (titleParts.length > 0) {
+      return `${baseTitle}  ${titleParts.join(' ')}`;
+    }
+    
+    return baseTitle;
+  };
 
   // Funkcja do automatycznego generowania ścieżki obrazu
   const getImagePath = (problemId: string, imageType: 'problem' | 'solution' = 'problem', imageIndex?: number): string => {
@@ -251,7 +316,7 @@ export default function ExamPage({
       return <span>{option}</span>;
     }
 
-    let processedOption = option.replace(/\{,\}/g, ',');
+    const processedOption = option.replace(/\{,\}/g, ',');
     const segments = parseTextSegments(processedOption);
     
     return (
@@ -264,8 +329,8 @@ export default function ExamPage({
               <InlineMath 
                 key={index}
                 math={segment.content}
-                renderError={(error) => {
-                  console.warn('LaTeX render error:', error);
+                renderError={(_error) => {
+                  console.warn('LaTeX render error:', _error);
                   
                   const fallbackText = segment.content
                     .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '$1/$2')
@@ -618,7 +683,7 @@ export default function ExamPage({
       }
     });
     return earned;
-  }, [userAnswers, checkedAnswers, examData.problems]);
+  }, [userAnswers, checkedAnswers, examData.problems, isAnswerCorrect]);
 
   const answeredCount = Object.keys(userAnswers).filter(key => userAnswers[key].length > 0).length;
   const checkedCount = Object.keys(checkedAnswers).filter(key => checkedAnswers[key]).length;
@@ -681,7 +746,7 @@ export default function ExamPage({
             </div>
             
             <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#58a6ff] via-[#1f6feb] to-[#0969da] bg-clip-text text-transparent">
-              {examData.title}
+              {getExtendedTitle()}
             </h1>
             
             <div className="flex flex-wrap justify-center gap-6 text-gray-300 mb-6">
@@ -701,30 +766,29 @@ export default function ExamPage({
           </div>
 
           {/* Licznik postępu - sticky */}
-          <div className="sticky top-20 z-10 mb-8 flex justify-center">
-            <div className="bg-[#161b22] border-2 border-[#30363d] rounded-xl px-6 py-4 shadow-2xl backdrop-blur-sm bg-opacity-95">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <div className="text-sm text-gray-400 mb-1">
-                    Sprawdzone: {checkedCount} / {totalProblems}
-                  </div>
-                  <div className="text-2xl font-bold text-[#58a6ff]">
-                    Twój wynik: {totalScore} / {examData.maxPoints} pkt
-                  </div>
-                </div>
-                
-                {(answeredCount > 0 || checkedCount > 0) && (
-                  <button
-                    onClick={resetAllProblems}
-                    className="ml-4 p-2 text-gray-400 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
-                    title="Zacznij od nowa"
-                  >
-                    <RotateCcw className="w-5 h-5" />
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
+          <div className="sticky top-20 z-10 mb-8 flex justify-center pointer-events-none">
+            <div className="bg-[#161b22] border-2 border-[#30363d] rounded-xl px-6 py-4 shadow-2xl backdrop-blur-sm bg-opacity-95 pointer-events-auto max-w-fit">
+                        <div className="flex items-center justify-between gap-4">
+                          <div>
+                            <span className="text-sm text-gray-400 mb-1">
+                              Sprawdzone: {checkedCount} / {totalProblems}
+                            </span>  
+                            <span className="text-lg font-bold text-[#58a6ff]"> Wynik: {totalScore} / {examData.maxPoints} pkt
+                            </span>
+                          </div>
+                          
+                          {(answeredCount > 0 || checkedCount > 0) && (
+                            <button
+                              onClick={resetAllProblems}
+                              className="ml-4 p-2 text-gray-400 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
+                              title="Zacznij od nowa"
+                            >
+                              <RotateCcw className="w-5 h-5" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
 
           {/* Zadania */}
           <div className="space-y-8">

@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Languages, Search, ChevronDown, ChevronUp, BookOpen, Calendar, Target, Award, Globe, Headphones, PenTool, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Languages, Search, ChevronDown, ChevronUp, BookOpen, Calendar, Target, Award, Globe } from 'lucide-react';
 
 // Typy
 type EnglishItem = {
@@ -424,7 +424,7 @@ export default function AngielskiPage() {
                       Brak wyników
                     </h3>
                     <p className="text-gray-400 mb-6">
-                      Nie znaleziono tematów pasujących do "{searchQuery}"
+                      Nie znaleziono tematów pasujących do &ldquo;{searchQuery}&rdquo;
                     </p>
                     <button
                       onClick={() => setSearchQuery('')}

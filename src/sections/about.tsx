@@ -92,7 +92,7 @@ export const AboutSection = () => {
   const nextSlide = useCallback(() => {
     const currentData = getCurrentSkillsData();
     setCurrentSlide((prev) => (prev + 1) % currentData.items.length);
-  }, [activeCategory]);
+  }, [activeCategory, getCurrentSkillsData]);
 
   const prevSlide = () => {
     const currentData = getCurrentSkillsData();

@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Code, Search, ChevronDown, ChevronUp, Monitor, Smartphone, Database, Globe, Cpu, Zap, Settings, Layers } from 'lucide-react';
+import { ArrowLeft, Code, Search, ChevronDown, ChevronUp, Monitor, Smartphone, Database, Cpu, Zap, Settings, Layers } from 'lucide-react';
 
 // Typy
 type ProgrammingItem = {
@@ -456,7 +456,7 @@ export default function ProgramowaniePage() {
                       Brak wyników
                     </h3>
                     <p className="text-gray-400 mb-6">
-                      Nie znaleziono technologii pasującej do "{searchQuery}"
+                      Nie znaleziono technologii pasującej do &ldquo;{searchQuery}&rdquo;
                     </p>
                     <button
                       onClick={() => setSearchQuery('')}

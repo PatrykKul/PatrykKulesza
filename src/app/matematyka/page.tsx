@@ -13,7 +13,7 @@ interface MathTopic {
 }
 
 interface TopicSection {
-  icon: any;
+  icon: React.ComponentType<{ className?: string }>;
   color: string;
   items: MathTopic[];
 }
@@ -683,7 +683,7 @@ export default function MatematikaPage() {
                       Brak wyników
                     </h3>
                     <p className="text-gray-400 mb-6">
-                      Nie znaleziono tematów pasujących do "{searchQuery}"
+                      Nie znaleziono tematów pasujących do &ldquo;{searchQuery}&rdquo;
                     </p>
                     <button
                       onClick={() => setSearchQuery('')}
