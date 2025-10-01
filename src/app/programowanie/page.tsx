@@ -23,6 +23,7 @@ type ProgrammingTopics = {
 };
 
 // Dane dla każdej specjalizacji programistycznej
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getProgrammingTopics = (handleContentChange: (content: string) => void): ProgrammingTopics => ({
   'Frontend Development': {
     icon: Monitor,

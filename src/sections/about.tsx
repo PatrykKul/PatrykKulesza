@@ -46,9 +46,9 @@ export const AboutSection = () => {
   // ==========================================
   // 🎬 CINEMATIC SLIDER FUNCTIONS
   // ==========================================
-  const getCurrentSkillsData = () => {
+  const getCurrentSkillsData = useCallback(() => {
     return aboutSkills.find(s => s.category === activeCategory) || aboutSkills[0];
-  };
+  }, [activeCategory]);
 
   const getBackgroundMedia = () => {
     const media = {
@@ -92,7 +92,7 @@ export const AboutSection = () => {
   const nextSlide = useCallback(() => {
     const currentData = getCurrentSkillsData();
     setCurrentSlide((prev) => (prev + 1) % currentData.items.length);
-  }, [activeCategory, getCurrentSkillsData]);
+  }, [getCurrentSkillsData]);
 
   const prevSlide = () => {
     const currentData = getCurrentSkillsData();

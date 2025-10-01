@@ -23,6 +23,7 @@ type EnglishTopics = {
 };
 
 // Dane dla każdego poziomu angielskiego
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getEnglishTopics = (handleContentChange: (content: string) => void): EnglishTopics => ({
   'Poziom A1 (Podstawowy)': {
     icon: BookOpen,

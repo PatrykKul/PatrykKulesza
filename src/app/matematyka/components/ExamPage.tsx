@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Calculator, Clock, Award, FileText, Download, Eye, EyeOff, CheckCircle, RotateCcw, PenTool, Eraser, Trash2 } from 'lucide-react';
 import { InlineMath, BlockMath } from 'react-katex';
@@ -53,7 +53,7 @@ export default function ExamPage({
   const [checkedAnswers, setCheckedAnswers] = useState<Record<string, boolean>>({});
   const [showCanvas, setShowCanvas] = useState<Record<string, boolean>>({});
   const [timeElapsed, setTimeElapsed] = useState(0);
-  const [timerActive, setTimerActive] = useState(true);
+  const [timerActive] = useState(false);
   
   // Automatyczne skanowanie folderów z obrazami
   const { imageData, loading: imagesLoading } = useImageScan(examType, year, type, level);
@@ -97,7 +97,7 @@ export default function ExamPage({
       return examTypeMap[examType] || examType;
     };
 
-    let titleParts = [];
+    const titleParts = baseTitle.split(' - ');
     
     // Dodaj typ egzaminu jeśli nie jest już w tytule
     const formattedExamType = formatExamType(examType || 'egzamin');
@@ -228,7 +228,7 @@ export default function ExamPage({
     }
   };
 
-  const isAnswerCorrect = (problemId: string, correctAnswer: string) => {
+  const isAnswerCorrect = useCallback((problemId: string, correctAnswer: string) => {
     const userAnswer = userAnswers[problemId];
     if (!userAnswer || userAnswer.length === 0) return null;
     if (!checkedAnswers[problemId]) return null;
@@ -260,7 +260,7 @@ export default function ExamPage({
     const normalizedCorrect = correctAnswer.trim().toLowerCase();
     
     return normalizedUser === normalizedCorrect;
-  };
+  }, [userAnswers, checkedAnswers, examData.problems]);
 
   const isMultiLevelQuestion = (options: string[]) => {
     return options.some(opt => 
@@ -769,7 +769,7 @@ export default function ExamPage({
       }
     });
     return earned;
-  }, [userAnswers, checkedAnswers, examData.problems, isAnswerCorrect]);
+  }, [examData.problems, isAnswerCorrect]);
 
   const answeredCount = Object.keys(userAnswers).filter(key => userAnswers[key].length > 0).length;
   const checkedCount = Object.keys(checkedAnswers).filter(key => checkedAnswers[key]).length;
@@ -925,7 +925,7 @@ export default function ExamPage({
                       <div className="bg-[#21262d] border border-[#30363d] rounded-lg p-4 mb-4 overflow-x-auto">
                         <BlockMath 
                           math={problem.formula}
-                          renderError={(error) => (
+                          renderError={() => (
                             <span className="text-red-400 font-mono text-sm">
                               Błąd renderowania: {problem.formula}
                             </span>

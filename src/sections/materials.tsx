@@ -51,7 +51,7 @@ const materialCategories = [
   }
 ];
 
-export const MaterialsSection = ({ data: _data }: MaterialsSectionProps) => {
+export const MaterialsSection = ({}: MaterialsSectionProps) => {
   const [ref, inView] = useAdvancedInView();
   const [activeCategory, setActiveCategory] = useState<'math' | 'english' | 'programming'>('math');
 
