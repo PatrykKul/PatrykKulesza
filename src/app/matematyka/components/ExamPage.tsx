@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Calculator, Clock, Award, FileText, Download, Eye, EyeOff, CheckCircle, RotateCcw, PenTool, Eraser, Trash2 } from 'lucide-react';
+import { ArrowLeft, Calculator, Clock, Award, FileText, Download, Eye, EyeOff, CheckCircle, RotateCcw, PenTool, Eraser, Trash2, Type, X } from 'lucide-react';
 import MathText, { MathSolutionStep } from '@/components/MathText';
 import { useImageScan } from '@/hooks/useImageScan';
 
@@ -214,8 +214,9 @@ export default function ExamPage({
       delete newChecked[problemId];
       return newChecked;
     });
-    // Wyczyść canvas dla tego zadania
+    // Wyczyść canvas dla tego zadania (oba formaty)
     localStorage.removeItem(`canvas-${problemId}`);
+    localStorage.removeItem(`canvas-data-${problemId}`);
   };
 
   const resetAllProblems = () => {
@@ -309,9 +310,18 @@ export default function ExamPage({
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [isDrawing, setIsDrawing] = useState(false);
-    const [tool, setTool] = useState<'pen' | 'eraser'>('pen');
+    const [tool, setTool] = useState<'pen' | 'eraser' | 'text'>('pen');
     const [color, setColor] = useState('#000000');
     const [lineWidth, setLineWidth] = useState(2);
+    const [textElements, setTextElements] = useState<Array<{
+      id: string;
+      x: number;
+      y: number;
+      text: string;
+      fontSize: number;
+      color: string;
+    }>>([]);
+    const [editingTextId, setEditingTextId] = useState<string | null>(null);
 
     useEffect(() => {
       const canvas = canvasRef.current;
@@ -325,15 +335,29 @@ export default function ExamPage({
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
-      // Załaduj zapisany rysunek z localStorage
-      const savedDrawing = localStorage.getItem(`canvas-${problemId}`);
-      if (savedDrawing) {
-        const img = new Image();
-        img.onload = () => {
-          ctx.drawImage(img, 0, 0);
-        };
-        img.src = savedDrawing;
+      // Załaduj zapisane dane z localStorage
+      const savedData = localStorage.getItem(`canvas-data-${problemId}`);
+      if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        if (parsedData.textElements) {
+          setTextElements(parsedData.textElements);
+        }
+        if (parsedData.drawing) {
+          const img = new Image();
+          img.onload = () => {
+            ctx.drawImage(img, 0, 0);
+          };
+          img.src = parsedData.drawing;
+        } else {
+          drawGrid();
+        }
       } else {
+        drawGrid();
+      }
+
+      function drawGrid() {
+        if (!canvas || !ctx) return;
+        
         // Narysuj białe tło
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -377,7 +401,35 @@ export default function ExamPage({
       }
     }, [problemId]);
 
+    const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+      if (tool === 'text') {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        const newTextElement = {
+          id: `text-${Date.now()}`,
+          x,
+          y,
+          text: '',
+          fontSize: 16,
+          color: color
+        };
+
+        setTextElements(prev => [...prev, newTextElement]);
+        setEditingTextId(newTextElement.id);
+      }
+    };
+
     const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+      if (tool === 'text') {
+        handleCanvasClick(e);
+        return;
+      }
+
       const canvas = canvasRef.current;
       if (!canvas) return;
 
@@ -427,12 +479,40 @@ export default function ExamPage({
       if (!isDrawing) return;
       setIsDrawing(false);
 
+      saveCanvasData();
+    };
+
+    const saveCanvasData = () => {
       const canvas = canvasRef.current;
       if (!canvas) return;
 
-      // Zapisz rysunek do localStorage
+      // Zapisz rysunek i elementy tekstowe do localStorage
       const dataURL = canvas.toDataURL();
-      localStorage.setItem(`canvas-${problemId}`, dataURL);
+      const canvasData = {
+        drawing: dataURL,
+        textElements: textElements
+      };
+      localStorage.setItem(`canvas-data-${problemId}`, JSON.stringify(canvasData));
+    };
+
+    // Zapisz dane po każdej zmianie elementów tekstowych
+    useEffect(() => {
+      if (textElements.length > 0) {
+        saveCanvasData();
+      }
+    }, [textElements]);
+
+    const updateTextElement = (id: string, text: string) => {
+      setTextElements(prev => prev.map(el => 
+        el.id === id ? { ...el, text } : el
+      ));
+    };
+
+    const removeTextElement = (id: string) => {
+      setTextElements(prev => prev.filter(el => el.id !== id));
+      if (editingTextId === id) {
+        setEditingTextId(null);
+      }
     };
 
     // Touch support functions
@@ -545,8 +625,13 @@ export default function ExamPage({
         ctx.stroke();
       }
 
+      // Wyczyść elementy tekstowe
+      setTextElements([]);
+      setEditingTextId(null);
+
       // Usuń z localStorage
-      localStorage.removeItem(`canvas-${problemId}`);
+      localStorage.removeItem(`canvas-data-${problemId}`);
+      localStorage.removeItem(`canvas-${problemId}`); // Dla kompatybilności z starymi zapisami
     };
 
     const colors = [
@@ -588,6 +673,17 @@ export default function ExamPage({
               title="Gumka"
             >
               <Eraser className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => setTool('text')}
+              className={`p-2 rounded-lg transition-all ${
+                tool === 'text'
+                  ? 'bg-[#58a6ff] text-black'
+                  : 'bg-[#30363d] text-white hover:bg-[#40464d]'
+              }`}
+              title="Tekst"
+            >
+              <Type className="w-5 h-5" />
             </button>
             <button
               onClick={clearCanvas}
@@ -636,7 +732,7 @@ export default function ExamPage({
         </div>
 
         {/* Canvas */}
-        <div ref={containerRef} className="w-full">
+        <div ref={containerRef} className="w-full relative">
           <canvas
             ref={canvasRef}
             onMouseDown={startDrawing}
@@ -647,9 +743,83 @@ export default function ExamPage({
             onTouchMove={drawTouch}
             onTouchEnd={stopDrawingTouch}
             onTouchCancel={stopDrawingTouch}
-            className="w-full border-2 border-[#30363d] rounded-lg cursor-crosshair shadow-lg bg-white"
+            className={`w-full border-2 border-[#30363d] rounded-lg shadow-lg bg-white ${
+              tool === 'text' ? 'cursor-text' : 'cursor-crosshair'
+            }`}
             style={{ touchAction: 'none' }}
           />
+          
+          {/* Elementy tekstowe */}
+          {textElements.map((textEl) => (
+            <div
+              key={textEl.id}
+              className="absolute group"
+              style={{
+                left: textEl.x,
+                top: textEl.y,
+                transform: 'translate(-50%, -50%)',
+                pointerEvents: 'auto'
+              }}
+            >
+              {editingTextId === textEl.id ? (
+                <input
+                  type="text"
+                  value={textEl.text}
+                  onChange={(e) => updateTextElement(textEl.id, e.target.value)}
+                  onBlur={() => setEditingTextId(null)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      setEditingTextId(null);
+                    } else if (e.key === 'Escape') {
+                      if (textEl.text === '') {
+                        removeTextElement(textEl.id);
+                      } else {
+                        setEditingTextId(null);
+                      }
+                    }
+                  }}
+                  autoFocus
+                  className="bg-white border border-gray-300 px-2 py-1 rounded text-black outline-none focus:border-blue-500"
+                  style={{
+                    fontSize: `${textEl.fontSize}px`,
+                    color: textEl.color,
+                    minWidth: '100px'
+                  }}
+                  placeholder="Wpisz tekst..."
+                />
+              ) : (
+                <div
+                  className="relative cursor-pointer bg-white/90 px-2 py-1 rounded border border-transparent hover:border-gray-300 hover:bg-white transition-colors"
+                  onClick={() => setEditingTextId(textEl.id)}
+                  style={{
+                    fontSize: `${textEl.fontSize}px`,
+                    color: textEl.color,
+                    minWidth: textEl.text ? 'auto' : '100px',
+                    minHeight: '24px'
+                  }}
+                >
+                  {textEl.text || 'Kliknij aby edytować'}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeTextElement(textEl.id);
+                    }}
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-xs hover:bg-red-600"
+                    title="Usuń tekst"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+          
+          {/* Wskazówka dla narzędzia tekst */}
+          {tool === 'text' && textElements.length === 0 && (
+            <div className="absolute top-4 left-4 bg-blue-900/80 text-blue-200 px-3 py-2 rounded-lg text-sm pointer-events-none">
+              Kliknij w dowolnym miejscu, aby dodać tekst
+            </div>
+          )}
         </div>
       </div>
     );
