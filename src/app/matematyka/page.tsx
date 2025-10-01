@@ -317,7 +317,7 @@ const mathTopicsData: Record<string, TopicSection> = {
     items: [
       { 
         title: 'Egzamin 2025', 
-        description: 'Materiały na egzamin 2025', 
+        description: 'Zadania i rozwiązania z 2025', 
         href: '#',
         submenu: [
           { title: 'Egzamin główny', description: 'Oficjalny egzamin maj 2025', href: '/matematyka/egzamin-8/2025/glowny' },
@@ -326,7 +326,7 @@ const mathTopicsData: Record<string, TopicSection> = {
       },
       { 
         title: 'Egzamin 2024', 
-        description: 'Arkusze i rozwiązania z 2024', 
+        description: 'Zadania i rozwiązania z 2024', 
         href: '#',
         submenu: [
           { title: 'Egzamin główny', description: 'Oficjalny egzamin maj 2024', href: '/matematyka/egzamin-8/2024/glowny' },
@@ -335,7 +335,7 @@ const mathTopicsData: Record<string, TopicSection> = {
       },
       { 
         title: 'Egzamin 2023', 
-        description: 'Arkusze i rozwiązania z 2023', 
+        description: 'Zadania i rozwiązania z 2023', 
         href: '#',
         submenu: [
           { title: 'Egzamin główny', description: 'Oficjalny egzamin maj 2023', href: '/matematyka/egzamin-8/2023/glowny' },
@@ -344,7 +344,7 @@ const mathTopicsData: Record<string, TopicSection> = {
       },
       { 
         title: 'Egzamin 2022', 
-        description: 'Arkusze i rozwiązania z 2022', 
+        description: 'Zadania i rozwiązania z 2022', 
         href: '#',
         submenu: [
           { title: 'Egzamin główny', description: 'Oficjalny egzamin maj 2022', href: '/matematyka/egzamin-8/2022/glowny' },
@@ -405,6 +405,10 @@ export default function MatematikaPage() {
   }, [currentContent, searchQuery]);
 
   const currentTopic = mathTopicsData[currentContent as keyof typeof mathTopicsData];
+
+  // Dzielimy na dwie kolumny jak w FAQ
+  const leftColumnItems = filteredItems.filter((_, index) => index % 2 === 0);
+  const rightColumnItems = filteredItems.filter((_, index) => index % 2 === 1);
 
   // Handle item click
   const handleItemClick = (item: MathTopic, index: number) => {
@@ -565,7 +569,7 @@ export default function MatematikaPage() {
                     <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                     <input
                       type="text"
-                      placeholder="Szukaj tematów..."
+                      placeholder="Szukaj"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="w-full pl-12 pr-4 py-3 bg-[#21262d] border border-[#30363d] rounded-xl text-white placeholder-gray-400 focus:border-[#58a6ff] focus:outline-none transition-colors duration-300"
@@ -581,100 +585,301 @@ export default function MatematikaPage() {
 
                 {/* Treści */}
                 {filteredItems.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-                    {filteredItems.map((item: MathTopic, index: number) => (
-                      <motion.div
-                        key={index}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: index * 0.1 }}
-                        className="bg-[#21262d] border border-[#30363d] rounded-xl overflow-hidden hover:border-[#58a6ff]/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-[#58a6ff]/10"
-                      >
-                        <button
-                          onClick={() => handleItemClick(item, index)}
-                          className="w-full px-6 py-6 text-left group focus:outline-none cursor-pointer"
+                  <>
+                    {/* Mobile: Single column */}
+                    <div className="lg:hidden max-w-5xl mx-auto space-y-6">
+                      {filteredItems.map((item: MathTopic, index: number) => (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.6, delay: index * 0.1 }}
+                          className="bg-[#21262d] border border-[#30363d] rounded-xl overflow-hidden hover:border-[#58a6ff]/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-[#58a6ff]/10"
                         >
-                          <div className="flex items-center justify-between mb-3">
-                            <h3 className="text-lg font-semibold text-white group-hover:text-[#58a6ff] transition-colors">
-                              {item.title}
-                            </h3>
-                            
-                            {item.submenu && (
-                              <motion.div
-                                animate={{ rotate: openItems.includes(index) ? 180 : 0 }}
-                                transition={{ duration: 0.3 }}
-                                className="flex-shrink-0"
-                              >
-                                <ChevronDown className="w-5 h-5 text-[#58a6ff]" />
-                              </motion.div>
-                            )}
-                          </div>
-                          
-                          <p className="text-gray-400 text-sm leading-relaxed mb-4">
-                            {item.description}
-                          </p>
-                          
-                          <div className="flex items-center gap-2 text-[#58a6ff] text-sm font-semibold group-hover:gap-3 transition-all duration-300">
-                            <span>
-                              {item.submenu ? 'Rozwiń opcje' : 
-                               (currentContent.includes('Szkoła') || currentContent.includes('Studia') ? 
-                                'Przejdź do materiałów' : 'Rozwiń sesje')}
-                            </span>
-                            <ArrowLeft className="w-4 h-4 rotate-180" />
-                          </div>
-                        </button>
-
-                        {/* Submenu */}
-                        <AnimatePresence>
-                          {item.submenu && openItems.includes(index) && (
-                            <motion.div
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: "auto", opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
-                              transition={{ duration: 0.3, ease: "easeInOut" }}
-                              className="overflow-hidden"
-                            >
-                              <div className="border-t border-[#30363d]">
+                          <button
+                            onClick={() => handleItemClick(item, index)}
+                            className="w-full px-6 py-6 text-left group focus:outline-none cursor-pointer"
+                          >
+                            <div className="flex items-center justify-between mb-3">
+                              <h3 className="text-lg font-semibold text-white group-hover:text-[#58a6ff] transition-colors">
+                                {item.title}
+                              </h3>
+                              
+                              {item.submenu && (
                                 <motion.div
-                                  initial={{ y: -10, opacity: 0 }}
-                                  animate={{ y: 0, opacity: 1 }}
-                                  transition={{ duration: 0.3, delay: 0.1 }}
-                                  className="p-4 space-y-3"
+                                  animate={{ rotate: openItems.includes(index) ? 180 : 0 }}
+                                  transition={{ duration: 0.3 }}
+                                  className="flex-shrink-0"
                                 >
-                                  {item.submenu.map((subItem: MathTopic, subIndex: number) => (
-                                    <div
-                                      key={subIndex}
-                                      className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 hover:border-[#58a6ff]/30 transition-all duration-300 cursor-pointer group"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (subItem.href && subItem.href !== '#') {
-                                          window.location.href = subItem.href;
-                                        }
-                                      }}
-                                    >
-                                      <div className="text-left">
-                                        <h4 className="text-md font-medium text-white mb-2 group-hover:text-[#58a6ff] transition-colors">
-                                          {subItem.title}
-                                        </h4>
-                                        <p className="text-gray-400 text-sm leading-relaxed mb-2">
-                                          {subItem.description}
-                                        </p>
-                                        <div className="flex items-center gap-2 text-[#58a6ff] text-xs font-medium">
-                                          <span>Przejdź do arkuszy</span>
-                                          <ArrowLeft className="w-3 h-3 rotate-180" />
+                                  <ChevronDown className="w-5 h-5 text-[#58a6ff]" />
+                                </motion.div>
+                              )}
+                            </div>
+                            
+                            <p className="text-gray-400 text-sm leading-relaxed mb-4">
+                              {item.description}
+                            </p>
+                            
+                            <div className="flex items-center gap-2 text-[#58a6ff] text-sm font-semibold group-hover:gap-3 transition-all duration-300">
+                              <span>
+                                {item.submenu ? 'Rozwiń opcje' : 
+                                 (currentContent.includes('Szkoła') || currentContent.includes('Studia') ? 
+                                  'Przejdź do materiałów' : 'Rozwiń sesje')}
+                              </span>
+                              <ArrowLeft className="w-4 h-4 rotate-180" />
+                            </div>
+                          </button>
+
+                          {/* Submenu */}
+                          <AnimatePresence>
+                            {item.submenu && openItems.includes(index) && (
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.3, ease: "easeInOut" }}
+                                className="overflow-hidden"
+                              >
+                                <div className="border-t border-[#30363d]">
+                                  <motion.div
+                                    initial={{ y: -10, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ duration: 0.3, delay: 0.1 }}
+                                    className="p-4 space-y-3"
+                                  >
+                                    {item.submenu.map((subItem: MathTopic, subIndex: number) => (
+                                      <div
+                                        key={subIndex}
+                                        className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 hover:border-[#58a6ff]/30 transition-all duration-300 cursor-pointer group"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          if (subItem.href && subItem.href !== '#') {
+                                            window.location.href = subItem.href;
+                                          }
+                                        }}
+                                      >
+                                        <div className="text-left">
+                                          <h4 className="text-md font-medium text-white mb-2 group-hover:text-[#58a6ff] transition-colors">
+                                            {subItem.title}
+                                          </h4>
+                                          <p className="text-gray-400 text-sm leading-relaxed mb-2">
+                                            {subItem.description}
+                                          </p>
+                                          <div className="flex items-center gap-2 text-[#58a6ff] text-xs font-medium">
+                                            <span>Przejdź do zadań</span>
+                                            <ArrowLeft className="w-3 h-3 rotate-180" />
+                                          </div>
                                         </div>
                                       </div>
+                                    ))}
+                                  </motion.div>
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </motion.div>
+                      ))}
+                    </div>
+
+                    {/* Desktop: Two columns */}
+                    <div className="hidden lg:grid lg:grid-cols-2 lg:gap-8 max-w-7xl mx-auto">
+                      {/* Left Column */}
+                      <div className="space-y-6">
+                        {leftColumnItems.map((item) => {
+                          const originalIndex = filteredItems.findIndex(mathItem => mathItem === item);
+                          return (
+                            <motion.div
+                              key={originalIndex}
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.6, delay: originalIndex * 0.1 }}
+                              className="bg-[#21262d] border border-[#30363d] rounded-xl overflow-hidden hover:border-[#58a6ff]/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-[#58a6ff]/10"
+                            >
+                              <button
+                                onClick={() => handleItemClick(item, originalIndex)}
+                                className="w-full px-6 py-6 text-left group focus:outline-none cursor-pointer"
+                              >
+                                <div className="flex items-center justify-between mb-3">
+                                  <h3 className="text-lg font-semibold text-white group-hover:text-[#58a6ff] transition-colors">
+                                    {item.title}
+                                  </h3>
+                                  
+                                  {item.submenu && (
+                                    <motion.div
+                                      animate={{ rotate: openItems.includes(originalIndex) ? 180 : 0 }}
+                                      transition={{ duration: 0.3 }}
+                                      className="flex-shrink-0"
+                                    >
+                                      <ChevronDown className="w-5 h-5 text-[#58a6ff]" />
+                                    </motion.div>
+                                  )}
+                                </div>
+                                
+                                <p className="text-gray-400 text-sm leading-relaxed mb-4">
+                                  {item.description}
+                                </p>
+                                
+                                <div className="flex items-center gap-2 text-[#58a6ff] text-sm font-semibold group-hover:gap-3 transition-all duration-300">
+                                  <span>
+                                    {item.submenu ? 'Rozwiń opcje' : 
+                                     (currentContent.includes('Szkoła') || currentContent.includes('Studia') ? 
+                                      'Przejdź do materiałów' : 'Rozwiń sesje')}
+                                  </span>
+                                  <ArrowLeft className="w-4 h-4 rotate-180" />
+                                </div>
+                              </button>
+
+                              {/* Submenu */}
+                              <AnimatePresence>
+                                {item.submenu && openItems.includes(originalIndex) && (
+                                  <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: "auto", opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                                    className="overflow-hidden"
+                                  >
+                                    <div className="border-t border-[#30363d]">
+                                      <motion.div
+                                        initial={{ y: -10, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        transition={{ duration: 0.3, delay: 0.1 }}
+                                        className="p-4 space-y-3"
+                                      >
+                                        {item.submenu.map((subItem: MathTopic, subIndex: number) => (
+                                          <div
+                                            key={subIndex}
+                                            className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 hover:border-[#58a6ff]/30 transition-all duration-300 cursor-pointer group"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              if (subItem.href && subItem.href !== '#') {
+                                                window.location.href = subItem.href;
+                                              }
+                                            }}
+                                          >
+                                            <div className="text-left">
+                                              <h4 className="text-md font-medium text-white mb-2 group-hover:text-[#58a6ff] transition-colors">
+                                                {subItem.title}
+                                              </h4>
+                                              <p className="text-gray-400 text-sm leading-relaxed mb-2">
+                                                {subItem.description}
+                                              </p>
+                                              <div className="flex items-center gap-2 text-[#58a6ff] text-xs font-medium">
+                                                <span>Przejdź do zadań</span>
+                                                <ArrowLeft className="w-3 h-3 rotate-180" />
+                                              </div>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </motion.div>
                                     </div>
-                                  ))}
-                                </motion.div>
-                              </div>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
                             </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </motion.div>
-                    ))}
-                  </div>
-                ) : searchQuery ? (
+                          );
+                        })}
+                      </div>
+
+                      {/* Right Column */}
+                      <div className="space-y-6">
+                        {rightColumnItems.map((item) => {
+                          const originalIndex = filteredItems.findIndex(mathItem => mathItem === item);
+                          return (
+                            <motion.div
+                              key={originalIndex}
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.6, delay: originalIndex * 0.1 }}
+                              className="bg-[#21262d] border border-[#30363d] rounded-xl overflow-hidden hover:border-[#58a6ff]/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-[#58a6ff]/10"
+                            >
+                              <button
+                                onClick={() => handleItemClick(item, originalIndex)}
+                                className="w-full px-6 py-6 text-left group focus:outline-none cursor-pointer"
+                              >
+                                <div className="flex items-center justify-between mb-3">
+                                  <h3 className="text-lg font-semibold text-white group-hover:text-[#58a6ff] transition-colors">
+                                    {item.title}
+                                  </h3>
+                                  
+                                  {item.submenu && (
+                                    <motion.div
+                                      animate={{ rotate: openItems.includes(originalIndex) ? 180 : 0 }}
+                                      transition={{ duration: 0.3 }}
+                                      className="flex-shrink-0"
+                                    >
+                                      <ChevronDown className="w-5 h-5 text-[#58a6ff]" />
+                                    </motion.div>
+                                  )}
+                                </div>
+                                
+                                <p className="text-gray-400 text-sm leading-relaxed mb-4">
+                                  {item.description}
+                                </p>
+                                
+                                <div className="flex items-center gap-2 text-[#58a6ff] text-sm font-semibold group-hover:gap-3 transition-all duration-300">
+                                  <span>
+                                    {item.submenu ? 'Rozwiń opcje' : 
+                                     (currentContent.includes('Szkoła') || currentContent.includes('Studia') ? 
+                                      'Przejdź do materiałów' : 'Rozwiń sesje')}
+                                  </span>
+                                  <ArrowLeft className="w-4 h-4 rotate-180" />
+                                </div>
+                              </button>
+
+                              {/* Submenu */}
+                              <AnimatePresence>
+                                {item.submenu && openItems.includes(originalIndex) && (
+                                  <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: "auto", opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                                    className="overflow-hidden"
+                                  >
+                                    <div className="border-t border-[#30363d]">
+                                      <motion.div
+                                        initial={{ y: -10, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        transition={{ duration: 0.3, delay: 0.1 }}
+                                        className="p-4 space-y-3"
+                                      >
+                                        {item.submenu.map((subItem: MathTopic, subIndex: number) => (
+                                          <div
+                                            key={subIndex}
+                                            className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 hover:border-[#58a6ff]/30 transition-all duration-300 cursor-pointer group"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              if (subItem.href && subItem.href !== '#') {
+                                                window.location.href = subItem.href;
+                                              }
+                                            }}
+                                          >
+                                            <div className="text-left">
+                                              <h4 className="text-md font-medium text-white mb-2 group-hover:text-[#58a6ff] transition-colors">
+                                                {subItem.title}
+                                              </h4>
+                                              <p className="text-gray-400 text-sm leading-relaxed mb-2">
+                                                {subItem.description}
+                                              </p>
+                                              <div className="flex items-center gap-2 text-[#58a6ff] text-xs font-medium">
+                                                <span>Przejdź do zadań</span>
+                                                <ArrowLeft className="w-3 h-3 rotate-180" />
+                                              </div>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </motion.div>
+                                    </div>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </>) : searchQuery ? (
                   <div className="text-center py-12">
                     <div className="text-gray-500 mb-4">
                       <Search className="w-16 h-16 mx-auto mb-4" />

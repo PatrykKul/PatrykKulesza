@@ -52,9 +52,26 @@ export default function ExamPage({
   const [userAnswers, setUserAnswers] = useState<Record<string, string[]>>({});
   const [checkedAnswers, setCheckedAnswers] = useState<Record<string, boolean>>({});
   const [showCanvas, setShowCanvas] = useState<Record<string, boolean>>({});
+  const [timeElapsed, setTimeElapsed] = useState(0);
+  const [timerActive, setTimerActive] = useState(true);
   
   // Automatyczne skanowanie folderów z obrazami
   const { imageData, loading: imagesLoading } = useImageScan(examType, year, type, level);
+
+  // Timer effect
+  useEffect(() => {
+    if (!timerActive) return;
+    const interval = setInterval(() => {
+      setTimeElapsed(prev => prev + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [timerActive]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   // Funkcja do generowania rozszerzonego tytułu z rokiem i typem
   const getExtendedTitle = () => {
@@ -198,6 +215,8 @@ export default function ExamPage({
       delete newChecked[problemId];
       return newChecked;
     });
+    // Wyczyść canvas dla tego zadania
+    localStorage.removeItem(`canvas-${problemId}`);
   };
 
   const resetAllProblems = () => {
@@ -522,6 +541,69 @@ export default function ExamPage({
       localStorage.setItem(`canvas-${problemId}`, dataURL);
     };
 
+    // Touch support functions
+    const getTouchPos = (e: React.TouchEvent<HTMLCanvasElement>) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return { x: 0, y: 0 };
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      return {
+        x: touch.clientX - rect.left,
+        y: touch.clientY - rect.top
+      };
+    };
+
+    const startDrawingTouch = (e: React.TouchEvent<HTMLCanvasElement>) => {
+      e.preventDefault(); // Zapobiega scrollowaniu
+      const pos = getTouchPos(e);
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      setIsDrawing(true);
+      ctx.beginPath();
+      ctx.moveTo(pos.x, pos.y);
+    };
+
+    const drawTouch = (e: React.TouchEvent<HTMLCanvasElement>) => {
+      e.preventDefault();
+      if (!isDrawing) return;
+
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const pos = getTouchPos(e);
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      if (tool === 'eraser') {
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = lineWidth * 4;
+      } else {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lineWidth;
+      }
+
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+    };
+
+    const stopDrawingTouch = () => {
+      if (!isDrawing) return;
+      setIsDrawing(false);
+
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const dataURL = canvas.toDataURL();
+      localStorage.setItem(`canvas-${problemId}`, dataURL);
+    };
+
     const clearCanvas = () => {
       const canvas = canvasRef.current;
       if (!canvas) return;
@@ -667,6 +749,10 @@ export default function ExamPage({
             onMouseMove={draw}
             onMouseUp={stopDrawing}
             onMouseLeave={stopDrawing}
+            onTouchStart={startDrawingTouch}
+            onTouchMove={drawTouch}
+            onTouchEnd={stopDrawingTouch}
+            onTouchCancel={stopDrawingTouch}
             className="w-full border-2 border-[#30363d] rounded-lg cursor-crosshair shadow-lg bg-white"
             style={{ touchAction: 'none' }}
           />
@@ -768,11 +854,10 @@ export default function ExamPage({
           {/* Licznik postępu - sticky */}
           <div className="sticky top-20 z-10 mb-8 flex justify-center pointer-events-none">
             <div className="bg-[#161b22] border-2 border-[#30363d] rounded-xl px-6 py-4 shadow-2xl backdrop-blur-sm bg-opacity-95 pointer-events-auto max-w-fit">
-                        <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center justify-between gap-6">
                           <div>
-                            <span className="text-sm text-gray-400 mb-1">
-                              Sprawdzone: {checkedCount} / {totalProblems}
-                            </span>  
+                            <span className="text-sm text-gray-400">Czas: {formatTime(timeElapsed)} / {examData.duration} min</span>
+                            <span className="text-sm text-gray-400 ml-4">Sprawdzone: {checkedCount} / {totalProblems}</span>  
                             <span className="text-lg font-bold text-[#58a6ff]"> Wynik: {totalScore} / {examData.maxPoints} pkt
                             </span>
                           </div>
@@ -863,6 +948,10 @@ export default function ExamPage({
                             alt={`Ilustracja do zadania ${problem.id}`}
                             className="max-w-full h-auto mx-auto rounded-lg"
                             loading="lazy"
+                            onError={(e) => {
+                              // Ukryj jeśli nie załaduje się
+                              (e.target as HTMLImageElement).style.display = 'none';
+                            }}
                           />
                         </div>
                       );
@@ -998,19 +1087,24 @@ export default function ExamPage({
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
                             {problem.options.map((option, optIndex) => {
                               const isSelected = userAnswer.includes(option);
+                              const isCorrectOption = problem.answer.includes(option.charAt(0)) || 
+                                                    problem.answer === option;
                               
                               let borderColor = 'border-[#30363d]';
                               let bgColor = 'bg-[#21262d]';
                               
-                              if (isChecked && isSelected) {
-                                if (isCorrect === true) {
+                              if (isChecked) {
+                                if (isCorrectOption) {
+                                  // Poprawna odpowiedź - zawsze zielona
                                   borderColor = 'border-green-500';
                                   bgColor = 'bg-green-900/20';
-                                } else {
+                                } else if (isSelected) {
+                                  // Wybrana, ale błędna - czerwona
                                   borderColor = 'border-red-500';
                                   bgColor = 'bg-red-900/20';
                                 }
                               } else if (isSelected) {
+                                // Wybrana przed sprawdzeniem - niebieska
                                 borderColor = 'border-[#58a6ff]';
                                 bgColor = 'bg-[#30363d]';
                               }

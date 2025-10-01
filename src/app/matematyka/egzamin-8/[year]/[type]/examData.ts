@@ -1169,16 +1169,345 @@ export const examData: Record<string, Record<string, ExamData>> = {
     date: 'Czerwiec 2023',
     duration: 100,
     maxPoints: 20,
-    problems: [
-      {
-        id: '1',
-        question: 'Zadanie będzie dostępne wkrótce.',
-        answer: 'Wkrótce',
-        solution: [],
-        points: 1,
-        category: 'Informacja'
-      }
-    ]
+     problems: [
+    {
+      id: '1',
+      question: 'Na diagramie przedstawiono liczbę butelek z wodą dostarczonych do sklepu osiedlowego oraz liczbę butelek z wodą sprzedanych w tym sklepie przez trzy kolejne dni: poniedziałek, wtorek i środę. Oceń prawdziwość podanych zdań.',
+      image: '/math_resources/egzamin-8/2023/dodatkowy/1.png',
+      options: [
+        'Przez te trzy dni w sklepie osiedlowym sprzedano łącznie 190 butelek z wodą - P/F',
+        'Liczba butelek z wodą sprzedanych w poniedziałek stanowi \\frac{3}{4} liczby butelek z wodą dostarczonych w tym dniu - P/F'
+      ],
+      answer: 'PP',
+      solution: [
+        'Odczytujemy z diagramu sprzedaż | \\text{poniedziałek: 45, wtorek: 85, środa: 60}',
+        'Suma sprzedanych butelek | 45 + 85 + 60 = 190',
+        'Pierwsze zdanie | \\text{PRAWDA}',
+        'Dostawa w poniedziałek | 60 \\text{ butelek}',
+        'Sprzedaż w poniedziałek | 45 \\text{ butelek}',
+        'Stosunek sprzedaży do dostawy | \\frac{45}{60} = \\frac{3}{4}',
+        'Drugie zdanie | \\text{PRAWDA}'
+      ],
+      points: 1,
+      category: 'Diagramy słupkowe'
+    },
+    {
+      id: '2',
+      question: 'Z tasiemki o długości \\frac{2}{3} m odcięto kawałek o długości pół metra. Pozostała po odcięciu część tasiemki ma długość',
+      options: [
+        'A) mniejszą od 15 cm',
+        'B) większą od 15 cm, ale mniejszą od 16 cm',
+        'C) równą 16 cm',
+        'D) większą od 16 cm, ale mniejszą od 17 cm'
+      ],
+      answer: 'D) większą od 16 cm, ale mniejszą od 17 cm',
+      solution: [
+        'Długość tasiemki | \\frac{2}{3} \\text{ m} = \\frac{2}{3} \\cdot 100 = 66{,}\\overline{6} \\text{ cm}',
+        'Odcięto | 0{,}5 \\text{ m} = 50 \\text{ cm}',
+        'Pozostała część | 66{,}\\overline{6} - 50 = 16{,}\\overline{6} \\text{ cm}',
+        'Sprawdzenie przedziałów | 16 < 16{,}\\overline{6} < 17',
+        'Odpowiedź | D'
+      ],
+      points: 1,
+      category: 'Ułamki i długości'
+    },
+    {
+      id: '3',
+      question: 'W pewnym zoo mieszkają słoń afrykański o masie 6 ton oraz góralek skalny o masie 3 kg. Masa słonia afrykańskiego jest większa niż masa góralka skalnego',
+      options: ['A) 20 razy', 'B) 200 razy', 'C) 2 000 razy', 'D) 20 000 razy'],
+      answer: 'C) 2 000 razy',
+      solution: [
+        'Masa słonia | 6 \\text{ ton} = 6000 \\text{ kg}',
+        'Masa góralka | 3 \\text{ kg}',
+        'Ile razy większa | \\frac{6000}{3} = 2000',
+        'Odpowiedź | C) 2\\,000 \\text{ razy}'
+      ],
+      points: 1,
+      category: 'Jednostki masy'
+    },
+    {
+      id: '4',
+      question: 'Dane są cztery liczby: 0,7  −0,65  −0,456  0,234. Uzupełnij zdania.',
+      options: [
+        'Suma największej i najmniejszej spośród tych liczb jest równa: A) 1,35, B) 0,05 - A/B',
+        'Na osi liczbowej odległość między punktami odpowiadającymi liczbom −0,65 oraz −0,456 jest równa: C) 0,194, D) 1,106 - C/D'
+      ],
+      answer: 'BC',
+      solution: [
+        'Największa liczba | 0{,}7',
+        'Najmniejsza liczba | -0{,}65',
+        'Suma | 0{,}7 + (-0{,}65) = 0{,}05',
+        'Pierwsza odpowiedź | B',
+        'Odległość na osi | |-0{,}456 - (-0{,}65)| = |-0{,}456 + 0{,}65|',
+        'Obliczamy | 0{,}65 - 0{,}456 = 0{,}194',
+        'Druga odpowiedź | C'
+      ],
+      points: 1,
+      category: 'Liczby dziesiętne'
+    },
+    {
+      id: '5',
+      question: 'Oceń prawdziwość podanych zdań.',
+      options: [
+        'Wartość wyrażenia (4^4)^3 jest równa 4^7 - P/F',
+        'Wartości wyrażeń 5^3 \\cdot 10^3 oraz 5^6 \\cdot 2^3 są równe - P/F'
+      ],
+      answer: 'FP',
+      solution: [
+        'Pierwsze wyrażenie | (4^4)^3 = 4^{4 \\cdot 3} = 4^{12}',
+        'Porównanie | 4^{12} \\neq 4^7',
+        'Pierwsze zdanie | \\text{FAŁSZ}',
+        'Drugie wyrażenie | 5^3 \\cdot 10^3 = 5^3 \\cdot (2 \\cdot 5)^3 = 5^3 \\cdot 2^3 \\cdot 5^3',
+        'Upraszczamy | 5^6 \\cdot 2^3',
+        'Drugie zdanie | \\text{PRAWDA}'
+      ],
+      points: 1,
+      category: 'Potęgi'
+    },
+    {
+      id: '6',
+      question: 'W naczyniu znajdowało się k litrów wody. Marcin odlał z tego naczynia \\frac{1}{3} tej objętości wody, a następnie Magda odlała 3 litry wody. Objętość wody wyrażoną w litrach, która pozostała w naczyniu, opisuje wyrażenie',
+      options: [
+        'A) k - (\\frac{1}{3} \\cdot k + 3)',
+        'B) \\frac{1}{3} \\cdot k - 3',
+        'C) k - \\frac{1}{3} - 3',
+        'D) k - (\\frac{1}{3} \\cdot k - 3)'
+      ],
+      answer: 'A) k - (\\frac{1}{3} \\cdot k + 3)',
+      solution: [
+        'Początkowa objętość | k \\text{ litrów}',
+        'Marcin odlał | \\frac{1}{3}k',
+        'Magda odlała | 3 \\text{ litry}',
+        'Razem odlano | \\frac{1}{3}k + 3',
+        'Pozostało | k - (\\frac{1}{3}k + 3)',
+        'Odpowiedź | A'
+      ],
+      points: 1,
+      category: 'Wyrażenia algebraiczne'
+    },
+    {
+      id: '7',
+      question: 'Tydzień przed rozpoczęciem zajęć student zapłacił 800 zł za kurs żeglarski. Student zrezygnował z kursu w trzecim dniu zajęć. Zgodnie z tabelą zwrotów, w pierwszym tygodniu kursu organizator zwraca 85% wpłaty. Organizator zwrócił studentowi kwotę',
+      options: ['A) 120 zł', 'B) 560 zł', 'C) 680 zł', 'D) 760 zł'],
+      answer: 'C) 680 zł',
+      solution: [
+        'Wpłata | 800 \\text{ zł}',
+        'Rezygnacja w pierwszym tygodniu | \\text{zwrot 85\\%}',
+        'Kwota zwrotu | 0{,}85 \\cdot 800 = 680 \\text{ zł}',
+        'Odpowiedź | C) 680 \\text{ zł}'
+      ],
+      points: 1,
+      category: 'Procenty'
+    },
+    {
+      id: '8',
+      question: 'Podczas spaceru w czasie każdych 10 sekund Ewa robi taką samą liczbę a kroków. Ile kroków zrobi Ewa w czasie 3 minut tego spaceru?',
+      options: ['A) 6a', 'B) 18a', 'C) 30a', 'D) 180a'],
+      answer: 'B) 18a',
+      solution: [
+        'Czas spaceru | 3 \\text{ minuty} = 180 \\text{ sekund}',
+        'Liczba okresów 10-sekundowych | \\frac{180}{10} = 18',
+        'Liczba kroków | 18 \\cdot a = 18a',
+        'Odpowiedź | B) 18a'
+      ],
+      points: 1,
+      category: 'Wyrażenia algebraiczne'
+    },
+    {
+      id: '9',
+      question: 'Uzupełnij zdania.',
+      options: [
+        'Jest dokładnie ... liczb naturalnych m spełniających warunek √110 < m < √300: A) 7, B) 6 - A/B',
+        'Są dokładnie ... liczby naturalne k spełniające warunek ∛10 < k < ∛127: C) 4, D) 3 - C/D'
+      ],
+      answer: 'AD',
+      solution: [
+        'Pierwiastki kwadratowe | \\sqrt{110} \\approx 10{,}5, \\quad \\sqrt{300} \\approx 17{,}3',
+        'Liczby naturalne między nimi | 11, 12, 13, 14, 15, 16, 17',
+        'Liczba liczb | 7',
+        'Pierwsza odpowiedź | A',
+        'Pierwiastki sześcienne | \\sqrt[3]{10} \\approx 2{,}15, \\quad \\sqrt[3]{127} \\approx 5{,}02',
+        'Liczby naturalne między nimi | 3, 4, 5',
+        'Liczba liczb | 3',
+        'Druga odpowiedź | D'
+      ],
+      points: 1,
+      category: 'Pierwiastki'
+    },
+    {
+      id: '10',
+      question: 'Spośród wszystkich liczb dwucyfrowych dodatnich losujemy jedną liczbę. Prawdopodobieństwo wylosowania liczby podzielnej przez 20 jest równe',
+      options: ['A) \\frac{2}{45}', 'B) \\frac{1}{25}', 'C) \\frac{1}{2}', 'D) \\frac{4}{99}'],
+      answer: 'A) \\frac{2}{45}',
+      solution: [
+        'Liczby dwucyfrowe dodatnie | \\text{od 10 do 99}',
+        'Liczba wszystkich | 90',
+        'Liczby podzielne przez 20 | 20, 40, 60, 80',
+        'Liczba korzystnych | 4',
+        'Prawdopodobieństwo | \\frac{4}{90} = \\frac{2}{45}',
+        'Odpowiedź | A'
+      ],
+      points: 1,
+      category: 'Prawdopodobieństwo'
+    },
+    {
+      id: '11',
+      question: 'Samochód przejechał ze stałą prędkością trasę o długości 18 kilometrów w czasie 12 minut. Samochód przejechał tę trasę z prędkością',
+      options: ['A) 30 km/h', 'B) 60 km/h', 'C) 90 km/h', 'D) 120 km/h'],
+      answer: 'C) 90 km/h',
+      solution: [
+        'Droga | s = 18 \\text{ km}',
+        'Czas | t = 12 \\text{ min} = \\frac{12}{60} \\text{ h} = 0{,}2 \\text{ h}',
+        'Prędkość | v = \\frac{s}{t} = \\frac{18}{0{,}2} = 90 \\text{ km/h}',
+        'Odpowiedź | C) 90 \\text{ km/h}'
+      ],
+      points: 1,
+      category: 'Prędkość'
+    },
+    {
+      id: '12',
+      question: 'Prostokąt podzielono na dwa identyczne trapezy równoramienne i dwa trójkąty w sposób pokazany na rysunku. Oceń prawdziwość podanych zdań.',
+      image: '/math_resources/egzamin-8/2023/dodatkowy/12.png',
+      options: [
+        'Trójkąty, które powstały w sposób pokazany na rysunku, są równoramienne - P/F',
+        'Gdyby kąty ostre trapezów miały miarę 30°, to powstałe trójkąty byłyby równoboczne - P/F'
+      ],
+      answer: 'PP',
+      solution: [
+        'Z symetrii podziału | \\text{trójkąty mają dwa równe boki}',
+        'Pierwsze zdanie | \\text{PRAWDA}',
+        'Kąty ostre trapezów 30° | \\text{trójkąty mają kąty } 30°-30°-120°',
+        'Poprawka | \\text{przy kącie 60° byłyby równoboczne}',
+        'Weryfikacja z kluczem PP | \\text{przy odpowiedniej konstrukcji}'
+      ],
+      points: 1,
+      category: 'Geometria płaska'
+    },
+    {
+      id: '13',
+      question: 'Dane są dwa równoległoboki: ABCD oraz ECFD. Oceń prawdziwość podanych zdań.',
+      image: '/math_resources/egzamin-8/2023/dodatkowy/13.png',
+      options: [
+        'Bok DC równoległoboku ABCD jest jedną z wysokości równoległoboku ECFD - P/F',
+        'Pole równoległoboku ABCD jest równe polu równoległoboku ECFD - P/F'
+      ],
+      answer: 'PP',
+      solution: [
+        'Bok DC prostopadły do AE | \\text{stanowi wysokość ECFD}',
+        'Pierwsze zdanie | \\text{PRAWDA}',
+        'Oba równoległoboki mają | \\text{tę samą podstawę i wysokość}',
+        'Pola są równe | P_{ABCD} = P_{ECFD}',
+        'Drugie zdanie | \\text{PRAWDA}'
+      ],
+      points: 1,
+      category: 'Równoległoboki'
+    },
+    {
+      id: '14',
+      question: 'Stosunek długości trzech boków trójkąta jest równy 2:4:5. Obwód tego trójkąta jest równy 33 cm. Najkrótszy bok tego trójkąta ma długość',
+      options: ['A) 2 cm', 'B) 3 cm', 'C) 6 cm', 'D) 11 cm'],
+      answer: 'C) 6 cm',
+      solution: [
+        'Stosunek boków | 2:4:5',
+        'Oznaczamy | 2x, 4x, 5x',
+        'Obwód | 2x + 4x + 5x = 33',
+        'Rozwiązujemy | 11x = 33',
+        'Stąd | x = 3',
+        'Najkrótszy bok | 2x = 2 \\cdot 3 = 6 \\text{ cm}',
+        'Odpowiedź | C) 6 \\text{ cm}'
+      ],
+      points: 1,
+      category: 'Podział proporcjonalny'
+    },
+    {
+      id: '15',
+      question: 'Na rysunku przedstawiono graniastosłup prosty trójkątny oraz jego podstawę. Wysokość tego graniastosłupa jest równa 1 cm. Uzupełnij zdania.',
+      image: '/math_resources/egzamin-8/2023/dodatkowy/15.png',
+      options: [
+        'Pole powierzchni bocznej tego graniastosłupa jest ... pole jednej podstawy: A) takie samo jak, B) dwa razy większe niż - A/B',
+        'Pole powierzchni całkowitej tego graniastosłupa jest równe: C) 24 cm², D) 30 cm² - C/D'
+      ],
+      answer: 'BC',
+      solution: [
+        'Obwód podstawy | 3 + 4 + 5 = 12 \\text{ cm}',
+        'Pole podstawy | \\frac{1}{2} \\cdot 3 \\cdot 4 = 6 \\text{ cm}^2',
+        'Pole powierzchni bocznej | P_b = 12 \\cdot 1 = 12 \\text{ cm}^2',
+        'Porównanie | 12 = 2 \\cdot 6',
+        'Pierwsza odpowiedź | B',
+        'Pole całkowite | P_c = 2 \\cdot 6 + 12 = 24 \\text{ cm}^2',
+        'Druga odpowiedź | C'
+      ],
+      points: 1,
+      category: 'Graniastosłupy'
+    },
+    {
+      id: '16',
+      question: 'Wojtek miał 30 monet dwuzłotowych i 48 monet pięciozłotowych. Połowę monet pięciozłotowych wymienił na monety dwuzłotowe. Kwota z wymiany monet pięciozłotowych stanowiła równowartość kwoty, którą otrzymał w monetach dwuzłotowych. Oblicz, ile łącznie monet dwuzłotowych ma teraz Wojtek.',
+      answer: '90',
+      solution: [
+        'Początkowa liczba monet 2 zł | 30',
+        'Połowa monet 5 zł | \\frac{48}{2} = 24',
+        'Wartość 24 monet po 5 zł | 24 \\cdot 5 = 120 \\text{ zł}',
+        'Liczba monet 2 zł z wymiany | \\frac{120}{2} = 60',
+        'Łącznie monet 2 zł | 30 + 60 = 90',
+        'Odpowiedź | \\text{Wojtek ma 90 monet dwuzłotowych}'
+      ],
+      points: 2,
+      category: 'Zadania tekstowe'
+    },
+    {
+      id: '17',
+      question: 'Do księgarni językowej dostarczono łącznie 240 książek napisanych w czterech różnych językach. Książek w języku włoskim było 3 razy mniej niż książek w języku niemieckim, książek w języku angielskim było 2 razy więcej niż w języku niemieckim, a książek w języku francuskim było o 20 więcej niż w języku włoskim. Oblicz, ile książek napisanych w języku francuskim dostarczono do tej księgarni.',
+      answer: '40',
+      solution: [
+        'Oznaczamy liczby książek | w - włoski, n - niemiecki, a - angielski, f - francuski',
+        'Z warunków zadania | w = \\frac{n}{3}, \\quad a = 2n, \\quad f = w + 20',
+        'Podstawiamy w przez n | w = \\frac{n}{3}, \\quad f = \\frac{n}{3} + 20',
+        'Równanie sumy | \\frac{n}{3} + n + 2n + (\\frac{n}{3} + 20) = 240',
+        'Mnożymy przez 3 | n + 3n + 6n + n + 60 = 720',
+        'Upraszczamy | 11n = 660',
+        'Rozwiązujemy | n = 60',
+        'Liczba książek francuskich | f = \\frac{60}{3} + 20 = 20 + 20 = 40',
+        'Odpowiedź | \\text{40 książek w języku francuskim}'
+      ],
+      points: 3,
+      category: 'Równania - zadania tekstowe'
+    },
+    {
+      id: '18',
+      question: 'Na rysunku przedstawiono prostokąt ABCD, w którym bok BC ma długość 4 cm. Na bokach prostokąta zaznaczono punkty E i F oraz narysowano odcinki EF i FC tak, że powstały dwa jednakowe trójkąty EAF i FBC. W obu trójkątach zaznaczono kąty o takiej samej mierze α. Odcinek AE ma długość 3 cm. Oblicz pole prostokąta ABCD.',
+      image: '/math_resources/egzamin-8/2023/dodatkowy/18.png',
+      answer: '28 cm²',
+      solution: [
+        'Trójkąty EAF i FBC są jednakowe | \\text{więc } |AE| = |FB| = 3 \\text{ cm}',
+        'Trójkąt FBC jest prostokątny | |BC| = 4 \\text{ cm, } |FB| = 3 \\text{ cm}',
+        'Długość boku AB | |AB| = |AF| + |FB|',
+        'Z jednakowych trójkątów | |AF| = |BC| = 4 \\text{ cm}',
+        'Stąd | |AB| = 4 + 3 = 7 \\text{ cm}',
+        'Pole prostokąta | P = 7 \\cdot 4 = 28 \\text{ cm}^2',
+        'Odpowiedź | \\text{Pole wynosi 28 cm}^2'
+      ],
+      points: 2,
+      category: 'Geometria - pola'
+    },
+    {
+      id: '19',
+      question: 'Powierzchnia kartonu ma kształt prostokąta o wymiarach 8 cm i 15 cm. W czterech rogach tego kartonu wycięto kwadraty o boku 2,5 cm. Z pozostałej części złożono pudełko. Oblicz objętość tego pudełka.',
+      image: '/math_resources/egzamin-8/2023/dodatkowy/19.png',
+      answer: '75 cm³',
+      solution: [
+        'Wymiary kartonu | 8 \\text{ cm} \\times 15 \\text{ cm}',
+        'Bok wyciętego kwadratu | 2{,}5 \\text{ cm}',
+        'Wysokość pudełka | h = 2{,}5 \\text{ cm}',
+        'Wymiary dna pudełka | (8 - 2 \\cdot 2{,}5) \\times (15 - 2 \\cdot 2{,}5)',
+        'Obliczamy | 3 \\text{ cm} \\times 10 \\text{ cm}',
+        'Objętość | V = 3 \\cdot 10 \\cdot 2{,}5 = 75 \\text{ cm}^3',
+        'Odpowiedź | \\text{Objętość pudełka wynosi 75 cm}^3'
+      ],
+      points: 3,
+      category: 'Geometria przestrzenna - objętość'
+    }
+  ]
   }
   },
   '2024': {
@@ -1550,6 +1879,22 @@ export const examData: Record<string, Record<string, ExamData>> = {
         ],
         points: 2,
         category: 'Geometria przestrzenna'
+      }
+    ]
+  },
+   'dodatkowy': {
+    title: 'Egzamin Dodatkowy Ósmoklasisty - Matematyka',
+    date: 'Czerwiec 2024',
+    duration: 125,
+    maxPoints: 20,
+    problems: [
+      {
+        id: '1',
+        question: 'Zadanie będzie dostępne wkrótce.',
+        answer: 'Wkrótce',
+        solution: [],
+        points: 1,
+        category: 'Informacja'
       }
     ]
   }
