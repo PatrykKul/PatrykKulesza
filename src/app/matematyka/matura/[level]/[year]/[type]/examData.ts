@@ -93,12 +93,12 @@ export const examData: Record<string, Record<string, Record<string, ExamData>>> 
           {
             id: '1',
             question: 'Oblicz wartość wyrażenia:',
-            formula: '\\frac{2^3 \\cdot 3^2}{2 \\cdot 3}',
+            formula: '$\\frac{2^3 \\cdot 3^2}{2 \\cdot 3}$',
             options: ['A) 6', 'B) 12', 'C) 18', 'D) 36'],
             answer: 'B) 12',
             solution: [
-              '\\frac{2^3 \\cdot 3^2}{2 \\cdot 3} = \\frac{8 \\cdot 9}{6}',
-              '= \\frac{72}{6} = 12'
+              '$\\frac{2^3 \\cdot 3^2}{2 \\cdot 3} = \\frac{8 \\cdot 9}{6}$',
+              '= $\\frac{72}{6} = 12$'
             ],
             points: 1,
             difficulty: 'easy',
@@ -125,9 +125,9 @@ export const examData: Record<string, Record<string, Record<string, ExamData>>> 
             question: 'Funkcja liniowa f(x) = ax + b przechodzi przez punkty A(1, 3) i B(3, 7). Wyznacz wzór tej funkcji.',
             answer: 'f(x) = 2x + 1',
             solution: [
-              'a = \\frac{y_2 - y_1}{x_2 - x_1} = \\frac{7 - 3}{3 - 1} = \\frac{4}{2} = 2',
+              '$a = \\frac{y_2 - y_1}{x_2 - x_1} = \\frac{7 - 3}{3 - 1} = \\frac{4}{2} = 2$',
               'f(x) = 2x + b',
-              '3 = 2 \\cdot 1 + b \\Rightarrow b = 1',
+              '$3 = 2 \\cdot 1 + b \\Rightarrow b = 1$',
               'f(x) = 2x + 1'
             ],
             points: 2,
@@ -381,12 +381,12 @@ export const examData: Record<string, Record<string, Record<string, ExamData>>> 
           {
             id: '1',
             question: 'Oblicz granicę:',
-            formula: '\\lim_{x \\to 2} \\frac{x^2 - 4}{x - 2}',
+            formula: '$\\lim_{x \\to 2} \\frac{x^2 - 4}{x - 2}$',
             options: ['A) 2', 'B) 4', 'C) 8', 'D) nie istnieje'],
             answer: 'B) 4',
             solution: [
-              '\\lim_{x \\to 2} \\frac{x^2 - 4}{x - 2} = \\lim_{x \\to 2} \\frac{(x-2)(x+2)}{x - 2}',
-              '= \\lim_{x \\to 2} (x + 2) = 2 + 2 = 4'
+              '$\\lim_{x \\to 2} \\frac{x^2 - 4}{x - 2} = \\lim_{x \\to 2} \\frac{(x-2)(x+2)}{x - 2}$',
+              '= $\\lim_{x \\to 2} (x + 2) = 2 + 2 = 4$'
             ],
             points: 2,
             difficulty: 'medium',
@@ -417,13 +417,13 @@ export const examData: Record<string, Record<string, Record<string, ExamData>>> 
           {
             id: '1',
             question: 'Oblicz całkę nieoznaczoną:',
-            formula: '\\int (2x + 3) dx',
-            answer: 'x² + 3x + C',
+            formula: '$\\int (2x + 3) dx$',
+            answer: '$x^2 + 3x + C$',
             solution: [
-              '\\int (2x + 3) dx = \\int 2x dx + \\int 3 dx',
-              '= 2 \\int x dx + 3 \\int dx',
-              '= 2 \\cdot \\frac{x^2}{2} + 3x + C',
-              '= x^2 + 3x + C'
+              '$\\int (2x + 3) dx = \\int 2x dx + \\int 3 dx$',
+              '= $2 \\int x dx + 3 \\int dx$',
+              '= $2 \\cdot \\frac{x^2}{2} + 3x + C$',
+              '= $x^2 + 3x + C$'
             ],
             points: 2,
             difficulty: 'medium',
@@ -440,13 +440,13 @@ export const examData: Record<string, Record<string, Record<string, ExamData>>> 
           {
             id: '1',
             question: 'Rozwiąż równanie trygonometryczne:',
-            formula: '\\sin x = \\frac{1}{2}',
-            answer: 'x = π/6 + 2πk lub x = 5π/6 + 2πk, gdzie k ∈ Z',
+            formula: '$\\sin x = \\frac{1}{2}$',
+            answer: '$x = \\frac{\\pi}{6} + 2\\pi k$ lub $x = \\frac{5\\pi}{6} + 2\\pi k$, gdzie $k \\in \\mathbb{Z}$',
             solution: [
-              '\\sin x = \\frac{1}{2}',
-              'x = \\arcsin(\\frac{1}{2}) = \\frac{\\pi}{6}',
-              'x = \\frac{\\pi}{6} + 2\\pi k \\text{ lub } x = \\pi - \\frac{\\pi}{6} + 2\\pi k',
-              'x = \\frac{\\pi}{6} + 2\\pi k \\text{ lub } x = \\frac{5\\pi}{6} + 2\\pi k'
+              '$\\sin x = \\frac{1}{2}$',
+              '$x = \\arcsin(\\frac{1}{2}) = \\frac{\\pi}{6}$',
+              '$x = \\frac{\\pi}{6} + 2\\pi k$ lub $x = \\pi - \\frac{\\pi}{6} + 2\\pi k$',
+              '$x = \\frac{\\pi}{6} + 2\\pi k$ lub $x = \\frac{5\\pi}{6} + 2\\pi k$'
             ],
             points: 3,
             difficulty: 'hard',
@@ -512,9 +512,9 @@ export const examData: Record<string, Record<string, Record<string, ExamData>>> 
             question: 'Oblicz sumę n pierwszych wyrazów ciągu geometrycznego o pierwszym wyrazie a₁ = 2 i ilorazie q = 3.',
             answer: 'Sₙ = (3ⁿ - 1)',
             solution: [
-              'S_n = a_1 \\cdot \\frac{q^n - 1}{q - 1}',
-              'S_n = 2 \\cdot \\frac{3^n - 1}{3 - 1}',
-              'S_n = 2 \\cdot \\frac{3^n - 1}{2} = 3^n - 1'
+              '$S_n = a_1 \\cdot \\frac{q^n - 1}{q - 1}$',
+              '$S_n = 2 \\cdot \\frac{3^n - 1}{3 - 1}$',
+              '$S_n = 2 \\cdot \\frac{3^n - 1}{2} = 3^n - 1$'
             ],
             points: 3,
             difficulty: 'hard',

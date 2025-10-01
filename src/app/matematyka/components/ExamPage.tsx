@@ -3,8 +3,7 @@
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Calculator, Clock, Award, FileText, Download, Eye, EyeOff, CheckCircle, RotateCcw, PenTool, Eraser, Trash2 } from 'lucide-react';
-import { InlineMath, BlockMath } from 'react-katex';
-import 'katex/dist/katex.min.css';
+import MathText, { MathSolutionStep } from '@/components/MathText';
 import { useImageScan } from '@/hooks/useImageScan';
 
 // Types
@@ -295,119 +294,14 @@ export default function ExamPage({
     return [];
   };
 
+  // Prosta funkcja renderowania - teraz używamy MathText
   const renderOption = (option: string) => {
-    const parseTextSegments = (text: string) => {
-      const segments: Array<{ type: 'text' | 'math', content: string }> = [];
-      const mathPattern = /\\frac\{[^}]+\}\{[^}]+\}|\\sqrt\{[^}]+\}|\\[a-zA-Z]+(?:\{[^}]*\})*|\^\{[^}]+\}|\_{[^}]+}/g;
-      
-      let lastIndex = 0;
-      let match;
-      
-      while ((match = mathPattern.exec(text)) !== null) {
-        if (match.index > lastIndex) {
-          const textSegment = text.substring(lastIndex, match.index);
-          if (textSegment.trim()) {
-            segments.push({ type: 'text', content: textSegment });
-          }
-        }
-        
-        segments.push({ type: 'math', content: match[0] });
-        lastIndex = match.index + match[0].length;
-      }
-      
-      if (lastIndex < text.length) {
-        const textSegment = text.substring(lastIndex);
-        if (textSegment.trim()) {
-          segments.push({ type: 'text', content: textSegment });
-        }
-      }
-      
-      if (segments.length === 0) {
-        segments.push({ type: 'text', content: text });
-      }
-      
-      return segments;
-    };
-
-    const hasLatex = /\\[a-zA-Z]+|\\frac|\\sqrt|\{[^}]*\}|\\cdot|\\times|\\div|\^|\\_/.test(option);
-    
-    if (!hasLatex) {
-      return <span>{option}</span>;
-    }
-
-    const processedOption = option.replace(/\{,\}/g, ',');
-    const segments = parseTextSegments(processedOption);
-    
-    return (
-      <span className="inline-flex items-baseline flex-wrap">
-        {segments.map((segment, index) => {
-          if (segment.type === 'text') {
-            return <span key={index}>{segment.content}</span>;
-          } else {
-            return (
-              <InlineMath 
-                key={index}
-                math={segment.content}
-                renderError={(_error) => {
-                  console.warn('LaTeX render error:', _error);
-                  
-                  const fallbackText = segment.content
-                    .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '$1/$2')
-                    .replace(/\\cdot/g, '·')
-                    .replace(/\\times/g, '×')
-                    .replace(/\\div/g, '÷')
-                    .replace(/\\approx/g, '≈')
-                    .replace(/\\Rightarrow/g, '⇒')
-                    .replace(/\\checkmark/g, '✓')
-                    .replace(/\\text\{([^}]+)\}/g, '$1')
-                    .replace(/\\sqrt\{([^}]+)\}/g, '√($1)')
-                    .replace(/\^?\{([^}]+)\}/g, '^$1')
-                    .replace(/\\_\{([^}]+)\}/g, '_$1')
-                    .replace(/\\/g, '');
-
-                  return <span>{fallbackText}</span>;
-                }}
-              />
-            );
-          }
-        })}
-      </span>
-    );
+    return <MathText inline>{option}</MathText>;
   };
 
+  // Prosta funkcja renderowania kroków rozwiązania
   const renderSolutionStep = (step: string) => {
-    if (step.includes(' | ')) {
-      const [comment, math] = step.split(' | ', 2);
-      return (
-        <span className="inline-flex items-baseline flex-wrap gap-1">
-          <span className="text-white">{comment.trim()}</span>
-          <span className="text-blue-200">
-            <InlineMath 
-              math={math.trim().replace(/\{,\}/g, ',')}
-              renderError={() => {
-                const fallbackText = math.trim()
-                  .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '$1/$2')
-                  .replace(/\\cdot/g, '·')
-                  .replace(/\\times/g, '×')
-                  .replace(/\\div/g, '÷')
-                  .replace(/\\approx/g, '≈')
-                  .replace(/\\Rightarrow/g, '⇒')
-                  .replace(/\\checkmark/g, '✓')
-                  .replace(/\\text\{([^}]+)\}/g, '$1')
-                  .replace(/\\sqrt\{([^}]+)\}/g, '√($1)')
-                  .replace(/\^?\{([^}]+)\}/g, '^$1')
-                  .replace(/\\_\{([^}]+)\}/g, '_$1')
-                  .replace(/\\/g, '');
-
-                return <span>{fallbackText}</span>;
-              }}
-            />
-          </span>
-        </span>
-      );
-    }
-    
-    return renderOption(step);
+    return <MathSolutionStep>{step}</MathSolutionStep>;
   };
 
   // Komponent Canvas do rysowania
@@ -923,14 +817,7 @@ export default function ExamPage({
                     
                     {problem.formula && (
                       <div className="bg-[#21262d] border border-[#30363d] rounded-lg p-4 mb-4 overflow-x-auto">
-                        <BlockMath 
-                          math={problem.formula}
-                          renderError={() => (
-                            <span className="text-red-400 font-mono text-sm">
-                              Błąd renderowania: {problem.formula}
-                            </span>
-                          )}
-                        />
+                        <MathText>{`$$${problem.formula}$$`}</MathText>
                       </div>
                     )}
 
@@ -1209,13 +1096,13 @@ export default function ExamPage({
                       </div>
 
                       {problem.solution && problem.solution.length > 0 && (
-                        <div className="bg-blue-900/20 border border-blue-600/30 rounded-lg p-4">
+                        <div className="bg-blue-900/20 border border-blue-600/30 rounded-lg p-4 solution-container">
                           <h4 className="text-blue-400 font-semibold mb-3">Rozwiązanie:</h4>
-                          <ol className="space-y-2">
+                          <ol className="space-y-2 solution-container">
                            {problem.solution.map((step, stepIndex) => (
-                              <li key={stepIndex} className="text-white">
+                              <li key={stepIndex} className="text-white solution-container">
                                 <span className="text-blue-400 mr-2">{stepIndex + 1}.</span>
-                                <span className="inline-block">
+                                <span className="inline-block solution-container">
                                   {renderSolutionStep(step)}
                                 </span>
                               </li>

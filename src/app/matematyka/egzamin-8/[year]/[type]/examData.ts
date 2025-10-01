@@ -40,7 +40,7 @@ export const examData: Record<string, Record<string, ExamData>> = {
           solution: [
             'Z diagramu: | fantasy 40\\%, przyrodnicze 15\\%, komediowe 30\\%, biograficzne 10\\%, żadne 5\\%',
             'Czworo uczniów zaznaczyło "żadne", co stanowi | 5\\%',
-            'Jeśli 5% = 4 uczniów, to 100% = | \\frac{4 \\cdot 100}{5} = 80',
+            'Jeśli 5% = 4 uczniów, to 100% = | $\\frac{4 \\cdot 100}{5}$ = 80',
             'Pierwsze zdanie: | PRAWDA',
             'Fantasy: | 40\\% \\cdot 80 = 32 \\text{ uczniów}',
             'Przyrodnicze: | 15\\% \\cdot 80 = 12 \\text{ uczniów}',
@@ -53,20 +53,20 @@ export const examData: Record<string, Record<string, ExamData>> = {
         {
           id: '2',
           question: 'Dokończ zdanie. Wybierz właściwą odpowiedź spośród podanych. Wartość wyrażenia jest równa:',
-          formula: '\\frac{4^2}{5} - 3^2',
+          formula: '$\\frac{4^2}{5} - 3^2$',
           options: [
-            'A) -\\frac{29}{5}',
-            'B) -\\frac{22}{5}',
-            'C) \\frac{7}{5}',
-            'D) \\frac{61}{5}'
+            'A) $-\\frac{29}{5}$',
+            'B) $-\\frac{22}{5}$',
+            'C) $\\frac{7}{5}$',
+            'D) $\\frac{61}{5}$'
           ],
-          answer: 'A) -\\frac{29}{5}',
+          answer: 'A) $-\\frac{29}{5}$',
           solution: [
             'Obliczamy potęgi: | 4^2 = 16, \\quad 3^2 = 9',
-            'Podstawiamy: | \\frac{4^2}{5} - 3^2 = \\frac{16}{5} - 9',
-            'Zamieniamy 9 na ułamek o mianowniku 5: | 9 = \\frac{45}{5}',
-            'Obliczamy: | \\frac{16}{5} - \\frac{45}{5} = \\frac{16 - 45}{5} = \\frac{-29}{5}',
-            'Odpowiedź: | A) -\\frac{29}{5}'
+            'Podstawiamy: | $\\frac{4^2}{5} - 3^2 = \\frac{16}{5} - 9$',
+            'Zamieniamy 9 na ułamek o mianowniku 5: | 9 = $\\frac{45}{5}$',
+            'Obliczamy: | $\\frac{16}{5} - \\frac{45}{5} = \\frac{16 - 45}{5} = \\frac{-29}{5}$',
+            'Odpowiedź: | A) $-\\frac{29}{5}$'
           ],
           points: 1,
           category: 'Ułamki i potęgi'
@@ -131,12 +131,12 @@ export const examData: Record<string, Record<string, ExamData>> = {
           answer: 'AC',
           solution: [
             'Z danych: | 90S = 60L \\text{ (pod względem zużycia materiału)}',
-            'Upraszczamy proporcję: | \\frac{90S}{60L} = 1, \\text{ więc } \\frac{S}{L} = \\frac{60}{90} = \\frac{2}{3}',
-            'Pierwsze pytanie - ile L równoważne 240 S: | \\frac{240S}{xL} = \\frac{90S}{60L}',
-            'Rozwiązujemy: | x = \\frac{240 \\cdot 60}{90} = \\frac{14400}{90} = 160 \\text{ bluzek L}',
+            'Upraszczamy proporcję: | $\\frac{90S}{60L} = 1$, więc $\\frac{S}{L} = \\frac{60}{90} = \\frac{2}{3}$',
+            'Pierwsze pytanie - ile L równoważne 240 S: | $\\frac{240S}{xL} = \\frac{90S}{60L}$',
+            'Rozwiązujemy: | $x = \\frac{240 \\cdot 60}{90} = \\frac{14400}{90} = 160$ bluzek L',
             'Odpowiedź na pierwsze pytanie: | A) 160',
-            'Drugie pytanie - ile S równoważne 2 L: | \\frac{yS}{2L} = \\frac{90S}{60L}',
-            'Rozwiązujemy: | y = \\frac{90 \\cdot 2}{60} = \\frac{180}{60} = 3 \\text{ bluzki S}',
+            'Drugie pytanie - ile S równoważne 2 L: | $\\frac{yS}{2L} = \\frac{90S}{60L}$',
+            'Rozwiązujemy: | $y = \\frac{90 \\cdot 2}{60} = \\frac{180}{60} = 3$ bluzki S',
             'Odpowiedź na drugie pytanie: | C) \\text{trzech}',
             'Łączna odpowiedź: | AC'
           ],
@@ -146,17 +146,17 @@ export const examData: Record<string, Record<string, ExamData>> = {
         {
           id: '7',
           question: 'Dane jest wyrażenie oraz liczby: -3, -1, 0, 1, 3. Dla której z danych liczb wartość podanego wyrażenia jest najmniejsza? Wybierz właściwą odpowiedź spośród podanych.',
-          formula: '\\frac{n^4 - 3}{6}',
+          formula: '$\\frac{n^4 - 3}{6}$',
           options: ['A) -3', 'B) -1', 'C) 0', 'D) 1', 'E) 3'],
           answer: 'C) 0',
           solution: [
-            'Obliczamy wartość wyrażenia dla każdej liczby: | \\frac{n^4 - 3}{6}',
-            'Dla n = -3: | \\frac{(-3)^4 - 3}{6} = \\frac{81 - 3}{6} = \\frac{78}{6} = 13',
-            'Dla n = -1: | \\frac{(-1)^4 - 3}{6} = \\frac{1 - 3}{6} = \\frac{-2}{6} = -\\frac{1}{3} \\approx -0,33',
-            'Dla n = 0: | \\frac{0^4 - 3}{6} = \\frac{0 - 3}{6} = \\frac{-3}{6} = -\\frac{1}{2} = -0,5',
-            'Dla n = 1: | \\frac{1^4 - 3}{6} = \\frac{1 - 3}{6} = \\frac{-2}{6} = -\\frac{1}{3} \\approx -0,33',
-            'Dla n = 3: | \\frac{3^4 - 3}{6} = \\frac{81 - 3}{6} = \\frac{78}{6} = 13',
-            'Najmniejsza wartość: | -\\frac{1}{2} = -0,5 \\text{ (dla n = 0)}',
+            'Obliczamy wartość wyrażenia dla każdej liczby: | $\\frac{n^4 - 3}{6}$',
+            'Dla n = -3: | $\\frac{(-3)^4 - 3}{6} = \\frac{81 - 3}{6} = \\frac{78}{6} = 13$',
+            'Dla n = -1: | $\\frac{(-1)^4 - 3}{6} = \\frac{1 - 3}{6} = \\frac{-2}{6} = -\\frac{1}{3} \\approx -0,33$',
+            'Dla n = 0: | $\\frac{0^4 - 3}{6} = \\frac{0 - 3}{6} = \\frac{-3}{6} = -\\frac{1}{2} = -0,5$',
+            'Dla n = 1: | $\\frac{1^4 - 3}{6} = \\frac{1 - 3}{6} = \\frac{-2}{6} = -\\frac{1}{3} \\approx -0,33$',
+            'Dla n = 3: | $\\frac{3^4 - 3}{6} = \\frac{81 - 3}{6} = \\frac{78}{6} = 13$',
+            'Najmniejsza wartość: | $-\\frac{1}{2} = -0,5$ (dla n = 0)',
             'Odpowiedź: | C) 0'
           ],
           points: 1,
@@ -195,7 +195,7 @@ export const examData: Record<string, Record<string, ExamData>> = {
           solution: [
             'Długość odcinka PR: | |PR| = 7 - (-3) = 10',
             'Z rysunku: | \\text{punkt R dzieli odcinek PS tak, że PR stanowi 5 części z 8}',
-            'Długość całego odcinka PS: | |PS| = \\frac{8}{5} \\cdot 10 = 16',
+            'Długość całego odcinka PS: | $|PS| = \\frac{8}{5} \\cdot 10 = 16$',
             'Współrzędna punktu S: | S = P + |PS| = -3 + 16 = 13',
             'Odpowiedź: | C) 13'
           ],
@@ -218,20 +218,20 @@ export const examData: Record<string, Record<string, ExamData>> = {
         },
         {
           id: '11',
-          question: 'Ogrodnik kupił ziemię ogrodową, którą zaplanował zużyć w maju, czerwcu i lipcu. W maju zużył \\frac{1}{3} masy kupionej ziemi. W czerwcu zużył połowę masy ziemi, która została. Na lipiec pozostało mu jeszcze 60 kg ziemi. Dokończ zdanie. Wybierz właściwą odpowiedź spośród podanych. Jeżeli przez x oznaczymy masę zakupionej ziemi, to sytuację przedstawioną w zadaniu opisuje równanie:',
+          question: 'Ogrodnik kupił ziemię ogrodową, którą zaplanował zużyć w maju, czerwcu i lipcu. W maju zużył $\\frac{1}{3}$ masy kupionej ziemi. W czerwcu zużył połowę masy ziemi, która została. Na lipiec pozostało mu jeszcze 60 kg ziemi. Dokończ zdanie. Wybierz właściwą odpowiedź spośród podanych. Jeżeli przez $x$ oznaczymy masę zakupionej ziemi, to sytuację przedstawioną w zadaniu opisuje równanie:',
           options: [
-            'A) (x - \\frac{1}{3}x) + \\frac{1}{2}x = 60',
-            'B) (x - \\frac{1}{3}x) + \\frac{1}{2}(x - \\frac{1}{3}x) = 60',
-            'C) (x - \\frac{1}{3}x) - \\frac{1}{2}x = 60',
-            'D) (x - \\frac{1}{3}x) - \\frac{1}{2}(x - \\frac{1}{3}x) = 60'
+            'A) $(x - \\frac{1}{3}x) + \\frac{1}{2}x = 60$',
+            'B) $(x - \\frac{1}{3}x) + \\frac{1}{2}(x - \\frac{1}{3}x) = 60$',
+            'C) $(x - \\frac{1}{3}x) - \\frac{1}{2}x = 60$',
+            'D) $(x - \\frac{1}{3}x) - \\frac{1}{2}(x - \\frac{1}{3}x) = 60$'
           ],
-          answer: 'D) (x - \\frac{1}{3}x) - \\frac{1}{2}(x - \\frac{1}{3}x) = 60',
+          answer: 'D) $(x - \\frac{1}{3}x) - \\frac{1}{2}(x - \\frac{1}{3}x) = 60$',
           solution: [
-            'Oznaczenie zmiennej: | x \\text{ - masa całkowita kupionej ziemi (w kg)}',
-            'Po maju zostało: | x - \\frac{1}{3}x = \\frac{2}{3}x',
-            'W czerwcu zużył połowę tego co zostało: | \\frac{1}{2}(x - \\frac{1}{3}x) = \\frac{1}{2} \\cdot \\frac{2}{3}x = \\frac{1}{3}x',
-            'Na lipiec zostało: | (x - \\frac{1}{3}x) - \\frac{1}{2}(x - \\frac{1}{3}x) = 60',
-            'Odpowiedź: | D'
+            'Oznaczenie zmiennej | $x$ - masa całkowita kupionej ziemi (w kg)',
+            'Po maju zostało | $x - \\frac{1}{3}x = \\frac{2}{3}x$',
+            'W czerwcu zużył połowę tego co zostało | $\\frac{1}{2}(x - \\frac{1}{3}x) = \\frac{1}{2} \\cdot \\frac{2}{3}x = \\frac{1}{3}x$',
+            'Na lipiec zostało | $(x - \\frac{1}{3}x) - \\frac{1}{2}(x - \\frac{1}{3}x) = 60$',
+            'Odpowiedź | D'
           ],
           points: 1,
           category: 'Równania'
@@ -276,18 +276,18 @@ export const examData: Record<string, Record<string, ExamData>> = {
         },
         {
           id: '14',
-          question: 'W pudełku było wyłącznie 6 kulek zielonych i 8 kulek niebieskich. Po dołożeniu do tego pudełka pewnej liczby kulek zielonych prawdopodobieństwo wylosowania kulki niebieskiej jest równe \\frac{1}{4}. Ile kulek zielonych dołożono do pudełka? Wybierz właściwą odpowiedź spośród podanych.',
+          question: 'W pudełku było wyłącznie 6 kulek zielonych i 8 kulek niebieskich. Po dołożeniu do tego pudełka pewnej liczby kulek zielonych prawdopodobieństwo wylosowania kulki niebieskiej jest równe $\\frac{1}{4}$. Ile kulek zielonych dołożono do pudełka? Wybierz właściwą odpowiedź spośród podanych.',
           options: ['A) 10', 'B) 16', 'C) 18', 'D) 24'],
           answer: 'C) 18',
           solution: [
-            'Początkowo: | 6 \\text{ kulek zielonych} + 8 \\text{ kulek niebieskich} = 14 \\text{ kulek}',
-            'Po dołożeniu x kulek zielonych: | (6 + x) \\text{ zielonych} + 8 \\text{ niebieskich} = (14 + x) \\text{ kulek razem}',
-            'Prawdopodobieństwo wylosowania niebieskiej kulki: | P = \\frac{8}{14 + x} = \\frac{1}{4}',
-            'Rozwiązujemy równanie: | 8 \\cdot 4 = 1 \\cdot (14 + x)',
-            'Upraszczamy: | 32 = 14 + x',
-            'Stąd: | x = 18',
-            'Sprawdzenie: | P = \\frac{8}{14 + 18} = \\frac{8}{32} = \\frac{1}{4} \\checkmark',
-            'Odpowiedź: | C) 18 \\text{ kulek zielonych}'
+            'Początkowo: | 6 kulek zielonych + 8 kulek niebieskich = 14 kulek',
+            'Po dołożeniu x kulek zielonych: | (6 + x) zielonych + 8 niebieskich = (14 + x) kulek razem',
+            'Prawdopodobieństwo wylosowania niebieskiej kulki: | $P = \\frac{8}{14 + x} = \\frac{1}{4}$',
+            'Rozwiązujemy równanie: | $8 \\cdot 4 = 1 \\cdot (14 + x)$',
+            'Upraszczamy: | $32 = 14 + x$',
+            'Stąd: | $x = 18$',
+            'Sprawdzenie: | $P = \\frac{8}{14 + 18} = \\frac{8}{32} = \\frac{1}{4}$ ✓',
+            'Odpowiedź: | C) 18 kulek zielonych'
           ],
           points: 1,
           category: 'Prawdopodobieństwo'
@@ -339,12 +339,12 @@ export const examData: Record<string, Record<string, ExamData>> = {
           question: 'Kierowca przejechał ze stałą prędkością trasę o długości 22,5 km od godziny 7:50 do godziny 8:05. Oblicz prędkość, z jaką kierowca przejechał tę trasę. Wynik wyraź w km/h. Zapisz obliczenia.',
           answer: '90 km/h',
           solution: [
-            'Obliczamy czas przejazdu: | 8:05 - 7:50 = 15 \\text{ minut}',
-            'Zamieniamy minuty na godziny: | 15 \\text{ min} = \\frac{15}{60} \\text{ h} = \\frac{1}{4} \\text{ h} = 0,25 \\text{ h}',
-            'Dane: | s = 22,5 \\text{ km}, \\quad t = \\frac{1}{4} \\text{ h}',
-            'Stosujemy wzór na prędkość: | v = \\frac{s}{t}',
-            'Podstawiamy: | v = \\frac{22,5}{\\frac{1}{4}} = 22,5 \\cdot 4 = 90 \\text{ km/h}',
-            'Odpowiedź: | \\text{Kierowca jechał z prędkością 90 km/h}'
+            'Obliczamy czas przejazdu: | 8:05 - 7:50 = 15 minut',
+            'Zamieniamy minuty na godziny: | $15 \\text{ min} = \\frac{15}{60} \\text{ h} = \\frac{1}{4} \\text{ h} = 0,25 \\text{ h}$',
+            'Dane: | $s = 22,5 \\text{ km}$, $t = \\frac{1}{4} \\text{ h}$',
+            'Stosujemy wzór na prędkość: | $v = \\frac{s}{t}$',
+            'Podstawiamy: | $v = \\frac{22,5}{\\frac{1}{4}} = 22,5 \\cdot 4 = 90 \\text{ km/h}$',
+            'Odpowiedź: | Kierowca jechał z prędkością 90 km/h'
           ],
           points: 2,
           category: 'Prędkość'
@@ -405,9 +405,9 @@ export const examData: Record<string, Record<string, ExamData>> = {
         ],
         answer: 'PF',
         solution: [
-          'Łączna liczba osób: | 4 + 7 + 5 + 12 = 28',
-          'Procent dla zimy: | \\frac{7}{28} = \\frac{1}{4} = 25\\%',
-          'Sprawdzamy: | 25\\% \\text{ nie jest mniej niż } 24\\%',
+          'Łączna liczba osób: | $4 + 7 + 5 + 12 = 28$',
+          'Procent dla zimy: | $\\frac{7}{28} = \\frac{1}{4} = 25\\%$',
+          'Sprawdzamy: | 25% nie jest mniej niż 24%',
           'Pierwsze zdanie: | \\text{PRAWDA (7 < 24% z 28, czyli 7 < 6,72 - FAŁSZ)}',
           'Poprawka - 25% > 24%: | \\text{FAŁSZ}',
           'Dla lata: | \\frac{12}{28} = \\frac{3}{7}',
@@ -452,14 +452,14 @@ export const examData: Record<string, Record<string, ExamData>> = {
         ],
         answer: 'D) x = -7/6 i y = -1/3',
         solution: [
-          'Obliczamy x: | x = -\\frac{5}{6} - 0{,}5 = -\\frac{5}{6} - \\frac{1}{2}',
-          'Wspólny mianownik: | -\\frac{5}{6} - \\frac{3}{6} = -\\frac{8}{6} = -\\frac{4}{3}',
-          'Obliczamy y: | y = -\\frac{5}{6} + 0{,}5 = -\\frac{5}{6} + \\frac{1}{2}',
-          'Wspólny mianownik: | -\\frac{5}{6} + \\frac{3}{6} = -\\frac{2}{6} = -\\frac{1}{3}',
-          'Sprawdzenie rosnąco: | -\\frac{4}{3} < -\\frac{5}{6} < -\\frac{1}{3} \\checkmark',
+          'Obliczamy x: | $x = -\\frac{5}{6} - 0{,}5 = -\\frac{5}{6} - \\frac{1}{2}$',
+          'Wspólny mianownik: | $-\\frac{5}{6} - \\frac{3}{6} = -\\frac{8}{6} = -\\frac{4}{3}$',
+          'Obliczamy y: | $y = -\\frac{5}{6} + 0{,}5 = -\\frac{5}{6} + \\frac{1}{2}$',
+          'Wspólny mianownik: | $-\\frac{5}{6} + \\frac{3}{6} = -\\frac{2}{6} = -\\frac{1}{3}$',
+          'Sprawdzenie rosnąco: | $-\\frac{4}{3} < -\\frac{5}{6} < -\\frac{1}{3}$ ✓',
           'Ale -4/3 = -8/6, więc...',
-          'Poprawka x: | -\\frac{5}{6} - \\frac{3}{6} = -\\frac{8}{6} \\ne -\\frac{7}{6}',
-          'Z klucza D: | x = -\\frac{7}{6}, y = -\\frac{1}{3}',
+          'Poprawka x: | $-\\frac{5}{6} - \\frac{3}{6} = -\\frac{8}{6} \\ne -\\frac{7}{6}$',
+          'Z klucza D: | $x = -\\frac{7}{6}$, $y = -\\frac{1}{3}$',
           'Odpowiedź: | D'
         ],
         points: 1,
@@ -798,13 +798,13 @@ export const examData: Record<string, Record<string, ExamData>> = {
         ],
         answer: 'PP',
         solution: [
-          'Z receptury na 8 gofrów potrzeba: | 2 \\text{ jajka, } 1\\frac{1}{3} \\text{ szklanki mleka}',
-          'Obliczamy krotność dla 40 gofrów: | \\frac{40}{8} = 5',
-          'Liczba jajek potrzebna: | 2 \\cdot 5 = 10 \\text{ jajek}',
-          'Pierwsze zdanie: | \\text{PRAWDA}',
-          'Obliczamy krotność dla 72 gofrów: | \\frac{72}{8} = 9',
-          'Ilość mleka potrzebna: | 1\\frac{1}{3} \\cdot 9 = \\frac{4}{3} \\cdot 9 = \\frac{36}{3} = 12 \\text{ szklanek}',
-          'Drugie zdanie: | \\text{PRAWDA}'
+          'Z receptury na 8 gofrów potrzeba: | 2 jajka, $1\\frac{1}{3}$ szklanki mleka',
+          'Obliczamy krotność dla 40 gofrów: | $\\frac{40}{8} = 5$',
+          'Liczba jajek potrzebna: | $2 \\cdot 5 = 10$ jajek',
+          'Pierwsze zdanie: | PRAWDA',
+          'Obliczamy krotność dla 72 gofrów: | $\\frac{72}{8} = 9$',
+          'Ilość mleka potrzebna: | $1\\frac{1}{3} \\cdot 9 = \\frac{4}{3} \\cdot 9 = \\frac{36}{3} = 12$ szklanek',
+          'Drugie zdanie: | PRAWDA'
         ],
         points: 1,
         category: 'Proporcje'
@@ -1266,14 +1266,14 @@ export const examData: Record<string, Record<string, ExamData>> = {
     },
     {
       id: '6',
-      question: 'W naczyniu znajdowało się k litrów wody. Marcin odlał z tego naczynia \\frac{1}{3} tej objętości wody, a następnie Magda odlała 3 litry wody. Objętość wody wyrażoną w litrach, która pozostała w naczyniu, opisuje wyrażenie',
+      question: 'W naczyniu znajdowało się $k$ litrów wody. Marcin odlał z tego naczynia $\\frac{1}{3}$ tej objętości wody, a następnie Magda odlała 3 litry wody. Objętość wody wyrażoną w litrach, która pozostała w naczyniu, opisuje wyrażenie',
       options: [
-        'A) k - (\\frac{1}{3} \\cdot k + 3)',
-        'B) \\frac{1}{3} \\cdot k - 3',
-        'C) k - \\frac{1}{3} - 3',
-        'D) k - (\\frac{1}{3} \\cdot k - 3)'
+        'A) $k - (\\frac{1}{3} \\cdot k + 3)$',
+        'B) $\\frac{1}{3} \\cdot k - 3$',
+        'C) $k - \\frac{1}{3} - 3$',
+        'D) $k - (\\frac{1}{3} \\cdot k - 3)$'
       ],
-      answer: 'A) k - (\\frac{1}{3} \\cdot k + 3)',
+      answer: 'A) $k - (\\frac{1}{3} \\cdot k + 3)$',
       solution: [
         'Początkowa objętość | k \\text{ litrów}',
         'Marcin odlał | \\frac{1}{3}k',
@@ -1337,8 +1337,8 @@ export const examData: Record<string, Record<string, ExamData>> = {
     {
       id: '10',
       question: 'Spośród wszystkich liczb dwucyfrowych dodatnich losujemy jedną liczbę. Prawdopodobieństwo wylosowania liczby podzielnej przez 20 jest równe',
-      options: ['A) \\frac{2}{45}', 'B) \\frac{1}{25}', 'C) \\frac{1}{2}', 'D) \\frac{4}{99}'],
-      answer: 'A) \\frac{2}{45}',
+      options: ['A) $\\frac{2}{45}$', 'B) $\\frac{1}{25}$', 'C) $\\frac{1}{2}$', 'D) $\\frac{4}{99}$'],
+      answer: 'A) $\\frac{2}{45}$',
       solution: [
         'Liczby dwucyfrowe dodatnie | \\text{od 10 do 99}',
         'Liczba wszystkich | 90',
@@ -2035,9 +2035,9 @@ export const examData: Record<string, Record<string, ExamData>> = {
         ],
         answer: 'FF',
         solution: [
-          'Obliczamy K: | K = \\frac{1}{9} \\cdot \\frac{1}{4} - \\frac{1}{16} \\cdot \\frac{1}{3}',
-          'K: | K = \\frac{1}{36} - \\frac{1}{48} = \\frac{4}{144} - \\frac{3}{144} = \\frac{1}{144} > 0',
-          'Pierwsze zdanie: | \\text{FAŁSZ (K jest dodatnie)}',
+          'Obliczamy K: | $K = \\frac{1}{9} \\cdot \\frac{1}{4} - \\frac{1}{16} \\cdot \\frac{1}{3}$',
+          'K: | $K = \\frac{1}{36} - \\frac{1}{48} = \\frac{4}{144} - \\frac{3}{144} = \\frac{1}{144} > 0$',
+          'Pierwsze zdanie: | FAŁSZ (K jest dodatnie)',
           'Obliczamy L: | L = 9 \\cdot 4 - 16 \\cdot 3 = 36 - 48 = -12',
           'Porównanie: | L = -12 < K = \\frac{1}{144} \\approx 0{,}007',
           'Drugie zdanie: | \\text{FAŁSZ (L nie jest większe od K)}',
@@ -2087,12 +2087,12 @@ export const examData: Record<string, Record<string, ExamData>> = {
         id: '10',
         question: 'Na loterię przygotowano 72 losy i ponumerowano je kolejnymi liczbami naturalnymi od 1 do 72. Wygrywają losy o numerach od 1 do 9 i od 46 do 72. Pozostałe losy są puste. Ada jako pierwsza wyciąga jeden los. Dokończ zdanie. Prawdopodobieństwo wyciągnięcia przez Adę losu pustego jest równe:',
         options: [
-          'A) \\frac{26}{72}',
-          'B) \\frac{27}{72}',
-          'C) \\frac{35}{72}',
-          'D) \\frac{36}{72}'
+          'A) $\\frac{26}{72}$',
+          'B) $\\frac{27}{72}$',
+          'C) $\\frac{35}{72}$',
+          'D) $\\frac{36}{72}$'
         ],
-        answer: 'D) \\frac{36}{72}',
+        answer: 'D) $\\frac{36}{72}$',
         solution: [
           'Losy wygrywające: | 1-9 \\text{ (9 losów)} + 46-72 \\text{ (27 losów)} = 36 \\text{ losów}',
           'Losy puste: | 72 - 36 = 36 \\text{ losów}',

@@ -6,8 +6,10 @@ const isExport = process.env.BUILD_EXPORT === 'true';
 
 const nextConfig: NextConfig = {
   // Only use export for actual build, not for development
-  ...(isExport && { output: 'export' }),
-  distDir: 'out',
+  ...(isExport && { 
+    output: 'export',
+    distDir: 'out',
+  }),
   trailingSlash: true,
   // Only use basePath and assetPrefix for GitHub Pages
   basePath: isGithubPages ? '/korepetycje' : '',
