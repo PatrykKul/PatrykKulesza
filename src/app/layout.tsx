@@ -81,8 +81,7 @@ export default function RootLayout({
   return (
     <html lang="pl">
       <head>
-        <meta name="google-site-verification" content="IhSr0se-235Ii2abcZLn5VAyktdcE_X6l72N6WePf9o" />
-        {/* Preconnect dla szybszego ładowania */}
+        <meta name="google-site-verification" content="Qavp3KOkeYUTDJ0th33oK8ZhKDVHKK6qTvfrHKbIwuc" />    
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         
