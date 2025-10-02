@@ -2,8 +2,8 @@
 
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Calculator, Clock, Award, FileText, Download, Eye, EyeOff, CheckCircle, RotateCcw, PenTool, Eraser, Trash2, Type, X } from 'lucide-react';
-import MathText, { MathSolutionStep } from '@/components/MathText';
+import { ArrowLeft, Calculator, Clock, Award, FileText, Download, Eye, EyeOff, CheckCircle, RotateCcw, PenTool, Eraser, Trash2, Type, X, Shapes } from 'lucide-react';
+import MathText, { MathSolutionStep } from '@/app/matematyka/components/MathText';
 import { useImageScan } from '@/hooks/useImageScan';
 
 // Types
@@ -39,6 +39,20 @@ interface ExamPageProps {
   level?: string;
 }
 
+type Shape = {
+  id: string;
+  type: 'circle' | 'rectangle' | 'triangle' | 'line' | 'arrow' | 'axes';
+  x: number;
+  y: number;
+  width?: number;
+  height?: number;
+  radius?: number;
+  endX?: number;
+  endY?: number;
+  color: string;
+  strokeWidth: number;
+};
+
 export default function ExamPage({ 
   examData, 
   year, 
@@ -54,10 +68,8 @@ export default function ExamPage({
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [timerActive] = useState(false);
   
-  // Automatyczne skanowanie folderów z obrazami
   const { imageData, loading: imagesLoading } = useImageScan(examType, year, type, level);
 
-  // Timer effect
   useEffect(() => {
     if (!timerActive) return;
     const interval = setInterval(() => {
@@ -72,11 +84,9 @@ export default function ExamPage({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Funkcja do generowania rozszerzonego tytułu z rokiem i typem
   const getExtendedTitle = () => {
     const baseTitle = examData.title;
     
-    // Funkcja do ładnego formatowania typu egzaminu
     const formatType = (type: string) => {
       const typeMap: Record<string, string> = {
         'glowny': 'Maj',
@@ -87,7 +97,6 @@ export default function ExamPage({
       return typeMap[type] || type.charAt(0).toUpperCase() + type.slice(1);
     };
 
-    // Funkcja do formatowania typu egzaminu
     const formatExamType = (examType: string) => {
       const examTypeMap: Record<string, string> = {
         'egzamin-8': 'Egzamin Ósmoklasisty',
@@ -98,22 +107,18 @@ export default function ExamPage({
 
     const titleParts = baseTitle.split(' - ');
     
-    // Dodaj typ egzaminu jeśli nie jest już w tytule
     const formattedExamType = formatExamType(examType || 'egzamin');
     if (!baseTitle.includes('Egzamin') && !baseTitle.includes('Matura')) {
       titleParts.push(formattedExamType);
     }
     
-     // Dodaje Miesiąc
     const formattedMonth = formatType(type);
     if (!baseTitle.includes(formattedMonth)) {
       titleParts.push(formattedMonth);
     }
 
-    // Dodaj rok
     titleParts.push(year);
     
-    // Dodaj poziom dla matury
     if (level && examType === 'matura') {
       const formattedLevel = formatType(level);
       if (!baseTitle.includes(formattedLevel)) {
@@ -121,7 +126,6 @@ export default function ExamPage({
       }
     }
 
-    // Jeśli tytuł już zawiera wszystkie informacje, zwróć go bez zmian
     const hasYear = baseTitle.includes(year);
     const hasType = baseTitle.toLowerCase().includes(type.toLowerCase());
     
@@ -129,7 +133,6 @@ export default function ExamPage({
       return baseTitle;
     }
 
-    // W przeciwnym razie dodaj brakujące informacje
     if (titleParts.length > 0) {
       return `${baseTitle}  ${titleParts.join(' ')}`;
     }
@@ -137,7 +140,6 @@ export default function ExamPage({
     return baseTitle;
   };
 
-  // Funkcja do automatycznego generowania ścieżki obrazu
   const getImagePath = (problemId: string, imageType: 'problem' | 'solution' = 'problem', imageIndex?: number): string => {
     let basePath = '/math_resources/';
     
@@ -214,7 +216,6 @@ export default function ExamPage({
       delete newChecked[problemId];
       return newChecked;
     });
-    // Wyczyść canvas dla tego zadania (oba formaty)
     localStorage.removeItem(`canvas-${problemId}`);
     localStorage.removeItem(`canvas-data-${problemId}`);
   };
@@ -295,12 +296,10 @@ export default function ExamPage({
     return [];
   };
 
-  // Prosta funkcja renderowania - teraz używamy MathText
   const renderOption = (option: string) => {
     return <MathText inline>{option}</MathText>;
   };
 
-  // Prosta funkcja renderowania kroków rozwiązania
   const renderSolutionStep = (step: string) => {
     return <MathSolutionStep>{step}</MathSolutionStep>;
   };
@@ -310,9 +309,15 @@ export default function ExamPage({
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [isDrawing, setIsDrawing] = useState(false);
-    const [tool, setTool] = useState<'pen' | 'eraser' | 'text'>('pen');
+    const [tool, setTool] = useState<'pen' | 'eraser' | 'text' | 'shape'>('pen');
+    const [selectedShape, setSelectedShape] = useState<'circle' | 'rectangle' | 'triangle' | 'line' | 'arrow' | 'axes'>('circle');
+    const [showShapeMenu, setShowShapeMenu] = useState(false);
     const [color, setColor] = useState('#000000');
     const [lineWidth, setLineWidth] = useState(2);
+    
+    const [shapes, setShapes] = useState<Shape[]>([]);
+    const [currentShape, setCurrentShape] = useState<Shape | null>(null);
+    
     const [textElements, setTextElements] = useState<Array<{
       id: string;
       x: number;
@@ -323,24 +328,165 @@ export default function ExamPage({
     }>>([]);
     const [editingTextId, setEditingTextId] = useState<string | null>(null);
 
+    const drawGrid = useCallback((ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) => {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const gridSize = 10;
+      ctx.strokeStyle = '#e5e7eb';
+      ctx.lineWidth = 0.5;
+
+      for (let x = 0; x <= canvas.width; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+
+      for (let y = 0; y <= canvas.height; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+
+      ctx.strokeStyle = '#d1d5db';
+      ctx.lineWidth = 1;
+
+      for (let x = 0; x <= canvas.width; x += gridSize * 5) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+
+      for (let y = 0; y <= canvas.height; y += gridSize * 5) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+    }, []);
+
+    const drawShapes = useCallback((ctx: CanvasRenderingContext2D) => {
+      shapes.forEach(shape => {
+        ctx.strokeStyle = shape.color;
+        ctx.fillStyle = shape.color + '20';
+        ctx.lineWidth = shape.strokeWidth;
+
+        switch (shape.type) {
+          case 'circle':
+            if (shape.radius) {
+              ctx.beginPath();
+              ctx.arc(shape.x, shape.y, shape.radius, 0, 2 * Math.PI);
+              ctx.stroke();
+              ctx.fill();
+            }
+            break;
+
+          case 'rectangle':
+            if (shape.width && shape.height) {
+              ctx.strokeRect(shape.x, shape.y, shape.width, shape.height);
+              ctx.fillRect(shape.x, shape.y, shape.width, shape.height);
+            }
+            break;
+
+          case 'triangle':
+            if (shape.width && shape.height) {
+              ctx.beginPath();
+              ctx.moveTo(shape.x + shape.width / 2, shape.y);
+              ctx.lineTo(shape.x + shape.width, shape.y + shape.height);
+              ctx.lineTo(shape.x, shape.y + shape.height);
+              ctx.closePath();
+              ctx.stroke();
+              ctx.fill();
+            }
+            break;
+
+          case 'line':
+            if (shape.endX !== undefined && shape.endY !== undefined) {
+              ctx.beginPath();
+              ctx.moveTo(shape.x, shape.y);
+              ctx.lineTo(shape.endX, shape.endY);
+              ctx.stroke();
+            }
+            break;
+
+          case 'arrow':
+            if (shape.endX !== undefined && shape.endY !== undefined) {
+              const headlen = 15;
+              const dx = shape.endX - shape.x;
+              const dy = shape.endY - shape.y;
+              const angle = Math.atan2(dy, dx);
+              
+              ctx.beginPath();
+              ctx.moveTo(shape.x, shape.y);
+              ctx.lineTo(shape.endX, shape.endY);
+              ctx.lineTo(
+                shape.endX - headlen * Math.cos(angle - Math.PI / 6),
+                shape.endY - headlen * Math.sin(angle - Math.PI / 6)
+              );
+              ctx.moveTo(shape.endX, shape.endY);
+              ctx.lineTo(
+                shape.endX - headlen * Math.cos(angle + Math.PI / 6),
+                shape.endY - headlen * Math.sin(angle + Math.PI / 6)
+              );
+              ctx.stroke();
+            }
+            break;
+
+          case 'axes':
+            const centerX = shape.x;
+            const centerY = shape.y;
+            const axisLength = 100;
+            
+            ctx.beginPath();
+            ctx.moveTo(centerX - axisLength, centerY);
+            ctx.lineTo(centerX + axisLength, centerY);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(centerX + axisLength, centerY);
+            ctx.lineTo(centerX + axisLength - 10, centerY - 5);
+            ctx.moveTo(centerX + axisLength, centerY);
+            ctx.lineTo(centerX + axisLength - 10, centerY + 5);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY - axisLength);
+            ctx.lineTo(centerX, centerY + axisLength);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY - axisLength);
+            ctx.lineTo(centerX - 5, centerY - axisLength + 10);
+            ctx.moveTo(centerX, centerY - axisLength);
+            ctx.lineTo(centerX + 5, centerY - axisLength + 10);
+            ctx.stroke();
+            break;
+        }
+      });
+    }, [shapes]);
+
     useEffect(() => {
       const canvas = canvasRef.current;
       const container = containerRef.current;
       if (!canvas || !container) return;
 
-      // Ustaw rozmiar canvas na rozmiar kontenera
       canvas.width = container.clientWidth;
-      canvas.height = 500; // Stała wysokość
+      canvas.height = 500;
 
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
-      // Załaduj zapisane dane z localStorage
       const savedData = localStorage.getItem(`canvas-data-${problemId}`);
       if (savedData) {
         const parsedData = JSON.parse(savedData);
         if (parsedData.textElements) {
           setTextElements(parsedData.textElements);
+        }
+        if (parsedData.shapes) {
+          setShapes(parsedData.shapes);
         }
         if (parsedData.drawing) {
           const img = new Image();
@@ -349,57 +495,96 @@ export default function ExamPage({
           };
           img.src = parsedData.drawing;
         } else {
-          drawGrid();
+          drawGrid(ctx, canvas);
         }
       } else {
-        drawGrid();
+        drawGrid(ctx, canvas);
       }
+    }, [problemId, drawGrid]);
 
-      function drawGrid() {
-        if (!canvas || !ctx) return;
+    useEffect(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      // Wyczyść canvas i narysuj ponownie wszystko
+      drawGrid(ctx, canvas);
+      drawShapes(ctx);
+      
+      // Narysuj tymczasowy kształt jeśli jest tworzony
+      if (currentShape) {
+        ctx.save();
+        ctx.strokeStyle = currentShape.color;
+        ctx.fillStyle = currentShape.color + '20';
+        ctx.lineWidth = currentShape.strokeWidth;
+        ctx.setLineDash([5, 5]); // Przerywana linia dla podglądu
+
+        switch (currentShape.type) {
+          case 'circle':
+            if (currentShape.radius) {
+              ctx.beginPath();
+              ctx.arc(currentShape.x, currentShape.y, currentShape.radius, 0, 2 * Math.PI);
+              ctx.stroke();
+              ctx.fill();
+            }
+            break;
+
+          case 'rectangle':
+            if (currentShape.width && currentShape.height) {
+              ctx.strokeRect(currentShape.x, currentShape.y, currentShape.width, currentShape.height);
+              ctx.fillRect(currentShape.x, currentShape.y, currentShape.width, currentShape.height);
+            }
+            break;
+
+          case 'triangle':
+            if (currentShape.width && currentShape.height) {
+              ctx.beginPath();
+              ctx.moveTo(currentShape.x + currentShape.width / 2, currentShape.y);
+              ctx.lineTo(currentShape.x + currentShape.width, currentShape.y + currentShape.height);
+              ctx.lineTo(currentShape.x, currentShape.y + currentShape.height);
+              ctx.closePath();
+              ctx.stroke();
+              ctx.fill();
+            }
+            break;
+
+          case 'line':
+            if (currentShape.endX !== undefined && currentShape.endY !== undefined) {
+              ctx.beginPath();
+              ctx.moveTo(currentShape.x, currentShape.y);
+              ctx.lineTo(currentShape.endX, currentShape.endY);
+              ctx.stroke();
+            }
+            break;
+
+          case 'arrow':
+            if (currentShape.endX !== undefined && currentShape.endY !== undefined) {
+              const headlen = 15;
+              const dx = currentShape.endX - currentShape.x;
+              const dy = currentShape.endY - currentShape.y;
+              const angle = Math.atan2(dy, dx);
+              
+              ctx.beginPath();
+              ctx.moveTo(currentShape.x, currentShape.y);
+              ctx.lineTo(currentShape.endX, currentShape.endY);
+              ctx.lineTo(
+                currentShape.endX - headlen * Math.cos(angle - Math.PI / 6),
+                currentShape.endY - headlen * Math.sin(angle - Math.PI / 6)
+              );
+              ctx.moveTo(currentShape.endX, currentShape.endY);
+              ctx.lineTo(
+                currentShape.endX - headlen * Math.cos(angle + Math.PI / 6),
+                currentShape.endY - headlen * Math.sin(angle + Math.PI / 6)
+              );
+              ctx.stroke();
+            }
+            break;
+        }
         
-        // Narysuj białe tło
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Narysuj kratkę
-        const gridSize = 10;
-        ctx.strokeStyle = '#e5e7eb';
-        ctx.lineWidth = 0.5;
-
-        for (let x = 0; x <= canvas.width; x += gridSize) {
-          ctx.beginPath();
-          ctx.moveTo(x, 0);
-          ctx.lineTo(x, canvas.height);
-          ctx.stroke();
-        }
-
-        for (let y = 0; y <= canvas.height; y += gridSize) {
-          ctx.beginPath();
-          ctx.moveTo(0, y);
-          ctx.lineTo(canvas.width, y);
-          ctx.stroke();
-        }
-
-        // Co 5 kratek - grubsza linia
-        ctx.strokeStyle = '#d1d5db';
-        ctx.lineWidth = 1;
-
-        for (let x = 0; x <= canvas.width; x += gridSize * 5) {
-          ctx.beginPath();
-          ctx.moveTo(x, 0);
-          ctx.lineTo(x, canvas.height);
-          ctx.stroke();
-        }
-
-        for (let y = 0; y <= canvas.height; y += gridSize * 5) {
-          ctx.beginPath();
-          ctx.moveTo(0, y);
-          ctx.lineTo(canvas.width, y);
-          ctx.stroke();
-        }
+        ctx.restore();
       }
-    }, [problemId]);
+    }, [shapes, currentShape, drawShapes, drawGrid]);
 
     const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
       if (tool === 'text') {
@@ -437,6 +622,25 @@ export default function ExamPage({
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
 
+      if (tool === 'shape') {
+        const newShape: Shape = {
+          id: `shape-${Date.now()}`,
+          type: selectedShape,
+          x,
+          y,
+          color,
+          strokeWidth: lineWidth
+        };
+
+        if (selectedShape === 'axes') {
+          setShapes(prev => [...prev, newShape]);
+        } else {
+          setCurrentShape(newShape);
+          setIsDrawing(true);
+        }
+        return;
+      }
+
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
@@ -455,6 +659,32 @@ export default function ExamPage({
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
 
+      if (tool === 'shape' && currentShape) {
+        const updatedShape = { ...currentShape };
+        
+        switch (selectedShape) {
+          case 'circle':
+            const radius = Math.sqrt(Math.pow(x - currentShape.x, 2) + Math.pow(y - currentShape.y, 2));
+            updatedShape.radius = radius;
+            break;
+          
+          case 'rectangle':
+          case 'triangle':
+            updatedShape.width = x - currentShape.x;
+            updatedShape.height = y - currentShape.y;
+            break;
+          
+          case 'line':
+          case 'arrow':
+            updatedShape.endX = x;
+            updatedShape.endY = y;
+            break;
+        }
+        
+        setCurrentShape(updatedShape);
+        return;
+      }
+
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
@@ -462,11 +692,9 @@ export default function ExamPage({
       ctx.lineJoin = 'round';
 
       if (tool === 'eraser') {
-        // Gumka - maluj białym kolorem
         ctx.strokeStyle = '#ffffff';
         ctx.lineWidth = lineWidth * 4;
       } else {
-        // Ołówek - maluj wybranym kolorem
         ctx.strokeStyle = color;
         ctx.lineWidth = lineWidth;
       }
@@ -477,8 +705,13 @@ export default function ExamPage({
 
     const stopDrawing = () => {
       if (!isDrawing) return;
+      
+      if (tool === 'shape' && currentShape) {
+        setShapes(prev => [...prev, currentShape]);
+        setCurrentShape(null);
+      }
+      
       setIsDrawing(false);
-
       saveCanvasData();
     };
 
@@ -486,21 +719,20 @@ export default function ExamPage({
       const canvas = canvasRef.current;
       if (!canvas) return;
 
-      // Zapisz rysunek i elementy tekstowe do localStorage
       const dataURL = canvas.toDataURL();
       const canvasData = {
         drawing: dataURL,
-        textElements: textElements
+        textElements: textElements,
+        shapes: shapes
       };
       localStorage.setItem(`canvas-data-${problemId}`, JSON.stringify(canvasData));
     };
 
-    // Zapisz dane po każdej zmianie elementów tekstowych
     useEffect(() => {
-      if (textElements.length > 0) {
+      if (textElements.length > 0 || shapes.length > 0) {
         saveCanvasData();
       }
-    }, [textElements]);
+    }, [textElements, shapes]);
 
     const updateTextElement = (id: string, text: string) => {
       setTextElements(prev => prev.map(el => 
@@ -515,7 +747,6 @@ export default function ExamPage({
       }
     };
 
-    // Touch support functions
     const getTouchPos = (e: React.TouchEvent<HTMLCanvasElement>) => {
       const canvas = canvasRef.current;
       if (!canvas) return { x: 0, y: 0 };
@@ -528,7 +759,7 @@ export default function ExamPage({
     };
 
     const startDrawingTouch = (e: React.TouchEvent<HTMLCanvasElement>) => {
-      e.preventDefault(); // Zapobiega scrollowaniu
+      e.preventDefault();
       const pos = getTouchPos(e);
       const canvas = canvasRef.current;
       if (!canvas) return;
@@ -570,12 +801,7 @@ export default function ExamPage({
     const stopDrawingTouch = () => {
       if (!isDrawing) return;
       setIsDrawing(false);
-
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-
-      const dataURL = canvas.toDataURL();
-      localStorage.setItem(`canvas-${problemId}`, dataURL);
+      saveCanvasData();
     };
 
     const clearCanvas = () => {
@@ -585,11 +811,9 @@ export default function ExamPage({
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
-      // Wyczyść canvas
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Narysuj kratkę ponownie
       const gridSize = 10;
       ctx.strokeStyle = '#e5e7eb';
       ctx.lineWidth = 0.5;
@@ -625,13 +849,12 @@ export default function ExamPage({
         ctx.stroke();
       }
 
-      // Wyczyść elementy tekstowe
       setTextElements([]);
+      setShapes([]);
       setEditingTextId(null);
 
-      // Usuń z localStorage
       localStorage.removeItem(`canvas-data-${problemId}`);
-      localStorage.removeItem(`canvas-${problemId}`); // Dla kompatybilności z starymi zapisami
+      localStorage.removeItem(`canvas-${problemId}`);
     };
 
     const colors = [
@@ -647,13 +870,24 @@ export default function ExamPage({
       { name: 'Gruba', value: 6 },
     ];
 
+    const shapeOptions = [
+      { type: 'circle' as const, name: 'Koło', icon: '⭕' },
+      { type: 'rectangle' as const, name: 'Prostokąt', icon: '▭' },
+      { type: 'triangle' as const, name: 'Trójkąt', icon: '△' },
+      { type: 'line' as const, name: 'Linia', icon: '/' },
+      { type: 'arrow' as const, name: 'Strzałka', icon: '→' },
+      { type: 'axes' as const, name: 'Układ współrzędnych', icon: '⊥' },
+    ];
+
     return (
       <div className="bg-[#21262d] border border-[#30363d] rounded-lg p-4 mt-4">
         <div className="flex flex-wrap items-center gap-3 mb-4 pb-4 border-b border-[#30363d]">
-          {/* Narzędzia */}
           <div className="flex gap-2">
             <button
-              onClick={() => setTool('pen')}
+              onClick={() => {
+                setTool('pen');
+                setShowShapeMenu(false);
+              }}
               className={`p-2 rounded-lg transition-all ${
                 tool === 'pen'
                   ? 'bg-[#58a6ff] text-black'
@@ -664,7 +898,10 @@ export default function ExamPage({
               <PenTool className="w-5 h-5" />
             </button>
             <button
-              onClick={() => setTool('eraser')}
+              onClick={() => {
+                setTool('eraser');
+                setShowShapeMenu(false);
+              }}
               className={`p-2 rounded-lg transition-all ${
                 tool === 'eraser'
                   ? 'bg-[#58a6ff] text-black'
@@ -675,7 +912,10 @@ export default function ExamPage({
               <Eraser className="w-5 h-5" />
             </button>
             <button
-              onClick={() => setTool('text')}
+              onClick={() => {
+                setTool('text');
+                setShowShapeMenu(false);
+              }}
               className={`p-2 rounded-lg transition-all ${
                 tool === 'text'
                   ? 'bg-[#58a6ff] text-black'
@@ -685,6 +925,45 @@ export default function ExamPage({
             >
               <Type className="w-5 h-5" />
             </button>
+            
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setTool('shape');
+                  setShowShapeMenu(!showShapeMenu);
+                }}
+                className={`p-2 rounded-lg transition-all ${
+                  tool === 'shape'
+                    ? 'bg-[#58a6ff] text-black'
+                    : 'bg-[#30363d] text-white hover:bg-[#40464d]'
+                }`}
+                title="Kształty"
+              >
+                <Shapes className="w-5 h-5" />
+              </button>
+              
+              {showShapeMenu && (
+                <div className="absolute top-full left-0 mt-2 bg-[#161b22] border border-[#30363d] rounded-lg shadow-xl z-50 p-2 min-w-[220px]">
+                  {shapeOptions.map((shape) => (
+                    <button
+                      key={shape.type}
+                      onClick={() => {
+                        setSelectedShape(shape.type);
+                        setTool('shape');
+                        setShowShapeMenu(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-md hover:bg-[#30363d] transition-colors flex items-center gap-3 ${
+                        selectedShape === shape.type ? 'bg-[#58a6ff]/20' : ''
+                      }`}
+                    >
+                      <span className="text-xl">{shape.icon}</span>
+                      <span className="text-sm">{shape.name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            
             <button
               onClick={clearCanvas}
               className="p-2 rounded-lg bg-red-900/30 text-red-400 hover:bg-red-900/50 transition-all border border-red-500/30"
@@ -694,8 +973,7 @@ export default function ExamPage({
             </button>
           </div>
 
-          {/* Kolory */}
-          {tool === 'pen' && (
+          {tool !== 'eraser' && (
             <div className="flex gap-2 pl-3 border-l border-[#30363d]">
               {colors.map((c) => (
                 <button
@@ -711,8 +989,7 @@ export default function ExamPage({
             </div>
           )}
 
-          {/* Grubość linii */}
-          {tool === 'pen' && (
+          {(tool === 'pen' || tool === 'shape') && (
             <div className="flex gap-2 pl-3 border-l border-[#30363d]">
               {lineWidths.map((lw) => (
                 <button
@@ -731,7 +1008,6 @@ export default function ExamPage({
           )}
         </div>
 
-        {/* Canvas */}
         <div ref={containerRef} className="w-full relative">
           <canvas
             ref={canvasRef}
@@ -749,7 +1025,6 @@ export default function ExamPage({
             style={{ touchAction: 'none' }}
           />
           
-          {/* Elementy tekstowe */}
           {textElements.map((textEl) => (
             <div
               key={textEl.id}
@@ -814,10 +1089,15 @@ export default function ExamPage({
             </div>
           ))}
           
-          {/* Wskazówka dla narzędzia tekst */}
           {tool === 'text' && textElements.length === 0 && (
             <div className="absolute top-4 left-4 bg-blue-900/80 text-blue-200 px-3 py-2 rounded-lg text-sm pointer-events-none">
               Kliknij w dowolnym miejscu, aby dodać tekst
+            </div>
+          )}
+          
+          {tool === 'shape' && shapes.length === 0 && !currentShape && (
+            <div className="absolute top-4 left-4 bg-purple-900/80 text-purple-200 px-3 py-2 rounded-lg text-sm pointer-events-none">
+              Kliknij i przeciągnij, aby narysować {shapeOptions.find(s => s.type === selectedShape)?.name.toLowerCase()}
             </div>
           )}
         </div>
@@ -841,29 +1121,162 @@ export default function ExamPage({
 
   return (
     <div className="min-h-screen bg-[#0d1117] text-white">
-      {/* Style dla drukowania - zachowaj kolory */}
-      <style>{`
-        @media print {
-          * {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-            color-adjust: exact !important;
-          }
-          
-          body {
-            background-color: #0d1117 !important;
-          }
-          
-          /* Ukryj elementy niepotrzebne w PDF */
-          header,
-          footer,
-          .no-print {
-            display: none !important;
-          }
-        }
-      `}</style>
+/* OPCJA 4: ELEGANCKI PREMIUM - MAKSYMALNA WIDOCZNOŚĆ */
+<style>{`
+  @media print {
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    body { background-color: #0d1117 !important; }
+    header, footer, .no-print { display: none !important; }
+  }
+
+  body { 
+    font-size: 22px !important;
+    line-height: 1.75 !important;
+    letter-spacing: 0.01em;
+  }
+
+  /* Formuły - bardzo duże */
+  .math-content .katex {
+    font-size: 2.2em !important;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+
+  .math-content .katex-display {
+    font-size: 2.6em !important;
+    margin: 1.5em 0;
+  }
+
+  /* Rozwiązania - wyraźnie widoczne */
+  .solution-container .katex {
+    font-size: 1.4em !important;
+    color: #f0f6fc !important;
+    font-weight: 500 !important;
+  }
+
+  /* Indeksy - duże i czytelne */
+  .katex .msupsub {
+    font-size: 0.9em !important;
+    font-weight: 500 !important;
+  }
+
+  .katex sup, .katex sub {
+    font-size: 0.86em !important;
+    line-height: 0;
+    vertical-align: baseline;
+    position: relative;
+  }
+
+  .katex sup { top: -0.5em; }
+  .katex sub { top: 0.3em; }
+
+  /* Operatory matematyczne */
+  .katex .mbin, .katex .mrel {
+    padding: 0 0.3em;
+  }
+
+  /* Przyciski - duże */
+  button {
+    font-size: 1.2rem !important;
+    padding: 1.15rem 2rem !important;
+    min-height: 4rem !important;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    transition: all 0.2s ease;
+  }
+
+  button:hover {
+    transform: translateY(-1px);
+  }
+
+  button .katex {
+    font-size: 1.6em !important;
+  }
+
+  /* Pytania z formułami - bardzo duże */
+  p .katex {
+    font-size: 2.4em !important;
+  }
+
+  .bg-\[#21262d\] .katex {
+    font-size: 2.6em !important;
+  }
+
+  /* Numeracja w rozwiązaniach */
+  .solution-container li {
+    margin-bottom: 1.1rem;
+    line-height: 1.9;
+    font-size: 1.05em;
+  }
+
+  .solution-container li > span:first-child {
+    font-size: 1.25em;
+    font-weight: 600;
+    color: #58a6ff;
+  }
+
+  /* Opcje odpowiedzi - duże */
+  div[class*="grid"] button,
+  button[class*="rounded-lg"] {
+    font-size: 1.25rem !important;
+    min-height: 4.2rem !important;
+    padding: 1.2rem 1.7rem !important;
+  }
+
+  /* Ułamki - bardziej widoczne */
+  .katex .frac-line {
+    border-bottom-width: 0.08em !important;
+  }
+
+  .katex .frac .vlist-t {
+    line-height: 1.4 !important;
+  }
+
+  /* Nawiasy i symbole */
+  .katex .delimsizing {
+    font-size: 1.08em !important;
+  }
+
+  /* Pierwiastki */
+  .katex .sqrt > .vlist-t {
+    line-height: 1.3 !important;
+  }
+
+  /* Tekst w pytaniach */
+  .text-lg {
+    font-size: 1.3rem !important;
+  }
+
+  /* Kategoria i punkty */
+  .text-sm {
+    font-size: 1rem !important;
+  }
+
+  /* Numer zadania */
+  .text-3xl {
+    font-size: 2.2rem !important;
+  }
+
+  @media (max-width: 1024px) {
+    body { font-size: 20px !important; }
+    .math-content .katex { font-size: 2em !important; }
+    .solution-container .katex { font-size: 1.25em !important; }
+    button { font-size: 1.1rem !important; }
+    p .katex { font-size: 2.2em !important; }
+  }
+
+  @media (max-width: 768px) {
+    body { font-size: 18px !important; }
+    .math-content .katex { font-size: 1.7em !important; }
+    .solution-container .katex { font-size: 1.15em !important; }
+    button { font-size: 1rem !important; padding: 0.95rem 1.5rem !important; }
+    p .katex { font-size: 1.9em !important; }
+  }
+}`}</style>
       
-      {/* Header - sticky */}
       <header className="sticky top-0 z-20 border-b border-[#30363d] bg-[#161b22] shadow-lg">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -886,10 +1299,8 @@ export default function ExamPage({
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
-          {/* Hero Section */}
           <div className="text-center mb-12">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#1f6feb] to-[#58a6ff] rounded-full mb-6">
               <Calculator className="w-10 h-10 text-white" />
@@ -915,31 +1326,28 @@ export default function ExamPage({
             </div>
           </div>
 
-          {/* Licznik postępu - sticky */}
           <div className="sticky top-20 z-10 mb-8 flex justify-center pointer-events-none">
             <div className="bg-[#161b22] border-2 border-[#30363d] rounded-xl px-6 py-4 shadow-2xl backdrop-blur-sm bg-opacity-95 pointer-events-auto max-w-fit">
-                        <div className="flex items-center justify-between gap-6">
-                          <div>
-                            <span className="text-sm text-gray-400">Czas: {formatTime(timeElapsed)} / {examData.duration} min</span>
-                            <span className="text-sm text-gray-400 ml-4">Sprawdzone: {checkedCount} / {totalProblems}</span>  
-                            <span className="text-lg font-bold text-[#58a6ff]"> Wynik: {totalScore} / {examData.maxPoints} pkt
-                            </span>
-                          </div>
-                          
-                          {(answeredCount > 0 || checkedCount > 0) && (
-                            <button
-                              onClick={resetAllProblems}
-                              className="ml-4 p-2 text-gray-400 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
-                              title="Zacznij od nowa"
-                            >
-                              <RotateCcw className="w-5 h-5" />
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
+              <div className="flex items-center justify-between gap-6">
+                <div>
+                  <span className="text-sm text-gray-400">Czas: {formatTime(timeElapsed)} / {examData.duration} min</span>
+                  <span className="text-sm text-gray-400 ml-4">Sprawdzone: {checkedCount} / {totalProblems}</span>  
+                  <span className="text-lg font-bold text-[#58a6ff]"> Wynik: {totalScore} / {examData.maxPoints} pkt</span>
+                </div>
+                
+                {(answeredCount > 0 || checkedCount > 0) && (
+                  <button
+                    onClick={resetAllProblems}
+                    className="ml-4 p-2 text-gray-400 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
+                    title="Zacznij od nowa"
+                  >
+                    <RotateCcw className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
 
-          {/* Zadania */}
           <div className="space-y-8">
             {examData.problems.map((problem, index) => {
               const userAnswer = userAnswers[problem.id] || [];
@@ -952,7 +1360,6 @@ export default function ExamPage({
                   key={problem.id}
                   className="bg-[#161b22] border border-[#30363d] rounded-2xl p-8"
                 >
-                  {/* Header zadania */}
                   <div className="flex items-start justify-between mb-6">
                     <div className="flex items-center gap-4">
                       <span className="text-3xl font-bold text-[#58a6ff]">
@@ -979,7 +1386,6 @@ export default function ExamPage({
                     )}
                   </div>
 
-                  {/* Treść zadania */}
                   <div className="mb-6">
                     <p className="text-lg text-white mb-4">
                       {renderOption(problem.question)}
@@ -991,7 +1397,6 @@ export default function ExamPage({
                       </div>
                     )}
 
-                    {/* Renderowanie obrazu zadania */}
                     {(() => {
                       const hasScannedImage = !imagesLoading && imageData.problemImages.includes(parseInt(problem.id));
                       const imageSrc = problem.image || (hasScannedImage ? getImagePath(problem.id) : null);
@@ -1006,7 +1411,6 @@ export default function ExamPage({
                             className="max-w-full h-auto mx-auto rounded-lg"
                             loading="lazy"
                             onError={(e) => {
-                              // Ukryj jeśli nie załaduje się
                               (e.target as HTMLImageElement).style.display = 'none';
                             }}
                           />
@@ -1042,6 +1446,11 @@ export default function ExamPage({
                                 ? 'bg-green-600 text-white ring-2 ring-green-500'
                                 : 'bg-[#238636] hover:bg-[#2ea043] text-white'
                             }`}
+                            style={{ 
+                              fontSize: '1.1rem', 
+                              minHeight: '3.2rem', 
+                              padding: '0.9rem 1.6rem' 
+                            }}
                           >
                             ✓ Tak, mam dobrze
                           </button>
@@ -1056,6 +1465,11 @@ export default function ExamPage({
                                 ? 'bg-red-600 text-white ring-2 ring-red-500'
                                 : 'bg-[#da3633] hover:bg-[#b52a26] text-white'
                             }`}
+                            style={{ 
+                              fontSize: '1.1rem', 
+                              minHeight: '3.2rem', 
+                              padding: '0.9rem 1.6rem' 
+                            }}
                           >
                             ✗ Nie, mam źle
                           </button>
@@ -1072,7 +1486,6 @@ export default function ExamPage({
                               const selectedValue = userAnswer.find(a => a.startsWith(`${optIndex}:`))?.split(':')[1];
                               const availableOptions = getQuestionOptions(option);
                               
-                              // Sprawdź poprawność tej części zadania
                               const correctAnswerForPart = problem.answer.charAt(optIndex);
                               const isPartCorrect = isChecked && selectedValue === correctAnswerForPart;
                               const isPartIncorrect = isChecked && selectedValue && selectedValue !== correctAnswerForPart;
@@ -1101,7 +1514,6 @@ export default function ExamPage({
                                         }
                                       };
                                       
-                                      // Określ kolory dla przycisków
                                       let buttonClass = '';
                                       if (selectedValue === optionValue) {
                                         if (isChecked) {
@@ -1130,6 +1542,11 @@ export default function ExamPage({
                                           }}
                                           disabled={isChecked}
                                           className={`px-6 py-2 rounded-lg font-semibold transition-all disabled:cursor-not-allowed ${buttonClass}`}
+                                          style={{ 
+                                            fontSize: '1rem', 
+                                            minHeight: '2.8rem', 
+                                            padding: '0.8rem 1.2rem' 
+                                          }}
                                         >
                                           {getOptionLabel(optionValue)}
                                         </button>
@@ -1152,16 +1569,13 @@ export default function ExamPage({
                               
                               if (isChecked) {
                                 if (isCorrectOption) {
-                                  // Poprawna odpowiedź - zawsze zielona
                                   borderColor = 'border-green-500';
                                   bgColor = 'bg-green-900/20';
                                 } else if (isSelected) {
-                                  // Wybrana, ale błędna - czerwona
                                   borderColor = 'border-red-500';
                                   bgColor = 'bg-red-900/20';
                                 }
                               } else if (isSelected) {
-                                // Wybrana przed sprawdzeniem - niebieska
                                 borderColor = 'border-[#58a6ff]';
                                 bgColor = 'bg-[#30363d]';
                               }
@@ -1177,6 +1591,11 @@ export default function ExamPage({
                                   className={`${bgColor} border-2 ${borderColor} rounded-lg p-3 text-left text-white transition-all hover:bg-[#30363d] disabled:cursor-not-allowed ${
                                     isSelected ? 'ring-2 ring-[#58a6ff] ring-opacity-50' : ''
                                   }`}
+                                  style={{ 
+                                    fontSize: '1.05rem', 
+                                    minHeight: '3.5rem', 
+                                    padding: '1rem' 
+                                  }}
                                 >
                                   <div className="flex items-start gap-2">
                                     {isMultiChoice && (
@@ -1203,7 +1622,6 @@ export default function ExamPage({
                     )}
                   </div>
 
-                  {/* Przyciski akcji */}
                   <div className="flex flex-wrap gap-3">
                     {problem.options && !isChecked && (
                       <button
@@ -1252,10 +1670,8 @@ export default function ExamPage({
                     </button>
                   </div>
 
-                  {/* Canvas do rysowania */}
                   {showCanvas[problem.id] && <DrawingCanvas problemId={problem.id} />}
 
-                  {/* Odpowiedź i rozwiązanie */}
                   {visibleSolutions[problem.id] && (
                     <div className="border-t border-[#30363d] pt-6 mt-6">
                       <div className="bg-green-900/20 border border-green-600/30 rounded-lg p-4 mb-4">
@@ -1279,7 +1695,6 @@ export default function ExamPage({
                             ))}
                           </ol>
                           
-                          {/* Zdjęcia w rozwiązaniu */}
                           {(() => {
                             if (problem.solutionImages && problem.solutionImages.length > 0) {
                               return (
@@ -1329,7 +1744,6 @@ export default function ExamPage({
             })}
           </div>
 
-          {/* Podsumowanie na końcu */}
           {checkedCount === totalProblems && (
             <div className="mt-12 bg-gradient-to-r from-[#1f6feb] to-[#58a6ff] rounded-2xl p-8 text-center">
               <h2 className="text-3xl font-bold text-white mb-4">
@@ -1344,7 +1758,6 @@ export default function ExamPage({
             </div>
           )}
 
-          {/* CTA */}
           <div className="mt-12 text-center">
             <Link
               href="#contact"
@@ -1356,7 +1769,6 @@ export default function ExamPage({
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="border-t border-[#30363d] bg-[#161b22] mt-20">
         <div className="container mx-auto px-4 py-8 text-center">
           <p className="text-gray-400">

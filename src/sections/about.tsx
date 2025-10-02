@@ -409,7 +409,7 @@ export const AboutSection = () => {
                   transition={{ duration: 0.6, ease: "easeInOut" }}
                   className="absolute inset-0"
                 >
-                  <div className={`absolute inset-0 bg-gradient-to-br ${getCurrentSkillsData().color} opacity-20`} />
+                  <div className={`absolute inset-0 bg-gradient-to-br ${getCurrentSkillsData().color} opacity-60`} />
                      {(() => {
                               const currentMedia = getBackgroundMedia()[currentSlide] || getBackgroundMedia()[0];
                               const basePath = '/_resources/';
@@ -418,7 +418,7 @@ export const AboutSection = () => {
                                 return (
                                   <video 
                                     key={`${activeCategory}-${currentSlide}-video`}
-                                    className="absolute inset-0 w-full h-full object-cover opacity-30"
+                                    className="absolute inset-0 w-full h-full object-cover opacity-80"
                                     autoPlay
                                     loop
                                     muted
@@ -430,7 +430,7 @@ export const AboutSection = () => {
                               } else {
                                 return (
                                   <div 
-                                    className="absolute inset-0 opacity-30"
+                                    className="absolute inset-0 opacity-80"
                                     style={{
                                       backgroundImage: `url('${basePath}${currentMedia.src}')`,
                                       backgroundSize: 'cover',
