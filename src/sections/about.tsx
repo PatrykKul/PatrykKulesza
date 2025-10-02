@@ -316,7 +316,7 @@ export const AboutSection = () => {
                 >
                   <div className="h-[220px] sm:h-[260px] relative overflow-hidden flex-shrink-0 bg-gradient-to-br from-[#1f6feb]/10 via-[#161b22] to-[#58a6ff]/10">
                     <Image
-                      src={`${process.env.NODE_ENV === 'production' ? '/korepetycje' : ''}/_resources/${cert.images[0]}`}
+                      src={`/_resources/${cert.images[0]}`}
                       alt={`${cert.title} - certyfikat`}
                       fill
                       className="object-cover group-hover:scale-110 transition-transform duration-700"
@@ -412,7 +412,7 @@ export const AboutSection = () => {
                   <div className={`absolute inset-0 bg-gradient-to-br ${getCurrentSkillsData().color} opacity-20`} />
                      {(() => {
                               const currentMedia = getBackgroundMedia()[currentSlide] || getBackgroundMedia()[0];
-                              const basePath = `${process.env.NODE_ENV === 'production' ? '/korepetycje' : ''}/_resources/`;
+                              const basePath = '/_resources/';
                               
                               if (currentMedia.type === 'video') {
                                 return (
@@ -556,7 +556,7 @@ export const AboutSection = () => {
                 <div className="w-full max-w-4xl mx-auto bg-[#0d1117] border border-[#30363d] rounded-lg relative group overflow-auto max-h-[60vh] sm:max-h-[70vh]">
                   <div className="relative w-full">
                     <Image
-                      src={`${process.env.NODE_ENV === 'production' ? '/korepetycje' : ''}/_resources/${selectedCertificate.images[currentImageIndex]}`}
+                      src={`/_resources/${selectedCertificate.images[currentImageIndex]}`}
                       alt={`${selectedCertificate.title} - certyfikat`}
                       width={1200}
                       height={800}

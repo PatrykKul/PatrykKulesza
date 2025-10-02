@@ -84,7 +84,7 @@ export const Header = () => {
                 whileHover={{ rotate: 5 }}
               >
                 <Image
-                  src={`${process.env.NODE_ENV === 'production' ? '/korepetycje' : ''}/_resources/logo-PatrykKulesza.webp`}
+                  src="/_resources/logo-PatrykKulesza.webp"
                   alt="Patryk Kulesza - Logo"
                   fill
                   className="object-contain"
@@ -206,7 +206,7 @@ export const Header = () => {
                 >
                   <div className="relative w-24 h-24">
                     <Image
-                      src={`${process.env.NODE_ENV === 'production' ? '/korepetycje' : ''}/_resources/logo-PatrykKulesza.webp`}
+                      src="/_resources/logo-PatrykKulesza.webp"
                       alt="Patryk Kulesza - Logo"
                       fill
                       className="object-contain"

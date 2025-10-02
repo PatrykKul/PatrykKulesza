@@ -204,7 +204,7 @@ export const PortfolioSection = () => {
         className="absolute inset-0 transition-all duration-1000 ease-out"
         style={{
           backgroundImage: backgroundImage 
-            ? `url(${process.env.NODE_ENV === 'production' ? '/korepetycje' : ''}/_resources/${backgroundImage})` 
+            ? `url(/_resources/${backgroundImage})` 
             : 'none',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
@@ -278,7 +278,7 @@ export const PortfolioSection = () => {
                 >
                   <div className="relative h-full overflow-hidden group" style={{ borderRadius: "32px" }}>
                     <Image
-                      src={`${process.env.NODE_ENV === 'production' ? '/korepetycje' : ''}/_resources/${project.image}`}
+                      src={`/_resources/${project.image}`}
                       alt={`Projekt strony internetowej ${project.title} - Patryk Kulesza`}
                       fill
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
