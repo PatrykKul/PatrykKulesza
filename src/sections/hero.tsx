@@ -117,7 +117,7 @@ export const HeroSection = ({ data }: { data: HomePageData }) => {
                 {/* Brain Image - RESPONSIVE with aspect ratio */}
                 <div className="relative w-full aspect-square">
                   <Image
-                    src={`${process.env.NODE_ENV === 'production' ? '/korepetycje' : ''}/_resources/brain.png`}
+                    src="/_resources/brain.png"
                     alt="Neural Network Brain - Korepetycje Programowanie i Matematyka" 
                     fill
                     className="object-contain drop-shadow-2xl"
