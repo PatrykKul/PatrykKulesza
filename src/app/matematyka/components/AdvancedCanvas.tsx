@@ -1,4 +1,3 @@
-'use client';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { PenTool, Eraser, Trash2, Type, X, Shapes, Download, Undo, Redo, Copy, Grid, Layers, Palette } from 'lucide-react';
 
@@ -23,6 +22,8 @@ interface TextElement {
   id: string;
   x: number;
   y: number;
+  width: number;
+  height: number;
   text: string;
   fontSize: number;
   color: string;
@@ -46,6 +47,7 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
   const [selectedShape, setSelectedShape] = useState<ShapeType>('circle');
   const [color, setColor] = useState('#000000');
   const [lineWidth, setLineWidth] = useState(2);
+  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
   
   // Advanced features
   const [showShapeMenu, setShowShapeMenu] = useState(false);
@@ -59,6 +61,7 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
   const [shapes, setShapes] = useState<Shape[]>([]);
   const [currentShape, setCurrentShape] = useState<Shape | null>(null);
   const [textElements, setTextElements] = useState<TextElement[]>([]);
+  const [currentTextBox, setCurrentTextBox] = useState<Omit<TextElement, 'id' | 'text'> | null>(null);
   const [editingTextId, setEditingTextId] = useState<string | null>(null);
   
   // Text styling
@@ -473,7 +476,7 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
     if (!canvas || !container) return;
 
     canvas.width = container.clientWidth;
-    canvas.height = 500;
+    canvas.height = 600; // Zwiększone z 500 na 600
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -509,6 +512,20 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
 
     drawGrid(ctx, canvas);
     drawShapes(ctx);
+    
+    // Podgląd ramki tekstu
+    if (currentTextBox) {
+      ctx.save();
+      ctx.strokeStyle = '#3b82f6';
+      ctx.fillStyle = '#3b82f6' + '10';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 5]);
+      
+      ctx.strokeRect(currentTextBox.x, currentTextBox.y, currentTextBox.width, currentTextBox.height);
+      ctx.fillRect(currentTextBox.x, currentTextBox.y, currentTextBox.width, currentTextBox.height);
+      
+      ctx.restore();
+    }
     
     if (currentShape) {
       ctx.save();
@@ -556,7 +573,7 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
       
       ctx.restore();
     }
-  }, [shapes, currentShape, drawShapes, drawGrid]);
+  }, [shapes, currentShape, currentTextBox, drawShapes, drawGrid]);
 
   // Save to localStorage (debounced)
   useEffect(() => {
@@ -583,43 +600,7 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
   }, [textElements, shapes, problemId, isRestoringHistory]);
 
   // Drawing handlers
-  const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (tool === 'text') {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-
-      const rect = canvas.getBoundingClientRect();
-      let x = e.clientX - rect.left;
-      let y = e.clientY - rect.top;
-      
-      if (snapToGrid) {
-        x = snapPosition(x);
-        y = snapPosition(y);
-      }
-
-      const newTextElement: TextElement = {
-        id: `text-${Date.now()}`,
-        x,
-        y,
-        text: '',
-        fontSize,
-        color,
-        fontWeight,
-        fontStyle
-      };
-
-      setTextElements(prev => [...prev, newTextElement]);
-      setEditingTextId(newTextElement.id);
-      saveToHistory();
-    }
-  };
-
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (tool === 'text') {
-      handleCanvasClick(e);
-      return;
-    }
-
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -630,6 +611,22 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
     if (snapToGrid) {
       x = snapPosition(x);
       y = snapPosition(y);
+    }
+
+    if (tool === 'text') {
+      // Tworzenie ramki na tekst - jak shape
+      setCurrentTextBox({
+        x,
+        y,
+        width: 0,
+        height: 0,
+        fontSize,
+        color,
+        fontWeight,
+        fontStyle
+      });
+      setIsDrawing(true);
+      return;
     }
 
     if (tool === 'shape') {
@@ -661,7 +658,21 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
   };
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDrawing) return;
+    if (!isDrawing) {
+      // Track mouse position even when not drawing (for ghost cursor)
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const rect = canvas.getBoundingClientRect();
+        let x = e.clientX - rect.left;
+        let y = e.clientY - rect.top;
+        if (snapToGrid) {
+          x = snapPosition(x);
+          y = snapPosition(y);
+        }
+        setMousePos({ x, y });
+      }
+      return;
+    }
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -673,6 +684,15 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
     if (snapToGrid) {
       x = snapPosition(x);
       y = snapPosition(y);
+    }
+
+    // Rysowanie ramki na tekst
+    if (tool === 'text' && currentTextBox) {
+      const updatedBox = { ...currentTextBox };
+      updatedBox.width = x - currentTextBox.x;
+      updatedBox.height = y - currentTextBox.y;
+      setCurrentTextBox(updatedBox);
+      return;
     }
 
     if (tool === 'shape' && currentShape) {
@@ -720,6 +740,31 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
   const stopDrawing = () => {
     if (!isDrawing) return;
     
+    if (tool === 'text' && currentTextBox) {
+      // Minimalna wielkość textbox
+      const minSize = 50;
+      if (Math.abs(currentTextBox.width) > minSize && Math.abs(currentTextBox.height) > minSize) {
+        const newTextElement: TextElement = {
+          id: `text-${Date.now()}`,
+          x: currentTextBox.width < 0 ? currentTextBox.x + currentTextBox.width : currentTextBox.x,
+          y: currentTextBox.height < 0 ? currentTextBox.y + currentTextBox.height : currentTextBox.y,
+          width: Math.abs(currentTextBox.width),
+          height: Math.abs(currentTextBox.height),
+          text: '',
+          fontSize: currentTextBox.fontSize,
+          color: currentTextBox.color,
+          fontWeight: currentTextBox.fontWeight,
+          fontStyle: currentTextBox.fontStyle
+        };
+        setTextElements(prev => [...prev, newTextElement]);
+        setEditingTextId(newTextElement.id);
+        saveToHistory();
+      }
+      setCurrentTextBox(null);
+      setIsDrawing(false);
+      return;
+    }
+    
     if (tool === 'shape' && currentShape) {
       setShapes(prev => [...prev, currentShape]);
       setCurrentShape(null);
@@ -761,14 +806,13 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
     { name: 'Czerwony', value: '#dc2626' },
     { name: 'Zielony', value: '#16a34a' },
     { name: 'Fioletowy', value: '#7c3aed' },
-    { name: 'Pomarańczowy', value: '#ea580c' },
   ];
 
   const lineWidths = [
-    { name: 'Cienka', value: 2 },
-    { name: 'Średnia', value: 4 },
-    { name: 'Gruba', value: 6 },
-    { name: 'Bardzo gruba', value: 8 },
+    { name: '1', value: 2 },
+    { name: '2', value: 4 },
+    { name: '3', value: 6 },
+    { name: '4', value: 8 },
   ];
 
   const fontSizes = [
@@ -794,60 +838,60 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
   ];
 
   return (
-    <div className="bg-[#21262d] border border-[#30363d] rounded-lg p-4 mt-4">
+    <div className="bg-[#21262d] border border-[#30363d] rounded-lg p-3 mt-4">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-3 mb-4 pb-4 border-b border-[#30363d]">
+      <div className="flex flex-wrap items-center gap-2 mb-3 pb-3 border-b border-[#30363d]">
         {/* Main tools */}
-        <div className="flex gap-2">
+        <div className="flex gap-1.5">
           <button
             onClick={() => { setTool('pen'); setShowShapeMenu(false); setShowTextMenu(false); }}
-            className={`p-2 rounded-lg transition-all ${tool === 'pen' ? 'bg-[#58a6ff] text-black' : 'bg-[#30363d] text-white hover:bg-[#40464d]'}`}
+            className={`p-1.5 rounded-lg transition-all ${tool === 'pen' ? 'bg-[#58a6ff] text-black' : 'bg-[#30363d] text-white hover:bg-[#40464d]'}`}
             title="Ołówek"
           >
-            <PenTool className="w-5 h-5" />
+            <PenTool className="w-4 h-4" />
           </button>
           
           <button
             onClick={() => { setTool('eraser'); setShowShapeMenu(false); setShowTextMenu(false); }}
-            className={`p-2 rounded-lg transition-all ${tool === 'eraser' ? 'bg-[#58a6ff] text-black' : 'bg-[#30363d] text-white hover:bg-[#40464d]'}`}
+            className={`p-1.5 rounded-lg transition-all ${tool === 'eraser' ? 'bg-[#58a6ff] text-black' : 'bg-[#30363d] text-white hover:bg-[#40464d]'}`}
             title="Gumka"
           >
-            <Eraser className="w-5 h-5" />
+            <Eraser className="w-4 h-4" />
           </button>
           
           <div className="relative">
             <button
               onClick={() => { setTool('text'); setShowTextMenu(!showTextMenu); setShowShapeMenu(false); }}
-              className={`p-2 rounded-lg transition-all ${tool === 'text' ? 'bg-[#58a6ff] text-black' : 'bg-[#30363d] text-white hover:bg-[#40464d]'}`}
+              className={`p-1.5 rounded-lg transition-all ${tool === 'text' ? 'bg-[#58a6ff] text-black' : 'bg-[#30363d] text-white hover:bg-[#40464d]'}`}
               title="Tekst"
             >
-              <Type className="w-5 h-5" />
+              <Type className="w-4 h-4" />
             </button>
             
             {showTextMenu && (
-              <div className="absolute top-full left-0 mt-2 bg-[#161b22] border border-[#30363d] rounded-lg shadow-xl z-50 p-3 min-w-[200px]">
-                <div className="mb-3">
+              <div className="absolute top-full left-0 mt-2 bg-[#161b22] border border-[#30363d] rounded-lg shadow-xl z-50 p-2 min-w-[180px]">
+                <div className="mb-2">
                   <label className="text-xs text-gray-400 mb-1 block">Rozmiar</label>
                   {fontSizes.map(fs => (
                     <button
                       key={fs.value}
                       onClick={() => setFontSize(fs.value)}
-                      className={`w-full text-left px-3 py-1.5 rounded-md hover:bg-[#30363d] transition-colors text-sm ${fontSize === fs.value ? 'bg-[#58a6ff]/20' : ''}`}
+                      className={`w-full text-left px-2 py-1 rounded-md hover:bg-[#30363d] transition-colors text-xs ${fontSize === fs.value ? 'bg-[#58a6ff]/20' : ''}`}
                     >
                       {fs.name} ({fs.value}px)
                     </button>
                   ))}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-1.5">
                   <button
                     onClick={() => setFontWeight(fontWeight === 'bold' ? 'normal' : 'bold')}
-                    className={`px-3 py-1.5 rounded-md text-sm font-bold ${fontWeight === 'bold' ? 'bg-[#58a6ff] text-black' : 'bg-[#30363d] hover:bg-[#40464d]'}`}
+                    className={`px-2 py-1 rounded-md text-xs font-bold ${fontWeight === 'bold' ? 'bg-[#58a6ff] text-black' : 'bg-[#30363d] hover:bg-[#40464d]'}`}
                   >
                     B
                   </button>
                   <button
                     onClick={() => setFontStyle(fontStyle === 'italic' ? 'normal' : 'italic')}
-                    className={`px-3 py-1.5 rounded-md text-sm italic ${fontStyle === 'italic' ? 'bg-[#58a6ff] text-black' : 'bg-[#30363d] hover:bg-[#40464d]'}`}
+                    className={`px-2 py-1 rounded-md text-xs italic ${fontStyle === 'italic' ? 'bg-[#58a6ff] text-black' : 'bg-[#30363d] hover:bg-[#40464d]'}`}
                   >
                     I
                   </button>
@@ -859,22 +903,22 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
           <div className="relative">
             <button
               onClick={() => { setTool('shape'); setShowShapeMenu(!showShapeMenu); setShowTextMenu(false); }}
-              className={`p-2 rounded-lg transition-all ${tool === 'shape' ? 'bg-[#58a6ff] text-black' : 'bg-[#30363d] text-white hover:bg-[#40464d]'}`}
+              className={`p-1.5 rounded-lg transition-all ${tool === 'shape' ? 'bg-[#58a6ff] text-black' : 'bg-[#30363d] text-white hover:bg-[#40464d]'}`}
               title="Kształty"
             >
-              <Shapes className="w-5 h-5" />
+              <Shapes className="w-4 h-4" />
             </button>
             
             {showShapeMenu && (
-              <div className="absolute top-full left-0 mt-2 bg-[#161b22] border border-[#30363d] rounded-lg shadow-xl z-50 p-2 min-w-[220px]">
+              <div className="absolute top-full left-0 mt-2 bg-[#161b22] border border-[#30363d] rounded-lg shadow-xl z-50 p-2 min-w-[200px]">
                 {shapeOptions.map(shape => (
                   <button
                     key={shape.type}
                     onClick={() => { setSelectedShape(shape.type); setTool('shape'); setShowShapeMenu(false); }}
-                    className={`w-full text-left px-3 py-2 rounded-md hover:bg-[#30363d] transition-colors flex items-center gap-3 ${selectedShape === shape.type ? 'bg-[#58a6ff]/20' : ''}`}
+                    className={`w-full text-left px-2 py-1.5 rounded-md hover:bg-[#30363d] transition-colors flex items-center gap-2 ${selectedShape === shape.type ? 'bg-[#58a6ff]/20' : ''}`}
                   >
-                    <span className="text-xl">{shape.icon}</span>
-                    <span className="text-sm">{shape.name}</span>
+                    <span className="text-lg">{shape.icon}</span>
+                    <span className="text-xs">{shape.name}</span>
                   </button>
                 ))}
               </div>
@@ -883,75 +927,77 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
         </div>
 
         {/* Undo/Redo */}
-        <div className="flex gap-2 pl-3 border-l border-[#30363d]">
+        <div className="flex gap-1.5 pl-2 border-l border-[#30363d]">
           <button
             onClick={undo}
             disabled={historyIndex <= 0}
-            className="p-2 rounded-lg bg-[#30363d] text-white hover:bg-[#40464d] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="p-1.5 rounded-lg bg-[#30363d] text-white hover:bg-[#40464d] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             title="Cofnij (Ctrl+Z)"
           >
-            <Undo className="w-5 h-5" />
+            <Undo className="w-4 h-4" />
           </button>
           <button
             onClick={redo}
             disabled={historyIndex >= history.length - 1}
-            className="p-2 rounded-lg bg-[#30363d] text-white hover:bg-[#40464d] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="p-1.5 rounded-lg bg-[#30363d] text-white hover:bg-[#40464d] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             title="Ponów (Ctrl+Shift+Z)"
           >
-            <Redo className="w-5 h-5" />
+            <Redo className="w-4 h-4" />
           </button>
         </div>
 
         {/* Copy/Delete */}
         {selectedElements.length > 0 && (
-          <div className="flex gap-2 pl-3 border-l border-[#30363d]">
+          <div className="flex gap-1.5 pl-2 border-l border-[#30363d]">
             <button
               onClick={copySelected}
-              className="p-2 rounded-lg bg-[#30363d] text-white hover:bg-[#40464d] transition-all"
+              className="p-1.5 rounded-lg bg-[#30363d] text-white hover:bg-[#40464d] transition-all"
               title="Kopiuj (Ctrl+C)"
             >
-              <Copy className="w-5 h-5" />
+              <Copy className="w-4 h-4" />
             </button>
             <button
               onClick={deleteSelected}
-              className="p-2 rounded-lg bg-red-900/30 text-red-400 hover:bg-red-900/50 transition-all border border-red-500/30"
+              className="p-1.5 rounded-lg bg-red-900/30 text-red-400 hover:bg-red-900/50 transition-all border border-red-500/30"
               title="Usuń (Delete)"
             >
-              <Trash2 className="w-5 h-5" />
+              <Trash2 className="w-4 h-4" />
             </button>
           </div>
         )}
 
         {/* Colors */}
         {tool !== 'eraser' && (
-          <div className="flex gap-2 pl-3 border-l border-[#30363d]">
+          <div className="flex gap-1 pl-2 border-l border-[#30363d]">
             {colors.map(c => (
               <button
                 key={c.value}
                 onClick={() => setColor(c.value)}
-                className={`w-8 h-8 rounded-lg transition-all ${color === c.value ? 'ring-2 ring-[#58a6ff] ring-offset-2 ring-offset-[#21262d]' : ''}`}
+                className={`w-5 h-5 rounded-md transition-all ${color === c.value ? 'ring-2 ring-[#58a6ff] ring-offset-1 ring-offset-[#21262d]' : ''}`}
                 style={{ backgroundColor: c.value }}
                 title={c.name}
               />
             ))}
-            <button
-              onClick={() => setShowColorPicker(!showColorPicker)}
-              className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 via-yellow-500 to-blue-500 hover:opacity-80 transition-all"
-              title="Wybierz kolor"
-            >
-              <Palette className="w-4 h-4 text-white mx-auto" />
-            </button>
+            <div className="relative">
+              <input
+                type="color"
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+                className="w-5 h-5 rounded-md cursor-pointer border border-[#30363d] hover:border-[#58a6ff] transition-all"
+                title="Wybierz kolor"
+              />
+            </div>
           </div>
         )}
 
         {/* Line width */}
         {(tool === 'pen' || tool === 'shape') && (
-          <div className="flex gap-2 pl-3 border-l border-[#30363d]">
+          <div className="flex gap-1 pl-2 border-l border-[#30363d]">
             {lineWidths.map(lw => (
               <button
                 key={lw.value}
                 onClick={() => setLineWidth(lw.value)}
-                className={`px-3 py-2 rounded-lg text-sm transition-all ${lineWidth === lw.value ? 'bg-[#58a6ff] text-black' : 'bg-[#30363d] text-white hover:bg-[#40464d]'}`}
+                className={`w-6 h-6 rounded-md text-[10px] transition-all flex items-center justify-center ${lineWidth === lw.value ? 'bg-[#58a6ff] text-black font-bold' : 'bg-[#30363d] text-white hover:bg-[#40464d]'}`}
               >
                 {lw.name}
               </button>
@@ -960,32 +1006,32 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
         )}
 
         {/* Templates & Grid */}
-        <div className="flex gap-2 pl-3 border-l border-[#30363d] ml-auto">
+        <div className="flex gap-1.5 pl-2 border-l border-[#30363d] ml-auto">
           <button
             onClick={() => setSnapToGrid(!snapToGrid)}
-            className={`p-2 rounded-lg transition-all ${snapToGrid ? 'bg-[#58a6ff] text-black' : 'bg-[#30363d] text-white hover:bg-[#40464d]'}`}
+            className={`p-1.5 rounded-lg transition-all ${snapToGrid ? 'bg-[#58a6ff] text-black' : 'bg-[#30363d] text-white hover:bg-[#40464d]'}`}
             title={`Przyciąganie do siatki (G) - ${snapToGrid ? 'włączone' : 'wyłączone'}`}
           >
-            <Grid className="w-5 h-5" />
+            <Grid className="w-4 h-4" />
           </button>
           
           <div className="relative">
             <button
               onClick={() => setShowTemplateMenu(!showTemplateMenu)}
-              className="px-3 py-2 rounded-lg bg-[#30363d] text-white hover:bg-[#40464d] transition-all text-sm"
+              className="px-2 py-1 rounded-lg bg-[#30363d] text-white hover:bg-[#40464d] transition-all text-xs"
             >
               Szablony
             </button>
             {showTemplateMenu && (
-              <div className="absolute top-full right-0 mt-2 bg-[#161b22] border border-[#30363d] rounded-lg shadow-xl z-50 p-2 min-w-[200px]">
+              <div className="absolute top-full right-0 mt-2 bg-[#161b22] border border-[#30363d] rounded-lg shadow-xl z-50 p-2 min-w-[180px]">
                 {templates.map(t => (
                   <button
                     key={t.id}
                     onClick={() => applyTemplate(t.id)}
-                    className="w-full text-left px-3 py-2 rounded-md hover:bg-[#30363d] transition-colors flex items-center gap-3"
+                    className="w-full text-left px-2 py-1.5 rounded-md hover:bg-[#30363d] transition-colors flex items-center gap-2"
                   >
-                    <span className="text-xl">{t.icon}</span>
-                    <span className="text-sm">{t.name}</span>
+                    <span className="text-lg">{t.icon}</span>
+                    <span className="text-xs">{t.name}</span>
                   </button>
                 ))}
               </div>
@@ -994,18 +1040,18 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
           
           <button
             onClick={() => exportCanvas('png')}
-            className="px-3 py-2 rounded-lg bg-green-900/30 text-green-400 hover:bg-green-900/50 transition-all border border-green-500/30 text-sm flex items-center gap-2"
+            className="px-2 py-1 rounded-lg bg-green-900/30 text-green-400 hover:bg-green-900/50 transition-all border border-green-500/30 text-xs flex items-center gap-1.5"
           >
-            <Download className="w-4 h-4" />
+            <Download className="w-3.5 h-3.5" />
             Export
           </button>
           
           <button
             onClick={clearCanvas}
-            className="p-2 rounded-lg bg-red-900/30 text-red-400 hover:bg-red-900/50 transition-all border border-red-500/30"
+            className="p-1.5 rounded-lg bg-red-900/30 text-red-400 hover:bg-red-900/50 transition-all border border-red-500/30"
             title="Wyczyść wszystko"
           >
-            <Trash2 className="w-5 h-5" />
+            <Trash2 className="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -1093,10 +1139,10 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
                       e.stopPropagation();
                       setTextElements(prev => prev.filter(el => el.id !== textEl.id));
                     }}
-                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-xs hover:bg-red-600"
+                    className="absolute top-0 right-0 w-3 h-3 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600"
                     title="Usuń tekst"
                   >
-                    <X className="w-3 h-3" />
+                    <X className="w-2 h-2" />
                   </button>
                 </div>
               )}
@@ -1105,9 +1151,33 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
         })}
         
         {/* Hints */}
-        {tool === 'text' && textElements.length === 0 && (
+        {tool === 'text' && textElements.length === 0 && !currentTextBox && (
           <div className="absolute top-4 left-4 bg-blue-900/80 text-blue-200 px-3 py-2 rounded-lg text-sm pointer-events-none">
-            Kliknij w dowolnym miejscu, aby dodać tekst
+            Przeciągnij myszką aby stworzyć ramkę na tekst
+          </div>
+        )}
+        
+        {/* Ghost cursor for text tool - tylko gdy nie rysujemy */}
+        {tool === 'text' && mousePos && !isDrawing && (
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              left: mousePos.x,
+              top: mousePos.y,
+              transform: 'translate(-50%, -50%)'
+            }}
+          >
+            <div
+              className="bg-blue-500/20 border-2 border-blue-500 border-dashed rounded px-3 py-1 flex items-center gap-2"
+              style={{
+                fontSize: `${fontSize}px`,
+                fontWeight,
+                fontStyle
+              }}
+            >
+              <Type className="w-4 h-4 text-blue-500" />
+              <span className="text-blue-500 opacity-70 text-xs">Przeciągnij</span>
+            </div>
           </div>
         )}
         
@@ -1118,14 +1188,20 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
         )}
         
         {snapToGrid && (
-          <div className="absolute bottom-4 left-4 bg-green-900/80 text-green-200 px-3 py-2 rounded-lg text-sm pointer-events-none">
-            ✓ Przyciąganie do siatki aktywne (G aby wyłączyć)
+          <div className="absolute bottom-4 left-4 bg-green-900/80 text-green-200 px-3 py-2 rounded-lg text-sm pointer-events-none max-w-xs">
+            <div className="flex items-center gap-2 mb-1">
+              <Grid className="w-4 h-4" />
+              <span className="font-semibold">Przyciąganie do siatki aktywne</span>
+            </div>
+            <div className="text-xs opacity-90">
+              Rysuj idealnie wyrównane kształty! Każdy punkt przyciąga się do kratki co 10px. Naciśnij G aby wyłączyć.
+            </div>
           </div>
         )}
       </div>
 
       {/* Keyboard shortcuts info */}
-      <div className="mt-3 text-xs text-gray-500 flex flex-wrap gap-4">
+      <div className="mt-2 text-[10px] text-gray-500 flex flex-wrap gap-3">
         <span>Ctrl+Z: Cofnij</span>
         <span>Ctrl+Shift+Z: Ponów</span>
         <span>Ctrl+C: Kopiuj</span>

@@ -67,8 +67,8 @@ export default function ExamPage({
   const [checkedAnswers, setCheckedAnswers] = useState<Record<string, boolean>>({});
   const [showCanvas, setShowCanvas] = useState<Record<string, boolean>>({});
   const [timeElapsed, setTimeElapsed] = useState(0);
-  const [timerActive] = useState(false);
-  
+  const [timerActive, setTimerActive] = useState(false);
+
   const { imageData, loading: imagesLoading } = useImageScan(examType, year, type, level);
 
   useEffect(() => {
@@ -528,27 +528,68 @@ export default function ExamPage({
             </div>
           </div>
 
-          <div className="sticky top-20 z-10 mb-8 flex justify-center pointer-events-none">
-            <div className="bg-[#161b22] border-2 border-[#30363d] rounded-xl px-6 py-4 shadow-2xl backdrop-blur-sm bg-opacity-95 pointer-events-auto max-w-fit">
-              <div className="flex items-center justify-between gap-6">
-                <div>
-                  <span className="text-sm text-gray-400">Czas: {formatTime(timeElapsed)} / {examData.duration} min</span>
-                  <span className="text-sm text-gray-400 ml-4">Sprawdzone: {checkedCount} / {totalProblems}</span>  
-                  <span className="text-lg font-bold text-[#58a6ff]"> Wynik: {totalScore} / {examData.maxPoints} pkt</span>
-                </div>
-                
-                {(answeredCount > 0 || checkedCount > 0) && (
-                  <button
-                    onClick={resetAllProblems}
-                    className="ml-4 p-2 text-gray-400 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
-                    title="Zacznij od nowa"
-                  >
-                    <RotateCcw className="w-5 h-5" />
-                  </button>
-                )}
-              </div>
-            </div>
+<div className="sticky top-20 z-10 mb-8 flex justify-center pointer-events-none">
+  <div className="bg-[#161b22] border-2 border-[#30363d] rounded-xl px-6 py-4 shadow-2xl backdrop-blur-sm bg-opacity-95 pointer-events-auto max-w-fit">
+    <div className="flex items-center gap-6">
+      {/* Timer controls */}
+      <div className="flex items-center gap-2 pr-6 border-r border-[#30363d]">
+        <button
+          onClick={() => setTimerActive(!timerActive)}
+          className={`p-2 rounded-lg transition-all ${
+            timerActive 
+              ? 'bg-yellow-900/30 text-yellow-400 hover:bg-yellow-900/50 border border-yellow-500/30' 
+              : 'bg-green-900/30 text-green-400 hover:bg-green-900/50 border border-green-500/30'
+          }`}
+          title={timerActive ? 'Zatrzymaj timer' : 'Uruchom timer'}
+        >
+          {timerActive ? (
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+          ) : (
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+            </svg>
+          )}
+        </button>
+        <button
+          onClick={() => {
+            setTimeElapsed(0);
+            setTimerActive(false);
+          }}
+          className="p-2 rounded-lg bg-red-900/30 text-red-400 hover:bg-red-900/50 transition-all border border-red-500/30"
+          title="Zresetuj timer"
+        >
+          <RotateCcw className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Stats */}
+      <div>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Clock className={`w-5 h-5 ${timerActive ? 'text-yellow-400 animate-pulse' : 'text-[#58a6ff]'}`} />
+            <span className={`text-sm ${timerActive ? 'text-yellow-400 font-semibold' : 'text-gray-400'}`}>
+              {formatTime(timeElapsed)} / {examData.duration} min
+            </span>
           </div>
+          <span className="text-sm text-gray-400">Sprawdzone: {checkedCount} / {totalProblems}</span>  
+          <span className="text-lg font-bold text-[#58a6ff]">Wynik: {totalScore} / {examData.maxPoints} pkt</span>
+        </div>
+      </div>
+
+      {(answeredCount > 0 || checkedCount > 0) && (
+        <button
+          onClick={resetAllProblems}
+          className="ml-4 p-2 text-gray-400 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
+          title="Zacznij od nowa"
+        >
+          <RotateCcw className="w-5 h-5" />
+        </button>
+      )}
+    </div>
+  </div>
+</div>
 
           <div className="space-y-8">
             {examData.problems.map((problem, index) => {
