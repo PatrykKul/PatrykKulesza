@@ -221,8 +221,16 @@ export const MaterialsSection = ({}: MaterialsSectionProps) => {
            
 
             {/* Action Button - Enhanced animation */}
+ {/* onClick={() => window.open(`/${activeCategory === 'math' ? 'matematyka' : activeCategory === 'english' ? 'angielski' : 'programowanie'}`, '_blank')} */}
+
             <motion.button
-              onClick={() => window.open(`/${activeCategory === 'math' ? 'matematyka' : activeCategory === 'english' ? 'angielski' : 'programowanie'}`, '_blank')}
+              onClick={() => {
+                if (activeCategory === 'math') {
+                  window.open('/matematyka', '_blank');
+                } else {
+                  alert('Materiały w trakcie budowy');
+                }
+              }}
               className={`cursor-pointer flex items-center px-8 py-4 bg-gradient-to-r ${currentCategory?.color} text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-lg`}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
