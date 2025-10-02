@@ -2,7 +2,7 @@ name: Build and Deploy
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 permissions:
   contents: read
@@ -19,14 +19,19 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'yarn'
+          node-version: "20"
+          cache: "yarn"
 
-      - name: Install
-        run: yarn install
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
 
-      - name: Build
+      - name: Build with static export
         run: yarn build
+        env:
+          BUILD_EXPORT: "true"
+
+      - name: Add .nojekyll file
+        run: touch ./out/.nojekyll
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -34,8 +39,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './out'
+          path: "./out"
 
-      - name: Deploy
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
