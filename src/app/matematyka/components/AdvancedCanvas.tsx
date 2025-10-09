@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { PenTool, Eraser, Trash2, Type, X, Shapes, Download, Undo, Redo, Copy, Grid, Layers, Palette } from 'lucide-react';
+import { PenTool, Eraser, Trash2, Type, X, Shapes, Download, Undo, Redo, Copy, Grid, Layers, Palette, PlusSquare } from 'lucide-react';
 
-type Tool = 'pen' | 'eraser' | 'text' | 'shape' | 'select';
+type Tool = 'pen' | 'eraser' | 'text' | 'shape' | 'select' | 'template';
 type ShapeType = 'circle' | 'rectangle' | 'triangle' | 'line' | 'arrow' | 'axes';
+type TemplateType = 'coordinate-system' | 'circle-grid' | 'triangle-template';
 
 interface Shape {
   id: string;
@@ -45,9 +46,11 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
   const [isDrawing, setIsDrawing] = useState(false);
   const [tool, setTool] = useState<Tool>('pen');
   const [selectedShape, setSelectedShape] = useState<ShapeType>('circle');
+  const [selectedTemplate, setSelectedTemplate] = useState<TemplateType>('coordinate-system');
   const [color, setColor] = useState('#000000');
   const [lineWidth, setLineWidth] = useState(2);
   const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
+  const [canvasHeight, setCanvasHeight] = useState(600);
   
   // Advanced features
   const [showShapeMenu, setShowShapeMenu] = useState(false);
@@ -60,6 +63,7 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
   // Elements
   const [shapes, setShapes] = useState<Shape[]>([]);
   const [currentShape, setCurrentShape] = useState<Shape | null>(null);
+  const [currentTemplate, setCurrentTemplate] = useState<{x: number; y: number; width: number; height: number; type: TemplateType} | null>(null);
   const [textElements, setTextElements] = useState<TextElement[]>([]);
   const [currentTextBox, setCurrentTextBox] = useState<Omit<TextElement, 'id' | 'text'> | null>(null);
   const [editingTextId, setEditingTextId] = useState<string | null>(null);
@@ -75,7 +79,7 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
   
   // Undo/Redo
   const [history, setHistory] = useState<HistoryState[]>([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
+  const [historyIndex, setHistoryIndex] = useState(-1); // -1 oznacza pusty canvas, 0+ to zapisane stany
   const [isRestoringHistory, setIsRestoringHistory] = useState(false);
 
   // Grid drawing
@@ -197,7 +201,7 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
         case 'axes':
           const centerX = shape.x;
           const centerY = shape.y;
-          const axisLength = 100;
+          const axisLength = shape.width ? shape.width / 2 : 100;
           
           ctx.beginPath();
           ctx.moveTo(centerX - axisLength, centerY);
@@ -233,6 +237,26 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
     return Math.round(pos / 10) * 10;
   };
 
+  // Get correct mouse position - fixes responsiveness issues
+  const getMousePosition = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    let x = (e.clientX - rect.left) * scaleX;
+    let y = (e.clientY - rect.top) * scaleY;
+    
+    if (snapToGrid) {
+      x = snapPosition(x);
+      y = snapPosition(y);
+    }
+
+    return { x, y };
+  };
+
   // Save to history
   const saveToHistory = useCallback(() => {
     if (isRestoringHistory) return;
@@ -246,14 +270,16 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
       drawing: canvas.toDataURL()
     };
 
+    // Obetnij historię od aktualnego indeksu i dodaj nowy stan
     const newHistory = history.slice(0, historyIndex + 1);
     newHistory.push(newState);
     
     // Keep only last 50 states
     if (newHistory.length > 50) {
       newHistory.shift();
+      setHistoryIndex(48); // 49 - 1
     } else {
-      setHistoryIndex(historyIndex + 1);
+      setHistoryIndex(newHistory.length - 1);
     }
     
     setHistory(newHistory);
@@ -261,9 +287,26 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
 
   // Undo
   const undo = useCallback(() => {
-    if (historyIndex <= 0) return;
+    if (historyIndex < 0 || history.length === 0) return;
     
     setIsRestoringHistory(true);
+    
+    // Jeśli jesteśmy na indeksie 0, to znaczy że cofamy się do stanu początkowego
+    if (historyIndex === 0) {
+      // Przywróć pusty canvas
+      setShapes([]);
+      setTextElements([]);
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext('2d');
+      if (canvas && ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawGrid(ctx, canvas);
+        setIsRestoringHistory(false);
+      }
+      setHistoryIndex(-1); // -1 oznacza że jesteśmy przed pierwszym stanem
+      return;
+    }
+    
     const prevState = history[historyIndex - 1];
     
     setShapes(prevState.shapes);
@@ -280,6 +323,8 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
         setIsRestoringHistory(false);
       };
       img.src = prevState.drawing;
+    } else {
+      setIsRestoringHistory(false);
     }
     
     setHistoryIndex(historyIndex - 1);
@@ -290,7 +335,10 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
     if (historyIndex >= history.length - 1) return;
     
     setIsRestoringHistory(true);
-    const nextState = history[historyIndex + 1];
+    
+    // Jeśli jesteśmy na -1 (przed pierwszym stanem), przywróć pierwszy stan
+    const nextIndex = historyIndex + 1;
+    const nextState = history[nextIndex];
     
     setShapes(nextState.shapes);
     setTextElements(nextState.textElements);
@@ -306,9 +354,11 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
         setIsRestoringHistory(false);
       };
       img.src = nextState.drawing;
+    } else {
+      setIsRestoringHistory(false);
     }
     
-    setHistoryIndex(historyIndex + 1);
+    setHistoryIndex(nextIndex);
   }, [history, historyIndex, drawGrid]);
 
   // Copy
@@ -398,58 +448,71 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
   }, [undo, redo, copySelected, paste, deleteSelected, selectedElements, editingTextId, snapToGrid]);
 
   // Templates
-  const applyTemplate = (templateName: string) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-    
+  const createTemplateInArea = (templateType: TemplateType, x: number, y: number, width: number, height: number) => {
     let newShapes: Shape[] = [];
+    const centerX = x + width / 2;
+    const centerY = y + height / 2;
+    const scale = Math.min(Math.abs(width), Math.abs(height)) / 200; // Scale based on area size
     
-    switch (templateName) {
+    switch (templateType) {
       case 'coordinate-system':
+        const axisLength = Math.min(Math.abs(width), Math.abs(height)) / 2 * 0.8;
         newShapes = [{
           id: `shape-${Date.now()}`,
           type: 'axes',
           x: centerX,
           y: centerY,
           color: '#000000',
-          strokeWidth: 2
+          strokeWidth: Math.max(1, Math.round(2 * scale))
         }];
+        // Add custom axis drawing data
+        newShapes[0] = {
+          ...newShapes[0],
+          width: axisLength * 2,
+          height: axisLength * 2
+        };
         break;
         
       case 'circle-grid':
+        const maxRadius = Math.min(Math.abs(width), Math.abs(height)) / 2 * 0.8;
         for (let i = 1; i <= 3; i++) {
           newShapes.push({
             id: `shape-${Date.now()}-${i}`,
             type: 'circle',
             x: centerX,
             y: centerY,
-            radius: i * 50,
+            radius: (maxRadius / 3) * i,
             color: '#2563eb',
-            strokeWidth: 1
+            strokeWidth: Math.max(1, Math.round(1 * scale))
           });
         }
         break;
         
       case 'triangle-template':
+        const triangleWidth = Math.abs(width) * 0.8;
+        const triangleHeight = Math.abs(height) * 0.8;
         newShapes = [{
           id: `shape-${Date.now()}`,
           type: 'triangle',
-          x: centerX - 100,
-          y: centerY - 50,
-          width: 200,
-          height: 150,
+          x: centerX - triangleWidth / 2,
+          y: centerY - triangleHeight / 2,
+          width: triangleWidth,
+          height: triangleHeight,
           color: '#dc2626',
-          strokeWidth: 2
+          strokeWidth: Math.max(1, Math.round(2 * scale))
         }];
         break;
     }
     
-    setShapes([...shapes, ...newShapes]);
-    setShowTemplateMenu(false);
+    setShapes(prev => [...prev, ...newShapes]);
     saveToHistory();
+  };
+
+  const applyTemplate = (templateName: string) => {
+    // Switch to template tool instead of immediately creating template
+    setSelectedTemplate(templateName as TemplateType);
+    setTool('template');
+    setShowTemplateMenu(false);
   };
 
   // Export canvas
@@ -469,14 +532,14 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
     }
   };
 
-  // Initialize canvas
+  // Initialize canvas - tylko raz przy pierwszym załadowaniu
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) return;
 
     canvas.width = container.clientWidth;
-    canvas.height = 600; // Zwiększone z 500 na 600
+    canvas.height = 600; // domyślna wysokość
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -487,24 +550,53 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
         const parsedData = JSON.parse(savedData);
         if (parsedData.textElements) setTextElements(parsedData.textElements);
         if (parsedData.shapes) setShapes(parsedData.shapes);
+        if (parsedData.canvasHeight) {
+          setCanvasHeight(parsedData.canvasHeight);
+          canvas.height = parsedData.canvasHeight; // ustaw od razu zapisaną wysokość
+        }
         if (parsedData.drawing) {
           const img = new Image();
-          img.onload = () => ctx.drawImage(img, 0, 0);
+          img.onload = () => {
+            drawGrid(ctx, canvas);
+            ctx.drawImage(img, 0, 0);
+          };
           img.src = parsedData.drawing;
         } else {
           drawGrid(ctx, canvas);
         }
       } else {
         drawGrid(ctx, canvas);
+        // Zapisz stan początkowy (pusty canvas) do historii
+        setTimeout(() => {
+          const initialState: HistoryState = {
+            shapes: [],
+            textElements: [],
+            drawing: canvas.toDataURL()
+          };
+          setHistory([initialState]);
+          setHistoryIndex(0);
+        }, 100);
       }
     } catch (error) {
       console.error('Failed to load canvas data:', error);
       drawGrid(ctx, canvas);
+      // Zapisz stan początkowy także w przypadku błędu
+      setTimeout(() => {
+        const initialState: HistoryState = {
+          shapes: [],
+          textElements: [],
+          drawing: canvas.toDataURL()
+        };
+        setHistory([initialState]);
+        setHistoryIndex(0);
+      }, 100);
     }
-  }, [problemId, drawGrid]);
+  }, [problemId, drawGrid]); // usunięte canvasHeight z dependency
+
+
 
   // Redraw canvas
-  useEffect(() => {
+  const redrawCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -513,16 +605,96 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
     drawGrid(ctx, canvas);
     drawShapes(ctx);
     
-    // Podgląd ramki tekstu
-    if (currentTextBox) {
+
+
+    // Podgląd obszaru szablonu
+    if (currentTemplate) {
       ctx.save();
-      ctx.strokeStyle = '#3b82f6';
-      ctx.fillStyle = '#3b82f6' + '10';
+      ctx.strokeStyle = '#10b981';
+      ctx.fillStyle = '#10b981' + '10';
       ctx.lineWidth = 2;
       ctx.setLineDash([5, 5]);
       
-      ctx.strokeRect(currentTextBox.x, currentTextBox.y, currentTextBox.width, currentTextBox.height);
-      ctx.fillRect(currentTextBox.x, currentTextBox.y, currentTextBox.width, currentTextBox.height);
+      // Draw template area border
+      ctx.strokeRect(currentTemplate.x, currentTemplate.y, currentTemplate.width, currentTemplate.height);
+      ctx.fillRect(currentTemplate.x, currentTemplate.y, currentTemplate.width, currentTemplate.height);
+      
+      // Draw template preview content with dashed lines
+      const centerX = currentTemplate.x + currentTemplate.width / 2;
+      const centerY = currentTemplate.y + currentTemplate.height / 2;
+      const scale = Math.min(Math.abs(currentTemplate.width), Math.abs(currentTemplate.height)) / 200;
+      
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = Math.max(1, Math.round(2 * scale));
+      ctx.setLineDash([3, 3]);
+      
+      switch (currentTemplate.type) {
+        case 'coordinate-system':
+          const axisLength = Math.min(Math.abs(currentTemplate.width), Math.abs(currentTemplate.height)) / 2 * 0.6;
+          
+          // X axis
+          ctx.beginPath();
+          ctx.moveTo(centerX - axisLength, centerY);
+          ctx.lineTo(centerX + axisLength, centerY);
+          ctx.stroke();
+          
+          // X arrow
+          ctx.beginPath();
+          ctx.moveTo(centerX + axisLength, centerY);
+          ctx.lineTo(centerX + axisLength - 8, centerY - 4);
+          ctx.moveTo(centerX + axisLength, centerY);
+          ctx.lineTo(centerX + axisLength - 8, centerY + 4);
+          ctx.stroke();
+          
+          // Y axis
+          ctx.beginPath();
+          ctx.moveTo(centerX, centerY - axisLength);
+          ctx.lineTo(centerX, centerY + axisLength);
+          ctx.stroke();
+          
+          // Y arrow
+          ctx.beginPath();
+          ctx.moveTo(centerX, centerY - axisLength);
+          ctx.lineTo(centerX - 4, centerY - axisLength + 8);
+          ctx.moveTo(centerX, centerY - axisLength);
+          ctx.lineTo(centerX + 4, centerY - axisLength + 8);
+          ctx.stroke();
+          break;
+          
+        case 'circle-grid':
+          const maxRadius = Math.min(Math.abs(currentTemplate.width), Math.abs(currentTemplate.height)) / 2 * 0.6;
+          for (let i = 1; i <= 3; i++) {
+            const radius = (maxRadius / 3) * i;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            ctx.stroke();
+          }
+          break;
+          
+        case 'triangle-template':
+          const triangleWidth = Math.abs(currentTemplate.width) * 0.6;
+          const triangleHeight = Math.abs(currentTemplate.height) * 0.6;
+          const startX = centerX - triangleWidth / 2;
+          const startY = centerY + triangleHeight / 2;
+          
+          ctx.beginPath();
+          ctx.moveTo(startX, startY);
+          ctx.lineTo(startX + triangleWidth, startY);
+          ctx.lineTo(centerX, centerY - triangleHeight / 2);
+          ctx.closePath();
+          ctx.stroke();
+          break;
+      }
+      
+      // Show template name
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#10b981';
+      ctx.font = '12px sans-serif';
+      ctx.textAlign = 'center';
+      const text = currentTemplate.type === 'coordinate-system' ? 'Układ współrzędnych' : 
+                   currentTemplate.type === 'circle-grid' ? 'Siatka okręgów' : 'Szablon trójkąta';
+      const textY = currentTemplate.y < 30 ? currentTemplate.y + Math.abs(currentTemplate.height) + 15 : currentTemplate.y - 5;
+      ctx.fillText(text, centerX, textY);
       
       ctx.restore();
     }
@@ -573,7 +745,20 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
       
       ctx.restore();
     }
-  }, [shapes, currentShape, currentTextBox, drawShapes, drawGrid]);
+  }, [shapes, currentShape, currentTemplate, drawShapes, drawGrid]);
+
+  useEffect(() => {
+    redrawCanvas();
+  }, [redrawCanvas]);
+
+  // Osobny useEffect dla zmiany wysokości canvas
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    canvas.height = canvasHeight;
+    redrawCanvas(); // przerysuj canvas po zmianie wysokości
+  }, [canvasHeight, redrawCanvas]);
 
   // Save to localStorage (debounced)
   useEffect(() => {
@@ -588,7 +773,8 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
         const canvasData = {
           drawing: dataURL,
           textElements,
-          shapes
+          shapes,
+          canvasHeight
         };
         localStorage.setItem(`canvas-data-${problemId}`, JSON.stringify(canvasData));
       } catch (error) {
@@ -597,33 +783,52 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
     }, 1000);
 
     return () => clearTimeout(timeoutId);
-  }, [textElements, shapes, problemId, isRestoringHistory]);
+  }, [textElements, shapes, canvasHeight, problemId, isRestoringHistory]);
 
   // Drawing handlers
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const rect = canvas.getBoundingClientRect();
-    let x = e.clientX - rect.left;
-    let y = e.clientY - rect.top;
-    
-    if (snapToGrid) {
-      x = snapPosition(x);
-      y = snapPosition(y);
+    // Jeśli edytujemy tekst, najpierw zakończ edycję
+    if (editingTextId && tool !== 'text') {
+      setEditingTextId(null);
     }
 
+    const { x, y } = getMousePosition(e);
+
     if (tool === 'text') {
-      // Tworzenie ramki na tekst - jak shape
-      setCurrentTextBox({
+      // Tworzenie tekstu przez kliknięcie - kompaktowe pole
+      const defaultWidth = 120;
+      const defaultHeight = 30;
+      
+      const newTextElement: TextElement = {
+        id: `text-${Date.now()}`,
         x,
         y,
-        width: 0,
-        height: 0,
+        width: defaultWidth,
+        height: defaultHeight,
+        text: '',
         fontSize,
         color,
         fontWeight,
         fontStyle
+      };
+      
+      setTextElements(prev => [...prev, newTextElement]);
+      setEditingTextId(newTextElement.id);
+      saveToHistory();
+      return;
+    }
+
+    if (tool === 'template') {
+      // Tworzenie obszaru dla szablonu
+      setCurrentTemplate({
+        x,
+        y,
+        width: 0,
+        height: 0,
+        type: selectedTemplate
       });
       setIsDrawing(true);
       return;
@@ -639,13 +844,8 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
         strokeWidth: lineWidth
       };
 
-      if (selectedShape === 'axes') {
-        setShapes(prev => [...prev, newShape]);
-        saveToHistory();
-      } else {
-        setCurrentShape(newShape);
-        setIsDrawing(true);
-      }
+      setCurrentShape(newShape);
+      setIsDrawing(true);
       return;
     }
 
@@ -658,40 +858,26 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
   };
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const { x, y } = getMousePosition(e);
+    
     if (!isDrawing) {
       // Track mouse position even when not drawing (for ghost cursor)
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const rect = canvas.getBoundingClientRect();
-        let x = e.clientX - rect.left;
-        let y = e.clientY - rect.top;
-        if (snapToGrid) {
-          x = snapPosition(x);
-          y = snapPosition(y);
-        }
-        setMousePos({ x, y });
-      }
+      setMousePos({ x, y });
       return;
     }
 
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const rect = canvas.getBoundingClientRect();
-    let x = e.clientX - rect.left;
-    let y = e.clientY - rect.top;
-    
-    if (snapToGrid) {
-      x = snapPosition(x);
-      y = snapPosition(y);
-    }
+    // Jeśli edytujemy tekst, nie rysuj
+    if (editingTextId) return;
 
-    // Rysowanie ramki na tekst
-    if (tool === 'text' && currentTextBox) {
-      const updatedBox = { ...currentTextBox };
-      updatedBox.width = x - currentTextBox.x;
-      updatedBox.height = y - currentTextBox.y;
-      setCurrentTextBox(updatedBox);
+    // Rysowanie obszaru dla szablonu
+    if (tool === 'template' && currentTemplate) {
+      const updatedTemplate = { ...currentTemplate };
+      updatedTemplate.width = x - currentTemplate.x;
+      updatedTemplate.height = y - currentTemplate.y;
+      setCurrentTemplate(updatedTemplate);
       return;
     }
 
@@ -740,27 +926,20 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
   const stopDrawing = () => {
     if (!isDrawing) return;
     
-    if (tool === 'text' && currentTextBox) {
-      // Minimalna wielkość textbox
+    // Tekst już nie potrzebuje obsługi w stopDrawing - tworzy się od razu
+
+    if (tool === 'template' && currentTemplate) {
+      // Minimalna wielkość template area
       const minSize = 50;
-      if (Math.abs(currentTextBox.width) > minSize && Math.abs(currentTextBox.height) > minSize) {
-        const newTextElement: TextElement = {
-          id: `text-${Date.now()}`,
-          x: currentTextBox.width < 0 ? currentTextBox.x + currentTextBox.width : currentTextBox.x,
-          y: currentTextBox.height < 0 ? currentTextBox.y + currentTextBox.height : currentTextBox.y,
-          width: Math.abs(currentTextBox.width),
-          height: Math.abs(currentTextBox.height),
-          text: '',
-          fontSize: currentTextBox.fontSize,
-          color: currentTextBox.color,
-          fontWeight: currentTextBox.fontWeight,
-          fontStyle: currentTextBox.fontStyle
-        };
-        setTextElements(prev => [...prev, newTextElement]);
-        setEditingTextId(newTextElement.id);
-        saveToHistory();
+      if (Math.abs(currentTemplate.width) > minSize && Math.abs(currentTemplate.height) > minSize) {
+        const templateX = currentTemplate.width < 0 ? currentTemplate.x + currentTemplate.width : currentTemplate.x;
+        const templateY = currentTemplate.height < 0 ? currentTemplate.y + currentTemplate.height : currentTemplate.y;
+        const templateWidth = Math.abs(currentTemplate.width);
+        const templateHeight = Math.abs(currentTemplate.height);
+        
+        createTemplateInArea(currentTemplate.type, templateX, templateY, templateWidth, templateHeight);
       }
-      setCurrentTextBox(null);
+      setCurrentTemplate(null);
       setIsDrawing(false);
       return;
     }
@@ -809,10 +988,10 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
   ];
 
   const lineWidths = [
-    { name: '1', value: 2 },
-    { name: '2', value: 4 },
-    { name: '3', value: 6 },
-    { name: '4', value: 8 },
+    { name: '2px', value: 2 },
+    { name: '4px', value: 4 },
+    { name: '6px', value: 6 },
+    { name: '8px', value: 8 },
   ];
 
   const fontSizes = [
@@ -828,7 +1007,6 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
     { type: 'triangle' as const, name: 'Trójkąt', icon: '△' },
     { type: 'line' as const, name: 'Linia', icon: '/' },
     { type: 'arrow' as const, name: 'Strzałka', icon: '→' },
-    { type: 'axes' as const, name: 'Układ współrzędnych', icon: '⊥' },
   ];
 
   const templates = [
@@ -840,36 +1018,36 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
   return (
     <div className="bg-[#21262d] border border-[#30363d] rounded-lg p-3 mt-4">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-2 mb-3 pb-3 border-b border-[#30363d]">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3 sm:mb-4 pb-3 sm:pb-4 border-b border-[#30363d]">
         {/* Main tools */}
-        <div className="flex gap-1.5">
+        <div className="flex gap-1 sm:gap-2">
           <button
             onClick={() => { setTool('pen'); setShowShapeMenu(false); setShowTextMenu(false); }}
-            className={`p-1.5 rounded-lg transition-all ${tool === 'pen' ? 'bg-[#58a6ff] text-black' : 'bg-[#30363d] text-white hover:bg-[#40464d]'}`}
+            className={`p-2 sm:p-2.5 rounded-lg transition-all ${tool === 'pen' ? 'bg-[#58a6ff] text-black shadow-lg' : 'bg-[#30363d] text-white hover:bg-[#40464d]'}`}
             title="Ołówek"
           >
-            <PenTool className="w-4 h-4" />
+            <PenTool className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
           
           <button
             onClick={() => { setTool('eraser'); setShowShapeMenu(false); setShowTextMenu(false); }}
-            className={`p-1.5 rounded-lg transition-all ${tool === 'eraser' ? 'bg-[#58a6ff] text-black' : 'bg-[#30363d] text-white hover:bg-[#40464d]'}`}
+            className={`p-2 sm:p-2.5 rounded-lg transition-all ${tool === 'eraser' ? 'bg-[#58a6ff] text-black shadow-lg' : 'bg-[#30363d] text-white hover:bg-[#40464d]'}`}
             title="Gumka"
           >
-            <Eraser className="w-4 h-4" />
+            <Eraser className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
           
           <div className="relative">
             <button
               onClick={() => { setTool('text'); setShowTextMenu(!showTextMenu); setShowShapeMenu(false); }}
-              className={`p-1.5 rounded-lg transition-all ${tool === 'text' ? 'bg-[#58a6ff] text-black' : 'bg-[#30363d] text-white hover:bg-[#40464d]'}`}
+              className={`p-2 sm:p-2.5 rounded-lg transition-all ${tool === 'text' ? 'bg-[#58a6ff] text-black shadow-lg' : 'bg-[#30363d] text-white hover:bg-[#40464d]'}`}
               title="Tekst"
             >
-              <Type className="w-4 h-4" />
+              <Type className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             
             {showTextMenu && (
-              <div className="absolute top-full left-0 mt-2 bg-[#161b22] border border-[#30363d] rounded-lg shadow-xl z-50 p-2 min-w-[180px]">
+              <div className="absolute top-full left-0 mt-1 sm:mt-2 bg-[#161b22] border border-[#30363d] rounded-md sm:rounded-lg shadow-xl z-50 p-1.5 sm:p-2 min-w-[140px] sm:min-w-[180px]">
                 <div className="mb-2">
                   <label className="text-xs text-gray-400 mb-1 block">Rozmiar</label>
                   {fontSizes.map(fs => (
@@ -902,15 +1080,15 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
           
           <div className="relative">
             <button
-              onClick={() => { setTool('shape'); setShowShapeMenu(!showShapeMenu); setShowTextMenu(false); }}
-              className={`p-1.5 rounded-lg transition-all ${tool === 'shape' ? 'bg-[#58a6ff] text-black' : 'bg-[#30363d] text-white hover:bg-[#40464d]'}`}
+              onClick={() => { setTool('shape'); setShowShapeMenu(!showShapeMenu); setShowTextMenu(false); setShowTemplateMenu(false); }}
+              className={`p-2 sm:p-2.5 rounded-lg transition-all ${tool === 'shape' ? 'bg-[#58a6ff] text-black shadow-lg' : 'bg-[#30363d] text-white hover:bg-[#40464d]'}`}
               title="Kształty"
             >
-              <Shapes className="w-4 h-4" />
+              <Shapes className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             
             {showShapeMenu && (
-              <div className="absolute top-full left-0 mt-2 bg-[#161b22] border border-[#30363d] rounded-lg shadow-xl z-50 p-2 min-w-[200px]">
+              <div className="absolute top-full left-0 mt-1 sm:mt-2 bg-[#161b22] border border-[#30363d] rounded-md sm:rounded-lg shadow-xl z-50 p-1.5 sm:p-2 min-w-[160px] sm:min-w-[200px]">
                 {shapeOptions.map(shape => (
                   <button
                     key={shape.type}
@@ -924,56 +1102,91 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
               </div>
             )}
           </div>
+
+          <div className="relative">
+            <button
+              onClick={() => { setTool('template'); setShowTemplateMenu(!showTemplateMenu); setShowShapeMenu(false); setShowTextMenu(false); }}
+              className={`p-2 sm:p-2.5 rounded-lg transition-all ${tool === 'template' ? 'bg-[#58a6ff] text-black shadow-lg' : 'bg-[#30363d] text-white hover:bg-[#40464d]'}`}
+              title="Szablony"
+            >
+              <PlusSquare className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+            
+            {showTemplateMenu && (
+              <div className="absolute top-full left-0 mt-1 sm:mt-2 bg-[#161b22] border border-[#30363d] rounded-md sm:rounded-lg shadow-xl z-50 p-1.5 sm:p-2 min-w-[140px] sm:min-w-[180px]">
+                {templates.map(t => (
+                  <button
+                    key={t.id}
+                    onClick={() => {
+                      setSelectedTemplate(t.id as TemplateType);
+                      setTool('template');
+                      setShowTemplateMenu(false);
+                    }}
+                    className={`w-full text-left px-2 py-1.5 rounded-md transition-colors flex items-center gap-2 ${
+                      selectedTemplate === t.id ? 'bg-[#58a6ff]/20 text-white' : 'hover:bg-[#30363d] text-white'
+                    }`}
+                  >
+                    <span className="text-lg">{t.icon}</span>
+                    <span className="text-xs">{t.name}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Undo/Redo */}
-        <div className="flex gap-1.5 pl-2 border-l border-[#30363d]">
+        <div className="flex gap-1 sm:gap-2 pl-2 sm:pl-3 border-l border-[#30363d]">
           <button
             onClick={undo}
-            disabled={historyIndex <= 0}
-            className="p-1.5 rounded-lg bg-[#30363d] text-white hover:bg-[#40464d] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            disabled={historyIndex < 0 && (shapes.length === 0 && textElements.length === 0)}
+            className="p-2 sm:p-2.5 rounded-lg bg-[#30363d] text-white hover:bg-[#40464d] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             title="Cofnij (Ctrl+Z)"
           >
-            <Undo className="w-4 h-4" />
+            <Undo className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
           <button
             onClick={redo}
             disabled={historyIndex >= history.length - 1}
-            className="p-1.5 rounded-lg bg-[#30363d] text-white hover:bg-[#40464d] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="p-2 sm:p-2.5 rounded-lg bg-[#30363d] text-white hover:bg-[#40464d] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             title="Ponów (Ctrl+Shift+Z)"
           >
-            <Redo className="w-4 h-4" />
+            <Redo className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
 
         {/* Copy/Delete */}
         {selectedElements.length > 0 && (
-          <div className="flex gap-1.5 pl-2 border-l border-[#30363d]">
+          <div className="flex gap-1 sm:gap-2 pl-2 sm:pl-3 border-l border-[#30363d]">
             <button
               onClick={copySelected}
-              className="p-1.5 rounded-lg bg-[#30363d] text-white hover:bg-[#40464d] transition-all"
+              className="p-2 sm:p-2.5 rounded-lg bg-[#30363d] text-white hover:bg-[#40464d] transition-all"
               title="Kopiuj (Ctrl+C)"
             >
-              <Copy className="w-4 h-4" />
+              <Copy className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             <button
               onClick={deleteSelected}
-              className="p-1.5 rounded-lg bg-red-900/30 text-red-400 hover:bg-red-900/50 transition-all border border-red-500/30"
+              className="p-2 sm:p-2.5 rounded-lg bg-red-900/30 text-red-400 hover:bg-red-900/50 transition-all border border-red-500/30"
               title="Usuń (Delete)"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
         )}
 
         {/* Colors */}
         {tool !== 'eraser' && (
-          <div className="flex gap-1 pl-2 border-l border-[#30363d]">
+          <div className="flex gap-1.5 sm:gap-2 pl-2 sm:pl-3 border-l border-[#30363d]">
             {colors.map(c => (
               <button
                 key={c.value}
                 onClick={() => setColor(c.value)}
-                className={`w-5 h-5 rounded-md transition-all ${color === c.value ? 'ring-2 ring-[#58a6ff] ring-offset-1 ring-offset-[#21262d]' : ''}`}
+                className={`w-5 h-5 sm:w-6 sm:h-6 rounded-md transition-all border-2 ${
+                  color === c.value 
+                    ? 'border-[#58a6ff] ring-2 ring-[#58a6ff]/30' 
+                    : 'border-[#40464d] hover:border-[#58a6ff]/50'
+                } ${c.value === '#000000' ? 'border-white/20' : ''}`}
                 style={{ backgroundColor: c.value }}
                 title={c.name}
               />
@@ -983,7 +1196,7 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
                 type="color"
                 value={color}
                 onChange={(e) => setColor(e.target.value)}
-                className="w-5 h-5 rounded-md cursor-pointer border border-[#30363d] hover:border-[#58a6ff] transition-all"
+                className="w-5 h-5 sm:w-6 sm:h-6 rounded-md cursor-pointer border-2 border-[#40464d] hover:border-[#58a6ff] transition-all"
                 title="Wybierz kolor"
               />
             </div>
@@ -992,66 +1205,71 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
 
         {/* Line width */}
         {(tool === 'pen' || tool === 'shape') && (
-          <div className="flex gap-1 pl-2 border-l border-[#30363d]">
+          <div className="flex gap-1 sm:gap-1.5 pl-2 sm:pl-3 border-l border-[#30363d]">
             {lineWidths.map(lw => (
               <button
                 key={lw.value}
                 onClick={() => setLineWidth(lw.value)}
-                className={`w-6 h-6 rounded-md text-[10px] transition-all flex items-center justify-center ${lineWidth === lw.value ? 'bg-[#58a6ff] text-black font-bold' : 'bg-[#30363d] text-white hover:bg-[#40464d]'}`}
+                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg text-xs sm:text-sm transition-all flex items-center justify-center font-medium ${lineWidth === lw.value ? 'bg-[#58a6ff] text-black shadow-lg font-bold' : 'bg-[#30363d] text-white hover:bg-[#40464d]'}`}
+                title={`Grubość linii: ${lw.name}`}
               >
-                {lw.name}
+                <span className="hidden sm:inline">{lw.name}</span>
+                <span className="sm:hidden">{lw.value}</span>
               </button>
             ))}
           </div>
         )}
 
-        {/* Templates & Grid */}
-        <div className="flex gap-1.5 pl-2 border-l border-[#30363d] ml-auto">
+        {/* Canvas Height Controls */}
+        <div className="flex items-center gap-0.5 sm:gap-1 pl-1 sm:pl-2 border-l border-[#30363d]">
+          <span className="text-[10px] sm:text-xs text-gray-400 hidden sm:inline">Wysokość:</span>
+          <span className="text-[10px] sm:text-xs text-gray-400 sm:hidden">H:</span>
+          <button
+            onClick={() => setCanvasHeight(Math.max(400, canvasHeight - 100))}
+            className="p-0.5 sm:p-1 rounded text-[10px] sm:text-xs bg-[#30363d] text-white hover:bg-[#40464d] transition-all w-5 h-5 sm:w-auto sm:h-auto flex items-center justify-center"
+            title="Zmniejsz wysokość"
+            disabled={canvasHeight <= 400}
+          >
+            -
+          </button>
+          <span className="text-[10px] sm:text-xs text-gray-300 min-w-[2rem] sm:min-w-[3rem] text-center">
+            <span className="sm:hidden">{canvasHeight}</span>
+            <span className="hidden sm:inline">{canvasHeight}px</span>
+          </span>
+          <button
+            onClick={() => setCanvasHeight(Math.min(1200, canvasHeight + 100))}
+            className="p-0.5 sm:p-1 rounded text-[10px] sm:text-xs bg-[#30363d] text-white hover:bg-[#40464d] transition-all w-5 h-5 sm:w-auto sm:h-auto flex items-center justify-center"
+            title="Zwiększ wysokość"
+            disabled={canvasHeight >= 1200}
+          >
+            +
+          </button>
+        </div>
+
+        {/* Grid & Export */}
+        <div className="flex gap-2 sm:gap-3 pl-2 sm:pl-3 border-l border-[#30363d] ml-auto">
           <button
             onClick={() => setSnapToGrid(!snapToGrid)}
-            className={`p-1.5 rounded-lg transition-all ${snapToGrid ? 'bg-[#58a6ff] text-black' : 'bg-[#30363d] text-white hover:bg-[#40464d]'}`}
+            className={`p-2 sm:p-2.5 rounded-lg transition-all ${snapToGrid ? 'bg-[#58a6ff] text-black shadow-lg' : 'bg-[#30363d] text-white hover:bg-[#40464d]'}`}
             title={`Przyciąganie do siatki (G) - ${snapToGrid ? 'włączone' : 'wyłączone'}`}
           >
-            <Grid className="w-4 h-4" />
+            <Grid className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
-          
-          <div className="relative">
-            <button
-              onClick={() => setShowTemplateMenu(!showTemplateMenu)}
-              className="px-2 py-1 rounded-lg bg-[#30363d] text-white hover:bg-[#40464d] transition-all text-xs"
-            >
-              Szablony
-            </button>
-            {showTemplateMenu && (
-              <div className="absolute top-full right-0 mt-2 bg-[#161b22] border border-[#30363d] rounded-lg shadow-xl z-50 p-2 min-w-[180px]">
-                {templates.map(t => (
-                  <button
-                    key={t.id}
-                    onClick={() => applyTemplate(t.id)}
-                    className="w-full text-left px-2 py-1.5 rounded-md hover:bg-[#30363d] transition-colors flex items-center gap-2"
-                  >
-                    <span className="text-lg">{t.icon}</span>
-                    <span className="text-xs">{t.name}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
           
           <button
             onClick={() => exportCanvas('png')}
-            className="px-2 py-1 rounded-lg bg-green-900/30 text-green-400 hover:bg-green-900/50 transition-all border border-green-500/30 text-xs flex items-center gap-1.5"
+            className="px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg bg-green-900/30 text-green-400 hover:bg-green-900/50 transition-all border border-green-500/30 text-sm sm:text-base flex items-center gap-2 font-medium"
           >
-            <Download className="w-3.5 h-3.5" />
-            Export
+            <Download className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="hidden sm:inline">Export</span>
           </button>
           
           <button
             onClick={clearCanvas}
-            className="p-1.5 rounded-lg bg-red-900/30 text-red-400 hover:bg-red-900/50 transition-all border border-red-500/30"
+            className="p-2 sm:p-2.5 rounded-lg bg-red-900/30 text-red-400 hover:bg-red-900/50 transition-all border border-red-500/30"
             title="Wyczyść wszystko"
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
       </div>
@@ -1065,7 +1283,8 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
           onMouseUp={stopDrawing}
           onMouseLeave={stopDrawing}
           className={`w-full border-2 border-[#30363d] rounded-lg shadow-lg bg-white ${
-            tool === 'text' ? 'cursor-text' : 'cursor-crosshair'
+            tool === 'text' ? 'cursor-text' : 
+            tool === 'template' ? 'cursor-copy' : 'cursor-crosshair'
           }`}
           style={{ touchAction: 'none' }}
         />
@@ -1080,8 +1299,9 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
               style={{
                 left: textEl.x,
                 top: textEl.y,
-                transform: 'translate(-50%, -50%)',
-                pointerEvents: 'auto'
+                transform: 'translate(0, -50%)',
+                pointerEvents: editingTextId === textEl.id ? 'auto' : 'none',
+                zIndex: editingTextId === textEl.id ? 50 : 10
               }}
               onClick={() => {
                 if (tool === 'select') {
@@ -1110,39 +1330,51 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
                     }
                   }}
                   autoFocus
-                  className="bg-white border border-gray-300 px-2 py-1 rounded text-black outline-none focus:border-blue-500"
+                  className="bg-white/95 border border-blue-400 px-2 py-1 rounded-md text-black outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200 shadow-sm"
                   style={{
                     fontSize: `${textEl.fontSize}px`,
                     color: textEl.color,
                     fontWeight: textEl.fontWeight,
                     fontStyle: textEl.fontStyle,
-                    minWidth: '100px'
+                    minWidth: '80px',
+                    maxWidth: '200px',
+                    width: 'auto'
                   }}
-                  placeholder="Wpisz tekst..."
+                  placeholder="Tekst..."
                 />
               ) : (
                 <div
-                  className="relative cursor-pointer bg-white/90 px-2 py-1 rounded border border-transparent hover:border-gray-300 hover:bg-white transition-colors"
+                  className="relative cursor-pointer bg-white/80 px-1.5 py-0.5 rounded text-shadow border border-transparent hover:border-gray-300 hover:bg-white/90 transition-colors inline-block"
                   onClick={() => setEditingTextId(textEl.id)}
                   style={{
                     fontSize: `${textEl.fontSize}px`,
                     color: textEl.color,
                     fontWeight: textEl.fontWeight,
                     fontStyle: textEl.fontStyle,
-                    minWidth: textEl.text ? 'auto' : '100px',
-                    minHeight: '24px'
+                    minWidth: textEl.text ? 'auto' : '50px',
+                    minHeight: 'auto',
+                    pointerEvents: 'auto',
+                    maxWidth: 'fit-content',
+                    paddingRight: '6px' // dodatkowy padding z prawej strony na krzyżyk
                   }}
                 >
-                  {textEl.text || 'Kliknij aby edytować'}
+                  {textEl.text || 'Tekst'}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       setTextElements(prev => prev.filter(el => el.id !== textEl.id));
                     }}
-                    className="absolute top-0 right-0 w-3 h-3 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-red-600"
+                    className="absolute top-0 text-red-600 hover:text-red-800 opacity-0 group-hover:opacity-100 transition-opacity"
+                    style={{ 
+                      fontSize: '12px', 
+                      lineHeight: '1', 
+                      fontWeight: 'bold',
+                      left: '100%',
+                      marginLeft: '2px'
+                    }}
                     title="Usuń tekst"
                   >
-                    <X className="w-2 h-2" />
+                    ×
                   </button>
                 </div>
               )}
@@ -1151,63 +1383,40 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
         })}
         
         {/* Hints */}
-        {tool === 'text' && textElements.length === 0 && !currentTextBox && (
+        {tool === 'text' && textElements.length === 0 && (
           <div className="absolute top-4 left-4 bg-blue-900/80 text-blue-200 px-3 py-2 rounded-lg text-sm pointer-events-none">
-            Przeciągnij myszką aby stworzyć ramkę na tekst
+            Kliknij w miejsce gdzie chcesz dodać tekst
           </div>
         )}
         
-        {/* Ghost cursor for text tool - tylko gdy nie rysujemy */}
-        {tool === 'text' && mousePos && !isDrawing && (
-          <div
-            className="absolute pointer-events-none"
-            style={{
-              left: mousePos.x,
-              top: mousePos.y,
-              transform: 'translate(-50%, -50%)'
-            }}
-          >
-            <div
-              className="bg-blue-500/20 border-2 border-blue-500 border-dashed rounded px-3 py-1 flex items-center gap-2"
-              style={{
-                fontSize: `${fontSize}px`,
-                fontWeight,
-                fontStyle
-              }}
-            >
-              <Type className="w-4 h-4 text-blue-500" />
-              <span className="text-blue-500 opacity-70 text-xs">Przeciągnij</span>
-            </div>
-          </div>
-        )}
+
         
         {tool === 'shape' && shapes.length === 0 && !currentShape && (
           <div className="absolute top-4 left-4 bg-purple-900/80 text-purple-200 px-3 py-2 rounded-lg text-sm pointer-events-none">
             Kliknij i przeciągnij, aby narysować {shapeOptions.find(s => s.type === selectedShape)?.name.toLowerCase()}
           </div>
         )}
-        
-        {snapToGrid && (
-          <div className="absolute bottom-4 left-4 bg-green-900/80 text-green-200 px-3 py-2 rounded-lg text-sm pointer-events-none max-w-xs">
-            <div className="flex items-center gap-2 mb-1">
-              <Grid className="w-4 h-4" />
-              <span className="font-semibold">Przyciąganie do siatki aktywne</span>
-            </div>
-            <div className="text-xs opacity-90">
-              Rysuj idealnie wyrównane kształty! Każdy punkt przyciąga się do kratki co 10px. Naciśnij G aby wyłączyć.
-            </div>
+
+        {tool === 'template' && !currentTemplate && (
+          <div className="absolute top-4 left-4 bg-green-900/80 text-green-200 px-3 py-2 rounded-lg text-sm pointer-events-none">
+            Zaznacz obszar dla szablonu: {selectedTemplate === 'coordinate-system' ? 'Układ współrzędnych' : 
+                                       selectedTemplate === 'circle-grid' ? 'Siatka okręgów' : 'Szablon trójkąta'}
           </div>
         )}
+        
+
       </div>
 
       {/* Keyboard shortcuts info */}
-      <div className="mt-2 text-[10px] text-gray-500 flex flex-wrap gap-3">
-        <span>Ctrl+Z: Cofnij</span>
-        <span>Ctrl+Shift+Z: Ponów</span>
-        <span>Ctrl+C: Kopiuj</span>
-        <span>Ctrl+V: Wklej</span>
-        <span>Delete: Usuń zaznaczone</span>
-        <span>G: Przełącz siatkę</span>
+      <div className="mt-1 sm:mt-2 text-[8px] sm:text-[10px] text-gray-500 flex flex-wrap gap-1 sm:gap-3">
+        <span className="hidden sm:inline">Ctrl+Z: Cofnij</span>
+        <span className="hidden sm:inline">Ctrl+Shift+Z: Ponów</span>
+        <span className="hidden sm:inline">Ctrl+C: Kopiuj</span>
+        <span className="hidden sm:inline">Ctrl+V: Wklej</span>
+        <span className="hidden sm:inline">Delete: Usuń zaznaczone</span>
+        <span className="hidden sm:inline">G: Przełącz siatkę</span>
+        <span className="sm:hidden">Ctrl+Z/Y: Undo/Redo</span>
+        <span className="sm:hidden">G: Siatka</span>
       </div>
     </div>
   );

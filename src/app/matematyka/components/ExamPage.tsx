@@ -380,11 +380,11 @@ export default function ExamPage({
     padding: 0 0.3em;
   }
 
-  /* Przyciski - duże */
+  /* Przyciski - responsywne */
   button {
-    font-size: 1.2rem !important;
-    padding: 1.15rem 2rem !important;
-    min-height: 4rem !important;
+    font-size: 0.9rem !important;
+    padding: 0.75rem 1.2rem !important;
+    min-height: 2.8rem !important;
     font-weight: 500;
     letter-spacing: 0.02em;
     transition: all 0.2s ease;
@@ -392,6 +392,22 @@ export default function ExamPage({
 
   button:hover {
     transform: translateY(-1px);
+  }
+
+  @media (min-width: 640px) {
+    button {
+      font-size: 1rem !important;
+      padding: 0.9rem 1.5rem !important;
+      min-height: 3.2rem !important;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    button {
+      font-size: 1.2rem !important;
+      padding: 1.15rem 2rem !important;
+      min-height: 4rem !important;
+    }
   }
 
   button .katex {
@@ -420,12 +436,30 @@ export default function ExamPage({
     color: #58a6ff;
   }
 
-  /* Opcje odpowiedzi - duże */
+  /* Opcje odpowiedzi - responsywne */
   div[class*="grid"] button,
   button[class*="rounded-lg"] {
-    font-size: 1.25rem !important;
-    min-height: 4.2rem !important;
-    padding: 1.2rem 1.7rem !important;
+    font-size: 0.95rem !important;
+    min-height: 3rem !important;
+    padding: 0.8rem 1rem !important;
+  }
+
+  @media (min-width: 640px) {
+    div[class*="grid"] button,
+    button[class*="rounded-lg"] {
+      font-size: 1.1rem !important;
+      min-height: 3.6rem !important;
+      padding: 1rem 1.4rem !important;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    div[class*="grid"] button,
+    button[class*="rounded-lg"] {
+      font-size: 1.25rem !important;
+      min-height: 4.2rem !important;
+      padding: 1.2rem 1.7rem !important;
+    }
   }
 
   /* Ułamki - bardziej widoczne */
@@ -470,33 +504,112 @@ export default function ExamPage({
     p .katex { font-size: 2.2em !important; }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     body { font-size: 18px !important; }
     .math-content .katex { font-size: 1.7em !important; }
     .solution-container .katex { font-size: 1.15em !important; }
-    button { font-size: 1rem !important; padding: 0.95rem 1.5rem !important; }
+    button { 
+      font-size: 0.85rem !important; 
+      padding: 0.7rem 1rem !important;
+      min-height: 2.5rem !important;
+    }
+    div[class*="grid"] button,
+    button[class*="rounded-lg"] {
+      font-size: 0.9rem !important;
+      min-height: 2.8rem !important;
+      padding: 0.75rem 0.9rem !important;
+    }
     p .katex { font-size: 1.9em !important; }
   }
 }`}</style>
       
       <header className="sticky top-0 z-20 border-b border-[#30363d] bg-[#161b22] shadow-lg">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-2 py-2 md:px-4 md:py-4 relative">
           <div className="flex items-center justify-between">
             <Link 
               href={basePath}
-              className="inline-flex items-center gap-2 text-[#58a6ff] hover:text-[#1f6feb] transition-colors"
+              className="inline-flex items-center gap-1 md:gap-2 text-[#58a6ff] hover:text-[#1f6feb] transition-colors text-sm md:text-base"
             >
-              <ArrowLeft className="w-5 h-5" />
-              Powrót do materiałów
+              <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
+              <span className="hidden sm:inline">Powrót do materiałów</span>
+              <span className="sm:hidden">Powrót</span>
             </Link>
             
             <button
               onClick={() => window.print()}
-              className="inline-flex items-center gap-2 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-4 py-2 rounded-lg transition-colors"
+              className="inline-flex items-center gap-1 md:gap-2 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-2 py-1.5 md:px-4 md:py-2 rounded-lg transition-colors text-sm md:text-base"
             >
-              <Download className="w-4 h-4" />
-              Pobierz PDF
+              <Download className="w-3.5 h-3.5 md:w-4 md:h-4" />
+              <span className="hidden sm:inline">Pobierz PDF</span>
+              <span className="sm:hidden">PDF</span>
             </button>
+          </div>
+          
+          {/* Stats panel nakładający się na header - zawsze widoczny */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+            <div className="bg-[#161b22] border-2 border-[#30363d] rounded-xl px-2 py-1.5 md:px-4 md:py-2 shadow-2xl backdrop-blur-sm bg-opacity-95 pointer-events-auto">
+              <div className="flex items-center gap-2 md:gap-4">
+                {/* Timer controls */}
+                <div className="flex items-center gap-1 md:gap-2 pr-2 md:pr-4 border-r border-[#30363d]">
+                  <button
+                    onClick={() => setTimerActive(!timerActive)}
+                    className={`p-1 md:p-1.5 rounded-lg transition-all ${
+                      timerActive 
+                        ? 'bg-yellow-900/30 text-yellow-400 hover:bg-yellow-900/50 border border-yellow-500/30' 
+                        : 'bg-green-900/30 text-green-400 hover:bg-green-900/50 border border-green-500/30'
+                    }`}
+                    title={timerActive ? 'Zatrzymaj timer' : 'Uruchom timer'}
+                  >
+                    {timerActive ? (
+                      <svg className="w-3 h-3 md:w-4 md:h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                    ) : (
+                      <svg className="w-3 h-3 md:w-4 md:h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setTimeElapsed(0);
+                      setTimerActive(false);
+                    }}
+                    className="p-1 md:p-1.5 rounded-lg bg-red-900/30 text-red-400 hover:bg-red-900/50 transition-all border border-red-500/30"
+                    title="Zresetuj timer"
+                  >
+                    <RotateCcw className="w-3 h-3 md:w-4 md:h-4" />
+                  </button>
+                </div>
+
+                {/* Stats */}
+                <div className="flex flex-wrap items-center gap-1.5 md:gap-4 text-xs md:text-sm">
+                  <div className="flex items-center gap-1 md:gap-2">
+                    <Clock className={`w-3 h-3 md:w-4 md:h-4 ${timerActive ? 'text-yellow-400 animate-pulse' : 'text-[#58a6ff]'}`} />
+                    <span className={`${timerActive ? 'text-yellow-400 font-semibold' : 'text-gray-400'}`}>
+                      {formatTime(timeElapsed)}
+                      <span className="hidden sm:inline"> / {examData.duration} min</span>
+                    </span>
+                  </div>
+                  <span className="text-gray-400 hidden sm:inline">Sprawdzone: {checkedCount} / {totalProblems}</span>
+                  <span className="sm:hidden text-gray-400">{checkedCount}/{totalProblems}</span>
+                  <span className="font-bold text-[#58a6ff]">
+                    <span className="hidden sm:inline">Wynik: </span>
+                    {totalScore} / {examData.maxPoints} pkt
+                  </span>
+                </div>
+
+                {(answeredCount > 0 || checkedCount > 0) && (
+                  <button
+                    onClick={resetAllProblems}
+                    className="ml-1 md:ml-2 p-1 md:p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
+                    title="Zacznij od nowa"
+                  >
+                    <RotateCcw className="w-3 h-3 md:w-4 md:h-4" />
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </header>
@@ -528,68 +641,7 @@ export default function ExamPage({
             </div>
           </div>
 
-<div className="sticky top-20 z-10 mb-8 flex justify-center pointer-events-none">
-  <div className="bg-[#161b22] border-2 border-[#30363d] rounded-xl px-6 py-4 shadow-2xl backdrop-blur-sm bg-opacity-95 pointer-events-auto max-w-fit">
-    <div className="flex items-center gap-6">
-      {/* Timer controls */}
-      <div className="flex items-center gap-2 pr-6 border-r border-[#30363d]">
-        <button
-          onClick={() => setTimerActive(!timerActive)}
-          className={`p-2 rounded-lg transition-all ${
-            timerActive 
-              ? 'bg-yellow-900/30 text-yellow-400 hover:bg-yellow-900/50 border border-yellow-500/30' 
-              : 'bg-green-900/30 text-green-400 hover:bg-green-900/50 border border-green-500/30'
-          }`}
-          title={timerActive ? 'Zatrzymaj timer' : 'Uruchom timer'}
-        >
-          {timerActive ? (
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-            </svg>
-          ) : (
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-            </svg>
-          )}
-        </button>
-        <button
-          onClick={() => {
-            setTimeElapsed(0);
-            setTimerActive(false);
-          }}
-          className="p-2 rounded-lg bg-red-900/30 text-red-400 hover:bg-red-900/50 transition-all border border-red-500/30"
-          title="Zresetuj timer"
-        >
-          <RotateCcw className="w-5 h-5" />
-        </button>
-      </div>
 
-      {/* Stats */}
-      <div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Clock className={`w-5 h-5 ${timerActive ? 'text-yellow-400 animate-pulse' : 'text-[#58a6ff]'}`} />
-            <span className={`text-sm ${timerActive ? 'text-yellow-400 font-semibold' : 'text-gray-400'}`}>
-              {formatTime(timeElapsed)} / {examData.duration} min
-            </span>
-          </div>
-          <span className="text-sm text-gray-400">Sprawdzone: {checkedCount} / {totalProblems}</span>  
-          <span className="text-lg font-bold text-[#58a6ff]">Wynik: {totalScore} / {examData.maxPoints} pkt</span>
-        </div>
-      </div>
-
-      {(answeredCount > 0 || checkedCount > 0) && (
-        <button
-          onClick={resetAllProblems}
-          className="ml-4 p-2 text-gray-400 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
-          title="Zacznij od nowa"
-        >
-          <RotateCcw className="w-5 h-5" />
-        </button>
-      )}
-    </div>
-  </div>
-</div>
 
           <div className="space-y-8">
             {examData.problems.map((problem, index) => {
@@ -684,18 +736,14 @@ export default function ExamPage({
                               checkAnswer(problem.id);
                             }}
                             disabled={isChecked}
-                            className={`px-8 py-3 rounded-lg font-semibold transition-all disabled:cursor-not-allowed ${
+                            className={`px-4 sm:px-6 lg:px-8 py-2 sm:py-2.5 lg:py-3 rounded-lg font-semibold transition-all disabled:cursor-not-allowed text-sm sm:text-base lg:text-lg ${
                               userAnswer[0] === 'SELF_YES' && isChecked
                                 ? 'bg-green-600 text-white ring-2 ring-green-500'
                                 : 'bg-[#238636] hover:bg-[#2ea043] text-white'
                             }`}
-                            style={{ 
-                              fontSize: '1.1rem', 
-                              minHeight: '3.2rem', 
-                              padding: '0.9rem 1.6rem' 
-                            }}
                           >
-                            ✓ Tak, mam dobrze
+                            <span className="sm:hidden">✓ Tak</span>
+                            <span className="hidden sm:inline">✓ Tak, mam dobrze</span>
                           </button>
                           <button
                             onClick={() => {
@@ -703,18 +751,14 @@ export default function ExamPage({
                               checkAnswer(problem.id);
                             }}
                             disabled={isChecked}
-                            className={`px-8 py-3 rounded-lg font-semibold transition-all disabled:cursor-not-allowed ${
+                            className={`px-4 sm:px-6 lg:px-8 py-2 sm:py-2.5 lg:py-3 rounded-lg font-semibold transition-all disabled:cursor-not-allowed text-sm sm:text-base lg:text-lg ${
                               userAnswer[0] === 'SELF_NO' && isChecked
                                 ? 'bg-red-600 text-white ring-2 ring-red-500'
                                 : 'bg-[#da3633] hover:bg-[#b52a26] text-white'
                             }`}
-                            style={{ 
-                              fontSize: '1.1rem', 
-                              minHeight: '3.2rem', 
-                              padding: '0.9rem 1.6rem' 
-                            }}
                           >
-                            ✗ Nie, mam źle
+                            <span className="sm:hidden">✗ Nie</span>
+                            <span className="hidden sm:inline">✗ Nie, mam źle</span>
                           </button>
                         </div>
                       </div>
@@ -784,12 +828,7 @@ export default function ExamPage({
                                             }));
                                           }}
                                           disabled={isChecked}
-                                          className={`px-6 py-2 rounded-lg font-semibold transition-all disabled:cursor-not-allowed ${buttonClass}`}
-                                          style={{ 
-                                            fontSize: '1rem', 
-                                            minHeight: '2.8rem', 
-                                            padding: '0.8rem 1.2rem' 
-                                          }}
+                                          className={`px-3 sm:px-4 lg:px-6 py-1.5 sm:py-2 rounded-lg font-semibold transition-all disabled:cursor-not-allowed text-xs sm:text-sm lg:text-base ${buttonClass}`}
                                         >
                                           {getOptionLabel(optionValue)}
                                         </button>
@@ -831,22 +870,17 @@ export default function ExamPage({
                                     : selectSingleAnswer(problem.id, option)
                                   }
                                   disabled={isChecked}
-                                  className={`${bgColor} border-2 ${borderColor} rounded-lg p-3 text-left text-white transition-all hover:bg-[#30363d] disabled:cursor-not-allowed ${
+                                  className={`${bgColor} border-2 ${borderColor} rounded-lg p-2 sm:p-3 lg:p-4 text-left text-white transition-all hover:bg-[#30363d] disabled:cursor-not-allowed text-sm sm:text-base lg:text-lg min-h-[2.5rem] sm:min-h-[3rem] lg:min-h-[3.5rem] ${
                                     isSelected ? 'ring-2 ring-[#58a6ff] ring-opacity-50' : ''
                                   }`}
-                                  style={{ 
-                                    fontSize: '1.05rem', 
-                                    minHeight: '3.5rem', 
-                                    padding: '1rem' 
-                                  }}
                                 >
-                                  <div className="flex items-start gap-2">
+                                  <div className="flex items-start gap-1.5 sm:gap-2">
                                     {isMultiChoice && (
-                                      <div className={`mt-1 w-4 h-4 rounded border-2 flex items-center justify-center ${
+                                      <div className={`mt-0.5 sm:mt-1 w-3 h-3 sm:w-4 sm:h-4 rounded border-2 flex items-center justify-center flex-shrink-0 ${
                                         isSelected ? 'bg-[#58a6ff] border-[#58a6ff]' : 'border-gray-500'
                                       }`}>
                                         {isSelected && (
-                                          <svg className="w-3 h-3 text-black" fill="currentColor" viewBox="0 0 20 20">
+                                          <svg className="w-2 h-2 sm:w-3 sm:h-3 text-black" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                           </svg>
                                         )}

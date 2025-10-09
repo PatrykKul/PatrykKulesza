@@ -17,7 +17,7 @@ const MathText: React.FC<MathTextProps> = ({
   className = '', 
   inline = false 
 }) => {
-  const hasLaTeX = /\${1,2}.*?\${1,2}/.test(children);
+  const hasLaTeX = /\$\$[^$]+\$\$|\$[^$]+\$/.test(children);
   
   if (!hasLaTeX) {
     return <span className={className}>{children}</span>;

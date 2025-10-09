@@ -222,12 +222,9 @@ export const MaterialsSection = ({}: MaterialsSectionProps) => {
 
             {/* Action Button - Enhanced animation */}
  {/* onClick={() => window.open(`/${activeCategory === 'math' ? 'matematyka' : activeCategory === 'english' ? 'angielski' : 'programowanie'}`, '_blank')} */}
-
             <motion.button
               onClick={() => {
                 if (activeCategory === 'math') {
-                  window.open('/matematyka', '_blank');
-                } else {
                   alert('Materiały w trakcie budowy');
                 }
               }}
