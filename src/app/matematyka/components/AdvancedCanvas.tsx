@@ -775,8 +775,32 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
     return () => clearTimeout(timeoutId);
   }, [textElements, shapes, canvasHeight, problemId, isRestoringHistory]);
 
+  // Get coordinates from mouse or touch event
+  const getEventCoords = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    
+    const rect = canvas.getBoundingClientRect();
+    let clientX, clientY;
+    
+    if ('touches' in e) {
+      // Touch event
+      clientX = e.touches[0]?.clientX || e.changedTouches[0]?.clientX || 0;
+      clientY = e.touches[0]?.clientY || e.changedTouches[0]?.clientY || 0;
+    } else {
+      // Mouse event
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+    
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top
+    };
+  };
+
   // Drawing handlers
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -785,7 +809,7 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
       setEditingTextId(null);
     }
 
-    const { x, y } = getMousePosition(e);
+    const { x, y } = getEventCoords(e);
 
     if (tool === 'text') {
       // Tworzenie tekstu przez kliknięcie - kompaktowe pole
@@ -847,8 +871,8 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
     ctx.moveTo(x, y);
   };
 
-  const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const { x, y } = getMousePosition(e);
+  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    const { x, y } = getEventCoords(e);
     
     if (!isDrawing) {
       return;
@@ -1270,6 +1294,9 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
           onMouseMove={draw}
           onMouseUp={stopDrawing}
           onMouseLeave={stopDrawing}
+          onTouchStart={(e) => { e.preventDefault(); startDrawing(e); }}
+          onTouchMove={(e) => { e.preventDefault(); draw(e); }}
+          onTouchEnd={(e) => { e.preventDefault(); stopDrawing(); }}
           className={`w-full border-2 border-[#30363d] rounded-lg shadow-lg bg-white ${
             tool === 'text' ? 'cursor-text' : 
             tool === 'template' ? 'cursor-copy' : 'cursor-crosshair'

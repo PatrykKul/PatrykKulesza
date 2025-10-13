@@ -426,17 +426,28 @@ export default function ChatbotNew() {
   // RESIZING
   // ==========================================
 
-  const startResize = useCallback((e: React.MouseEvent) => {
+  const startResize = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     setIsResizing(true);
-    resizeStartPos.current = { x: e.clientX, y: e.clientY, width: chatSize.width, height: chatSize.height };
+    
+    const coords = 'touches' in e ? 
+      { x: e.touches[0]?.clientX || 0, y: e.touches[0]?.clientY || 0 } :
+      { x: e.clientX, y: e.clientY };
+    
+    resizeStartPos.current = { x: coords.x, y: coords.y, width: chatSize.width, height: chatSize.height };
   }, [chatSize]);
 
   useEffect(() => {
-    const handleMove = (e: MouseEvent) => {
+    const handleMove = (e: MouseEvent | TouchEvent) => {
       if (!isResizing) return;
-      const dx = resizeStartPos.current.x - e.clientX;
-      const dy = resizeStartPos.current.y - e.clientY;
+      e.preventDefault();
+      
+      const coords = 'touches' in e ? 
+        { x: e.touches[0]?.clientX || 0, y: e.touches[0]?.clientY || 0 } :
+        { x: e.clientX, y: e.clientY };
+      
+      const dx = resizeStartPos.current.x - coords.x;
+      const dy = resizeStartPos.current.y - coords.y;
       const w = Math.max(320, Math.min(800, resizeStartPos.current.width + dx));
       const h = Math.max(400, Math.min(900, resizeStartPos.current.height + dy));
       setChatSize({ width: w, height: h });
@@ -447,11 +458,15 @@ export default function ChatbotNew() {
     if (isResizing) {
       document.addEventListener('mousemove', handleMove);
       document.addEventListener('mouseup', handleUp);
+      document.addEventListener('touchmove', handleMove, { passive: false });
+      document.addEventListener('touchend', handleUp);
     }
 
     return () => {
       document.removeEventListener('mousemove', handleMove);
       document.removeEventListener('mouseup', handleUp);
+      document.removeEventListener('touchmove', handleMove);
+      document.removeEventListener('touchend', handleUp);
     };
   }, [isResizing]);
 
@@ -643,7 +658,11 @@ export default function ChatbotNew() {
         </div>
 
         {!isMaximized && (
-          <div onMouseDown={startResize} className="absolute top-0 left-0 w-8 h-8 cursor-nwse-resize flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors">
+          <div 
+            onMouseDown={startResize}
+            onTouchStart={startResize}
+            className="absolute top-0 left-0 w-8 h-8 cursor-nwse-resize flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors"
+          >
             <GripVertical className="w-4 h-4 rotate-45" />
           </div>
         )}
