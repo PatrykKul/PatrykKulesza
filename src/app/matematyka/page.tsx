@@ -361,6 +361,7 @@ export default function MatematikaPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentContent, setCurrentContent] = useState('Szkoła podstawowa');
   const [openItems, setOpenItems] = useState<number[]>([]);
+  const [lastAutoSwitch, setLastAutoSwitch] = useState<string>('');
 
   const toggleSchoolMenu = () => {
     setIsSchoolMenuOpen(!isSchoolMenuOpen);
@@ -383,26 +384,74 @@ export default function MatematikaPage() {
     setIsSchoolMenuOpen(false);
     setIsMaturaMenuOpen(false);
     setOpenItems([]);
-    setSearchQuery('');
+    // Nie czyść searchQuery przy automatycznym przełączaniu
+    if (!searchQuery || !lastAutoSwitch) {
+      setSearchQuery('');
+    }
   };
 
-  // Filtrowanie treści w czasie rzeczywistym
+  // Inteligentne wykrywanie kategorii i automatyczne przełączanie
+  const detectCategoryAndSwitch = useCallback((query: string) => {
+    const lower = query.toLowerCase().trim();
+    
+    // Słowa kluczowe dla każdej kategorii
+    const categoryKeywords = {
+      'Matura podstawowa': ['matura', 'matur', 'matura podstawow', 'matura podstaw', 'matura podst'],
+      'Matura rozszerzona': ['matura rozszerzon', 'rozszerzon', 'matura rozsz', 'rozsz', 'matura rozs'],
+      'Egzamin 8 klasisty': ['egzamin', 'ósmoklas', '8 klas', 'ósmy', '8-klas', 'ósmoklasist', 'egzamin ósmoklas', 'egzamin 8', 'egzamin ósmy'],
+      'Studia': ['studi', 'uniwers', 'wyższ', 'wyzs', 'uczel', 'uniwersytet', 'politechnik', 'akademi'],
+      'Szkoła podstawowa': ['szkol podstaw', 'szkoła podstaw', 'podstawow', 'podstaw', 'szkol podst', 'szkoła podst', 'klasa', 'podstawówka', 'podst'],
+      'Liceum podstawowy': ['liceum', 'lice', 'średni', 'sredn', 'liceum podstaw', 'lo podstaw', 'technikum podstaw'],
+      'Liceum rozszerzony': ['liceum rozszerzon', 'liceum rozs', 'lo rozszerzon', 'lo rozs', 'rozszerzon', 'zaawansowan', 'technikum rozszerzon']
+    };
+
+    // Sprawdź czy query zawiera słowa kluczowe jakiejś kategorii
+    for (const [category, keywords] of Object.entries(categoryKeywords)) {
+      if (keywords.some(keyword => lower.includes(keyword))) {
+        // Jeśli znaleziono kategorię różną od aktualnej - przełącz
+        if (category !== currentContent) {
+          console.log(`🔍 Auto-switching to: ${category} (detected from: "${query}")`);
+          setLastAutoSwitch(`Automatycznie przełączono na "${category}"`);
+          handleContentChange(category);
+          return category;
+        }
+        break;
+      }
+    }
+
+    return currentContent;
+  }, [currentContent, handleContentChange]);
+
+  // Filtrowanie treści w czasie rzeczywistym z inteligentnym przełączaniem
   const filteredItems = useMemo(() => {
-    if (!mathTopicsData[currentContent]) {
+    if (!searchQuery.trim()) {
+      // Brak zapytania - zwróć wszystkie elementy z aktualnej kategorii
+      if (!mathTopicsData[currentContent]) {
+        return [];
+      }
+      return mathTopicsData[currentContent].items;
+    }
+
+    // Wykryj kategorię i przełącz jeśli potrzeba
+    const targetCategory = detectCategoryAndSwitch(searchQuery);
+    
+    if (!mathTopicsData[targetCategory]) {
       return [];
     }
 
-    const items = mathTopicsData[currentContent].items;
-    
-    if (!searchQuery.trim()) {
-      return items;
-    }
+    const items = mathTopicsData[targetCategory].items;
+    const lower = searchQuery.toLowerCase();
 
+    // Filtruj wyniki w docelowej kategorii
     return items.filter((item: MathTopic) => 
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchQuery.toLowerCase())
+      item.title.toLowerCase().includes(lower) ||
+      item.description.toLowerCase().includes(lower) ||
+      (item.submenu && item.submenu.some(sub => 
+        sub.title.toLowerCase().includes(lower) ||
+        sub.description.toLowerCase().includes(lower)
+      ))
     );
-  }, [currentContent, searchQuery]);
+  }, [currentContent, searchQuery, detectCategoryAndSwitch]);
 
   const currentTopic = mathTopicsData[currentContent as keyof typeof mathTopicsData];
 
@@ -423,16 +472,106 @@ export default function MatematikaPage() {
 
   return (
     <div className="min-h-screen bg-[#0d1117] text-white">
-      {/* Header z powrotem - Sticky */}
+      {/* Header z powrotem i Navigation - Sticky */}
       <header className="sticky top-0 z-50 border-b border-[#30363d] bg-[#161b22] shadow-lg">
         <div className="container mx-auto px-4 py-4">
-          <Link 
-            href="/"
-            className="inline-flex items-center gap-2 text-[#58a6ff] hover:text-[#1f6feb] transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            Powrót do strony głównej
-          </Link>
+          {/* Powrót do strony głównej */}
+          <div className="mb-4">
+            <Link 
+              href="/"
+              className="inline-flex items-center gap-2 text-[#58a6ff] hover:text-[#1f6feb] transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              Powrót do strony głównej
+            </Link>
+          </div>
+
+          {/* Navigation Menu */}
+          <nav className="bg-[#0d1117] rounded-2xl p-4 border border-[#30363d]">
+            <div className="flex flex-wrap justify-center gap-3">
+              {/* Szkoła - Dropdown Menu */}
+              <div className="relative">
+                <button
+                  onClick={toggleSchoolMenu}
+                  className="inline-flex items-center gap-2 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-4 py-2 rounded-lg transition-colors font-medium text-sm"
+                >
+                  Szkoła
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isSchoolMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+                
+                {isSchoolMenuOpen && (
+                  <div className="absolute top-full left-0 mt-2 bg-[#21262d] border border-[#30363d] rounded-lg shadow-xl z-50 min-w-[250px]">
+                    <div className="p-2">
+                      <button
+                        onClick={() => handleContentChange('Szkoła podstawowa')}
+                        className="block w-full text-left px-4 py-2 hover:bg-[#30363d] rounded-md transition-colors text-sm"
+                      >
+                        Szkoła podstawowa
+                      </button>
+                      <button
+                        onClick={() => handleContentChange('Liceum podstawowy')}
+                        className="block w-full text-left px-4 py-2 hover:bg-[#30363d] rounded-md transition-colors text-sm"
+                      >
+                        Liceum podstawowy
+                      </button>
+                      <button
+                        onClick={() => handleContentChange('Liceum rozszerzony')}
+                        className="block w-full text-left px-4 py-2 hover:bg-[#30363d] rounded-md transition-colors text-sm"
+                      >
+                        Liceum rozszerzony
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Studia */}
+              <button
+                onClick={() => handleContentChange('Studia')}
+                className="inline-flex items-center gap-2 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-4 py-2 rounded-lg transition-colors font-medium text-sm"
+              >
+                Studia
+              </button>
+
+              {/* Matura - Dropdown Menu */}
+              <div className="relative">
+                <button
+                  onClick={toggleMaturaMenu}
+                  className="inline-flex items-center gap-2 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-4 py-2 rounded-lg transition-colors font-medium text-sm"
+                >
+                  Matura
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isMaturaMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+                
+                {isMaturaMenuOpen && (
+                  <div className="absolute top-full left-0 mt-2 bg-[#21262d] border border-[#30363d] rounded-lg shadow-xl z-50 min-w-[200px]">
+                    <div className="p-2">
+                      <button
+                        onClick={() => handleContentChange('Matura podstawowa')}
+                        className="block w-full text-left px-4 py-2 hover:bg-[#30363d] rounded-md transition-colors text-sm"
+                      >
+                        Podstawowa
+                      </button>
+                      <button
+                        onClick={() => handleContentChange('Matura rozszerzona')}
+                        className="block w-full text-left px-4 py-2 hover:bg-[#30363d] rounded-md transition-colors text-sm"
+                      >
+                        Rozszerzona
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Egzamin 8 klasisty */}
+              <button
+                onClick={() => handleContentChange('Egzamin 8 klasisty')}
+                className="inline-flex items-center gap-2 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-4 py-2 rounded-lg transition-colors font-medium text-sm"
+              >
+                Egzamin 8-klasisty
+              </button>
+            </div>
+          </nav>
         </div>
       </header>
 
@@ -454,94 +593,7 @@ export default function MatematikaPage() {
             </p>
           </div>
 
-          {/* Navigation Menu - Sticky */}
-          <nav className="sticky top-[73px] z-40 mb-8 bg-[#0d1117] py-4">
-            <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 shadow-xl">
-              <div className="flex flex-wrap justify-center gap-4">
-                {/* Szkoła - Dropdown Menu */}
-                <div className="relative">
-                  <button
-                    onClick={toggleSchoolMenu}
-                    className="inline-flex items-center gap-2 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-6 py-3 rounded-lg transition-colors font-medium"
-                  >
-                    Szkoła
-                    <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isSchoolMenuOpen ? 'rotate-180' : ''}`} />
-                  </button>
-                  
-                  {isSchoolMenuOpen && (
-                    <div className="absolute top-full left-0 mt-2 bg-[#21262d] border border-[#30363d] rounded-lg shadow-xl z-50 min-w-[250px]">
-                      <div className="p-2">
-                        <button
-                          onClick={() => handleContentChange('Szkoła podstawowa')}
-                          className="block w-full text-left px-4 py-2 hover:bg-[#30363d] rounded-md transition-colors"
-                        >
-                          Szkoła podstawowa
-                        </button>
-                        <button
-                          onClick={() => handleContentChange('Liceum podstawowy')}
-                          className="block w-full text-left px-4 py-2 hover:bg-[#30363d] rounded-md transition-colors"
-                        >
-                          Liceum podstawowy
-                        </button>
-                        <button
-                          onClick={() => handleContentChange('Liceum rozszerzony')}
-                          className="block w-full text-left px-4 py-2 hover:bg-[#30363d] rounded-md transition-colors"
-                        >
-                          Liceum rozszerzony
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
 
-                {/* Studia */}
-                <button
-                  onClick={() => handleContentChange('Studia')}
-                  className="inline-flex items-center gap-2 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-6 py-3 rounded-lg transition-colors font-medium"
-                >
-                  Studia
-                </button>
-
-                {/* Matura - Dropdown Menu */}
-                <div className="relative">
-                  <button
-                    onClick={toggleMaturaMenu}
-                    className="inline-flex items-center gap-2 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-6 py-3 rounded-lg transition-colors font-medium"
-                  >
-                    Matura
-                    <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isMaturaMenuOpen ? 'rotate-180' : ''}`} />
-                  </button>
-                  
-                  {isMaturaMenuOpen && (
-                    <div className="absolute top-full left-0 mt-2 bg-[#21262d] border border-[#30363d] rounded-lg shadow-xl z-50 min-w-[200px]">
-                      <div className="p-2">
-                        <button
-                          onClick={() => handleContentChange('Matura podstawowa')}
-                          className="block w-full text-left px-4 py-2 hover:bg-[#30363d] rounded-md transition-colors"
-                        >
-                          Podstawowa
-                        </button>
-                        <button
-                          onClick={() => handleContentChange('Matura rozszerzona')}
-                          className="block w-full text-left px-4 py-2 hover:bg-[#30363d] rounded-md transition-colors"
-                        >
-                          Rozszerzona
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Egzamin 8 klasisty */}
-                <button
-                  onClick={() => handleContentChange('Egzamin 8 klasisty')}
-                  className="inline-flex items-center gap-2 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-6 py-3 rounded-lg transition-colors font-medium"
-                >
-                  Egzamin 8 klasisty
-                </button>
-              </div>
-            </div>
-          </nav>
 
           {/* Main Content Area */}
           <div className="text-center">
@@ -571,14 +623,27 @@ export default function MatematikaPage() {
                       type="text"
                       placeholder="Szukaj"
                       value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onChange={(e) => {
+                        setSearchQuery(e.target.value);
+                        // Wyczyść informację o automatycznym przełączeniu przy nowym wyszukiwaniu
+                        if (e.target.value !== searchQuery) {
+                          setLastAutoSwitch('');
+                        }
+                      }}
                       className="w-full pl-12 pr-4 py-3 bg-[#21262d] border border-[#30363d] rounded-xl text-white placeholder-gray-400 focus:border-[#58a6ff] focus:outline-none transition-colors duration-300"
                     />
                   </div>
                   
                   {searchQuery && (
-                    <div className="text-gray-400 text-sm mt-2">
-                      Znaleziono {filteredItems.length} {filteredItems.length === 1 ? 'temat' : 'tematów'}
+                    <div className="text-center text-sm mt-2 space-y-1">
+                      <div className="text-gray-400">
+                        Znaleziono {filteredItems.length} {filteredItems.length === 1 ? 'wynik' : 'wyników'} 
+                      </div>
+                      {lastAutoSwitch && (
+                        <div className="text-[#58a6ff] font-medium">
+                          ✨ {lastAutoSwitch}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
