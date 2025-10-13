@@ -164,22 +164,25 @@ export async function POST(req: NextRequest) {
     const intent = detectIntent(message);
     console.log(`🎯 Detected intent: ${intent}`);
 
-    // 1. BOOKING - nie obsługuj tutaj, to jest w frontendzie
+    // 1. BOOKING - zwróć specjalną odpowiedź która wywoła booking w frontend
     if (intent === 'booking') {
-      // To nie powinno się zdarzyć bo booking jest wykrywany w frontendzie
-      // Ale gdyby dotarło tutaj, zwróć fallback
-      const fallback = getFallbackResponse(message);
-      if (fallback) {
-        // Dodajemy odpowiedź do historii
-        addMessageToHistory(sessionId, 'model', fallback.response);
-        
-        return NextResponse.json({
-          response: fallback.response,
-          buttons: fallback.buttons || [],
-          fallback: true,
-          sessionId
-        });
-      }
+      console.log('🎯 Booking intent detected in API - triggering frontend booking');
+      
+      const bookingResponse = '🎯 **Świetnie! Zarezerwujmy termin.**\n\n📚 **Z jakiego przedmiotu potrzebujesz pomocy?**';
+      
+      // Dodajemy odpowiedź do historii
+      addMessageToHistory(sessionId, 'model', bookingResponse);
+      
+      return NextResponse.json({
+        response: bookingResponse,
+        triggerBooking: true, // Specjalny flag dla frontend
+        buttons: [
+          { text: '🧮 Matematyka', onClick: 'selectSubject("Matematyka")', variant: 'primary', icon: '🧮' },
+          { text: '🇬🇧 Angielski', onClick: 'selectSubject("Angielski")', variant: 'secondary', icon: '🇬🇧' },
+          { text: '💻 Programowanie', onClick: 'selectSubject("Programowanie")', variant: 'outline', icon: '💻' }
+        ],
+        sessionId
+      });
     }
 
     // 2. FAQ, PRICES, CONTACT, SERVICES, TESTIMONIALS, MATERIALS - użyj fallback

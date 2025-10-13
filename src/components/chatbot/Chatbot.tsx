@@ -382,6 +382,22 @@ export default function ChatbotNew() {
         setSessionId(data.sessionId);
       }
 
+      // Sprawdź czy API chce wywołać booking
+      if (data.triggerBooking) {
+        console.log('🎯 API triggered booking - setting booking state');
+        // API już obsłużyło pierwszy krok booking - ustaw stan
+        setConversationState('asking_subject');
+        conversationStateRef.current = 'asking_subject';
+        
+        // Dodaj wiadomość z przyciskami wyboru przedmiotu
+        setMessages(prev => [...prev, {
+          role: 'bot',
+          content: data.response || '😅 Ups...',
+          buttons: data.buttons || []
+        }]);
+        return;
+      }
+
       setMessages(prev => [...prev, {
         role: 'bot',
         content: data.response || '😅 Ups...',
@@ -532,11 +548,28 @@ export default function ChatbotNew() {
                         key={idx} 
                         onClick={() => {
                           if (typeof btn.onClick === 'string') {
-                            // Handle string onClick (jak 'location.reload()')
+                            // Handle string onClick
                             if (btn.onClick === 'location.reload()') {
                               window.location.reload();
                             } else if (btn.onClick === 'startBooking()') {
                               startBooking();
+                            } else if (btn.onClick.startsWith('selectSubject(')) {
+                              // Extract subject from selectSubject("Matematyka")
+                              const match = btn.onClick.match(/selectSubject\("([^"]*)"\)/);
+                              if (match) {
+                                const subject = match[1];
+                                // Set subject and start booking process
+                                setBookingData(prev => ({ ...prev, subject }));
+                                setConversationState('asking_name');
+                                conversationStateRef.current = 'asking_name';
+                                
+                                // Add bot message asking for name
+                                setMessages(prev => [...prev, {
+                                  role: 'bot',
+                                  content: `✅ **Super! Korepetycje z ${subject.toLowerCase()}a.**\n\n👤 **Jak się nazywasz?**\n\n(Podaj imię i nazwisko)`,
+                                  buttons: []
+                                }]);
+                              }
                             } else {
                               // Eval jako ostateczność (ostrożnie!)
                               try {
