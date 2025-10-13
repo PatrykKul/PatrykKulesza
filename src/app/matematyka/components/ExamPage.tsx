@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Calculator, Clock, Award, FileText, Download, Eye, EyeOff, CheckCircle, RotateCcw, PenTool, Eraser, Trash2, Type, X, Shapes } from 'lucide-react';
+import { ArrowLeft, Calculator, Clock, Award, FileText, Download, Eye, EyeOff, CheckCircle, RotateCcw, PenTool } from 'lucide-react';
 import MathText, { MathSolutionStep } from '@/app/matematyka/components/MathText';
 import { useImageScan } from '@/hooks/useImageScan';
 import AdvancedCanvas from './AdvancedCanvas';
@@ -40,19 +40,6 @@ interface ExamPageProps {
   level?: string;
 }
 
-type Shape = {
-  id: string;
-  type: 'circle' | 'rectangle' | 'triangle' | 'line' | 'arrow' | 'axes';
-  x: number;
-  y: number;
-  width?: number;
-  height?: number;
-  radius?: number;
-  endX?: number;
-  endY?: number;
-  color: string;
-  strokeWidth: number;
-};
 
 export default function ExamPage({ 
   examData, 

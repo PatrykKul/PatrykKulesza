@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { PenTool, Eraser, Trash2, Type, X, Shapes, Download, Undo, Redo, Copy, Grid, Layers, Palette, PlusSquare } from 'lucide-react';
+import { PenTool, Eraser, Trash2, Type, Shapes, Download, Undo, Redo, Copy, Grid, PlusSquare } from 'lucide-react';
 
 type Tool = 'pen' | 'eraser' | 'text' | 'shape' | 'select' | 'template';
 type ShapeType = 'circle' | 'rectangle' | 'triangle' | 'line' | 'arrow' | 'axes';
