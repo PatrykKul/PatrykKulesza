@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useAdvancedInView } from "../hooks/hooks";
-import { ArrowRight, ArrowUpRight, Calculator, BookOpenCheck, Code, Globe, Award } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Calculator, BookOpenCheck, Code, Globe, Award, Bot } from "lucide-react";
 import type { HomePageData } from '../types/types';
 
 export const ServicesSection = ({ data }: { data: HomePageData }) => {
@@ -18,7 +18,8 @@ export const ServicesSection = ({ data }: { data: HomePageData }) => {
       'Matematyka': 'matematyka',
       'Angielski': 'angielski', 
       'Programowanie': 'programowanie',
-      'Strony Internetowe': 'strony-internetowe'
+      'Strony Internetowe': 'strony-internetowe',
+      'Integracja AI': 'integracja-ai'
     };
     
     const serviceValue = serviceMapping[serviceTitle] || serviceTitle.toLowerCase();
@@ -84,7 +85,7 @@ export const ServicesSection = ({ data }: { data: HomePageData }) => {
     }
   }, [inView]);
 
-  const serviceIcons = [Calculator, BookOpenCheck, Code, Globe];
+  const serviceIcons = [Calculator, BookOpenCheck, Code, Globe, Bot];
   const currentService = data.unifiedServices.services[activeService];
 
 

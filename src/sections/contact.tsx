@@ -335,6 +335,8 @@ export const ContactSection = ({ data }: { data: HomePageData }) => {
       message = 'Jestem zainteresowany/a pakietem 10 godzin z rabatem 20%. Proszę o kontakt w sprawie szczegółów.';
     } else if (service === 'strony-internetowe') {
       message = 'Jestem zainteresowany/a zamówieniem strony internetowej. Proszę o kontakt w sprawie szczegółów projektu, wyceny i terminu realizacji.';
+    } else if (service === 'integracja-ai') {
+      message = 'Jestem zainteresowany/a integracją AI w mojej firmie/stronie. Proszę o kontakt w sprawie chatbotów, automatyzacji procesów i innych rozwiązań AI.';
     } else {
       message = `Jestem zainteresowany/a korepetycjami z przedmiotu: ${service}. Proszę o kontakt.`;
     }
@@ -650,6 +652,7 @@ export const ContactSection = ({ data }: { data: HomePageData }) => {
                     <option value="angielski">Angielski</option>
                     <option value="programowanie">Programowanie</option>
                     <option value="strony-internetowe">Strony Internetowe</option>
+                    <option value="integracja-ai">Integracja AI</option>
                     <option value="pakiet">Pakiet 10 godzin</option>
                     <option value="inne">Inne</option>
                   </select>

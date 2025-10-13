@@ -620,6 +620,24 @@ export const websiteData: HomePageData = {
         levels: ["Strony wizytówkowe", "Sklepy internetowe", "Aplikacje webowe"],
         ctaText: "Zamów stronę internetową",
         category: 'webdev' as const
+      },
+      {
+        id: "integracja-ai",
+        title: "Integracja AI",
+        subtitle: "Chatboty, automatyzacja procesów i generatory treści",
+        price: "od 1000 zł",
+        description: "Wdrażamy rozwiązania AI dopasowane do Twoich potrzeb. Zaoszczędź czas, zwiększ efektywność i zadowolenie klientów dzięki inteligentnym narzędziom AI.",
+        features: [
+          "Chatboty AI dostępne 24/7 (ChatGPT, Claude, Gemini)",
+          "Generowanie obrazów i video z tekstu",
+          "Inteligentne przetwarzanie i analiza tekstu",
+          "Automatyzacja dokumentów i ekstrakcja danych (OCR)",
+          "Rozpoznawanie obiektów i analiza zdjęć",
+          "Pełna integracja z Twoją stroną/aplikacją"
+        ],
+        levels: ["Terminowo", "Gwarancja", "Na czas"],
+        ctaText: "Wdróż AI w swojej firmie",
+        category: 'webdev' as const
       }
     ]
   },
