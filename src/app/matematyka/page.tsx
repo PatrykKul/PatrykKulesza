@@ -364,10 +364,18 @@ export default function MatematikaPage() {
   const [lastAutoSwitch, setLastAutoSwitch] = useState<string>('');
 
   const toggleSchoolMenu = () => {
+    if (!isSchoolMenuOpen) {
+      // Zamknij menu matury jeśli jest otwarte
+      setIsMaturaMenuOpen(false);
+    }
     setIsSchoolMenuOpen(!isSchoolMenuOpen);
   };
 
   const toggleMaturaMenu = () => {
+    if (!isMaturaMenuOpen) {
+      // Zamknij menu szkoły jeśli jest otwarte
+      setIsSchoolMenuOpen(false);
+    }
     setIsMaturaMenuOpen(!isMaturaMenuOpen);
   };
 
@@ -474,103 +482,107 @@ export default function MatematikaPage() {
     <div className="min-h-screen bg-[#0d1117] text-white">
       {/* Header z powrotem i Navigation - Sticky */}
       <header className="sticky top-0 z-50 border-b border-[#30363d] bg-[#161b22] shadow-lg">
-        <div className="container mx-auto px-4 py-2">
-          {/* Powrót do strony głównej */}
-          <div className="mb-2">
+        <div className="container mx-auto px-4 py-3">
+          {/* Single Line Navigation with Separators */}
+          <nav className="flex items-center justify-center gap-1 text-sm md:text-base lg:text-lg">
+            {/* Powrót do strony głównej */}
             <Link 
               href="/"
-              className="inline-flex items-center gap-2 text-[#58a6ff] hover:text-[#1f6feb] transition-colors text-sm"
+              className="inline-flex items-center gap-1 md:gap-2 text-[#58a6ff] hover:text-[#1f6feb] transition-colors"
             >
-              <ArrowLeft className="w-4 h-4" />
-              Powrót do strony głównej
+              <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
+              Powrót
             </Link>
-          </div>
+            
+            <span className="text-gray-500 mx-2 md:mx-3 lg:mx-4">|</span>
 
-          {/* Navigation Menu */}
-          <nav className="bg-[#0d1117] rounded-xl p-2 border border-[#30363d]">
-            <div className="flex flex-wrap justify-center gap-2">
-              {/* Szkoła - Dropdown Menu */}
-              <div className="relative">
-                <button
-                  onClick={toggleSchoolMenu}
-                  className="inline-flex items-center gap-1 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-3 py-1.5 rounded-md transition-colors font-medium text-sm"
-                >
-                  Szkoła
-                  <ChevronDown className={`w-3 h-3 transition-transform duration-300 ${isSchoolMenuOpen ? 'rotate-180' : ''}`} />
-                </button>
-                
-                {isSchoolMenuOpen && (
-                  <div className="absolute top-full left-0 mt-2 bg-[#21262d] border border-[#30363d] rounded-lg shadow-xl z-50 min-w-[250px]">
-                    <div className="p-2">
-                      <button
-                        onClick={() => handleContentChange('Szkoła podstawowa')}
-                        className="block w-full text-left px-4 py-2 hover:bg-[#30363d] rounded-md transition-colors text-sm"
-                      >
-                        Szkoła podstawowa
-                      </button>
-                      <button
-                        onClick={() => handleContentChange('Liceum podstawowy')}
-                        className="block w-full text-left px-4 py-2 hover:bg-[#30363d] rounded-md transition-colors text-sm"
-                      >
-                        Liceum podstawowy
-                      </button>
-                      <button
-                        onClick={() => handleContentChange('Liceum rozszerzony')}
-                        className="block w-full text-left px-4 py-2 hover:bg-[#30363d] rounded-md transition-colors text-sm"
-                      >
-                        Liceum rozszerzony
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Studia */}
+            {/* Szkoła - Dropdown Menu */}
+            <div className="relative">
               <button
-                onClick={() => handleContentChange('Studia')}
-                className="inline-flex items-center gap-1 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-3 py-1.5 rounded-md transition-colors font-medium text-sm"
+                onClick={toggleSchoolMenu}
+                className="inline-flex items-center gap-1 md:gap-2 text-white hover:text-[#58a6ff] transition-colors"
               >
-                Studia
+                Szkoła
+                <ChevronDown className={`w-3 h-3 md:w-4 md:h-4 transition-transform duration-300 ${isSchoolMenuOpen ? 'rotate-180' : ''}`} />
               </button>
-
-              {/* Matura - Dropdown Menu */}
-              <div className="relative">
-                <button
-                  onClick={toggleMaturaMenu}
-                  className="inline-flex items-center gap-1 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-3 py-1.5 rounded-md transition-colors font-medium text-sm"
-                >
-                  Matura
-                  <ChevronDown className={`w-3 h-3 transition-transform duration-300 ${isMaturaMenuOpen ? 'rotate-180' : ''}`} />
-                </button>
-                
-                {isMaturaMenuOpen && (
-                  <div className="absolute top-full left-0 mt-2 bg-[#21262d] border border-[#30363d] rounded-lg shadow-xl z-50 min-w-[200px]">
-                    <div className="p-2">
-                      <button
-                        onClick={() => handleContentChange('Matura podstawowa')}
-                        className="block w-full text-left px-4 py-2 hover:bg-[#30363d] rounded-md transition-colors text-sm"
-                      >
-                        Podstawowa
-                      </button>
-                      <button
-                        onClick={() => handleContentChange('Matura rozszerzona')}
-                        className="block w-full text-left px-4 py-2 hover:bg-[#30363d] rounded-md transition-colors text-sm"
-                      >
-                        Rozszerzona
-                      </button>
-                    </div>
+              
+              {isSchoolMenuOpen && (
+                <div className="absolute top-full left-0 mt-2 bg-[#21262d] border border-[#30363d] rounded-lg shadow-xl z-50 min-w-[250px]">
+                  <div className="p-2">
+                    <button
+                      onClick={() => handleContentChange('Szkoła podstawowa')}
+                      className="block w-full text-left px-4 py-2 hover:bg-[#30363d] rounded-md transition-colors text-sm"
+                    >
+                      Szkoła podstawowa
+                    </button>
+                    <button
+                      onClick={() => handleContentChange('Liceum podstawowy')}
+                      className="block w-full text-left px-4 py-2 hover:bg-[#30363d] rounded-md transition-colors text-sm"
+                    >
+                      Liceum podstawowy
+                    </button>
+                    <button
+                      onClick={() => handleContentChange('Liceum rozszerzony')}
+                      className="block w-full text-left px-4 py-2 hover:bg-[#30363d] rounded-md transition-colors text-sm"
+                    >
+                      Liceum rozszerzony
+                    </button>
                   </div>
-                )}
-              </div>
-
-              {/* Egzamin 8 klasisty */}
-              <button
-                onClick={() => handleContentChange('Egzamin 8 klasisty')}
-                className="inline-flex items-center gap-1 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-3 py-1.5 rounded-md transition-colors font-medium text-sm"
-              >
-                Egzamin 8-klasisty
-              </button>
+                </div>
+              )}
             </div>
+
+            <span className="text-gray-500 mx-2 md:mx-3 lg:mx-4">|</span>
+
+            {/* Studia */}
+            <button
+              onClick={() => handleContentChange('Studia')}
+              className="text-white hover:text-[#58a6ff] transition-colors"
+            >
+              Studia
+            </button>
+
+            <span className="text-gray-500 mx-2 md:mx-3 lg:mx-4">|</span>
+
+            {/* Matura - Dropdown Menu */}
+            <div className="relative">
+              <button
+                onClick={toggleMaturaMenu}
+                className="inline-flex items-center gap-1 md:gap-2 text-white hover:text-[#58a6ff] transition-colors"
+              >
+                Matura
+                <ChevronDown className={`w-3 h-3 md:w-4 md:h-4 transition-transform duration-300 ${isMaturaMenuOpen ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {isMaturaMenuOpen && (
+                <div className="absolute top-full left-0 mt-2 bg-[#21262d] border border-[#30363d] rounded-lg shadow-xl z-50 min-w-[200px]">
+                  <div className="p-2">
+                    <button
+                      onClick={() => handleContentChange('Matura podstawowa')}
+                      className="block w-full text-left px-4 py-2 hover:bg-[#30363d] rounded-md transition-colors text-sm"
+                    >
+                      Podstawowa
+                    </button>
+                    <button
+                      onClick={() => handleContentChange('Matura rozszerzona')}
+                      className="block w-full text-left px-4 py-2 hover:bg-[#30363d] rounded-md transition-colors text-sm"
+                    >
+                      Rozszerzona
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <span className="text-gray-500 mx-2 md:mx-3 lg:mx-4">|</span>
+
+            {/* Egzamin 8 klasisty */}
+            <button
+              onClick={() => handleContentChange('Egzamin 8 klasisty')}
+              className="text-white hover:text-[#58a6ff] transition-colors"
+            >
+              Egzamin 8-klasisty
+            </button>
           </nav>
         </div>
       </header>
