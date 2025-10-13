@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Calculator, Clock, Award, FileText, Download, Eye, EyeOff, CheckCircle, RotateCcw, PenTool, X, Delete, Plus, Minus, Divide } from 'lucide-react';
 import MathText, { MathSolutionStep } from '@/app/matematyka/components/MathText';
@@ -317,14 +317,52 @@ export default function ExamPage({
     const [operation, setOperation] = useState<string | null>(null);
     const [waitingForNewValue, setWaitingForNewValue] = useState(false);
 
-    // Floating window state
-    const [position, setPosition] = useState({ x: 100, y: 100 });
-    const [isDragging, setIsDragging] = useState(false);
-    const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-    
-    // Fixed dimensions - no resizing
-    const CALC_WIDTH = 300;
-    const CALC_HEIGHT = 380;
+  // Floating window state - better mobile positioning
+  const getInitialPosition = () => {
+    if (typeof window === 'undefined') return { x: 100, y: 100 };
+    const isMobileDevice = window.innerWidth < 768;
+    return {
+      x: isMobileDevice ? 20 : 100,
+      y: isMobileDevice ? 20 : 100
+    };
+  };
+  const [position, setPosition] = useState(getInitialPosition);
+  // Use refs for dragging to avoid render lag
+  const positionRef = useRef(position);
+  const isDraggingRef = useRef(false);
+  const dragOffsetRef = useRef({ x: 0, y: 0 });
+
+  // Resize state
+  const isResizingRef = useRef(false);
+  const resizeStartRef = useRef({ width: 0, height: 0, x: 0, y: 0 });
+
+  // Base dimensions and current size
+  const BASE_WIDTH = 340;
+  const BASE_HEIGHT = 540;
+  const MIN_WIDTH = 280;
+  const MIN_HEIGHT = 540;
+  const MAX_WIDTH = 600;
+  const MAX_HEIGHT = 800;
+
+  // Initial size - smaller on mobile
+  const getInitialSize = () => {
+    if (typeof window === 'undefined') return { width: BASE_WIDTH, height: BASE_HEIGHT };
+    const isMobileDevice = window.innerWidth < 768;
+    return {
+      width: isMobileDevice ? Math.min(280, window.innerWidth - 40) : BASE_WIDTH,
+      height: isMobileDevice ? Math.min(400, window.innerHeight - 100) : BASE_HEIGHT
+    };
+  };
+  const [currentSize, setCurrentSize] = useState(getInitialSize);
+  
+  // Mobile detection
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  
+  // Calculate scale factors separately for width and height
+  const scaleFactorWidth = currentSize.width / BASE_WIDTH;
+  const scaleFactorHeight = currentSize.height / BASE_HEIGHT;
+  // Use average of both factors so everything scales proportionally
+  const scaleFactor = (scaleFactorWidth + scaleFactorHeight) / 2;
 
     const inputNumber = (num: string) => {
       if (waitingForNewValue) {
@@ -416,42 +454,123 @@ export default function ExamPage({
       setWaitingForNewValue(true);
     };
 
-    // Drag functions
-    const handleMouseDown = (e: React.MouseEvent) => {
-      if (e.target === e.currentTarget || (e.target as HTMLElement).classList.contains('drag-handle')) {
-        setIsDragging(true);
-        setDragOffset({
-          x: e.clientX - position.x,
-          y: e.clientY - position.y,
-        });
+    // Viewport constraint function
+    const constrainToViewport = useCallback(() => {
+      const margin = 24;
+      const maxW = Math.min(currentSize.width, Math.max(MIN_WIDTH, window.innerWidth - margin));
+      const maxH = Math.min(currentSize.height, Math.max(MIN_HEIGHT, window.innerHeight - margin));
+      
+      if (maxW !== currentSize.width || maxH !== currentSize.height) {
+        setCurrentSize({ width: maxW, height: maxH });
       }
-    };
+      
+      // ensure position stays within viewport
+      setPosition(prev => {
+        const nx = Math.min(prev.x, Math.max(0, window.innerWidth - maxW));
+        const ny = Math.min(prev.y, Math.max(0, window.innerHeight - maxH));
+        positionRef.current = { x: nx, y: ny };
+        return { x: nx, y: ny };
+      });
+    }, [currentSize.width, currentSize.height]);
 
-    const handleMouseMove = (e: MouseEvent) => {
-      if (isDragging) {
-        const newX = Math.max(0, Math.min(window.innerWidth - CALC_WIDTH, e.clientX - dragOffset.x));
-        const newY = Math.max(0, Math.min(window.innerHeight - CALC_HEIGHT, e.clientY - dragOffset.y));
-        setPosition({ x: newX, y: newY });
-      }
-    };
-
-    const handleMouseUp = () => {
-      setIsDragging(false);
-    };
-
-
-
-    // Effects for mouse events
     useEffect(() => {
-      if (isDragging) {
-        document.addEventListener('mousemove', handleMouseMove);
-        document.addEventListener('mouseup', handleMouseUp);
-        return () => {
-          document.removeEventListener('mousemove', handleMouseMove);
-          document.removeEventListener('mouseup', handleMouseUp);
-        };
+      constrainToViewport();
+      window.addEventListener('resize', constrainToViewport);
+      return () => window.removeEventListener('resize', constrainToViewport);
+    }, [constrainToViewport]);
+
+    // Keep ref in sync
+    useEffect(() => {
+      positionRef.current = position;
+    }, [position]);
+
+    // Get coordinates from mouse or touch event
+    const getEventCoords = (e: MouseEvent | TouchEvent) => {
+      if ('touches' in e) {
+        return { x: e.touches[0]?.clientX || 0, y: e.touches[0]?.clientY || 0 };
       }
-    }, [isDragging, dragOffset.x, dragOffset.y]);
+      return { x: e.clientX, y: e.clientY };
+    };
+
+    // Document-level handlers for both mouse and touch
+    const onDocMove = (e: MouseEvent | TouchEvent) => {
+      if (!isDraggingRef.current && !isResizingRef.current) return;
+      e.preventDefault();
+      
+      const coords = getEventCoords(e);
+      
+      if (isDraggingRef.current) {
+        // Dragging
+        const newX = Math.max(0, Math.min(window.innerWidth - currentSize.width, coords.x - dragOffsetRef.current.x));
+        const newY = Math.max(0, Math.min(window.innerHeight - currentSize.height, coords.y - dragOffsetRef.current.y));
+        setPosition({ x: newX, y: newY });
+        positionRef.current = { x: newX, y: newY };
+      } else if (isResizingRef.current) {
+        // Resizing
+        const deltaX = coords.x - resizeStartRef.current.x;
+        const deltaY = coords.y - resizeStartRef.current.y;
+        
+        const newWidth = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, resizeStartRef.current.width + deltaX));
+        const newHeight = Math.max(MIN_HEIGHT, Math.min(MAX_HEIGHT, resizeStartRef.current.height + deltaY));
+        
+        setCurrentSize({ width: newWidth, height: newHeight });
+      }
+    };
+
+    const onDocEnd = () => {
+      isDraggingRef.current = false;
+      isResizingRef.current = false;
+      // Remove both mouse and touch listeners
+      document.removeEventListener('mousemove', onDocMove);
+      document.removeEventListener('mouseup', onDocEnd);
+      document.removeEventListener('touchmove', onDocMove);
+      document.removeEventListener('touchend', onDocEnd);
+    };
+
+    const handleResizeStart = (e: React.MouseEvent | React.TouchEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      isResizingRef.current = true;
+      
+      const coords = 'touches' in e ? 
+        { x: e.touches[0]?.clientX || 0, y: e.touches[0]?.clientY || 0 } :
+        { x: e.clientX, y: e.clientY };
+      
+      resizeStartRef.current = {
+        width: currentSize.width,
+        height: currentSize.height,
+        x: coords.x,
+        y: coords.y,
+      };
+      
+      // Add both mouse and touch listeners
+      document.addEventListener('mousemove', onDocMove);
+      document.addEventListener('mouseup', onDocEnd);
+      document.addEventListener('touchmove', onDocMove, { passive: false });
+      document.addEventListener('touchend', onDocEnd);
+    };
+
+    const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
+      e.preventDefault();
+      if (e.target === e.currentTarget || (e.target as HTMLElement).classList.contains('drag-handle')) {
+        isDraggingRef.current = true;
+        
+        const coords = 'touches' in e ? 
+          { x: e.touches[0]?.clientX || 0, y: e.touches[0]?.clientY || 0 } :
+          { x: e.clientX, y: e.clientY };
+        
+        dragOffsetRef.current = {
+          x: coords.x - position.x,
+          y: coords.y - position.y,
+        };
+        
+        // Add both mouse and touch listeners
+        document.addEventListener('mousemove', onDocMove);
+        document.addEventListener('mouseup', onDocEnd);
+        document.addEventListener('touchmove', onDocMove, { passive: false });
+        document.addEventListener('touchend', onDocEnd);
+      }
+    };
 
     return (
       <div
@@ -459,10 +578,11 @@ export default function ExamPage({
         style={{
           left: `${position.x}px`,
           top: `${position.y}px`,
-          width: `${CALC_WIDTH}px`,
-          height: `${CALC_HEIGHT}px`,
+          width: `${currentSize.width}px`,
+          height: `${currentSize.height}px`,
         }}
-        onMouseDown={handleMouseDown}
+        onMouseDown={handleDragStart}
+        onTouchStart={handleDragStart}
       >
         <div className="flex flex-col h-full">
           {/* Header - Draggable */}
@@ -481,80 +601,122 @@ export default function ExamPage({
           </div>
 
           {/* Content */}
-          <div className="flex flex-col p-3 gap-3">
+          <div className="flex flex-col overflow-hidden" style={{ 
+            height: `${currentSize.height - 60}px`, // subtract header height
+            padding: `${Math.max(8, 12 * scaleFactor)}px`
+          }}>
 
           {/* Display */}
-          <div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-3 mb-3">
-            <div className="text-right text-xl font-mono text-white break-all">
+          <div className="bg-[#0d1117] border border-[#30363d] rounded-lg flex-shrink-0" style={{ 
+            padding: `${Math.max(8, 12 * scaleFactor)}px`, 
+            marginBottom: `${Math.max(8, 12 * scaleFactor)}px`,
+            minHeight: `${Math.max(40, 60 * scaleFactor)}px`,
+            display: 'flex',
+            alignItems: 'center'
+          }}>
+            <div className="text-right font-mono text-white break-all w-full" style={{ fontSize: `${Math.max(14, 20 * scaleFactor)}px` }}>
               {display}
             </div>
           </div>
 
-
-
-
-
           {/* Main calculator */}
-          <div className="grid grid-cols-4 gap-1.5">
+          <div className="grid grid-cols-4 flex-1 min-h-0" style={{ 
+            gap: `${Math.max(4, 6 * scaleFactor)}px`
+          }}>
             {/* Row 1 */}
             <button
               onClick={clear}
-              className="bg-[#dc2626] hover:bg-[#b91c1c] text-white rounded-lg font-semibold transition-colors col-span-2 min-h-[40px] text-sm"
+              className="bg-[#dc2626] hover:bg-[#b91c1c] text-white rounded-lg font-semibold transition-colors col-span-2"
+              style={{ 
+                minHeight: `${Math.max(24, 40 * scaleFactor)}px`, 
+                fontSize: `${Math.max(10, 14 * scaleFactor)}px`,
+                padding: `${Math.max(4, 8 * scaleFactor)}px ${Math.max(6, 12 * scaleFactor)}px`
+              }}
             >
               Clear
             </button>
             <button
               onClick={() => scientificFunction('%')}
-              className="bg-[#6b7280] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors min-h-[40px] text-sm"
+              className="bg-[#6b7280] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors"
+              style={{ 
+                minHeight: `${Math.max(24, 40 * scaleFactor)}px`, 
+                fontSize: `${Math.max(10, 14 * scaleFactor)}px`,
+                padding: `${Math.max(4, 8 * scaleFactor)}px ${Math.max(6, 12 * scaleFactor)}px`
+              }}
             >
               %
             </button>
             <button
               onClick={() => performOperation('÷')}
-              className="bg-[#f59e0b] hover:bg-[#d97706] text-white rounded-lg font-semibold transition-colors min-h-[40px] text-sm"
+              className="bg-[#f59e0b] hover:bg-[#d97706] text-white rounded-lg font-semibold transition-colors"
+              style={{ 
+                minHeight: `${Math.max(24, 40 * scaleFactor)}px`, 
+                fontSize: `${Math.max(10, 14 * scaleFactor)}px`,
+                padding: `${Math.max(4, 8 * scaleFactor)}px ${Math.max(6, 12 * scaleFactor)}px`
+              }}
             >
               ÷
             </button>
 
             {/* Row 2 */}
-            <button onClick={() => inputNumber('7')} className="bg-[#374151] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors min-h-[40px] text-sm">7</button>
-            <button onClick={() => inputNumber('8')} className="bg-[#374151] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors min-h-[40px] text-sm">8</button>
-            <button onClick={() => inputNumber('9')} className="bg-[#374151] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors min-h-[40px] text-sm">9</button>
+            <button onClick={() => inputNumber('7')} className="bg-[#374151] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors" style={{ minHeight: `${Math.max(24, 40 * scaleFactor)}px`, fontSize: `${Math.max(10, 14 * scaleFactor)}px`, padding: `${Math.max(4, 8 * scaleFactor)}px ${Math.max(6, 12 * scaleFactor)}px` }}>7</button>
+            <button onClick={() => inputNumber('8')} className="bg-[#374151] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors" style={{ minHeight: `${Math.max(24, 40 * scaleFactor)}px`, fontSize: `${Math.max(10, 14 * scaleFactor)}px`, padding: `${Math.max(4, 8 * scaleFactor)}px ${Math.max(6, 12 * scaleFactor)}px` }}>8</button>
+            <button onClick={() => inputNumber('9')} className="bg-[#374151] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors" style={{ minHeight: `${Math.max(24, 40 * scaleFactor)}px`, fontSize: `${Math.max(10, 14 * scaleFactor)}px`, padding: `${Math.max(4, 8 * scaleFactor)}px ${Math.max(6, 12 * scaleFactor)}px` }}>9</button>
             <button
               onClick={() => performOperation('×')}
-              className="bg-[#f59e0b] hover:bg-[#d97706] text-white rounded-lg font-semibold transition-colors min-h-[40px] text-sm"
+              className="bg-[#f59e0b] hover:bg-[#d97706] text-white rounded-lg font-semibold transition-colors"
+              style={{ 
+                minHeight: `${Math.max(24, 40 * scaleFactor)}px`, 
+                fontSize: `${Math.max(10, 14 * scaleFactor)}px`,
+                padding: `${Math.max(4, 8 * scaleFactor)}px ${Math.max(6, 12 * scaleFactor)}px`
+              }}
             >
               ×
             </button>
 
             {/* Row 3 */}
-            <button onClick={() => inputNumber('4')} className="bg-[#374151] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors min-h-[40px] text-sm">4</button>
-            <button onClick={() => inputNumber('5')} className="bg-[#374151] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors min-h-[40px] text-sm">5</button>
-            <button onClick={() => inputNumber('6')} className="bg-[#374151] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors min-h-[40px] text-sm">6</button>
+            <button onClick={() => inputNumber('4')} className="bg-[#374151] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors" style={{ minHeight: `${Math.max(24, 40 * scaleFactor)}px`, fontSize: `${Math.max(10, 14 * scaleFactor)}px`, padding: `${Math.max(4, 8 * scaleFactor)}px ${Math.max(6, 12 * scaleFactor)}px` }}>4</button>
+            <button onClick={() => inputNumber('5')} className="bg-[#374151] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors" style={{ minHeight: `${Math.max(24, 40 * scaleFactor)}px`, fontSize: `${Math.max(10, 14 * scaleFactor)}px`, padding: `${Math.max(4, 8 * scaleFactor)}px ${Math.max(6, 12 * scaleFactor)}px` }}>5</button>
+            <button onClick={() => inputNumber('6')} className="bg-[#374151] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors" style={{ minHeight: `${Math.max(24, 40 * scaleFactor)}px`, fontSize: `${Math.max(10, 14 * scaleFactor)}px`, padding: `${Math.max(4, 8 * scaleFactor)}px ${Math.max(6, 12 * scaleFactor)}px` }}>6</button>
             <button
               onClick={() => performOperation('-')}
-              className="bg-[#f59e0b] hover:bg-[#d97706] text-white rounded-lg font-semibold transition-colors min-h-[40px] text-sm"
+              className="bg-[#f59e0b] hover:bg-[#d97706] text-white rounded-lg font-semibold transition-colors"
+              style={{ 
+                minHeight: `${Math.max(24, 40 * scaleFactor)}px`, 
+                fontSize: `${Math.max(10, 14 * scaleFactor)}px`,
+                padding: `${Math.max(4, 8 * scaleFactor)}px ${Math.max(6, 12 * scaleFactor)}px`
+              }}
             >
               −
             </button>
 
             {/* Row 4 */}
-            <button onClick={() => inputNumber('1')} className="bg-[#374151] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors min-h-[40px] text-sm">1</button>
-            <button onClick={() => inputNumber('2')} className="bg-[#374151] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors min-h-[40px] text-sm">2</button>
-            <button onClick={() => inputNumber('3')} className="bg-[#374151] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors min-h-[40px] text-sm">3</button>
+            <button onClick={() => inputNumber('1')} className="bg-[#374151] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors" style={{ minHeight: `${Math.max(24, 40 * scaleFactor)}px`, fontSize: `${Math.max(10, 14 * scaleFactor)}px`, padding: `${Math.max(4, 8 * scaleFactor)}px ${Math.max(6, 12 * scaleFactor)}px` }}>1</button>
+            <button onClick={() => inputNumber('2')} className="bg-[#374151] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors" style={{ minHeight: `${Math.max(24, 40 * scaleFactor)}px`, fontSize: `${Math.max(10, 14 * scaleFactor)}px`, padding: `${Math.max(4, 8 * scaleFactor)}px ${Math.max(6, 12 * scaleFactor)}px` }}>2</button>
+            <button onClick={() => inputNumber('3')} className="bg-[#374151] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors" style={{ minHeight: `${Math.max(24, 40 * scaleFactor)}px`, fontSize: `${Math.max(10, 14 * scaleFactor)}px`, padding: `${Math.max(4, 8 * scaleFactor)}px ${Math.max(6, 12 * scaleFactor)}px` }}>3</button>
             <button
               onClick={() => performOperation('+')}
-              className="bg-[#f59e0b] hover:bg-[#d97706] text-white rounded-lg font-semibold transition-colors min-h-[40px] text-sm"
+              className="bg-[#f59e0b] hover:bg-[#d97706] text-white rounded-lg font-semibold transition-colors"
+              style={{ 
+                minHeight: `${Math.max(24, 40 * scaleFactor)}px`, 
+                fontSize: `${Math.max(10, 14 * scaleFactor)}px`,
+                padding: `${Math.max(4, 8 * scaleFactor)}px ${Math.max(6, 12 * scaleFactor)}px`
+              }}
             >
               +
             </button>
 
             {/* Row 5 */}
-            <button onClick={() => inputNumber('0')} className="bg-[#374151] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors col-span-2 min-h-[40px] text-sm">0</button>
-            <button onClick={inputDecimal} className="bg-[#374151] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors min-h-[40px] text-sm">.</button>
+            <button onClick={() => inputNumber('0')} className="bg-[#374151] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors col-span-2" style={{ minHeight: `${Math.max(24, 40 * scaleFactor)}px`, fontSize: `${Math.max(10, 14 * scaleFactor)}px`, padding: `${Math.max(4, 8 * scaleFactor)}px ${Math.max(6, 12 * scaleFactor)}px` }}>0</button>
+            <button onClick={inputDecimal} className="bg-[#374151] hover:bg-[#4b5563] text-white rounded-lg font-semibold transition-colors" style={{ minHeight: `${Math.max(24, 40 * scaleFactor)}px`, fontSize: `${Math.max(10, 14 * scaleFactor)}px`, padding: `${Math.max(4, 8 * scaleFactor)}px ${Math.max(6, 12 * scaleFactor)}px` }}>.</button>
             <button
               onClick={calculate}
-              className="bg-[#059669] hover:bg-[#047857] text-white rounded-lg font-semibold transition-colors min-h-[40px] text-sm"
+              className="bg-[#059669] hover:bg-[#047857] text-white rounded-lg font-semibold transition-colors"
+              style={{ 
+                minHeight: `${Math.max(24, 40 * scaleFactor)}px`, 
+                fontSize: `${Math.max(10, 14 * scaleFactor)}px`,
+                padding: `${Math.max(4, 8 * scaleFactor)}px ${Math.max(6, 12 * scaleFactor)}px`
+              }}
             >
               =
             </button>
@@ -562,6 +724,16 @@ export default function ExamPage({
 
           </div>
 
+        {/* Resize handle - bottom right corner */}
+        <div 
+          className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize bg-[#30363d] hover:bg-[#58a6ff] transition-colors opacity-50 hover:opacity-100"
+          onMouseDown={handleResizeStart}
+          onTouchStart={handleResizeStart}
+          style={{
+            clipPath: 'polygon(100% 0, 100% 100%, 0 100%)',
+            borderBottomRightRadius: '8px'
+          }}
+        />
 
         </div>
       </div>
@@ -1313,8 +1485,8 @@ export default function ExamPage({
       </footer>
 
       {/* Floating Calculator Button */}
-      <div className="fixed right-4 bottom-28 z-30">
-        <button
+          <div className="fixed right-24 md:right-32 bottom-4 z-30">
+          <button
           onClick={() => setShowCalculator(!showCalculator)}
           className="bg-gradient-to-r from-[#f59e0b] to-[#d97706] hover:from-[#d97706] hover:to-[#b45309] text-white p-4 rounded-full shadow-2xl transition-all duration-300 transform hover:scale-110 hover:-translate-y-1 group"
           title={showCalculator ? "Zamknij kalkulator" : "Otwórz kalkulator"}
