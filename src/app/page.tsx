@@ -77,8 +77,7 @@ export default function HomePage() {
           {/* 🎓 SEKCJA O MNIE */}
         <AboutSection />
 
-          {/* 🎨 SEKCJA PORTFOLIO */}
-        <PortfolioSection />
+
 
           {/* ⭐ SEKCJA OPINIE */}
         <TestimonialsSection data={data} />
@@ -88,6 +87,9 @@ export default function HomePage() {
 
           {/* 💼 SEKCJA USŁUGI */}
         <ServicesSection data={data} />
+
+          {/* 🎨 SEKCJA PORTFOLIO */}
+        <PortfolioSection />
 
           {/* ❓ SEKCJA FAQ */}
         <FaqSection data={data} />

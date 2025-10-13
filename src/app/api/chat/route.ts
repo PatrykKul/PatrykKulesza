@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { getFallbackResponse, isEducationRelated, getDefaultResponse } from '@/components/chatbot/fallback';
+import { 
+  getFallbackResponse, 
+  detectIntent, 
+  isEducationRelated, 
+  getDefaultResponse,
+  type UserIntent
+} from '@/components/chatbot/fallback';
 
-// Definicja typu dla przycisku
 interface ChatButton {
   text: string;
   href?: string;
@@ -11,12 +16,12 @@ interface ChatButton {
   icon?: string;
 }
 
-// Rate limiting - prosty cache w pamięci (w produkcji użyj Redis)
+// Rate limiting - prosty cache (w produkcji użyj Redis)
 const requestCache = new Map<string, { count: number; lastReset: number }>();
-const RATE_LIMIT = 10; // 10 zapytań na IP
+const RATE_LIMIT = 20; // 20 zapytań na IP
 const WINDOW_MS = 15 * 60 * 1000; // 15 minut
 
-// Cache odpowiedzi (opcjonalne)
+// Cache odpowiedzi
 const responseCache = new Map<string, { response: string; timestamp: number; buttons?: ChatButton[] }>();
 const CACHE_TTL = 30 * 60 * 1000; // 30 minut
 
@@ -55,9 +60,10 @@ function setCachedResponse(message: string, response: string, buttons?: ChatButt
 
 export async function POST(req: NextRequest) {
   console.log('🤖 API Chat endpoint called');
+  
   try {
     const { message } = await req.json();
-    console.log('📝 Otrzymano wiadomość:', message);
+    console.log('📝 Received message:', message);
     
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
       return NextResponse.json(
@@ -73,24 +79,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         response: '⏰ **Zbyt wiele pytań!**\n\nPoczekaj chwilę przed kolejnym pytaniem.\n\n💡 W międzyczasie sprawdź moje materiały!',
         buttons: [
-          {
-            text: '📖 Matematyka',
-            href: '/matematyka',
-            variant: 'primary',
-            icon: '📖'
-          },
-          {
-            text: '📚 Angielski',
-            href: '/angielski',
-            variant: 'secondary',
-            icon: '📚'
-          },
-          {
-            text: '💾 Programowanie',
-            href: '/programowanie',
-            variant: 'outline',
-            icon: '💾'
-          }
+          { text: '📖 Matematyka', href: '/matematyka', variant: 'primary', icon: '📖' },
+          { text: '📚 Angielski', href: '/angielski', variant: 'secondary', icon: '📚' },
+          { text: '💾 Programowanie', href: '/programowanie', variant: 'outline', icon: '💾' }
         ]
       }, { status: 429 });
     }
@@ -98,6 +89,7 @@ export async function POST(req: NextRequest) {
     // Cache check
     const cached = getCachedResponse(message);
     if (cached) {
+      console.log('📦 Returning cached response');
       return NextResponse.json({
         response: cached.response,
         buttons: cached.buttons || [],
@@ -105,41 +97,136 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Fallback check - jeśli pytanie dotyczy korepetycji
-    const fallbackResponse = getFallbackResponse(message);
-    if (fallbackResponse) {
-      console.log('💾 Używam fallback response');
-      setCachedResponse(message, fallbackResponse.response, fallbackResponse.buttons);
-      return NextResponse.json({
-        response: fallbackResponse.response,
-        buttons: fallbackResponse.buttons || [],
-        fallback: true
-      });
+    // Detect user intent
+    const intent = detectIntent(message);
+    console.log(`🎯 Detected intent: ${intent}`);
+
+    // 1. BOOKING - nie obsługuj tutaj, to jest w frontendzie
+    if (intent === 'booking') {
+      // To nie powinno się zdarzyć bo booking jest wykrywany w frontendzie
+      // Ale gdyby dotarło tutaj, zwróć fallback
+      const fallback = getFallbackResponse(message);
+      if (fallback) {
+        return NextResponse.json({
+          response: fallback.response,
+          buttons: fallback.buttons || [],
+          fallback: true
+        });
+      }
     }
 
-    console.log('🤖 Używam Gemini API');
+    // 2. FAQ, PRICES, CONTACT, SERVICES, TESTIMONIALS, MATERIALS - użyj fallback
+    const fallbackIntents: UserIntent[] = [
+      'faq', 'price', 'contact', 
+      'service_math', 'service_english', 'service_programming', 
+      'service_webdev', 'service_ai',
+      'testimonials', 'materials'
+    ];
 
-    // Gemini API dla bardziej złożonych pytań
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-2.0-flash-exp',
-      generationConfig: {
-        temperature: 0.7,
-        topP: 0.8,
-        topK: 40,
-        maxOutputTokens: 500,
+    if (fallbackIntents.includes(intent)) {
+      console.log('💾 Using fallback response');
+      const fallbackResponse = getFallbackResponse(message);
+      
+      if (fallbackResponse) {
+        setCachedResponse(message, fallbackResponse.response, fallbackResponse.buttons);
+        return NextResponse.json({
+          response: fallbackResponse.response,
+          buttons: fallbackResponse.buttons || [],
+          fallback: true
+        });
       }
-    });
+    }
 
-    const prompt = `Jesteś KORKUŚ - AI chatbot asystent korepetycji Patryka Kuleszy.
+    // 3. MATH_QUESTION, ENGLISH_QUESTION, PROGRAMMING_QUESTION - użyj Gemini
+    const geminiIntents: UserIntent[] = ['math_question', 'english_question', 'programming_question'];
+    
+    if (geminiIntents.includes(intent) || intent === 'unknown') {
+      console.log('🤖 Using Gemini API');
+
+      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+      const model = genAI.getGenerativeModel({ 
+        model: 'gemini-2.0-flash-exp',
+        generationConfig: {
+          temperature: 0.7,
+          topP: 0.8,
+          topK: 40,
+          maxOutputTokens: 800,
+        }
+      });
+
+      // Prompt dostosowany do intencji
+      let systemPrompt = '';
+      
+      switch (intent) {
+        case 'math_question':
+          systemPrompt = `Jesteś KORKUŚ - AI asystent korepetycji MATEMATYKI Patryka Kuleszy.
 
 TWOJA ROLA:
-- Pomagasz w matematyce (równania, zadania, wyjaśnienia)
-- Uczysz angielskiego (gramatyka, tłumaczenia, konwersacje)  
-- Wspomagasz w programowaniu (Python, JavaScript, algorytmy, kod)
-- Promuj korepetycje Patryka Kuleszy
+- Pomagasz rozwiązywać zadania matematyczne
+- Wyjaśniasz kroki rozwiązania
+- Pokazujesz wzory i metody
 
-WAŻNE ZASADY:
+ZASADY:
+1. ZAWSZE wspominaj o Patryku Kuleszy jako nauczycielu matematyki
+2. Odpowiadaj po polsku
+3. Pokazuj szczegółowe kroki rozwiązania
+4. Używaj emotikonów 🧮📐📊
+5. Zachęcaj do umówienia korepetycji
+
+Pytanie ucznia: "${message}"
+
+Odpowiedz krótko (max 300 słów) i praktycznie.`;
+          break;
+
+        case 'english_question':
+          systemPrompt = `Jesteś KORKUŚ - AI asystent korepetycji ANGIELSKIEGO Patryka Kuleszy.
+
+TWOJA ROLA:
+- Pomagasz z angielskim (gramatyka, tłumaczenia, konwersacje)
+- Wyjaśniasz reguły gramatyczne
+- Dajesz przykłady użycia
+
+ZASADY:
+1. ZAWSZE wspominaj o Patryku Kuleszy (certyfikat C2) jako nauczycielu angielskiego
+2. Odpowiadaj po polsku (chyba że pytanie wymaga angielskiego)
+3. Dawaj konkretne przykłady
+4. Używaj emotikonów 🇬🇧📚✍️
+5. Zachęcaj do umówienia korepetycji
+
+Pytanie ucznia: "${message}"
+
+Odpowiedz krótko (max 300 słów) i praktycznie.`;
+          break;
+
+        case 'programming_question':
+          systemPrompt = `Jesteś KORKUŚ - AI asystent korepetycji PROGRAMOWANIA Patryka Kuleszy.
+
+TWOJA ROLA:
+- Pomagasz z programowaniem (Python, JavaScript, React, Next.js)
+- Wyjaśniasz kod i algorytmy
+- Pokazujesz best practices
+
+ZASADY:
+1. ZAWSZE wspominaj o Patryku Kuleszy (technik informatyk) jako nauczycielu programowania
+2. Odpowiadaj po polsku
+3. Dawaj konkretne przykłady kodu
+4. Używaj emotikonów 💻🐍⚛️
+5. Zachęcaj do umówienia korepetycji
+
+Pytanie ucznia: "${message}"
+
+Odpowiedz krótko (max 300 słów) i praktycznie.`;
+          break;
+
+        default: // unknown
+          systemPrompt = `Jesteś KORKUŚ - AI chatbot asystent korepetycji Patryka Kuleszy.
+
+TWOJA ROLA:
+- Pomagasz w matematyce, angielskim i programowaniu
+- Promuj korepetycje Patryka Kuleszy
+- Kieruj na odpowiednie strony
+
+WAŻ NE ZASADY:
 1. ZAWSZE wspominaj o Patryku Kuleszy jako autorze i nauczycielu
 2. Odpowiadaj po polsku (chyba że pytanie dotyczy angielskiego)
 3. Bądź pomocny, cierpliwy i motywujący
@@ -147,131 +234,97 @@ WAŻNE ZASADY:
 5. Dla angielskiego: wyjaśniaj gramatykę i podawaj przykłady
 6. Dla programowania: dawaj konkretne przykłady kodu
 7. Kieruj na odpowiednie strony (/matematyka, /angielski, /programowanie)
+8. Używaj emotikonów 📚🧮💻
 
 TEMATYKA: korepetycje, edukacja, nauka
 UNIKAJ: tematów niezwiązanych z edukacją
 
 Pytanie ucznia: "${message}"
 
-Odpowiedz krótko (max 200 słów) i praktycznie. Używaj emotikonów 📚🧮💻`;
+Odpowiedz krótko (max 300 słów) i praktycznie.`;
+      }
 
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    const aiResponse = response.text();
+      const result = await model.generateContent(systemPrompt);
+      const response = result.response;
+      const aiResponse = response.text();
 
-    // Inteligentne przyciski na podstawie treści pytania
-    let smartButtons: ChatButton[] = [];
-    
-    const lowerMessage = message.toLowerCase();
-    
-    if (lowerMessage.includes('matematyka') || lowerMessage.includes('równanie') || lowerMessage.includes('zadanie')) {
-      smartButtons = [
-        {
-          text: '📖 Więcej materiałów',
-          href: '/matematyka',
-          variant: 'primary',
-          icon: '📖'
-        },
-        {
-          text: '📞 Umów korepetycje',
-          href: '/kontakt',
-          variant: 'secondary',
-          icon: '📞'
-        }
-      ];
-    } else if (lowerMessage.includes('angielski') || lowerMessage.includes('english') || lowerMessage.includes('tłumacz')) {
-      smartButtons = [
-        {
-          text: '📚 Materiały angielski',
-          href: '/angielski',
-          variant: 'primary',
-          icon: '📚'
-        },
-        {
-          text: '📞 Umów lekcje',
-          href: '/kontakt',
-          variant: 'secondary',
-          icon: '📞'
-        }
-      ];
-    } else if (lowerMessage.includes('programowanie') || lowerMessage.includes('python') || lowerMessage.includes('javascript') || lowerMessage.includes('kod')) {
-      smartButtons = [
-        {
-          text: '💾 Materiały IT',
-          href: '/programowanie',
-          variant: 'primary',
-          icon: '💾'
-        },
-        {
-          text: '📞 Umów korepetycje',
-          href: '/kontakt',
-          variant: 'secondary',
-          icon: '📞'
-        }
-      ];
-    } else {
-      // Domyślne przyciski dla ogólnych pytań
-      smartButtons = [
-        {
-          text: '🧮 Matematyka',
-          href: '/matematyka',
-          variant: 'primary',
-          icon: '🧮'
-        },
-        {
-          text: '🇬🇧 Angielski',
-          href: '/angielski',
-          variant: 'secondary',
-          icon: '🇬🇧'
-        },
-        {
-          text: '💻 Programowanie',
-          href: '/programowanie',
-          variant: 'outline',
-          icon: '💻'
-        }
-      ];
+      // Inteligentne przyciski na podstawie intencji
+      let smartButtons: ChatButton[] = [];
+      
+      switch (intent) {
+        case 'math_question':
+          smartButtons = [
+            { text: '📖 Więcej materiałów', href: '/matematyka', variant: 'primary', icon: '📖' },
+            { text: '📅 Umów korepetycje', onClick: 'startBooking()', variant: 'secondary', icon: '📅' }
+          ];
+          break;
+
+        case 'english_question':
+          smartButtons = [
+            { text: '📚 Materiały angielski', href: '/angielski', variant: 'primary', icon: '📚' },
+            { text: '📅 Umów lekcje', onClick: 'startBooking()', variant: 'secondary', icon: '📅' }
+          ];
+          break;
+
+        case 'programming_question':
+          smartButtons = [
+            { text: '💾 Materiały IT', href: '/programowanie', variant: 'primary', icon: '💾' },
+            { text: '📅 Umów korepetycje', onClick: 'startBooking()', variant: 'secondary', icon: '📅' }
+          ];
+          break;
+
+        default:
+          smartButtons = [
+            { text: '🧮 Matematyka', href: '/matematyka', variant: 'primary', icon: '🧮' },
+            { text: '🇬🇧 Angielski', href: '/angielski', variant: 'secondary', icon: '🇬🇧' },
+            { text: '💻 Programowanie', href: '/programowanie', variant: 'outline', icon: '💻' }
+          ];
+      }
+
+      // Cache response
+      setCachedResponse(message, aiResponse, smartButtons);
+
+      return NextResponse.json({
+        response: aiResponse,
+        buttons: smartButtons,
+        apiUsed: true
+      });
     }
 
-    // Cache response
-    setCachedResponse(message, aiResponse, smartButtons);
-
+    // 4. Fallback dla wszystkiego innego
+    console.log('💾 Using default fallback');
+    const defaultResponse = getDefaultResponse();
+    
+    setCachedResponse(message, defaultResponse.response, defaultResponse.buttons);
+    
     return NextResponse.json({
-      response: aiResponse,
-      buttons: smartButtons,
-      apiUsed: true
+      response: defaultResponse.response,
+      buttons: defaultResponse.buttons || [],
+      fallback: true
     });
 
   } catch (error) {
     console.error('❌ Błąd chatbota:', error);
 
-    // Error fallback - sprawdź czy pytanie dotyczy edukacji
-    const { message } = await req.json().catch(() => ({ message: '' }));
-    
-    if (isEducationRelated(message)) {
-      const fallback = getFallbackResponse(message) || getDefaultResponse();
-      return NextResponse.json({
-        response: fallback.response,
-        buttons: fallback.buttons || [],
-        fallback: true
-      }, { status: 200 });
-    }
+    // Error fallback
+    try {
+      const { message } = await req.json().catch(() => ({ message: '' }));
+      
+      if (isEducationRelated(message)) {
+        const fallback = getFallbackResponse(message) || getDefaultResponse();
+        return NextResponse.json({
+          response: fallback.response,
+          buttons: fallback.buttons || [],
+          fallback: true
+        }, { status: 200 });
+      }
+    } catch {}
 
     return NextResponse.json({
       response: '😅 **Ups! Coś poszło nie tak...**\n\nSpróbuj ponownie za chwilę lub skontaktuj się bezpośrednio z **Patrykiem Kuleszą**!',
       buttons: [
-        {
-          text: '🔄 Spróbuj ponownie',
-          onClick: 'location.reload()',
-          variant: 'primary',
-          icon: '🔄'
-        },
-        {
-          text: '📞 Kontakt bezpośredni',
-          href: '/kontakt',
-          variant: 'secondary',
-          icon: '📞'
-        }
+        { text: '🔄 Spróbuj ponownie', onClick: 'location.reload()', variant: 'primary', icon: '🔄' },
+        { text: '📞 Kontakt bezpośredni', href: 'tel:+48662581368', variant: 'secondary', icon: '📞' }
       ]
     }, { status: 500 });
   }
