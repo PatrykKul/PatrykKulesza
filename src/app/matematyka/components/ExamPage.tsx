@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Calculator, Clock, Award, FileText, Download, Eye, EyeOff, CheckCircle, RotateCcw, PenTool } from 'lucide-react';
+import { ArrowLeft, Calculator, Clock, Award, FileText, Download, Eye, EyeOff, CheckCircle, RotateCcw, PenTool, X, Delete, Plus, Minus, Divide } from 'lucide-react';
 import MathText, { MathSolutionStep } from '@/app/matematyka/components/MathText';
 import { useImageScan } from '@/hooks/useImageScan';
 import AdvancedCanvas from './AdvancedCanvas';
@@ -55,6 +55,7 @@ export default function ExamPage({
   const [showCanvas, setShowCanvas] = useState<Record<string, boolean>>({});
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
+  const [showCalculator, setShowCalculator] = useState(false);
 
   const { imageData, loading: imagesLoading } = useImageScan(examType, year, type, level);
 
@@ -308,6 +309,333 @@ export default function ExamPage({
   const answeredCount = Object.keys(userAnswers).filter(key => userAnswers[key].length > 0).length;
   const checkedCount = Object.keys(checkedAnswers).filter(key => checkedAnswers[key]).length;
   const totalProblems = examData.problems.length;
+
+  // Calculator component
+  const MathCalculator = () => {
+    const [display, setDisplay] = useState('0');
+    const [previousValue, setPreviousValue] = useState<number | null>(null);
+    const [operation, setOperation] = useState<string | null>(null);
+    const [waitingForNewValue, setWaitingForNewValue] = useState(false);
+    const [memory, setMemory] = useState(0);
+    const [showHistory, setShowHistory] = useState(false);
+    const [history, setHistory] = useState<string[]>([]);
+
+    const inputNumber = (num: string) => {
+      if (waitingForNewValue) {
+        setDisplay(num);
+        setWaitingForNewValue(false);
+      } else {
+        setDisplay(display === '0' ? num : display + num);
+      }
+    };
+
+    const inputDecimal = () => {
+      if (waitingForNewValue) {
+        setDisplay('0.');
+        setWaitingForNewValue(false);
+      } else if (display.indexOf('.') === -1) {
+        setDisplay(display + '.');
+      }
+    };
+
+    const clear = () => {
+      setDisplay('0');
+      setPreviousValue(null);
+      setOperation(null);
+      setWaitingForNewValue(false);
+    };
+
+    const performOperation = (nextOperation: string) => {
+      const inputValue = parseFloat(display);
+
+      if (previousValue === null) {
+        setPreviousValue(inputValue);
+      } else if (operation) {
+        const currentValue = previousValue || 0;
+        let result = currentValue;
+
+        switch (operation) {
+          case '+':
+            result = currentValue + inputValue;
+            break;
+          case '-':
+            result = currentValue - inputValue;
+            break;
+          case '×':
+            result = currentValue * inputValue;
+            break;
+          case '÷':
+            result = inputValue !== 0 ? currentValue / inputValue : currentValue;
+            break;
+          case '^':
+            result = Math.pow(currentValue, inputValue);
+            break;
+          case '=':
+            result = inputValue;
+            break;
+          default:
+            return;
+        }
+
+        // Add to history
+        if (operation !== '=') {
+          const calculation = `${currentValue} ${operation} ${inputValue} = ${result}`;
+          setHistory(prev => [calculation, ...prev.slice(0, 9)]);
+        }
+
+        setDisplay(String(result));
+        setPreviousValue(result);
+      }
+
+      setWaitingForNewValue(true);
+      setOperation(nextOperation);
+    };
+
+    const calculate = () => {
+      performOperation('=');
+      setOperation(null);
+      setPreviousValue(null);
+      setWaitingForNewValue(true);
+    };
+
+    const scientificFunction = (func: string) => {
+      const value = parseFloat(display);
+      let result: number;
+
+      switch (func) {
+        case 'sin':
+          result = Math.sin(value * Math.PI / 180);
+          break;
+        case 'cos':
+          result = Math.cos(value * Math.PI / 180);
+          break;
+        case 'tan':
+          result = Math.tan(value * Math.PI / 180);
+          break;
+        case 'log':
+          result = Math.log10(value);
+          break;
+        case 'ln':
+          result = Math.log(value);
+          break;
+        case 'sqrt':
+          result = Math.sqrt(value);
+          break;
+        case '1/x':
+          result = 1 / value;
+          break;
+        case 'x²':
+          result = value * value;
+          break;
+        case '±':
+          result = -value;
+          break;
+        case '%':
+          result = value / 100;
+          break;
+        default:
+          return;
+      }
+
+      setDisplay(String(result));
+      setWaitingForNewValue(true);
+    };
+
+    const memoryFunction = (func: string) => {
+      const value = parseFloat(display);
+      switch (func) {
+        case 'MC':
+          setMemory(0);
+          break;
+        case 'MR':
+          setDisplay(String(memory));
+          setWaitingForNewValue(true);
+          break;
+        case 'M+':
+          setMemory(memory + value);
+          break;
+        case 'M-':
+          setMemory(memory - value);
+          break;
+        case 'MS':
+          setMemory(value);
+          break;
+      }
+    };
+
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 w-full max-w-md shadow-2xl">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Calculator className="w-5 h-5 text-[#58a6ff]" />
+              <h3 className="text-lg font-semibold text-white">Kalkulator</h3>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowHistory(!showHistory)}
+                className="p-2 text-gray-400 hover:text-white hover:bg-[#30363d] rounded-lg transition-colors"
+                title="Historia obliczeń"
+              >
+                📋
+              </button>
+              <button
+                onClick={() => setShowCalculator(false)}
+                className="p-2 text-gray-400 hover:text-white hover:bg-[#30363d] rounded-lg transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Display */}
+          <div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-4 mb-4">
+            <div className="text-right text-2xl font-mono text-white break-all">
+              {display}
+            </div>
+            {memory !== 0 && (
+              <div className="text-right text-sm text-[#58a6ff] mt-1">
+                M: {memory}
+              </div>
+            )}
+          </div>
+
+          {/* History */}
+          {showHistory && (
+            <div className="bg-[#21262d] border border-[#30363d] rounded-lg p-3 mb-4 max-h-32 overflow-y-auto">
+              <div className="text-sm text-gray-400 mb-2">Historia obliczeń:</div>
+              {history.length > 0 ? (
+                <div className="space-y-1">
+                  {history.map((calc, index) => (
+                    <div key={index} className="text-xs text-gray-300 font-mono">
+                      {calc}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-xs text-gray-500">Brak historii</div>
+              )}
+            </div>
+          )}
+
+          {/* Memory functions */}
+          <div className="grid grid-cols-5 gap-1 mb-3">
+            {['MC', 'MR', 'M+', 'M-', 'MS'].map((func) => (
+              <button
+                key={func}
+                onClick={() => memoryFunction(func)}
+                className="bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] text-white text-xs py-2 rounded-lg transition-colors"
+              >
+                {func}
+              </button>
+            ))}
+          </div>
+
+          {/* Scientific functions */}
+          <div className="grid grid-cols-5 gap-1 mb-3">
+            {['sin', 'cos', 'tan', 'log', 'ln'].map((func) => (
+              <button
+                key={func}
+                onClick={() => scientificFunction(func)}
+                className="bg-[#1f2937] hover:bg-[#374151] border border-[#30363d] text-white text-xs py-2 rounded-lg transition-colors"
+              >
+                {func}
+              </button>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-5 gap-1 mb-3">
+            {['√', 'x²', '^', '1/x', '±'].map((func, index) => {
+              const funcName = ['sqrt', 'x²', '^', '1/x', '±'][index];
+              return (
+                <button
+                  key={func}
+                  onClick={() => funcName === '^' ? setOperation('^') : scientificFunction(funcName)}
+                  className="bg-[#1f2937] hover:bg-[#374151] border border-[#30363d] text-white text-xs py-2 rounded-lg transition-colors"
+                >
+                  {func}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Main calculator */}
+          <div className="grid grid-cols-4 gap-2">
+            {/* Row 1 */}
+            <button
+              onClick={clear}
+              className="bg-[#dc2626] hover:bg-[#b91c1c] text-white py-3 rounded-lg font-semibold transition-colors col-span-2"
+            >
+              Clear
+            </button>
+            <button
+              onClick={() => scientificFunction('%')}
+              className="bg-[#6b7280] hover:bg-[#4b5563] text-white py-3 rounded-lg font-semibold transition-colors"
+            >
+              %
+            </button>
+            <button
+              onClick={() => performOperation('÷')}
+              className="bg-[#f59e0b] hover:bg-[#d97706] text-white py-3 rounded-lg font-semibold transition-colors"
+            >
+              ÷
+            </button>
+
+            {/* Row 2 */}
+            <button onClick={() => inputNumber('7')} className="bg-[#374151] hover:bg-[#4b5563] text-white py-3 rounded-lg font-semibold transition-colors">7</button>
+            <button onClick={() => inputNumber('8')} className="bg-[#374151] hover:bg-[#4b5563] text-white py-3 rounded-lg font-semibold transition-colors">8</button>
+            <button onClick={() => inputNumber('9')} className="bg-[#374151] hover:bg-[#4b5563] text-white py-3 rounded-lg font-semibold transition-colors">9</button>
+            <button
+              onClick={() => performOperation('×')}
+              className="bg-[#f59e0b] hover:bg-[#d97706] text-white py-3 rounded-lg font-semibold transition-colors"
+            >
+              ×
+            </button>
+
+            {/* Row 3 */}
+            <button onClick={() => inputNumber('4')} className="bg-[#374151] hover:bg-[#4b5563] text-white py-3 rounded-lg font-semibold transition-colors">4</button>
+            <button onClick={() => inputNumber('5')} className="bg-[#374151] hover:bg-[#4b5563] text-white py-3 rounded-lg font-semibold transition-colors">5</button>
+            <button onClick={() => inputNumber('6')} className="bg-[#374151] hover:bg-[#4b5563] text-white py-3 rounded-lg font-semibold transition-colors">6</button>
+            <button
+              onClick={() => performOperation('-')}
+              className="bg-[#f59e0b] hover:bg-[#d97706] text-white py-3 rounded-lg font-semibold transition-colors"
+            >
+              −
+            </button>
+
+            {/* Row 4 */}
+            <button onClick={() => inputNumber('1')} className="bg-[#374151] hover:bg-[#4b5563] text-white py-3 rounded-lg font-semibold transition-colors">1</button>
+            <button onClick={() => inputNumber('2')} className="bg-[#374151] hover:bg-[#4b5563] text-white py-3 rounded-lg font-semibold transition-colors">2</button>
+            <button onClick={() => inputNumber('3')} className="bg-[#374151] hover:bg-[#4b5563] text-white py-3 rounded-lg font-semibold transition-colors">3</button>
+            <button
+              onClick={() => performOperation('+')}
+              className="bg-[#f59e0b] hover:bg-[#d97706] text-white py-3 rounded-lg font-semibold transition-colors"
+            >
+              +
+            </button>
+
+            {/* Row 5 */}
+            <button onClick={() => inputNumber('0')} className="bg-[#374151] hover:bg-[#4b5563] text-white py-3 rounded-lg font-semibold transition-colors col-span-2">0</button>
+            <button onClick={inputDecimal} className="bg-[#374151] hover:bg-[#4b5563] text-white py-3 rounded-lg font-semibold transition-colors">.</button>
+            <button
+              onClick={calculate}
+              className="bg-[#059669] hover:bg-[#047857] text-white py-3 rounded-lg font-semibold transition-colors"
+            >
+              =
+            </button>
+          </div>
+
+          {/* Footer info */}
+          <div className="mt-4 text-center">
+            <div className="text-xs text-gray-400">
+              💡 Funkcje trygonometryczne w stopniach
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-[#0d1117] text-white">
@@ -1052,6 +1380,23 @@ export default function ExamPage({
           </p>
         </div>
       </footer>
+
+      {/* Floating Calculator Button */}
+      <div className="fixed right-4 bottom-28 z-30">
+        <button
+          onClick={() => setShowCalculator(true)}
+          className="bg-gradient-to-r from-[#f59e0b] to-[#d97706] hover:from-[#d97706] hover:to-[#b45309] text-white p-4 rounded-full shadow-2xl transition-all duration-300 transform hover:scale-110 hover:-translate-y-1 group"
+          title="Otwórz kalkulator"
+        >
+          <Calculator className="w-6 h-6" />
+          <div className="absolute right-full top-1/2 -translate-y-1/2 mr-3 bg-[#161b22] border border-[#30363d] px-3 py-1 rounded-lg text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
+            Kalkulator
+          </div>
+        </button>
+      </div>
+
+      {/* Calculator Modal */}
+      {showCalculator && <MathCalculator />}
     </div>
   );
 }
