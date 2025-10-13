@@ -16,6 +16,15 @@ interface ChatButton {
   icon?: string;
 }
 
+// History interface do przechowywania konwersacji
+interface ConversationHistory {
+  messages: {
+    role: 'user' | 'model';
+    parts: string;
+  }[];
+  lastUpdated: number;
+}
+
 // Rate limiting - prosty cache (w produkcji użyj Redis)
 const requestCache = new Map<string, { count: number; lastReset: number }>();
 const RATE_LIMIT = 20; // 20 zapytań na IP
@@ -24,6 +33,10 @@ const WINDOW_MS = 15 * 60 * 1000; // 15 minut
 // Cache odpowiedzi
 const responseCache = new Map<string, { response: string; timestamp: number; buttons?: ChatButton[] }>();
 const CACHE_TTL = 30 * 60 * 1000; // 30 minut
+
+// Storage dla historii konwersacji
+const conversationStore = new Map<string, ConversationHistory>();
+const HISTORY_TTL = 30 * 60 * 1000; // 30 minut przechowywania historii
 
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
@@ -58,16 +71,52 @@ function setCachedResponse(message: string, response: string, buttons?: ChatButt
   });
 }
 
+// Funkcja obsługująca historię konwersacji
+function getOrCreateConversationHistory(sessionId: string): ConversationHistory {
+  const now = Date.now();
+  
+  // Czyścimy stare konwersacje
+  for (const [id, conversation] of conversationStore.entries()) {
+    if (now - conversation.lastUpdated > HISTORY_TTL) {
+      conversationStore.delete(id);
+    }
+  }
+  
+  // Zwracamy istniejącą historię lub tworzymy nową
+  if (!conversationStore.has(sessionId)) {
+    conversationStore.set(sessionId, {
+      messages: [],
+      lastUpdated: now
+    });
+  }
+  
+  return conversationStore.get(sessionId)!;
+}
+
+// Funkcja dodająca wiadomość do historii
+function addMessageToHistory(sessionId: string, role: 'user' | 'model', message: string) {
+  const history = getOrCreateConversationHistory(sessionId);
+  history.messages.push({ role, parts: message });
+  history.lastUpdated = Date.now();
+  
+  // Limituję historię do 10 ostatnich wiadomości (5 rund)
+  if (history.messages.length > 10) {
+    history.messages = history.messages.slice(-10);
+  }
+}
+
 export async function POST(req: NextRequest) {
   console.log('🤖 API Chat endpoint called');
   
   try {
-    const { message } = await req.json();
+    // Rozszerzamy obiekt request o sessionId
+    const { message, sessionId = crypto.randomUUID() } = await req.json();
     console.log('📝 Received message:', message);
+    console.log('🆔 Session ID:', sessionId);
     
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
       return NextResponse.json(
-        { response: 'Proszę napisać wiadomość! 😊' },
+        { response: 'Proszę napisać wiadomość! 😊', sessionId },
         { status: 400 }
       );
     }
@@ -82,19 +131,33 @@ export async function POST(req: NextRequest) {
           { text: '📖 Matematyka', href: '/matematyka', variant: 'primary', icon: '📖' },
           { text: '📚 Angielski', href: '/angielski', variant: 'secondary', icon: '📚' },
           { text: '💾 Programowanie', href: '/programowanie', variant: 'outline', icon: '💾' }
-        ]
+        ],
+        sessionId
       }, { status: 429 });
     }
 
-    // Cache check
-    const cached = getCachedResponse(message);
-    if (cached) {
-      console.log('📦 Returning cached response');
-      return NextResponse.json({
-        response: cached.response,
-        buttons: cached.buttons || [],
-        cached: true
-      });
+    // Pobieramy historię konwersacji
+    const conversationHistory = getOrCreateConversationHistory(sessionId);
+    
+    // Dodajemy wiadomość użytkownika do historii
+    addMessageToHistory(sessionId, 'user', message);
+    
+    // Używamy cache tylko gdy nie ma wcześniejszej historii
+    if (conversationHistory.messages.length <= 1) {
+      const cached = getCachedResponse(message);
+      if (cached) {
+        console.log('📦 Returning cached response');
+        
+        // Dodajemy odpowiedź z cache do historii
+        addMessageToHistory(sessionId, 'model', cached.response);
+        
+        return NextResponse.json({
+          response: cached.response,
+          buttons: cached.buttons || [],
+          cached: true,
+          sessionId
+        });
+      }
     }
 
     // Detect user intent
@@ -107,10 +170,14 @@ export async function POST(req: NextRequest) {
       // Ale gdyby dotarło tutaj, zwróć fallback
       const fallback = getFallbackResponse(message);
       if (fallback) {
+        // Dodajemy odpowiedź do historii
+        addMessageToHistory(sessionId, 'model', fallback.response);
+        
         return NextResponse.json({
           response: fallback.response,
           buttons: fallback.buttons || [],
-          fallback: true
+          fallback: true,
+          sessionId
         });
       }
     }
@@ -128,11 +195,19 @@ export async function POST(req: NextRequest) {
       const fallbackResponse = getFallbackResponse(message);
       
       if (fallbackResponse) {
-        setCachedResponse(message, fallbackResponse.response, fallbackResponse.buttons);
+        // Dodajemy odpowiedź do historii
+        addMessageToHistory(sessionId, 'model', fallbackResponse.response);
+        
+        // Cache tylko jeśli to pierwsze pytanie
+        if (conversationHistory.messages.length <= 2) {
+          setCachedResponse(message, fallbackResponse.response, fallbackResponse.buttons);
+        }
+        
         return NextResponse.json({
           response: fallbackResponse.response,
           buttons: fallbackResponse.buttons || [],
-          fallback: true
+          fallback: true,
+          sessionId
         });
       }
     }
@@ -153,10 +228,30 @@ export async function POST(req: NextRequest) {
           maxOutputTokens: 800,
         }
       });
-
-      // Prompt dostosowany do intencji
+      
+      // Tworzenie kontekstu z historii
+      const chatHistory = conversationHistory.messages.slice(0, -1); // bez ostatniej wiadomości
+      
+      let chat;
       let systemPrompt = '';
       
+      // Jeśli mamy historię, używamy chat.sendMessage zamiast generateContent
+      if (chatHistory.length > 0) {
+        chat = model.startChat({
+          history: chatHistory.map(msg => ({
+            role: msg.role,
+            parts: [{ text: msg.parts }]
+          })),
+          generationConfig: {
+            temperature: 0.7,
+            topP: 0.8,
+            topK: 40,
+            maxOutputTokens: 800,
+          }
+        });
+      }
+
+      // Przygotowanie systemPrompt zgodnie z intencją
       switch (intent) {
         case 'math_question':
           systemPrompt = `Jesteś KORKUŚ - AI asystent korepetycji MATEMATYKI Patryka Kuleszy.
@@ -244,9 +339,21 @@ Pytanie ucznia: "${message}"
 Odpowiedz krótko (max 300 słów) i praktycznie.`;
       }
 
-      const result = await model.generateContent(systemPrompt);
+      // Wywołanie odpowiedniego API w zależności od historii
+      let result;
+      if (chat && chatHistory.length > 0) {
+        // Używamy czatu z historią konwersacji
+        result = await chat.sendMessage(message);
+      } else {
+        // Używamy jednorazowego generowania
+        result = await model.generateContent(systemPrompt);
+      }
+
       const response = result.response;
       const aiResponse = response.text();
+
+      // Dodajemy odpowiedź do historii
+      addMessageToHistory(sessionId, 'model', aiResponse);
 
       // Inteligentne przyciski na podstawie intencji
       let smartButtons: ChatButton[] = [];
@@ -281,13 +388,16 @@ Odpowiedz krótko (max 300 słów) i praktycznie.`;
           ];
       }
 
-      // Cache response
-      setCachedResponse(message, aiResponse, smartButtons);
+      // Cache response tylko jeśli to pierwsze pytanie
+      if (conversationHistory.messages.length <= 2) {
+        setCachedResponse(message, aiResponse, smartButtons);
+      }
 
       return NextResponse.json({
         response: aiResponse,
         buttons: smartButtons,
-        apiUsed: true
+        apiUsed: true,
+        sessionId
       });
     }
 
@@ -295,12 +405,19 @@ Odpowiedz krótko (max 300 słów) i praktycznie.`;
     console.log('💾 Using default fallback');
     const defaultResponse = getDefaultResponse();
     
-    setCachedResponse(message, defaultResponse.response, defaultResponse.buttons);
+    // Dodajemy odpowiedź do historii
+    addMessageToHistory(sessionId, 'model', defaultResponse.response);
+    
+    // Cache tylko jeśli to pierwsze pytanie
+    if (conversationHistory.messages.length <= 2) {
+      setCachedResponse(message, defaultResponse.response, defaultResponse.buttons);
+    }
     
     return NextResponse.json({
       response: defaultResponse.response,
       buttons: defaultResponse.buttons || [],
-      fallback: true
+      fallback: true,
+      sessionId
     });
 
   } catch (error) {
@@ -308,24 +425,34 @@ Odpowiedz krótko (max 300 słów) i praktycznie.`;
 
     // Error fallback
     try {
-      const { message } = await req.json().catch(() => ({ message: '' }));
+      const { message, sessionId = crypto.randomUUID() } = await req.json().catch(() => ({ message: '', sessionId: crypto.randomUUID() }));
       
       if (isEducationRelated(message)) {
         const fallback = getFallbackResponse(message) || getDefaultResponse();
         return NextResponse.json({
           response: fallback.response,
           buttons: fallback.buttons || [],
-          fallback: true
+          fallback: true,
+          sessionId
         }, { status: 200 });
       }
-    } catch {}
-
-    return NextResponse.json({
-      response: '😅 **Ups! Coś poszło nie tak...**\n\nSpróbuj ponownie za chwilę lub skontaktuj się bezpośrednio z **Patrykiem Kuleszą**!',
-      buttons: [
-        { text: '🔄 Spróbuj ponownie', onClick: 'location.reload()', variant: 'primary', icon: '🔄' },
-        { text: '📞 Kontakt bezpośredni', href: 'tel:+48662581368', variant: 'secondary', icon: '📞' }
-      ]
-    }, { status: 500 });
+      
+      return NextResponse.json({
+        response: '😅 **Ups! Coś poszło nie tak...**\n\nSpróbuj ponownie za chwilę lub skontaktuj się bezpośrednio z **Patrykiem Kuleszą**!',
+        buttons: [
+          { text: '🔄 Spróbuj ponownie', onClick: 'location.reload()', variant: 'primary', icon: '🔄' },
+          { text: '📞 Kontakt bezpośredni', href: 'tel:+48662581368', variant: 'secondary', icon: '📞' }
+        ],
+        sessionId
+      }, { status: 500 });
+    } catch {
+      return NextResponse.json({
+        response: '😅 **Ups! Coś poszło nie tak...**\n\nSpróbuj ponownie za chwilę lub skontaktuj się bezpośrednio z **Patrykiem Kuleszą**!',
+        buttons: [
+          { text: '🔄 Spróbuj ponownie', onClick: 'location.reload()', variant: 'primary', icon: '🔄' },
+          { text: '📞 Kontakt bezpośredni', href: 'tel:+48662581368', variant: 'secondary', icon: '📞' }
+        ]
+      }, { status: 500 });
+    }
   }
 }

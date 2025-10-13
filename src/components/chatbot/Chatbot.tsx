@@ -7,7 +7,7 @@ import emailjs from '@emailjs/browser';
 interface ChatButton {
   text: string;
   href?: string;
-  onClick?: () => void;
+  onClick?: (() => void) | string;
   variant?: 'primary' | 'secondary' | 'outline';
   icon?: string;
 }
@@ -57,6 +57,9 @@ export default function ChatbotNew() {
   // Stan konwersacji - CRITICAL FIX: ref + state
   const [conversationState, setConversationState] = useState<ConversationState>('initial');
   const conversationStateRef = useRef<ConversationState>('initial');
+  
+  // SessionId dla kontekstu rozmowy
+  const [sessionId, setSessionId] = useState<string>('');
   
   const [bookingData, setBookingData] = useState<BookingData>({
     subject: '',
@@ -369,10 +372,15 @@ export default function ChatbotNew() {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMsg })
+        body: JSON.stringify({ message: userMsg, sessionId })
       });
 
       const data = await res.json();
+
+      // Zapamiętaj sessionId z odpowiedzi
+      if (data.sessionId) {
+        setSessionId(data.sessionId);
+      }
 
       setMessages(prev => [...prev, {
         role: 'bot',
@@ -520,7 +528,28 @@ export default function ChatbotNew() {
                         <span>{btn.icon}</span>{btn.text}
                       </a>
                     ) : (
-                      <button key={idx} onClick={btn.onClick} className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all ${btn.variant === 'primary' ? 'bg-blue-600 text-white hover:bg-blue-700' : btn.variant === 'secondary' ? 'bg-gray-100 text-gray-700 hover:bg-gray-200' : 'border border-gray-300 text-gray-600 hover:border-gray-400'}`}>
+                      <button 
+                        key={idx} 
+                        onClick={() => {
+                          if (typeof btn.onClick === 'string') {
+                            // Handle string onClick (jak 'location.reload()')
+                            if (btn.onClick === 'location.reload()') {
+                              window.location.reload();
+                            } else if (btn.onClick === 'startBooking()') {
+                              startBooking();
+                            } else {
+                              // Eval jako ostateczność (ostrożnie!)
+                              try {
+                                eval(btn.onClick);
+                              } catch (e) {
+                                console.error('Error executing onClick:', e);
+                              }
+                            }
+                          } else if (typeof btn.onClick === 'function') {
+                            btn.onClick();
+                          }
+                        }}
+                        className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all ${btn.variant === 'primary' ? 'bg-blue-600 text-white hover:bg-blue-700' : btn.variant === 'secondary' ? 'bg-gray-100 text-gray-700 hover:bg-gray-200' : 'border border-gray-300 text-gray-600 hover:border-gray-400'}`}>
                         <span>{btn.icon}</span>{btn.text}
                       </button>
                     )
