@@ -49,15 +49,12 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateType>('coordinate-system');
   const [color, setColor] = useState('#000000');
   const [lineWidth, setLineWidth] = useState(2);
-  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
   const [canvasHeight, setCanvasHeight] = useState(600);
   
   // Advanced features
   const [showShapeMenu, setShowShapeMenu] = useState(false);
   const [showTextMenu, setShowTextMenu] = useState(false);
-  const [showColorPicker, setShowColorPicker] = useState(false);
   const [showTemplateMenu, setShowTemplateMenu] = useState(false);
-  const [showLayersPanel, setShowLayersPanel] = useState(false);
   const [snapToGrid, setSnapToGrid] = useState(false);
   
   // Elements
@@ -65,7 +62,6 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
   const [currentShape, setCurrentShape] = useState<Shape | null>(null);
   const [currentTemplate, setCurrentTemplate] = useState<{x: number; y: number; width: number; height: number; type: TemplateType} | null>(null);
   const [textElements, setTextElements] = useState<TextElement[]>([]);
-  const [currentTextBox, setCurrentTextBox] = useState<Omit<TextElement, 'id' | 'text'> | null>(null);
   const [editingTextId, setEditingTextId] = useState<string | null>(null);
   
   // Text styling
@@ -508,12 +504,6 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
     saveToHistory();
   };
 
-  const applyTemplate = (templateName: string) => {
-    // Switch to template tool instead of immediately creating template
-    setSelectedTemplate(templateName as TemplateType);
-    setTool('template');
-    setShowTemplateMenu(false);
-  };
 
   // Export canvas
   const exportCanvas = (format: 'png' | 'svg') => {
@@ -745,7 +735,7 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
       
       ctx.restore();
     }
-  }, [shapes, currentShape, currentTemplate, drawShapes, drawGrid]);
+  }, [currentShape, currentTemplate, drawShapes, drawGrid]);
 
   useEffect(() => {
     redrawCanvas();
@@ -861,8 +851,6 @@ export default function AdvancedCanvas({ problemId }: { problemId: string }) {
     const { x, y } = getMousePosition(e);
     
     if (!isDrawing) {
-      // Track mouse position even when not drawing (for ghost cursor)
-      setMousePos({ x, y });
       return;
     }
 

@@ -631,7 +631,7 @@ export default function ChatbotNew() {
               {/* Message content with markdown support */}
               <div className={msg.role === 'user' ? 'text-white' : 'text-gray-800'}>
                 {msg.content.split('\n').map((line, lineIndex) => {
-                  let processedLine = line
+                  const processedLine = line
                     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                     .replace(/\*(.*?)\*/g, '<em>$1</em>')
                     .replace(/_(.*?)_/g, '<em>$1</em>');
