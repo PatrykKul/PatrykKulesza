@@ -474,29 +474,29 @@ export default function MatematikaPage() {
     <div className="min-h-screen bg-[#0d1117] text-white">
       {/* Header z powrotem i Navigation - Sticky */}
       <header className="sticky top-0 z-50 border-b border-[#30363d] bg-[#161b22] shadow-lg">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-2">
           {/* Powrót do strony głównej */}
-          <div className="mb-4">
+          <div className="mb-2">
             <Link 
               href="/"
-              className="inline-flex items-center gap-2 text-[#58a6ff] hover:text-[#1f6feb] transition-colors"
+              className="inline-flex items-center gap-2 text-[#58a6ff] hover:text-[#1f6feb] transition-colors text-sm"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-4 h-4" />
               Powrót do strony głównej
             </Link>
           </div>
 
           {/* Navigation Menu */}
-          <nav className="bg-[#0d1117] rounded-2xl p-4 border border-[#30363d]">
-            <div className="flex flex-wrap justify-center gap-3">
+          <nav className="bg-[#0d1117] rounded-xl p-2 border border-[#30363d]">
+            <div className="flex flex-wrap justify-center gap-2">
               {/* Szkoła - Dropdown Menu */}
               <div className="relative">
                 <button
                   onClick={toggleSchoolMenu}
-                  className="inline-flex items-center gap-2 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-4 py-2 rounded-lg transition-colors font-medium text-sm"
+                  className="inline-flex items-center gap-1 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-3 py-1.5 rounded-md transition-colors font-medium text-sm"
                 >
                   Szkoła
-                  <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isSchoolMenuOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-3 h-3 transition-transform duration-300 ${isSchoolMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
                 
                 {isSchoolMenuOpen && (
@@ -528,7 +528,7 @@ export default function MatematikaPage() {
               {/* Studia */}
               <button
                 onClick={() => handleContentChange('Studia')}
-                className="inline-flex items-center gap-2 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-4 py-2 rounded-lg transition-colors font-medium text-sm"
+                className="inline-flex items-center gap-1 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-3 py-1.5 rounded-md transition-colors font-medium text-sm"
               >
                 Studia
               </button>
@@ -537,10 +537,10 @@ export default function MatematikaPage() {
               <div className="relative">
                 <button
                   onClick={toggleMaturaMenu}
-                  className="inline-flex items-center gap-2 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-4 py-2 rounded-lg transition-colors font-medium text-sm"
+                  className="inline-flex items-center gap-1 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-3 py-1.5 rounded-md transition-colors font-medium text-sm"
                 >
                   Matura
-                  <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isMaturaMenuOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-3 h-3 transition-transform duration-300 ${isMaturaMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
                 
                 {isMaturaMenuOpen && (
@@ -566,7 +566,7 @@ export default function MatematikaPage() {
               {/* Egzamin 8 klasisty */}
               <button
                 onClick={() => handleContentChange('Egzamin 8 klasisty')}
-                className="inline-flex items-center gap-2 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-4 py-2 rounded-lg transition-colors font-medium text-sm"
+                className="inline-flex items-center gap-1 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-3 py-1.5 rounded-md transition-colors font-medium text-sm"
               >
                 Egzamin 8-klasisty
               </button>

@@ -511,92 +511,105 @@ export default function ExamPage({
 }`}</style>
       
       <header className="sticky top-0 z-20 border-b border-[#30363d] bg-[#161b22] shadow-lg">
-        <div className="container mx-auto px-2 py-2 md:px-4 md:py-4 relative">
-          <div className="flex items-center justify-between">
+        <div className="container mx-auto px-3 py-2.5">
+          <div className="flex items-center justify-between gap-4">
+            {/* Lewa strona - nawigacja */}
             <Link 
               href={basePath}
-              className="inline-flex items-center gap-1 md:gap-2 text-[#58a6ff] hover:text-[#1f6feb] transition-colors text-sm md:text-base"
+              className="inline-flex items-center gap-1.5 text-[#58a6ff] hover:text-[#1f6feb] transition-colors font-medium flex-shrink-0"
             >
-              <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
-              <span className="hidden sm:inline">Powrót do materiałów</span>
-              <span className="sm:hidden">Powrót</span>
+              <ArrowLeft className="w-4 h-4" />
+              <span className="hidden lg:inline text-sm">Powrót do materiałów</span>
+              <span className="lg:hidden text-sm">Powrót</span>
             </Link>
-            
-            <button
-              onClick={() => window.print()}
-              className="inline-flex items-center gap-1 md:gap-2 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-2 py-1.5 md:px-4 md:py-2 rounded-lg transition-colors text-sm md:text-base"
-            >
-              <Download className="w-3.5 h-3.5 md:w-4 md:h-4" />
-              <span className="hidden sm:inline">Pobierz PDF</span>
-              <span className="sm:hidden">PDF</span>
-            </button>
-          </div>
-          
-          {/* Stats panel nakładający się na header - zawsze widoczny */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-            <div className="bg-[#161b22] border-2 border-[#30363d] rounded-xl px-2 py-1.5 md:px-4 md:py-2 shadow-2xl backdrop-blur-sm bg-opacity-95 pointer-events-auto">
-              <div className="flex items-center gap-2 md:gap-4">
-                {/* Timer controls */}
-                <div className="flex items-center gap-1 md:gap-2 pr-2 md:pr-4 border-r border-[#30363d]">
-                  <button
-                    onClick={() => setTimerActive(!timerActive)}
-                    className={`p-1 md:p-1.5 rounded-lg transition-all ${
-                      timerActive 
-                        ? 'bg-yellow-900/30 text-yellow-400 hover:bg-yellow-900/50 border border-yellow-500/30' 
-                        : 'bg-green-900/30 text-green-400 hover:bg-green-900/50 border border-green-500/30'
-                    }`}
-                    title={timerActive ? 'Zatrzymaj timer' : 'Uruchom timer'}
-                  >
-                    {timerActive ? (
-                      <svg className="w-3 h-3 md:w-4 md:h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                      </svg>
-                    ) : (
-                      <svg className="w-3 h-3 md:w-4 md:h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                      </svg>
-                    )}
-                  </button>
-                  <button
-                    onClick={() => {
-                      setTimeElapsed(0);
-                      setTimerActive(false);
-                    }}
-                    className="p-1 md:p-1.5 rounded-lg bg-red-900/30 text-red-400 hover:bg-red-900/50 transition-all border border-red-500/30"
-                    title="Zresetuj timer"
-                  >
-                    <RotateCcw className="w-3 h-3 md:w-4 md:h-4" />
-                  </button>
-                </div>
 
-                {/* Stats */}
-                <div className="flex flex-wrap items-center gap-1.5 md:gap-4 text-xs md:text-sm">
-                  <div className="flex items-center gap-1 md:gap-2">
-                    <Clock className={`w-3 h-3 md:w-4 md:h-4 ${timerActive ? 'text-yellow-400 animate-pulse' : 'text-[#58a6ff]'}`} />
-                    <span className={`${timerActive ? 'text-yellow-400 font-semibold' : 'text-gray-400'}`}>
-                      {formatTime(timeElapsed)}
-                      <span className="hidden sm:inline"> / {examData.duration} min</span>
-                    </span>
-                  </div>
-                  <span className="text-gray-400 hidden sm:inline">Sprawdzone: {checkedCount} / {totalProblems}</span>
-                  <span className="sm:hidden text-gray-400">{checkedCount}/{totalProblems}</span>
-                  <span className="font-bold text-[#58a6ff]">
-                    <span className="hidden sm:inline">Wynik: </span>
-                    {totalScore} / {examData.maxPoints} pkt
-                  </span>
-                </div>
+            {/* Środek - kompaktowe statystyki */}
+            <div className="flex items-center gap-3 text-sm font-medium">
+              {/* Timer controls */}
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => setTimerActive(!timerActive)}
+                  className={`p-1.5 rounded-md transition-all ${
+                    timerActive 
+                      ? 'bg-yellow-900/50 text-yellow-300 hover:bg-yellow-900/70' 
+                      : 'bg-green-900/50 text-green-300 hover:bg-green-900/70'
+                  }`}
+                  title={timerActive ? 'Zatrzymaj timer' : 'Uruchom timer'}
+                >
+                  {timerActive ? (
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </button>
+                <button
+                  onClick={() => {
+                    setTimeElapsed(0);
+                    setTimerActive(false);
+                  }}
+                  className="p-1.5 rounded-md bg-red-900/50 text-red-300 hover:bg-red-900/70 transition-all"
+                  title="Zresetuj timer"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                </button>
+              </div>
 
-                {(answeredCount > 0 || checkedCount > 0) && (
+              <span className="text-gray-400">|</span>
+
+              {/* Kompaktowe statystyki */}
+              <div className="flex items-center gap-1">
+                <Clock className={`w-4 h-4 ${timerActive ? 'text-yellow-300' : 'text-[#58a6ff]'}`} />
+                <span className={`${timerActive ? 'text-yellow-300 font-semibold' : 'text-gray-300'}`}>
+                  {formatTime(timeElapsed)}
+                  <span className="hidden sm:inline">/{examData.duration}min</span>
+                </span>
+              </div>
+
+              <span className="text-gray-400 hidden sm:inline">|</span>
+
+              <div className="hidden sm:flex items-center gap-1">
+                <CheckCircle className="w-4 h-4 text-[#58a6ff]" />
+                <span className="text-gray-300">
+                  {checkedCount}/{totalProblems}
+                </span>
+              </div>
+
+              <span className="text-gray-400 hidden sm:inline">|</span>
+
+              <div className="flex items-center gap-1">
+                <Award className="w-4 h-4 text-[#58a6ff]" />
+                <span className="font-bold text-[#58a6ff]">
+                  {totalScore}/{examData.maxPoints}pkt
+                </span>
+              </div>
+
+              {(answeredCount > 0 || checkedCount > 0) && (
+                <>
+                  <span className="text-gray-400">|</span>
                   <button
                     onClick={resetAllProblems}
-                    className="ml-1 md:ml-2 p-1 md:p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
+                    className="p-1.5 text-gray-400 hover:text-red-300 hover:bg-red-900/30 rounded-md transition-colors"
                     title="Zacznij od nowa"
                   >
-                    <RotateCcw className="w-3 h-3 md:w-4 md:h-4" />
+                    <RotateCcw className="w-4 h-4" />
                   </button>
-                )}
-              </div>
+                </>
+              )}
             </div>
+
+            {/* Prawa strona - PDF */}
+            <button
+              onClick={() => window.print()}
+              className="inline-flex items-center gap-1.5 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-2.5 py-1.5 rounded-lg transition-colors font-medium flex-shrink-0"
+            >
+              <Download className="w-4 h-4" />
+              <span className="hidden lg:inline text-sm">Pobierz PDF</span>
+              <span className="lg:hidden text-sm">PDF</span>
+            </button>
           </div>
         </div>
       </header>
