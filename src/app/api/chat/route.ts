@@ -2,13 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getFallbackResponse, isEducationRelated, getDefaultResponse } from '@/components/chatbot/fallback';
 
+// Definicja typu dla przycisku
+interface ChatButton {
+  text: string;
+  href?: string;
+  onClick?: string;
+  variant?: 'primary' | 'secondary' | 'outline';
+  icon?: string;
+}
+
 // Rate limiting - prosty cache w pamięci (w produkcji użyj Redis)
 const requestCache = new Map<string, { count: number; lastReset: number }>();
 const RATE_LIMIT = 10; // 10 zapytań na IP
 const WINDOW_MS = 15 * 60 * 1000; // 15 minut
 
 // Cache odpowiedzi (opcjonalne)
-const responseCache = new Map<string, { response: string; timestamp: number; buttons?: any[] }>();
+const responseCache = new Map<string, { response: string; timestamp: number; buttons?: ChatButton[] }>();
 const CACHE_TTL = 30 * 60 * 1000; // 30 minut
 
 function checkRateLimit(ip: string): boolean {
@@ -36,7 +45,7 @@ function getCachedResponse(message: string) {
   return null;
 }
 
-function setCachedResponse(message: string, response: string, buttons?: any[]) {
+function setCachedResponse(message: string, response: string, buttons?: ChatButton[]) {
   responseCache.set(message.toLowerCase().trim(), {
     response,
     buttons,
@@ -151,7 +160,7 @@ Odpowiedz krótko (max 200 słów) i praktycznie. Używaj emotikonów 📚🧮�
     const aiResponse = response.text();
 
     // Inteligentne przyciski na podstawie treści pytania
-    let smartButtons: any[] = [];
+    let smartButtons: ChatButton[] = [];
     
     const lowerMessage = message.toLowerCase();
     
@@ -233,7 +242,7 @@ Odpowiedz krótko (max 200 słów) i praktycznie. Używaj emotikonów 📚🧮�
       apiUsed: true
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('❌ Błąd chatbota:', error);
 
     // Error fallback - sprawdź czy pytanie dotyczy edukacji
