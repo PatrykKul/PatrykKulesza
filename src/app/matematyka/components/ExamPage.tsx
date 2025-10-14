@@ -61,6 +61,9 @@ export default function ExamPage({
   const [showCalculator, setShowCalculator] = useState(false);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [showTimerNotification, setShowTimerNotification] = useState(true);
+  
+  // 🔥 Refs do śledzenia widocznych zadań
+  const problemRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // ExamContext integration
   const {
@@ -71,10 +74,54 @@ export default function ExamPage({
     setExamInfo,
     setTimeElapsed: setContextTimeElapsed,
     setTotalProblems,
-    setCompletedProblems
+    setCompletedProblems,
+    setAllProblems
   } = useExamContext();
 
   const { imageData, loading: imagesLoading } = useImageScan(examType, year, type, level);
+  
+  // 🔥 Intersection Observer - automatyczne śledzenie aktualnego zadania
+  useEffect(() => {
+    let observer: IntersectionObserver | null = null;
+    
+    // Poczekaj aż DOM się załaduje
+    const timeoutId = setTimeout(() => {
+      const observerOptions = {
+        root: null,
+        rootMargin: '-20% 0px -20% 0px', // Środek ekranu
+        threshold: 0.5 // 50% widoczności
+      };
+
+      const observerCallback = (entries: IntersectionObserverEntry[]) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const problemId = entry.target.getAttribute('data-problem-id');
+            if (problemId) {
+              const problem = examData.problems.find(p => p.id === problemId);
+              if (problem) {
+                setCurrentProblem(problem);
+                setContextUserAnswer(userAnswers[problem.id] || []);
+                setContextIsChecked(checkedAnswers[problem.id] || false);
+              }
+            }
+          }
+        });
+      };
+
+      observer = new IntersectionObserver(observerCallback, observerOptions);
+
+      // Obserwuj wszystkie zadania
+      const refs = Object.values(problemRefs.current);
+      refs.forEach(ref => {
+        if (ref) observer?.observe(ref);
+      });
+    }, 100); // Daj czas na renderowanie DOM
+
+    return () => {
+      clearTimeout(timeoutId);
+      if (observer) observer.disconnect();
+    };
+  }, [examData.problems, userAnswers, checkedAnswers, setCurrentProblem, setContextUserAnswer, setContextIsChecked]);
 
   useEffect(() => {
     if (!timerActive) return;
@@ -426,8 +473,9 @@ export default function ExamPage({
       examType: examType || 'egzamin'
     });
     
-    // Ustaw liczbę zadań
+    // Ustaw liczbę zadań i wszystkie zadania
     setTotalProblems(examData.problems.length);
+    setAllProblems(examData.problems); // 🔥 Przekaż wszystkie zadania
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [examData.title, examData.problems.length, level, year, type, examType]);
 
@@ -1293,6 +1341,8 @@ export default function ExamPage({
               return (
                 <div 
                   key={problem.id}
+                  ref={el => { problemRefs.current[problem.id] = el; }}
+                  data-problem-id={problem.id}
                   className="bg-[#161b22] border border-[#30363d] rounded-2xl p-8"
                 >
                   <div className="flex items-start justify-between mb-6">

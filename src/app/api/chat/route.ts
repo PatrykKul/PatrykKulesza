@@ -161,6 +161,43 @@ export async function POST(req: NextRequest) {
     if (helpMode && problemContext) {
       console.log('🎓 Activating tutoring mode with problem context');
       
+      // 🔥 DETEKCJA ZMIANY TEMATU - użytkownik chce wyjść z trybu pomocy z zadaniem
+      const offTopicKeywords = [
+        'nie chodzi mi o zadanie',
+        'nie o to pytam',
+        'inna sprawa',
+        'inne pytanie',
+        'zmiana tematu',
+        'patryk',
+        'korepetycje online',
+        'jak się umówić',
+        'cennik',
+        'kontakt',
+        'email',
+        'telefon',
+        'numer',
+        'ile kosztuje',
+        'cena',
+        'koszt',
+        'zadzwoń',
+        'korepetycje',
+        'mail',
+        'o tobie',
+        'kto to',
+        'kim jesteś'
+      ];
+      
+      const isOffTopic = offTopicKeywords.some(keyword => 
+        message.toLowerCase().includes(keyword)
+      );
+      
+      // Jeśli użytkownik zmienia temat, przełącz na normalny tryb
+      if (isOffTopic) {
+        console.log('🔄 User changing topic - switching to normal mode');
+        // Będzie przetwarzane przez normalny flow poniżej
+      } else {
+        // Kontynuuj z tutoring mode
+      
       const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
       const model = genAI.getGenerativeModel({ 
         model: 'gemini-2.0-flash-exp',
@@ -308,6 +345,7 @@ ${examInfo ? `- Tytuł: ${examInfo.title}\n- Rok: ${examInfo.year}\n- Typ: ${exa
           sessionId
         }, { status: 500 });
       }
+      } // Zamknięcie else (tutoring mode)
     }
     
     // Używamy cache tylko gdy nie ma wcześniejszej historii

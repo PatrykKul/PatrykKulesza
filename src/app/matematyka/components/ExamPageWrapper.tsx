@@ -1,6 +1,5 @@
 'use client';
 
-import { ExamContextProvider } from '@/contexts/ExamContext';
 import ExamPage from './ExamPage';
 import { ExamData } from './ExamPage';
 
@@ -14,9 +13,5 @@ interface ExamPageWrapperProps {
 }
 
 export default function ExamPageWrapper(props: ExamPageWrapperProps) {
-  return (
-    <ExamContextProvider>
-      <ExamPage {...props} />
-    </ExamContextProvider>
-  );
+  return <ExamPage {...props} />;
 }

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { MessageSquare, X, Send, GripVertical, Maximize2, Minimize2 } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import MathText from '@/app/matematyka/components/MathText';
+import { useExamContext } from '@/contexts/ExamContext';
 
 interface ChatButton {
   text: string;
@@ -49,6 +50,9 @@ interface BookingData {
  * ✅ Integracja z zaawansowanym fallback
  */
 export default function ChatbotNew() {
+  // 🔥 ExamContext - pobierz aktualny problem i canvas
+  const { examContext } = useExamContext();
+  
   // Stan podstawowy
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -391,8 +395,6 @@ export default function ChatbotNew() {
     const userMsg = input.trim();
     setInput('');
 
-    console.log(`💬 Sending: "${userMsg}", state: ${conversationStateRef.current}`);
-
     setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
 
     const state = conversationStateRef.current;
@@ -423,7 +425,45 @@ export default function ChatbotNew() {
     setLoading(true);
 
     try {
-      // 🔥 Przygotuj payload z problemContext jeśli jesteśmy w trybie pomocy
+      // 🔥 DETEKCJA KONKRETNEGO NUMERU ZADANIA - "zadanie 7", "zadanie nr 5"
+      const taskNumberMatch = userMsg.match(/zadani[eu]\s*(nr\s*)?(\d+)/i);
+      let specificProblemData = null;
+      
+      if (taskNumberMatch && examContext && examContext.allProblems) {
+        const taskNumber = taskNumberMatch[2];
+        console.log('🔍 Użytkownik pyta o zadanie nr:', taskNumber);
+        
+        // Znajdź problem o tym numerze w liście wszystkich zadań
+        specificProblemData = examContext.allProblems.find((p: any) => p.id === taskNumber);
+        
+        if (specificProblemData) {
+          console.log('✅ Znaleziono zadanie:', specificProblemData.id);
+          // Zaktualizujemy problem poniżej w buildProblemContext
+        }
+      }
+      
+      // 🔥 AUTO-DETEKCJA PYTAŃ O ZADANIE - sprawdź czy użytkownik pyta o aktualne zadanie
+      const taskKeywords = [
+        'zadanie', 'zadania', 'zadaniu',
+        'jak rozwiązać', 'jak rozwiazac', 
+        'pomóż', 'pomoz', 'pomocy',
+        'nie rozumiem', 'nie wiem',
+        'wyjaśnij', 'wyjasni',
+        'podpowiedz', 'wskazówka', 'hint',
+        'to zadanie', 'te zadanie', 'tę', 'tę na którą patrzę'
+      ];
+      
+      const isAskingAboutTask = taskKeywords.some(keyword => lower.includes(keyword));
+      const hasCurrentProblem = examContext && examContext.currentProblem !== null;
+      
+      // Jeśli użytkownik pyta o zadanie I jest aktualny problem, automatycznie włącz tryb pomocy
+      const autoEnableHelpMode = (isAskingAboutTask && hasCurrentProblem && !helpingWithProblem) || specificProblemData;
+      
+      if (autoEnableHelpMode) {
+        console.log('✨ Auto-włączono tryb pomocy dla zadania:', examContext?.currentProblem?.id || 'specific');
+      }
+      
+      // 🔥 Przygotuj payload z problemContext
       const payload: {
         message: string;
         sessionId: string;
@@ -437,12 +477,90 @@ export default function ChatbotNew() {
         sessionId 
       };
       
-      if (helpingWithProblem && problemContext) {
+      // Użyj kontekstu z ExamContext lub zapisanego stanu
+      if ((helpingWithProblem && problemContext) || autoEnableHelpMode) {
         payload.helpMode = true;
-        payload.problemContext = problemContext;
-        payload.problemId = currentProblemId;
-        payload.imageUrls = problemImageUrls; // 🔥 Przekaż obrazy
-        payload.examInfo = examInfo;
+        
+        // Jeśli auto-enable, zbuduj kontekst z ExamContext lub specificProblemData
+        if (autoEnableHelpMode && examContext && (examContext.currentProblem || specificProblemData)) {
+          const problem = specificProblemData || examContext.currentProblem;
+          
+          if (problem) {
+            console.log('📋 Budowanie kontekstu dla zadania:', problem.id, 'Ma treść?', !!problem.question);
+            
+            let autoContext = `🎯 **ZADANIE ${problem.id}**\n\n`;
+            
+            // 📝 Treść zadania
+            if (problem.question) {
+              autoContext += `📝 **Treść:**\n${problem.question}\n\n`;
+            }
+            
+            // 🔢 Wzór matematyczny (jeśli jest)
+            if (problem.formula) {
+              autoContext += `🔢 **Wzór:** ${problem.formula}\n\n`;
+            }
+            
+            autoContext += `📚 **Kategoria:** ${problem.category || 'Ogólna'}\n`;
+            autoContext += `⭐ **Punkty:** ${problem.points || 1}\n\n`;
+            
+            if (problem.options && problem.options.length > 0) {
+              autoContext += `❓ **Opcje odpowiedzi:**\n`;
+              problem.options.forEach((opt: string) => {
+                autoContext += `  ${opt}\n`;
+              });
+              autoContext += '\n';
+            }
+            
+            if (examContext.userAnswer && examContext.userAnswer.length > 0) {
+              autoContext += `✍️ **Twoja odpowiedź:** ${examContext.userAnswer.join(', ')}\n`;
+              if (examContext.isChecked) {
+                autoContext += `🤔 **Status:** Sprawdzone\n`;
+              }
+              autoContext += '\n';
+            }
+            
+            if (problem.image || problem.images) {
+              autoContext += `🖼️ **Zadanie zawiera:** Diagram/wykres/ilustrację\n\n`;
+              
+              const imageUrls: string[] = [];
+              if (problem.image) imageUrls.push(problem.image);
+              if (problem.images) imageUrls.push(...problem.images);
+              payload.imageUrls = imageUrls;
+            }
+            
+            // Dodaj dane z canvas jeśli są
+            if (examContext.canvasData) {
+              try {
+                const parsed = JSON.parse(examContext.canvasData);
+                const texts = parsed.textElements?.length || 0;
+                if (texts > 0) {
+                  const textContent = parsed.textElements.map((t: { text: string }) => t.text).join(' ');
+                  autoContext += `📝 **Twoje zapiski na canvas:** "${textContent}"\n\n`;
+                }
+              } catch (e) {
+                // Ignore parse errors
+              }
+            }
+            
+            payload.problemContext = autoContext;
+            payload.problemId = problem.id.toString();
+            payload.examInfo = examContext.examInfo ? {
+              title: examContext.examInfo.title,
+              year: examContext.examInfo.year,
+              type: examContext.examInfo.type,
+              level: examContext.examInfo.level || '',
+              examType: examContext.examInfo.examType
+            } : undefined;
+            
+            console.log('📤 Wysyłam problemContext:', payload.problemContext.substring(0, 200) + '...');
+          }
+        } else {
+          // Użyj zapisanego kontekstu
+          payload.problemContext = problemContext;
+          payload.problemId = currentProblemId;
+          payload.imageUrls = problemImageUrls;
+          payload.examInfo = examInfo;
+        }
       }
 
       const res = await fetch('/api/chat', {
@@ -576,7 +694,7 @@ export default function ChatbotNew() {
     : { width: `${chatSize.width}px`, height: `${chatSize.height}px`, maxWidth: 'calc(100vw - 3rem)', maxHeight: 'calc(100vh - 3rem)' };
 
   return (
-    <div ref={chatRef} className={`fixed z-50 bg-white border border-gray-200 rounded-2xl shadow-2xl flex flex-col overflow-hidden ${isMaximized ? 'top-0 right-0' : 'bottom-6 right-6'} ${isResizing ? 'select-none' : ''}`} style={chatStyle}>
+    <div ref={chatRef} className={`korkus-chatbot fixed z-50 bg-white border border-gray-200 rounded-2xl shadow-2xl flex flex-col overflow-hidden ${isMaximized ? 'top-0 right-0' : 'bottom-6 right-6'} ${isResizing ? 'select-none' : ''}`} style={chatStyle}>
       
       {/* HEADER */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4">

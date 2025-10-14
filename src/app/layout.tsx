@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "katex/dist/katex.min.css";
 import Chatbot from "@/components/chatbot/Chatbot";
+import { ExamContextProvider } from "@/contexts/ExamContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -186,8 +187,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
-        <Chatbot />
+        <ExamContextProvider>
+          {children}
+          <Chatbot />
+        </ExamContextProvider>
       </body>
     </html>
   );

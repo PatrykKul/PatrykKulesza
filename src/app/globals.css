@@ -32,10 +32,10 @@ body {
   margin: 1rem 0;
 }
 
-/* KaTeX w chatbocie - zawsze czarny */
-.math-content .katex,
-.math-content .katex .base,
-.math-content .katex-html {
+/* KaTeX w chatbocie - zawsze czarny (tylko w kontenerze chatbota) */
+.korkus-chatbot .math-content .katex,
+.korkus-chatbot .math-content .katex .base,
+.korkus-chatbot .math-content .katex-html {
   color: #000000 !important;
 }
 

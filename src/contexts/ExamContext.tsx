@@ -18,6 +18,7 @@ interface ExamContextData {
   timeElapsed: number;
   totalProblems: number;
   completedProblems: number;
+  allProblems: MathProblem[]; // 🔥 Lista wszystkich zadań
 }
 
 interface ExamContextType {
@@ -36,6 +37,7 @@ interface ExamContextType {
   setTimeElapsed: (time: number) => void;
   setTotalProblems: (total: number) => void;
   setCompletedProblems: (completed: number) => void;
+  setAllProblems: (problems: MathProblem[]) => void; // 🔥 Dodaj wszystkie zadania
   clearContext: () => void;
 }
 
@@ -49,7 +51,8 @@ const initialState: ExamContextData = {
   examInfo: null,
   timeElapsed: 0,
   totalProblems: 0,
-  completedProblems: 0
+  completedProblems: 0,
+  allProblems: [] // 🔥 Inicjalizacja
 };
 
 export function ExamContextProvider({ children }: { children: ReactNode }) {
@@ -92,6 +95,10 @@ export function ExamContextProvider({ children }: { children: ReactNode }) {
   const setCompletedProblems = (completed: number) => {
     setExamContext(prev => ({ ...prev, completedProblems: completed }));
   };
+  
+  const setAllProblems = (problems: MathProblem[]) => {
+    setExamContext(prev => ({ ...prev, allProblems: problems }));
+  };
 
   const clearContext = () => {
     setExamContext(initialState);
@@ -108,6 +115,7 @@ export function ExamContextProvider({ children }: { children: ReactNode }) {
       setTimeElapsed,
       setTotalProblems,
       setCompletedProblems,
+      setAllProblems,
       clearContext
     }}>
       {children}
