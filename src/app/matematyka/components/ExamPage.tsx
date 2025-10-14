@@ -74,59 +74,8 @@ export default function ExamPage({
   };
 
   const getExtendedTitle = () => {
-    const baseTitle = examData.title;
-    
-    const formatType = (type: string) => {
-      const typeMap: Record<string, string> = {
-        'glowny': 'Maj',
-        'dodatkowy': 'Czerwiec', 
-        'podstawowa': 'Podstawowa',
-        'rozszerzona': 'Rozszerzona'
-      };
-      return typeMap[type] || type.charAt(0).toUpperCase() + type.slice(1);
-    };
-
-    const formatExamType = (examType: string) => {
-      const examTypeMap: Record<string, string> = {
-        'egzamin-8': 'Egzamin Ósmoklasisty',
-        'matura': 'Matura'
-      };
-      return examTypeMap[examType] || examType;
-    };
-
-    const titleParts = baseTitle.split(' - ');
-    
-    const formattedExamType = formatExamType(examType || 'egzamin');
-    if (!baseTitle.includes('Egzamin') && !baseTitle.includes('Matura')) {
-      titleParts.push(formattedExamType);
-    }
-    
-    const formattedMonth = formatType(type);
-    if (!baseTitle.includes(formattedMonth)) {
-      titleParts.push(formattedMonth);
-    }
-
-    titleParts.push(year);
-    
-    if (level && examType === 'matura') {
-      const formattedLevel = formatType(level);
-      if (!baseTitle.includes(formattedLevel)) {
-        titleParts.push(formattedLevel);
-      }
-    }
-
-    const hasYear = baseTitle.includes(year);
-    const hasType = baseTitle.toLowerCase().includes(type.toLowerCase());
-    
-    if (hasYear && hasType) {
-      return baseTitle;
-    }
-
-    if (titleParts.length > 0) {
-      return `${baseTitle}  ${titleParts.join(' ')}`;
-    }
-    
-    return baseTitle;
+    // Zwracamy po prostu tytuł z danych egzaminu
+    return examData.title;
   };
 
   const getImagePath = (problemId: string, imageType: 'problem' | 'solution' = 'problem', imageIndex?: number): string => {
@@ -331,6 +280,7 @@ export default function ExamPage({
   const positionRef = useRef(position);
   const isDraggingRef = useRef(false);
   const dragOffsetRef = useRef({ x: 0, y: 0 });
+  const calculatorRef = useRef<HTMLDivElement>(null);
 
   // Resize state
   const isResizingRef = useRef(false);
@@ -499,11 +449,15 @@ export default function ExamPage({
       
       const coords = getEventCoords(e);
       
-      if (isDraggingRef.current) {
-        // Dragging
+      if (isDraggingRef.current && calculatorRef.current) {
+        // Dragging - użyj bezpośredniej manipulacji DOM
         const newX = Math.max(0, Math.min(window.innerWidth - currentSize.width, coords.x - dragOffsetRef.current.x));
         const newY = Math.max(0, Math.min(window.innerHeight - currentSize.height, coords.y - dragOffsetRef.current.y));
-        setPosition({ x: newX, y: newY });
+        
+        // Bezpośrednia manipulacja DOM - brak opóźnienia
+        calculatorRef.current.style.left = `${newX}px`;
+        calculatorRef.current.style.top = `${newY}px`;
+        
         positionRef.current = { x: newX, y: newY };
       } else if (isResizingRef.current) {
         // Resizing
@@ -518,6 +472,11 @@ export default function ExamPage({
     };
 
     const onDocEnd = () => {
+      // Zsynchronizuj stan po zakończeniu przeciągania
+      if (isDraggingRef.current) {
+        setPosition(positionRef.current);
+      }
+      
       isDraggingRef.current = false;
       isResizingRef.current = false;
       // Remove both mouse and touch listeners
@@ -574,7 +533,8 @@ export default function ExamPage({
 
     return (
       <div
-        className="fixed bg-[#161b22] border border-[#30363d] rounded-lg shadow-2xl z-50 transition-all duration-300 ease-out select-none"
+        ref={calculatorRef}
+        className="fixed bg-[#161b22] border border-[#30363d] rounded-lg shadow-2xl z-50 select-none"
         style={{
           left: `${position.x}px`,
           top: `${position.y}px`,
