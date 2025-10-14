@@ -2,16 +2,17 @@
 
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Calculator, Clock, Award, FileText, Download, Eye, EyeOff, CheckCircle, RotateCcw, PenTool, X, Delete, Plus, Minus, Divide } from 'lucide-react';
+import { ArrowLeft, Calculator, Clock, Award, FileText, Download, Eye, EyeOff, CheckCircle, RotateCcw, PenTool, X, Delete, Plus, Minus, Divide, MessageSquare } from 'lucide-react';
 import MathText, { MathSolutionStep } from '@/app/matematyka/components/MathText';
 import { useImageScan } from '@/hooks/useImageScan';
 import AdvancedCanvas from './AdvancedCanvas';
 import ConfettiModal from '@/components/ConfettiModal';
+import { useExamContext } from '@/contexts/ExamContext';
 
 // Types
 export interface MathProblem {
   id: string;
-  question: string;
+  question?: string;  // Opcjonalne dla starych egzaminów
   formula?: string;
   image?: string;
   images?: string[];
@@ -19,8 +20,8 @@ export interface MathProblem {
   answer: string;
   solution?: string[];
   solutionImages?: string[];
-  points: number;
-  category: string;
+  points?: number;  // Opcjonalne dla starych egzaminów
+  category?: string;  // Opcjonalne dla starych egzaminów
 }
 
 export interface ExamData {
@@ -60,6 +61,18 @@ export default function ExamPage({
   const [showCalculator, setShowCalculator] = useState(false);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [showTimerNotification, setShowTimerNotification] = useState(true);
+
+  // ExamContext integration
+  const {
+    setCurrentProblem,
+    setUserAnswer: setContextUserAnswer,
+    setIsChecked: setContextIsChecked,
+    setCanvasData: setContextCanvasData,
+    setExamInfo,
+    setTimeElapsed: setContextTimeElapsed,
+    setTotalProblems,
+    setCompletedProblems
+  } = useExamContext();
 
   const { imageData, loading: imagesLoading } = useImageScan(examType, year, type, level);
 
@@ -211,6 +224,122 @@ export default function ExamPage({
     return normalizedUser === normalizedCorrect;
   }, [userAnswers, checkedAnswers, examData.problems]);
 
+  // 🔥 KORKUŚ Integration Functions
+  const buildProblemContext = useCallback((
+    problem: MathProblem, 
+    userAnswer: string[] | undefined,
+    isChecked: boolean | undefined
+  ) => {
+    let context = `🎯 **ZADANIE ${problem.id}**\n\n`;
+    
+    // Kategoria i punkty
+    context += `📚 **Kategoria:** ${problem.category || 'Ogólna'}\n`;
+    context += `⭐ **Punkty:** ${problem.points || 1}\n\n`;
+    
+    // Treść zadania
+    if (problem.question) {
+      context += `📝 **Treść:**\n${problem.question}\n\n`;
+    }
+    
+    // Formuła jeśli jest
+    if (problem.formula) {
+      context += `📐 **Wzór/Formuła:**\n${problem.formula}\n\n`;
+    }
+    
+    // Opcje odpowiedzi
+    if (problem.options && problem.options.length > 0) {
+      context += `❓ **Opcje odpowiedzi:**\n`;
+      problem.options.forEach(opt => {
+        context += `  ${opt}\n`;
+      });
+      context += '\n';
+    }
+    
+    // Status odpowiedzi ucznia
+    if (userAnswer && userAnswer.length > 0) {
+      context += `✍️ **Twoja odpowiedź:** ${userAnswer.join(', ')}\n`;
+      if (isChecked) {
+        const correct = isAnswerCorrect(problem.id, problem.answer);
+        if (correct === true) {
+          context += `✅ **Status:** Poprawna! Świetnie!\n`;
+        } else if (correct === false) {
+          context += `❌ **Status:** Niepoprawna - ale to okazja do nauki!\n`;
+        }
+      } else {
+        context += `🤔 **Status:** Jeszcze nie sprawdzone\n`;
+      }
+      context += '\n';
+    } else {
+      context += `📝 **Status:** Jeszcze nie udzielono odpowiedzi\n\n`;
+    }
+    
+    // Info o obrazach/diagramach
+    if (problem.image || problem.images) {
+      context += `🖼️ **Zadanie zawiera:** Diagram/wykres/ilustrację\n\n`;
+    }
+    
+    // Canvas info
+    const canvasData = localStorage.getItem(`canvas-data-${problem.id}`);
+    if (canvasData) {
+      try {
+        const parsed = JSON.parse(canvasData);
+        const shapes = parsed.shapes?.length || 0;
+        const texts = parsed.textElements?.length || 0;
+        
+        context += `✏️ **Twoje notatki na canvas:** ${shapes} kształtów, ${texts} tekstów\n`;
+        
+        if (texts > 0) {
+          const textContent = parsed.textElements.map((t: { text: string }) => t.text).join(' ');
+          context += `📝 **Twoje zapiski:** "${textContent}"\n`;
+        }
+      } catch (e: unknown) {
+        context += `✏️ **Canvas:** Pracujesz nad rozwiązaniem\n`;
+      }
+      context += '\n';
+    }
+    
+    return context;
+  }, [isAnswerCorrect]);
+
+  const askKorkus = useCallback((problem: MathProblem) => {
+    // Przygotuj smart context
+    const context = buildProblemContext(
+      problem, 
+      userAnswers[problem.id], 
+      checkedAnswers[problem.id]
+    );
+    
+    // Przygotuj obrazy zadania
+    const imageUrls: string[] = [];
+    if (problem.image) {
+      imageUrls.push(problem.image);
+    }
+    if (problem.images && problem.images.length > 0) {
+      imageUrls.push(...problem.images);
+    }
+    
+    // Ustaw current problem w kontekście
+    setCurrentProblem(problem);
+    setContextUserAnswer(userAnswers[problem.id] || []);
+    setContextIsChecked(checkedAnswers[problem.id] || false);
+    
+    // Event do chatbota
+    window.dispatchEvent(new CustomEvent('korkus:openWithProblem', {
+      detail: { 
+        context, 
+        problemId: problem.id,
+        imageUrls, // 🔥 Dodajemy obrazy
+        examInfo: {
+          title: examData.title,
+          year,
+          type,
+          level: level || '',
+          examType
+        }
+      }
+    }));
+  }, [userAnswers, checkedAnswers, buildProblemContext, setCurrentProblem, setContextUserAnswer, setContextIsChecked, examData.title, year, type, level, examType]);
+
   const isMultiLevelQuestion = (options: string[]) => {
     return options.some(opt => 
       opt.includes('P/F') || opt.includes('- P F') ||
@@ -259,7 +388,7 @@ export default function ExamPage({
     let earned = 0;
     examData.problems.forEach(problem => {
       if (isAnswerCorrect(problem.id, problem.answer) === true) {
-        earned += problem.points;
+        earned += problem.points || 1;  // Domyślnie 1 punkt
       }
     });
     return earned;
@@ -285,6 +414,35 @@ export default function ExamPage({
     
     return () => clearTimeout(timer);
   }, []); // Pusty dependency array = uruchom tylko raz na początku
+
+  // ExamContext initialization
+  useEffect(() => {
+    // Inicjalizuj informacje o egzaminie
+    setExamInfo({
+      title: examData.title,
+      level: level || '',
+      year: year,
+      type: type,
+      examType: examType || 'egzamin'
+    });
+    
+    // Ustaw liczbę zadań
+    setTotalProblems(examData.problems.length);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [examData.title, examData.problems.length, level, year, type, examType]);
+
+  // Sync timeElapsed with context
+  useEffect(() => {
+    setContextTimeElapsed(timeElapsed);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeElapsed]);
+
+  // Sync completed problems
+  useEffect(() => {
+    const completed = Object.keys(checkedAnswers).filter(key => checkedAnswers[key]).length;
+    setCompletedProblems(completed);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkedAnswers]);
 
   useEffect(() => {
     if (isExamCompleted && !prevCompletedRef.current) {
@@ -1144,10 +1302,10 @@ export default function ExamPage({
                       </span>
                       <div>
                         <span className="text-sm text-gray-400 block mb-1">
-                          {problem.category}
+                          {problem.category || 'Ogólna'}
                         </span>
                         <span className="text-sm text-gray-400">
-                          {problem.points} {problem.points === 1 ? 'punkt' : problem.points < 5 ? 'punkty' : 'punktów'}
+                          {problem.points || 1} {(problem.points || 1) === 1 ? 'punkt' : (problem.points || 1) < 5 ? 'punkty' : 'punktów'}
                         </span>
                       </div>
                     </div>
@@ -1164,9 +1322,11 @@ export default function ExamPage({
                   </div>
 
                   <div className="mb-6">
-                    <p className="text-lg text-white mb-4">
-                      {renderOption(problem.question)}
-                    </p>
+                    {problem.question && (
+                      <p className="text-lg text-white mb-4">
+                        {renderOption(problem.question)}
+                      </p>
+                    )}
                     
                     {problem.formula && (
                       <div className="bg-[#21262d] border border-[#30363d] rounded-lg p-4 mb-4 overflow-x-auto">
@@ -1424,6 +1584,16 @@ export default function ExamPage({
                         Spróbuj ponownie
                       </button>
                     )}
+
+                    {/* 🔥 KORKUŚ Help Button */}
+                    <button
+                      onClick={() => askKorkus(problem)}
+                      className="inline-flex items-center gap-2 bg-gradient-to-r from-[#ff6b6b] to-[#ff8e53] hover:from-[#ff5252] hover:to-[#ff7a3d] text-white px-4 py-2 rounded-lg font-semibold transition-all shadow-lg hover:shadow-xl"
+                      title="Otwórz KORKUŚ z kontekstem tego zadania"
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      Pytaj KORKUŚ
+                    </button>
 
                     <button
                       onClick={() => toggleCanvas(problem.id)}

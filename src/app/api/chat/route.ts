@@ -109,10 +109,25 @@ export async function POST(req: NextRequest) {
   console.log('🤖 API Chat endpoint called');
   
   try {
-    // Rozszerzamy obiekt request o sessionId
-    const { message, sessionId = crypto.randomUUID() } = await req.json();
+    // Rozszerzamy obiekt request o sessionId, helpMode i imageUrls
+    const { 
+      message, 
+      sessionId = crypto.randomUUID(),
+      helpMode = false,
+      problemContext = '',
+      problemId = '',
+      imageUrls = [],
+      examInfo = null
+    } = await req.json();
+    
     console.log('📝 Received message:', message);
     console.log('🆔 Session ID:', sessionId);
+    
+    if (helpMode) {
+      console.log('🎯 HELP MODE ACTIVATED for problem:', problemId);
+      console.log('📚 Exam Info:', examInfo);
+      console.log('🖼️ Images:', imageUrls);
+    }
     
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
       return NextResponse.json(
@@ -141,6 +156,159 @@ export async function POST(req: NextRequest) {
     
     // Dodajemy wiadomość użytkownika do historii
     addMessageToHistory(sessionId, 'user', message);
+    
+    // 🔥 HELP MODE - specjalny tutoring system z wsparciem obrazów
+    if (helpMode && problemContext) {
+      console.log('🎓 Activating tutoring mode with problem context');
+      
+      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+      const model = genAI.getGenerativeModel({ 
+        model: 'gemini-2.0-flash-exp',
+        generationConfig: {
+          temperature: 0.8,
+          topP: 0.9,
+          topK: 40,
+          maxOutputTokens: 1000,
+        }
+      });
+
+      // Tworzenie specjalnego system prompta dla tutoringu
+      let tutorSystemPrompt = `Jesteś KORKUŚ - AI tutor matematyczny. Pomagasz uczniom przygotowującym się do egzaminów z Patrykiem Kuleszą.
+
+🎯 **TRYB: POMOC Z ZADANIEM EGZAMINACYJNYM**
+
+📋 **KONTEKST ZADANIA:**
+${problemContext}
+
+📚 **INFORMACJE O EGZAMINIE:**
+${examInfo ? `- Tytuł: ${examInfo.title}\n- Rok: ${examInfo.year}\n- Typ: ${examInfo.type}\n- Poziom: ${examInfo.level}` : 'Brak dodatkowych informacji'}`;
+
+      // 🔥 Dodaj info o obrazach jeśli są
+      if (imageUrls && imageUrls.length > 0) {
+        tutorSystemPrompt += `\n\n🖼️ **OBRAZY/DIAGRAMY:**\nZadanie zawiera ${imageUrls.length} ${imageUrls.length === 1 ? 'obraz' : 'obrazów'} - analizuj je uważnie, aby pomóc uczniowi zrozumieć diagram/wykres/ilustrację.`;
+      }
+
+      tutorSystemPrompt += `\n\n⚠️ **ZASADY TUTORINGU (ELASTYCZNE):**
+
+🎯 **STRATEGIA POMOCY:**
+1. **NAJPIERW - PODPOWIEDZI** - zacznij od pytań naprowadzających i wskazówek
+2. **OBSERWUJ REAKCJĘ** - jak uczeń reaguje na podpowiedzi
+3. **DOSTOSUJ SIĘ** - jeśli uczeń wyraźnie prosi o pełne rozwiązanie, pokaż je!
+
+📚 **KIEDY DAWAĆ PODPOWIEDZI:**
+- Gdy uczeń pyta "jak zacząć?", "nie wiem od czego zacząć"
+- Zadawaj pytania: "Co wiesz o...", "Jakie dane masz?", "Jaki wzór możemy użyć?"
+- Wskazuj kierunek bez podawania gotowca
+- Zachęcaj do myślenia: "Spróbuj...", "Zastanów się..."
+
+✅ **KIEDY DAWAĆ PEŁNE ROZWIĄZANIE:**
+- Gdy uczeń wyraźnie prosi: "pokaż rozwiązanie", "jak to rozwiązać?", "daj pełną odpowiedź"
+- Gdy uczeń utknął mimo podpowiedzi
+- Gdy uczeń chce zobaczyć wzorcowe rozwiązanie do nauki
+- WTEDY: Pokaż pełne, szczegółowe rozwiązanie krok po kroku z komentarzami!
+
+💡 **FORMAT PEŁNEGO ROZWIĄZANIA:**
+- Wypisz każdy krok obliczeniowy
+- Dodaj komentarze wyjaśniające "dlaczego tak robimy"
+- Użyj LaTeX dla wszystkich wzorów
+- Podsumuj końcową odpowiedź
+- PRZYKŁAD:
+  **Krok 1:** Rozwijamy $(3x+2)^2$ używając wzoru $(a+b)^2 = a^2 + 2ab + b^2$
+  $$$(3x+2)^2 = (3x)^2 + 2 \\cdot 3x \\cdot 2 + 2^2 = 9x^2 + 12x + 4$$$
+  
+🎓 **TWOJA ROLA:**
+- Jesteś profesjonalnym tutorem, który umie DOSTOSOWAĆ podejście
+- Domyślnie pomagasz myśleć samodzielnie
+- Ale gdy potrzeba - dajesz pełne, wzorcowe rozwiązanie
+- Zawsze wyjaśniaj "dlaczego" - rozwijaj zrozumienie
+- **NIE używaj imion uczniów** - nie znasz ich imienia
+- Chwal postępy i buduj pewność siebie
+
+📐 **FORMATOWANIE MATEMATYCZNE:**
+- **ZAWSZE używaj LaTeX dla wzorów matematycznych**
+- Wzory inline: otocz w pojedyncze $ np. $x^2 + 5$
+- Wzory w osobnej linii: otocz w podwójne $$ np. $$\\frac{a}{b}$$
+- Pierwiastki: $\\sqrt{x}$ lub $\\sqrt[3]{x}$
+- Ułamki: $\\frac{licznik}{mianownik}$
+- Potęgi: $x^2$, indeksy dolne: $x_1$
+- PRZYKŁAD: "Liczba $(\\sqrt{32} - \\sqrt{2})^2$ jest równa..."
+
+📝 **PYTANIE/PROŚBA UCZNIA:**
+"${message}"
+
+💡 **ODPOWIEDZ PROFESJONALNIE:**
+- Krótko i zwięźle (max 300 słów dla podpowiedzi, więcej jeśli pełne rozwiązanie)
+- Po polsku
+- Z emotikonami 🧮📐✨
+- UŻYWAJ LaTeX dla wszystkich wzorów
+- Jeśli uczeń prosi o rozwiązanie → pokaż pełne rozwiązanie krok po kroku
+- Jeśli uczeń nie wie jak zacząć → zadaj pytania naprowadzające
+- Zawsze wyjaśniaj "dlaczego" robisz dany krok`;
+
+      try {
+        // 🔥 Przygotuj parts - text + obrazy
+        const parts: any[] = [{ text: tutorSystemPrompt }];
+        
+        // Dodaj obrazy jeśli są (Gemini wspiera inline data)
+        if (imageUrls && imageUrls.length > 0) {
+          for (const imageUrl of imageUrls) {
+            try {
+              // Konwertuj path to URL dla serwera
+              const fullImagePath = imageUrl.startsWith('http') 
+                ? imageUrl 
+                : `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}${imageUrl}`;
+              
+              console.log('📸 Fetching image:', fullImagePath);
+              
+              const imageResponse = await fetch(fullImagePath);
+              const imageBuffer = await imageResponse.arrayBuffer();
+              const base64Image = Buffer.from(imageBuffer).toString('base64');
+              
+              parts.push({
+                inlineData: {
+                  mimeType: 'image/png',
+                  data: base64Image
+                }
+              });
+            } catch (imgError) {
+              console.error('❌ Error loading image:', imageUrl, imgError);
+            }
+          }
+        }
+
+        const chat = model.startChat({
+          history: conversationHistory.messages.slice(0, -1).map(msg => ({
+            role: msg.role,
+            parts: [{ text: msg.parts }]
+          })),
+          generationConfig: {
+            temperature: 0.8,
+            topP: 0.9,
+            topK: 40,
+            maxOutputTokens: 1000,
+          }
+        });
+
+        const result = await chat.sendMessage(parts);
+        const response = result.response.text();
+
+        console.log('✅ Tutoring response generated (with images)');
+        addMessageToHistory(sessionId, 'model', response);
+
+        return NextResponse.json({
+          response,
+          sessionId,
+          helpMode: true,
+          problemId
+        });
+      } catch (error) {
+        console.error('❌ Error in help mode:', error);
+        return NextResponse.json({
+          response: '😅 **Przepraszam, mam problem z połączeniem...**\n\nSpróbuj jeszcze raz za chwilę, albo skontaktuj się bezpośrednio z Patrykiem: **+48 662 581 368**',
+          sessionId
+        }, { status: 500 });
+      }
+    }
     
     // Używamy cache tylko gdy nie ma wcześniejszej historii
     if (conversationHistory.messages.length <= 1) {
@@ -270,6 +438,13 @@ ZASADY:
 3. Pokazuj szczegółowe kroki rozwiązania
 4. Używaj emotikonów 🧮📐📊
 5. Zachęcaj do umówienia korepetycji
+
+📐 **FORMATOWANIE MATEMATYCZNE:**
+- ZAWSZE używaj LaTeX dla wzorów matematycznych
+- Wzory inline: $x^2 + 5$, $\\frac{a}{b}$, $\\sqrt{x}$
+- Wzory display: $$\\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}$$
+- Przykłady: $2x + 3 = 7$, $\\sin(x)$, $x^{2n+1}$
+- UŻYWAJ LaTeX dla wszystkich wzorów matematycznych!
 
 Pytanie ucznia: "${message}"
 

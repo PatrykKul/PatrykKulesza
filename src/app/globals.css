@@ -32,6 +32,13 @@ body {
   margin: 1rem 0;
 }
 
+/* KaTeX w chatbocie - zawsze czarny */
+.math-content .katex,
+.math-content .katex .base,
+.math-content .katex-html {
+  color: #000000 !important;
+}
+
 /* Zapobiega konfliktom Tailwind z KaTeX */
 .math-content .katex * {
   border-color: inherit;

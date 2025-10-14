@@ -1,4 +1,4 @@
-import ExamPage from '@/app/matematyka/components/ExamPage';
+import ExamPageWrapper from '@/app/matematyka/components/ExamPageWrapper';
 import { examData } from './examData';
 import { notFound } from 'next/navigation';
 
@@ -15,7 +15,7 @@ export default async function Egzamin8ExamPage({
   }
 
   return (
-    <ExamPage
+    <ExamPageWrapper
       examData={examInfo}
       year={year}
       type={type}

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { MessageSquare, X, Send, GripVertical, Maximize2, Minimize2 } from 'lucide-react';
 import emailjs from '@emailjs/browser';
+import MathText from '@/app/matematyka/components/MathText';
 
 interface ChatButton {
   text: string;
@@ -54,6 +55,19 @@ export default function ChatbotNew() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // 🔥 KORKUŚ Problem Help Mode
+  const [helpingWithProblem, setHelpingWithProblem] = useState(false);
+  const [problemContext, setProblemContext] = useState<string>('');
+  const [currentProblemId, setCurrentProblemId] = useState<string>('');
+  const [problemImageUrls, setProblemImageUrls] = useState<string[]>([]);
+  const [examInfo, setExamInfo] = useState<{
+    title: string;
+    year: string;
+    type: string;
+    level: string;
+    examType: string;
+  } | null>(null);
+
   // Stan konwersacji - CRITICAL FIX: ref + state
   const [conversationState, setConversationState] = useState<ConversationState>('initial');
   const conversationStateRef = useRef<ConversationState>('initial');
@@ -75,7 +89,7 @@ export default function ChatbotNew() {
   const [isResizing, setIsResizing] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const chatRef = useRef<HTMLDivElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const resizeStartPos = useRef({ x: 0, y: 0, width: 0, height: 0 });
 
   // CRITICAL: Synchronizuj state z ref
@@ -89,12 +103,52 @@ export default function ChatbotNew() {
 
   // Auto-scroll
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
   }, [messages]);
 
   // Inicjalizacja EmailJS
   useEffect(() => {
     emailjs.init('7K0ksAqXHemL_xEgT');
+  }, []);
+
+  // 🔥 Listener dla pomocy z zadaniem z ExamPage
+  useEffect(() => {
+    const handleProblemHelp = (event: CustomEvent) => {
+      const { context, problemId, imageUrls = [], examInfo: examData } = event.detail;
+      
+      console.log('🎯 KORKUŚ received problem help request:', { problemId, imageUrls, examData });
+      
+      // Ustaw tryb pomocy
+      setHelpingWithProblem(true);
+      setProblemContext(context);
+      setCurrentProblemId(problemId);
+      setProblemImageUrls(imageUrls); // 🔥 Zapisz URLs obrazów
+      setExamInfo(examData);
+      
+      // Otwórz chatbot
+      setIsOpen(true);
+      
+      // Reset konwersacji do normal mode
+      setConversationState('normal');
+      conversationStateRef.current = 'normal';
+      
+      // Dodaj wiadomość startową z kontekstem
+      setMessages(prev => [
+        ...prev,
+        {
+          role: 'bot',
+          content: `Jak mogę pomóc Ci z zadaniem ${problemId}?`,
+        }
+      ]);
+    };
+
+    window.addEventListener('korkus:openWithProblem', handleProblemHelp as EventListener);
+    
+    return () => {
+      window.removeEventListener('korkus:openWithProblem', handleProblemHelp as EventListener);
+    };
   }, []);
 
   // Pierwsza wiadomość
@@ -369,10 +423,32 @@ export default function ChatbotNew() {
     setLoading(true);
 
     try {
+      // 🔥 Przygotuj payload z problemContext jeśli jesteśmy w trybie pomocy
+      const payload: {
+        message: string;
+        sessionId: string;
+        helpMode?: boolean;
+        problemContext?: string;
+        problemId?: string;
+        imageUrls?: string[];
+        examInfo?: typeof examInfo;
+      } = { 
+        message: userMsg, 
+        sessionId 
+      };
+      
+      if (helpingWithProblem && problemContext) {
+        payload.helpMode = true;
+        payload.problemContext = problemContext;
+        payload.problemId = currentProblemId;
+        payload.imageUrls = problemImageUrls; // 🔥 Przekaż obrazy
+        payload.examInfo = examInfo;
+      }
+
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMsg, sessionId })
+        body: JSON.stringify(payload)
       });
 
       const data = await res.json();
@@ -513,7 +589,15 @@ export default function ChatbotNew() {
               <h3 className="font-bold text-white text-lg">KORKUŚ AI</h3>
               <div className="flex items-center gap-2 text-xs text-blue-100">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                Asystent korepetycji
+                {helpingWithProblem ? (
+                  <div className="flex items-center gap-1">
+                    <span className="bg-yellow-400 text-black px-2 py-0.5 rounded-full font-semibold text-[10px]">
+                      🎯 POMOC Z ZADANIEM {currentProblemId}
+                    </span>
+                  </div>
+                ) : (
+                  <span>Asystent korepetycji</span>
+                )}
               </div>
             </div>
           </div>
@@ -529,7 +613,7 @@ export default function ChatbotNew() {
       </div>
 
       {/* MESSAGES */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
         {messages.map((msg, i) => (
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[85%] p-4 rounded-2xl whitespace-pre-line break-words shadow-sm ${msg.role === 'user' ? 'bg-blue-600 text-white rounded-br-md' : 'bg-white text-gray-800 rounded-bl-md border border-gray-200'}`}>
@@ -543,12 +627,33 @@ export default function ChatbotNew() {
                 </div>
               )}
 
-              <div className={msg.role === 'user' ? 'text-white' : 'text-gray-800'}>
-                {msg.content.split('\n').map((line, idx) => (
-                  <p key={idx} className="mb-2 last:mb-0" dangerouslySetInnerHTML={{
-                    __html: line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>').replace(/_(.*?)_/g, '<em>$1</em>')
-                  }} />
-                ))}
+              <div className={msg.role === 'user' ? 'text-white' : 'text-black'}>
+                {msg.role === 'bot' ? (
+                  // Bot messages - render with MathText for LaTeX support
+                  msg.content.split('\n').map((line, idx) => {
+                    // Check if line has LaTeX (contains $ or $$)
+                    if (line.includes('$')) {
+                      return (
+                        <div key={idx} className="mb-2 last:mb-0 text-black">
+                          <MathText>{line}</MathText>
+                        </div>
+                      );
+                    }
+                    // Regular text with markdown
+                    return (
+                      <p key={idx} className="mb-2 last:mb-0 text-black" dangerouslySetInnerHTML={{
+                        __html: line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>').replace(/_(.*?)_/g, '<em>$1</em>')
+                      }} />
+                    );
+                  })
+                ) : (
+                  // User messages - simple text
+                  msg.content.split('\n').map((line, idx) => (
+                    <p key={idx} className="mb-2 last:mb-0">
+                      {line}
+                    </p>
+                  ))
+                )}
               </div>
 
               {msg.role === 'bot' && msg.buttons && msg.buttons.length > 0 && (
@@ -625,8 +730,6 @@ export default function ChatbotNew() {
             </div>
           </div>
         )}
-        
-        <div ref={messagesEndRef} />
       </div>
 
       {/* INPUT */}
