@@ -6,6 +6,7 @@ import { ArrowLeft, Calculator, Clock, Award, FileText, Download, Eye, EyeOff, C
 import MathText, { MathSolutionStep } from '@/app/matematyka/components/MathText';
 import { useImageScan } from '@/hooks/useImageScan';
 import AdvancedCanvas from './AdvancedCanvas';
+import ConfettiModal from '@/components/ConfettiModal';
 
 // Types
 export interface MathProblem {
@@ -13,6 +14,7 @@ export interface MathProblem {
   question: string;
   formula?: string;
   image?: string;
+  images?: string[];
   options?: string[];
   answer: string;
   solution?: string[];
@@ -27,8 +29,8 @@ export interface ExamData {
   duration: number;
   maxPoints: number;
   problems: MathProblem[];
-  pdfUrl?: string;
-  answerKeyUrl?: string;
+  examPdfUrl?: string;    // Ścieżka do oryginalnego arkusza
+  answerKeyUrl?: string;  // Ścieżka do klucza odpowiedzi
 }
 
 interface ExamPageProps {
@@ -56,6 +58,8 @@ export default function ExamPage({
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
   const [showCalculator, setShowCalculator] = useState(false);
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [showTimerNotification, setShowTimerNotification] = useState(true);
 
   const { imageData, loading: imagesLoading } = useImageScan(examType, year, type, level);
 
@@ -89,6 +93,12 @@ export default function ExamPage({
     
     if (imageType === 'solution' && imageIndex !== undefined) {
       return `${basePath}${problemId}-solution-${imageIndex + 1}.png`;
+    }
+    
+    // For multiple images, use letter suffix (a, b, c, etc.)
+    if (imageIndex !== undefined) {
+      const letterSuffix = String.fromCharCode(97 + imageIndex); // 97 = 'a'
+      return `${basePath}${problemId}${letterSuffix}.png`;
     }
     
     return `${basePath}${problemId}.png`;
@@ -258,6 +268,35 @@ export default function ExamPage({
   const answeredCount = Object.keys(userAnswers).filter(key => userAnswers[key].length > 0).length;
   const checkedCount = Object.keys(checkedAnswers).filter(key => checkedAnswers[key]).length;
   const totalProblems = examData.problems.length;
+
+  // Wykrycie ukończenia egzaminu
+  const isExamCompleted = checkedCount === totalProblems && totalProblems > 0;
+  const prevCompletedRef = useRef(false);
+
+  // Automatyczne uruchamianie timera na początku
+  useEffect(() => {
+    // Timer zaczyna się automatycznie gdy komponent się załaduje
+    setTimerActive(true);
+    
+    // Ukryj powiadomienie o timerze po 4 sekundach
+    const timer = setTimeout(() => {
+      setShowTimerNotification(false);
+    }, 4000);
+    
+    return () => clearTimeout(timer);
+  }, []); // Pusty dependency array = uruchom tylko raz na początku
+
+  useEffect(() => {
+    if (isExamCompleted && !prevCompletedRef.current) {
+      // Egzamin został właśnie ukończony - zatrzymaj timer
+      setTimerActive(false);
+      
+      setTimeout(() => {
+        setShowCompletionModal(true);
+      }, 500); // Małe opóźnienie dla lepszego UX
+    }
+    prevCompletedRef.current = isExamCompleted;
+  }, [isExamCompleted]);
 
   // Calculator component
   const MathCalculator = () => {
@@ -907,11 +946,11 @@ export default function ExamPage({
             {/* Lewa strona - nawigacja */}
             <Link 
               href={basePath}
-              className="inline-flex items-center gap-1.5 text-[#58a6ff] hover:text-[#1f6feb] transition-colors font-medium flex-shrink-0"
+              className="inline-flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 md:px-5 md:py-3 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] hover:border-[#58a6ff] rounded-lg text-[#58a6ff] hover:text-white transition-all duration-200 font-medium text-sm sm:text-base md:text-lg transform hover:scale-105"
             >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="hidden lg:inline text-sm">Powrót do materiałów</span>
-              <span className="lg:hidden text-sm">Powrót</span>
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
+              <span className="hidden sm:inline">Powrót do materiałów</span>
+              <span className="sm:hidden">Powrót</span>
             </Link>
 
             {/* Środek - kompaktowe statystyki */}
@@ -953,10 +992,11 @@ export default function ExamPage({
 
               {/* Kompaktowe statystyki */}
               <div className="flex items-center gap-1">
-                <Clock className={`w-4 h-4 ${timerActive ? 'text-yellow-300' : 'text-[#58a6ff]'}`} />
-                <span className={`${timerActive ? 'text-yellow-300 font-semibold' : 'text-gray-300'}`}>
+                <Clock className={`w-4 h-4 ${timerActive ? 'text-yellow-300' : isExamCompleted ? 'text-green-400' : 'text-[#58a6ff]'}`} />
+                <span className={`${timerActive ? 'text-yellow-300 font-semibold' : isExamCompleted ? 'text-green-400 font-semibold' : 'text-gray-300'}`}>
                   {formatTime(timeElapsed)}
                   <span className="hidden sm:inline">/{examData.duration}min</span>
+                  {isExamCompleted && <span className="hidden md:inline text-xs ml-1">(Ukończono)</span>}
                 </span>
               </div>
 
@@ -992,15 +1032,45 @@ export default function ExamPage({
               )}
             </div>
 
-            {/* Prawa strona - PDF */}
-            <button
-              onClick={() => window.print()}
-              className="inline-flex items-center gap-1.5 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-2.5 py-1.5 rounded-lg transition-colors font-medium flex-shrink-0"
-            >
-              <Download className="w-4 h-4" />
-              <span className="hidden lg:inline text-sm">Pobierz PDF</span>
-              <span className="lg:hidden text-sm">PDF</span>
-            </button>
+            {/* Prawa strona - Przyciski pobierania */}
+            <div className="flex items-center gap-2">
+              {/* Pobierz widok z rozwiązaniami */}
+              <button
+                onClick={() => window.print()}
+                className="inline-flex items-center gap-1.5 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-2.5 py-1.5 rounded-lg transition-colors font-medium flex-shrink-0"
+                title="Pobierz aktualny widok z rozwiązaniami"
+              >
+                <Download className="w-4 h-4" />
+                <span className="hidden lg:inline text-sm">Pobierz PDF</span>
+                <span className="lg:hidden text-sm">PDF</span>
+              </button>
+
+              {/* Pobierz oryginalny arkusz */}
+              {examData.examPdfUrl && (
+                <button
+                  onClick={() => window.open(examData.examPdfUrl, '_blank')}
+                  className="inline-flex items-center gap-1.5 bg-[#238636] hover:bg-[#2ea043] border border-[#238636] px-2.5 py-1.5 rounded-lg transition-colors font-medium flex-shrink-0"
+                  title="Pobierz oryginalny arkusz egzaminacyjny"
+                >
+                  <FileText className="w-4 h-4" />
+                  <span className="hidden lg:inline text-sm">Arkusz</span>
+                  <span className="lg:hidden text-sm">Arkusz</span>
+                </button>
+              )}
+
+              {/* Pobierz klucz odpowiedzi */}
+              {examData.answerKeyUrl && (
+                <button
+                  onClick={() => window.open(examData.answerKeyUrl, '_blank')}
+                  className="inline-flex items-center gap-1.5 bg-[#8b5cf6] hover:bg-[#7c3aed] border border-[#8b5cf6] px-2.5 py-1.5 rounded-lg transition-colors font-medium flex-shrink-0"
+                  title="Pobierz klucz odpowiedzi"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  <span className="hidden lg:inline text-sm">Klucz</span>
+                  <span className="lg:hidden text-sm">Klucz</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -1032,7 +1102,28 @@ export default function ExamPage({
             </div>
           </div>
 
-
+          {/* Powiadomienie o automatycznym uruchomieniu timera */}
+          {showTimerNotification && (
+            <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-l-4 border-yellow-400 rounded-lg p-4 mb-6 animate-pulse">
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0">
+                  <Clock className="w-6 h-6 text-yellow-400" />
+                </div>
+                <div>
+                  <h3 className="text-yellow-400 font-semibold text-lg">Timer został uruchomiony!</h3>
+                  <p className="text-yellow-200 text-sm">
+                    Egzamin rozpoczął się automatycznie. Timer zatrzyma się po ukończeniu wszystkich zadań.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowTimerNotification(false)}
+                  className="flex-shrink-0 p-1 text-yellow-400 hover:text-yellow-200 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          )}
 
           <div className="space-y-8">
             {examData.problems.map((problem, index) => {
@@ -1049,7 +1140,7 @@ export default function ExamPage({
                   <div className="flex items-start justify-between mb-6">
                     <div className="flex items-center gap-4">
                       <span className="text-3xl font-bold text-[#58a6ff]">
-                        {index + 1}.
+                        {problem.id}.
                       </span>
                       <div>
                         <span className="text-sm text-gray-400 block mb-1">
@@ -1084,6 +1175,28 @@ export default function ExamPage({
                     )}
 
                     {(() => {
+                      // Handle multiple images
+                      if (problem.images && problem.images.length > 0) {
+                        return (
+                          <div className="space-y-4 mb-4">
+                            {problem.images.map((imageSrc, index) => (
+                              <div key={index} className="bg-[#21262d] border border-[#30363d] rounded-lg p-4">
+                                <img 
+                                  src={imageSrc || getImagePath(problem.id, 'problem', index)}
+                                  alt={`Ilustracja do zadania ${problem.id} - część ${String.fromCharCode(97 + index)}`}
+                                  className="max-w-full h-auto mx-auto rounded-lg"
+                                  loading="lazy"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).style.display = 'none';
+                                  }}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      }
+
+                      // Handle single image
                       const hasScannedImage = !imagesLoading && imageData.problemImages.includes(parseInt(problem.id));
                       const imageSrc = problem.image || (hasScannedImage ? getImagePath(problem.id) : null);
                       
@@ -1460,6 +1573,17 @@ export default function ExamPage({
 
       {/* Floating Calculator */}
       {showCalculator && <MathCalculator />}
+
+      {/* Confetti Modal */}
+      <ConfettiModal
+        isOpen={showCompletionModal}
+        onClose={() => setShowCompletionModal(false)}
+        totalScore={totalScore}
+        maxPoints={examData.maxPoints}
+        timeElapsed={timeElapsed}
+        examTitle={examData.title}
+        duration={examData.duration}
+      />
     </div>
   );
 }

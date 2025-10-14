@@ -9,220 +9,258 @@ export const examDataPodstawowa: Record<string, Record<string, ExamData>> = {
       date: '2025-05-06',
       duration: 170,
       maxPoints: 50,
+      examPdfUrl: '/math_resources/matura/podstawowa/2025/glowna/exam.pdf',
+      answerKeyUrl: '/math_resources/matura/podstawowa/2025/glowna/key.pdf',
       problems: [
         {
           id: '1',
           image: '/math_resources/matura/podstawowa/2025/glowna/1.png',
           options: ['A) opcja1', 'B) opcja2', 'C) opcja3', 'D) opcja4'],
           answer: 'A) opcja1',
-          solution: ['Krok 1...', 'Odpowiedź: A) opcja1']
+          solution: ['Krok 1...', 'Odpowiedź: A) opcja1'],
+          points: 1,
         },
         {
           id: '2',
           image: '/math_resources/matura/podstawowa/2025/glowna/2.png',
           options: ['A) opcja1', 'B) opcja2', 'C) opcja3', 'D) opcja4'],
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
         {
           id: '3',
           image: '/math_resources/matura/podstawowa/2025/glowna/3.png',
           // Zadanie otwarte - bez options
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
         {
           id: '4',
           image: '/math_resources/matura/podstawowa/2025/glowna/4.png',
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
         {
           id: '5',
           image: '/math_resources/matura/podstawowa/2025/glowna/5.png',
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
         {
           id: '6',
           image: '/math_resources/matura/podstawowa/2025/glowna/6.png',
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
         {
           id: '7',
           image: '/math_resources/matura/podstawowa/2025/glowna/7.png',
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
         {
           id: '8',
           image: '/math_resources/matura/podstawowa/2025/glowna/8.png',
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
         {
           id: '9',
           image: '/math_resources/matura/podstawowa/2025/glowna/9.png',
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
         {
           id: '10',
           image: '/math_resources/matura/podstawowa/2025/glowna/10.png',
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
         {
           id: '11',
           image: '/math_resources/matura/podstawowa/2025/glowna/11.png',
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
         {
-          id: '12',
-          image: '/math_resources/matura/podstawowa/2025/glowna/12.png',
+          id: '12.1',
+          images: ['/math_resources/matura/podstawowa/2025/glowna/12.png',
+                     '/math_resources/matura/podstawowa/2025/glowna/12_1.png',
+          ],
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
+        },
+         {
+          id: '12.2',
+          images: ['/math_resources/matura/podstawowa/2025/glowna/12.png',
+            '/math_resources/matura/podstawowa/2025/glowna/12_2.png'],
+          answer: '',
+          solution: [],
+          points: 1,
+        },
+         {
+          id: '12.3',
+          images: ['/math_resources/matura/podstawowa/2025/glowna/12.png',
+                   '/math_resources/matura/podstawowa/2025/glowna/12_3.png'],
+          answer: '',
+          solution: [],
+          points: 1,
         },
         {
           id: '13',
           image: '/math_resources/matura/podstawowa/2025/glowna/13.png',
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
         {
-          id: '14',
-          image: '/math_resources/matura/podstawowa/2025/glowna/14.png',
+          id: '14.1',
+          images: ['/math_resources/matura/podstawowa/2025/glowna/14.png',
+                     '/math_resources/matura/podstawowa/2025/glowna/14_1.png'
+          ],
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
+        },
+        {
+          id: '14.2',
+          images: ['/math_resources/matura/podstawowa/2025/glowna/14.png',
+                     '/math_resources/matura/podstawowa/2025/glowna/14_1.png'
+          ],
+          answer: '',
+          solution: [],
+          points: 1,
         },
         {
           id: '15',
           image: '/math_resources/matura/podstawowa/2025/glowna/15.png',
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
         {
           id: '16',
           image: '/math_resources/matura/podstawowa/2025/glowna/16.png',
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
         {
           id: '17',
           image: '/math_resources/matura/podstawowa/2025/glowna/17.png',
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
         {
           id: '18',
           image: '/math_resources/matura/podstawowa/2025/glowna/18.png',
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
         {
           id: '19',
           image: '/math_resources/matura/podstawowa/2025/glowna/19.png',
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
         {
           id: '20',
           image: '/math_resources/matura/podstawowa/2025/glowna/20.png',
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
         {
           id: '21',
           image: '/math_resources/matura/podstawowa/2025/glowna/21.png',
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
         {
           id: '22',
           image: '/math_resources/matura/podstawowa/2025/glowna/22.png',
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
         {
           id: '23',
           image: '/math_resources/matura/podstawowa/2025/glowna/23.png',
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
         {
           id: '24',
           image: '/math_resources/matura/podstawowa/2025/glowna/24.png',
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
         {
           id: '25',
           image: '/math_resources/matura/podstawowa/2025/glowna/25.png',
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
         {
           id: '26',
           image: '/math_resources/matura/podstawowa/2025/glowna/26.png',
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
         {
           id: '27',
           image: '/math_resources/matura/podstawowa/2025/glowna/27.png',
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
         {
           id: '28',
           image: '/math_resources/matura/podstawowa/2025/glowna/28.png',
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
         {
           id: '29',
           image: '/math_resources/matura/podstawowa/2025/glowna/29.png',
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
         {
           id: '30',
           image: '/math_resources/matura/podstawowa/2025/glowna/30.png',
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
         {
           id: '31',
           image: '/math_resources/matura/podstawowa/2025/glowna/31.png',
           answer: '',
-          solution: []
+          solution: [],
+          points: 1,
         },
-        {
-          id: '32',
-          image: '/math_resources/matura/podstawowa/2025/glowna/32.png',
-          answer: '',
-          solution: []
-        },
-        {
-          id: '33',
-          image: '/math_resources/matura/podstawowa/2025/glowna/33.png',
-          answer: '',
-          solution: []
-        },
-        {
-          id: '34',
-          image: '/math_resources/matura/podstawowa/2025/glowna/34.png',
-          answer: '',
-          solution: []
-        },
-        {
-          id: '35',
-          image: '/math_resources/matura/podstawowa/2025/glowna/35.png',
-          answer: '',
-          solution: []
-        }
       ]
     }
   }

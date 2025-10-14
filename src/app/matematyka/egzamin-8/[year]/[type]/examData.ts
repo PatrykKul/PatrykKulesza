@@ -4,7 +4,8 @@ export interface MathProblem {
   id: string;
   question: string;
   formula?: string;
-  image?: string; // Ścieżka do zdjęcia zadania
+  image?: string; // Ścieżka do zdjęcia zadania (pojedyncze)
+  images?: string[]; // Wiele zdjęć dla jednego zadania
   options?: string[];
   answer: string;
   solution?: string[];
@@ -19,6 +20,8 @@ export interface ExamData {
   duration: number;
   maxPoints: number;
   problems: MathProblem[];
+  examPdfUrl?: string;    // Ścieżka do oryginalnego arkusza
+  answerKeyUrl?: string;  // Ścieżka do klucza odpowiedzi
 }
 
 export const examData: Record<string, Record<string, ExamData>> = {
@@ -28,6 +31,8 @@ export const examData: Record<string, Record<string, ExamData>> = {
       date: '25 maja 2022',
       duration: 100,
       maxPoints: 25,
+      examPdfUrl: '/math_resources/egzamin-8/2022/glowny/exam.pdf',
+      answerKeyUrl: '/math_resources/egzamin-8/2022/glowny/key.pdf',
       problems: [
         {
           id: '1',
@@ -395,6 +400,8 @@ export const examData: Record<string, Record<string, ExamData>> = {
     date: '14 czerwca 2022',
     duration: 100,
     maxPoints: 20,
+    examPdfUrl: '/math_resources/egzamin-8/2022/dodatkowy/exam.pdf',
+    answerKeyUrl: '/math_resources/egzamin-8/2022/dodatkowy/key.pdf',
     problems: [
       {
         id: '1',
@@ -774,6 +781,8 @@ export const examData: Record<string, Record<string, ExamData>> = {
     date: '24 maja 2023',
     duration: 100,
     maxPoints: 25,
+    examPdfUrl: '/math_resources/egzamin-8/2023/glowny/exam.pdf',
+    answerKeyUrl: '/math_resources/egzamin-8/2023/glowny/key.pdf',
     problems: [
       {
         id: '1',
@@ -1153,6 +1162,8 @@ export const examData: Record<string, Record<string, ExamData>> = {
     date: 'Czerwiec 2023',
     duration: 100,
     maxPoints: 20,
+    examPdfUrl: '/math_resources/egzamin-8/2023/dodatkowy/exam.pdf',
+    answerKeyUrl: '/math_resources/egzamin-8/2023/dodatkowy/key.pdf',
      problems: [
     {
       id: '1',
@@ -1500,6 +1511,8 @@ export const examData: Record<string, Record<string, ExamData>> = {
     date: '15 maja 2024',
     duration: 100,
     maxPoints: 25,
+    examPdfUrl: '/math_resources/egzamin-8/2024/glowny/exam.pdf',
+    answerKeyUrl: '/math_resources/egzamin-8/2024/glowny/key.pdf',
     problems: [
       {
         id: '1',
@@ -1868,6 +1881,8 @@ export const examData: Record<string, Record<string, ExamData>> = {
     date: 'Czerwiec 2024',
     duration: 125,
     maxPoints: 20,
+    examPdfUrl: '/math_resources/egzamin-8/2024/dodatkowy/exam.pdf',
+    answerKeyUrl: '/math_resources/egzamin-8/2024/dodatkowy/key.pdf',
     problems: [
       {
         id: '1',
@@ -1885,7 +1900,9 @@ export const examData: Record<string, Record<string, ExamData>> = {
     title: 'Egzamin Ósmoklasisty 2025 Główny - Matematyka',
     date: '14 maja 2025',
     duration: 125,
-    maxPoints: 25,
+    maxPoints: 30,
+    examPdfUrl: '/math_resources/egzamin-8/2025/glowny/exam.pdf',
+    answerKeyUrl: '/math_resources/egzamin-8/2025/glowny/key.pdf',
     problems: [
       {
         id: '1',
@@ -2311,6 +2328,8 @@ export const examData: Record<string, Record<string, ExamData>> = {
     date: 'Czerwiec 2025',
     duration: 125,
     maxPoints: 25,
+    examPdfUrl: '/math_resources/egzamin-8/2025/dodatkowy/exam.pdf',
+    answerKeyUrl: '/math_resources/egzamin-8/2025/dodatkowy/key.pdf',
     problems: [
       {
         id: '1',

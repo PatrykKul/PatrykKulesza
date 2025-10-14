@@ -12,6 +12,8 @@ export const examDataRozszerzona: Record<string, Record<string, ExamData>> = {
   //     date: '2024-05-14',
   //     duration: 180,
   //     maxPoints: 70,
+  //     examPdfUrl: '/math_resources/matura/rozszerzona/2024/glowna/exam.pdf',
+  //     answerKeyUrl: '/math_resources/matura/rozszerzona/2024/glowna/key.pdf',
   //     problems: [
   //       {
   //         id: '1', // Zadanie zamknięte
