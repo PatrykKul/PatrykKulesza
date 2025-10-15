@@ -10,8 +10,7 @@ import {
 import { 
   getCurrentModel, 
   recordModelUsage, 
-  getUsageSummary,
-  shouldNotifyUserAboutDegradation
+  getUsageSummary
 } from '@/lib/gemini-multi-model';
 
 interface ChatButton {
@@ -291,7 +290,7 @@ ${examInfo ? `- Tytuł: ${examInfo.title}\n- Rok: ${examInfo.year}\n- Typ: ${exa
 
       try {
         // 🔥 Przygotuj parts - text + obrazy
-        const parts: any[] = [{ text: tutorSystemPrompt }];
+        const parts: Array<{ text: string } | { inlineData: { data: string; mimeType: string } }> = [{ text: tutorSystemPrompt }];
         
         // Dodaj obrazy jeśli są (Gemini wspiera inline data)
         if (imageUrls && imageUrls.length > 0) {
@@ -615,7 +614,7 @@ Odpowiedz krótko (max 300 słów) i praktycznie.`;
           }
           console.log('✅ Gemini API response received');
           break; // Success - wyjdź z loop
-        } catch (geminiError: any) {
+        } catch (geminiError: unknown) {
           retryCount++;
           console.error(`❌ GEMINI API ERROR (attempt ${retryCount}/${MAX_RETRIES}):`, geminiError);
           
@@ -630,8 +629,11 @@ Odpowiedz krótko (max 300 słów) i praktycznie.`;
           console.log(`⏳ Retrying in ${backoffMs}ms...`);
           await new Promise(resolve => setTimeout(resolve, backoffMs));
           
+          // Type guard for error with status/message
+          const errorObj = geminiError as { status?: number; message?: string };
+          
           // Jeśli błąd 500/quota, spróbuj następnego modelu
-          if (geminiError?.status === 500 || geminiError?.message?.includes('quota') || geminiError?.message?.includes('exhausted')) {
+          if (errorObj?.status === 500 || errorObj?.message?.includes('quota') || errorObj?.message?.includes('exhausted')) {
             console.log('🔄 Quota/500 error detected - trying next model in chain');
             const nextModel = getCurrentModel(); // Pobierze kolejny dostępny model
             if (nextModel.name !== modelConfig.name) {

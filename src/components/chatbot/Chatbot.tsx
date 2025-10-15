@@ -5,6 +5,7 @@ import { MessageSquare, X, Send, GripVertical, Maximize2, Minimize2 } from 'luci
 import emailjs from '@emailjs/browser';
 import MathText from '@/app/matematyka/components/MathText';
 import { useExamContext } from '@/contexts/ExamContext';
+import type { MathProblem } from '@/app/matematyka/components/ExamPage';
 
 interface ChatButton {
   text: string;
@@ -434,7 +435,7 @@ export default function ChatbotNew() {
         console.log('🔍 Użytkownik pyta o zadanie nr:', taskNumber);
         
         // Znajdź problem o tym numerze w liście wszystkich zadań
-        specificProblemData = examContext.allProblems.find((p: any) => p.id === taskNumber);
+        specificProblemData = examContext.allProblems.find((p: MathProblem) => p.id === taskNumber);
         
         if (specificProblemData) {
           console.log('✅ Znaleziono zadanie:', specificProblemData.id);
