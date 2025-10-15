@@ -51,9 +51,9 @@ export type UserIntent =
 export function detectIntent(message: string): UserIntent {
   const lower = message.toLowerCase().trim();
   
-  // 1. BOOKING - najwyższy priorytet dla umówienia
-  const bookingVerbs = ['umów', 'umow', 'rezerwuj', 'zarezerwuj', 'zapisz'];
-  const lessonWords = ['korepetycje', 'korepetycj', 'korki', 'lekcj', 'spotkanie', 'zajęcia', 'wizyta'];
+  // 1. BOOKING - rozszerzone rozpoznawanie intencji rezerwacji
+  const bookingVerbs = ['umów', 'umow', 'rezerwuj', 'zarezerwuj', 'zapisz', 'zapisa'];
+  const lessonWords = ['korepetycje', 'korepetycj', 'korki', 'lekcj', 'spotkanie', 'zajęcia', 'wizyta', 'termin'];
   const hasBookingVerb = bookingVerbs.some(verb => lower.includes(verb));
   const hasLessonWord = lessonWords.some(word => lower.includes(word));
   
@@ -62,11 +62,21 @@ export function detectIntent(message: string): UserIntent {
     /można\s+umów/i, /mozna\s+umow/i,
     /można\s+rezerwuj/i, /mozna\s+rezerwuj/i,
     /chcę\s+umów/i, /chce\s+umow/i,
-    /chcę\s+się\s+umów/i, /chce\s+sie\s+umow/i
+    /chcę\s+się\s+umów/i, /chce\s+sie\s+umow/i,
+    /chciałbym\s+zarezerwować/i, /chcialbym\s+zarezerwowac/i,
+    /jak\s+się\s+zapisać/i, /jak\s+sie\s+zapisac/i,
+    /jak\s+się\s+umówić/i, /jak\s+sie\s+umowic/i,
+    /zapisz\s+mnie/i, /zapisa\s+mnie/i
   ];
   const hasModalBooking = modalBookingPatterns.some(pattern => pattern.test(lower));
   
-  if ((hasBookingVerb && hasLessonWord) || hasModalBooking) {
+  // ROZSZERZONE WARUNKI - bardziej elastyczne dopasowanie
+  // Jeśli ma verb booking I lesson word → booking
+  // Jeśli ma verb booking I "na" → booking ("zapisz mnie na programowanie")
+  // Jeśli pasuje do modal pattern → booking
+  const hasBookingPhrase = hasBookingVerb && (hasLessonWord || lower.includes(' na '));
+  
+  if (hasBookingPhrase || hasModalBooking) {
     return 'booking';
   }
   

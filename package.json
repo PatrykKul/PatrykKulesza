@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:chatbot": "tsx tests/chatbot-api-test-runner.ts"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
@@ -34,6 +35,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.4.6",
     "tailwindcss": "^4",
+    "tsx": "^4.20.6",
     "typescript": "^5"
   }
 }

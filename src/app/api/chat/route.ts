@@ -7,6 +7,12 @@ import {
   getDefaultResponse,
   type UserIntent
 } from '@/components/chatbot/fallback';
+import { 
+  getCurrentModel, 
+  recordModelUsage, 
+  getUsageSummary,
+  shouldNotifyUserAboutDegradation
+} from '@/lib/gemini-multi-model';
 
 interface ChatButton {
   text: string;
@@ -27,7 +33,7 @@ interface ConversationHistory {
 
 // Rate limiting - prosty cache (w produkcji użyj Redis)
 const requestCache = new Map<string, { count: number; lastReset: number }>();
-const RATE_LIMIT = 20; // 20 zapytań na IP
+const RATE_LIMIT = 30; // 30 zapytań na IP (zwiększone bo mamy 7 modeli!)
 const WINDOW_MS = 15 * 60 * 1000; // 15 minut
 
 // Cache odpowiedzi
@@ -138,10 +144,11 @@ export async function POST(req: NextRequest) {
 
     const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
     
-    // Rate limiting
+    // ✅ RATE LIMITING - PRZYWRÓCONY z multi-model support!
+    // Dzięki 7 modelom (3250 RPD) możemy obsłużyć więcej userów
     if (!checkRateLimit(ip)) {
       return NextResponse.json({
-        response: '⏰ **Zbyt wiele pytań!**\n\nPoczekaj chwilę przed kolejnym pytaniem.\n\n💡 W międzyczasie sprawdź moje materiały!',
+        response: '⏰ **Zbyt wiele pytań!**\n\nPoczekaj chwilę przed kolejnym pytaniem (max 30 pytań / 15 min).\n\n💡 W międzyczasie sprawdź moje materiały!',
         buttons: [
           { text: '📖 Matematyka', href: '/matematyka', variant: 'primary', icon: '📖' },
           { text: '📚 Angielski', href: '/angielski', variant: 'secondary', icon: '📚' },
@@ -200,7 +207,7 @@ export async function POST(req: NextRequest) {
       
       const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
       const model = genAI.getGenerativeModel({ 
-        model: 'gemini-2.0-flash-exp',
+        model: 'gemini-2.5-flash', // Changed from gemini-2.0-flash-exp (50 RPD limit) to gemini-2.5-flash (250 RPD limit)
         generationConfig: {
           temperature: 0.8,
           topP: 0.9,
@@ -425,16 +432,28 @@ ${examInfo ? `- Tytuł: ${examInfo.title}\n- Rok: ${examInfo.year}\n- Typ: ${exa
     const geminiIntents: UserIntent[] = ['math_question', 'english_question', 'programming_question'];
     
     if (geminiIntents.includes(intent) || intent === 'unknown') {
-      console.log('🤖 Using Gemini API');
+      console.log('🤖 Using Gemini Multi-Model System');
+      
+      // 🚀 MULTI-MODEL FALLBACK: Automatycznie wybiera najlepszy dostępny model
+      const modelConfig = getCurrentModel();
+      console.log(`📡 Selected model: ${modelConfig.name} (${modelConfig.tier}) - ${modelConfig.description}`);
+      
+      // Track usage dla tego modelu
+      recordModelUsage(modelConfig.name);
+      
+      // Log usage stats co 25 requestów
+      if (Math.random() < 0.04) { // ~4% chance = co ~25 requestów
+        console.log('\n' + getUsageSummary());
+      }
 
       const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
       const model = genAI.getGenerativeModel({ 
-        model: 'gemini-2.0-flash-exp',
+        model: modelConfig.name, // 🔥 Dynamiczny model z fallback systemu!
         generationConfig: {
           temperature: 0.7,
           topP: 0.8,
           topK: 40,
-          maxOutputTokens: 800,
+          maxOutputTokens: 4000, // Zwiększone do 4000 - dla szczegółowych wyjaśnień matematycznych
         }
       });
       
@@ -443,21 +462,39 @@ ${examInfo ? `- Tytuł: ${examInfo.title}\n- Rok: ${examInfo.year}\n- Typ: ${exa
       
       let chat;
       let systemPrompt = '';
+      let hasValidHistory = false;
       
       // Jeśli mamy historię, używamy chat.sendMessage zamiast generateContent
       if (chatHistory.length > 0) {
-        chat = model.startChat({
-          history: chatHistory.map(msg => ({
-            role: msg.role,
-            parts: [{ text: msg.parts }]
-          })),
-          generationConfig: {
-            temperature: 0.7,
-            topP: 0.8,
-            topK: 40,
-            maxOutputTokens: 800,
-          }
-        });
+        // FIX: Gemini wymaga żeby pierwsza wiadomość była 'user', nie 'model'
+        // Jeśli historia zaczyna się od 'model', pomijamy ją lub poprawiamy
+        let validHistory = chatHistory;
+        if (chatHistory[0]?.role === 'model') {
+          // Usuń pierwszą wiadomość jeśli to model, lub zmień kolejność
+          validHistory = chatHistory.slice(1);
+        }
+        
+        // Jeśli po filtrowaniu zostanie tylko 'model' messages, skip history
+        const hasUserMessage = validHistory.some(msg => msg.role === 'user');
+        
+        if (validHistory.length > 0 && hasUserMessage) {
+          console.log('💬 Creating chat with valid history:', validHistory.length, 'messages');
+          chat = model.startChat({
+            history: validHistory.map(msg => ({
+              role: msg.role,
+              parts: [{ text: msg.parts }]
+            })),
+            generationConfig: {
+              temperature: 0.7,
+              topP: 0.8,
+              topK: 40,
+              maxOutputTokens: 4000, // Zwiększone do 4000 - dla szczegółowych wyjaśnień matematycznych
+            }
+          });
+          hasValidHistory = true;
+        } else {
+          console.log('⚠️ No valid history after filtering - using fresh generation');
+        }
       }
 
       // Przygotowanie systemPrompt zgodnie z intencją
@@ -555,18 +592,103 @@ Pytanie ucznia: "${message}"
 Odpowiedz krótko (max 300 słów) i praktycznie.`;
       }
 
+      console.log('🤖 Calling Gemini API...');
+      console.log('📊 Chat history length:', chatHistory.length);
+      console.log('📝 System prompt length:', systemPrompt.length, 'chars');
+
       // Wywołanie odpowiedniego API w zależności od historii
+      // 🔄 RETRY LOGIC: 3 próby z exponential backoff dla błędów API
       let result;
-      if (chat && chatHistory.length > 0) {
-        // Używamy czatu z historią konwersacji
-        result = await chat.sendMessage(message);
-      } else {
-        // Używamy jednorazowego generowania
-        result = await model.generateContent(systemPrompt);
+      let retryCount = 0;
+      const MAX_RETRIES = 3;
+      
+      while (retryCount < MAX_RETRIES) {
+        try {
+          if (chat && hasValidHistory) {
+            // Używamy czatu z historią konwersacji
+            console.log('💬 Using chat.sendMessage with history');
+            result = await chat.sendMessage(message);
+          } else {
+            // Używamy jednorazowego generowania
+            console.log('✨ Using model.generateContent (no history)');
+            result = await model.generateContent(systemPrompt);
+          }
+          console.log('✅ Gemini API response received');
+          break; // Success - wyjdź z loop
+        } catch (geminiError: any) {
+          retryCount++;
+          console.error(`❌ GEMINI API ERROR (attempt ${retryCount}/${MAX_RETRIES}):`, geminiError);
+          
+          if (retryCount >= MAX_RETRIES) {
+            // Wszystkie retry wyczerpane - rzuć błąd
+            console.error('🚨 All retries exhausted - falling back to error response');
+            throw geminiError;
+          }
+          
+          // Exponential backoff: 1s, 2s, 4s
+          const backoffMs = Math.pow(2, retryCount - 1) * 1000;
+          console.log(`⏳ Retrying in ${backoffMs}ms...`);
+          await new Promise(resolve => setTimeout(resolve, backoffMs));
+          
+          // Jeśli błąd 500/quota, spróbuj następnego modelu
+          if (geminiError?.status === 500 || geminiError?.message?.includes('quota') || geminiError?.message?.includes('exhausted')) {
+            console.log('🔄 Quota/500 error detected - trying next model in chain');
+            const nextModel = getCurrentModel(); // Pobierze kolejny dostępny model
+            if (nextModel.name !== modelConfig.name) {
+              console.log(`🔀 Switching to ${nextModel.name} for retry`);
+              const newGenAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+              const newModel = newGenAI.getGenerativeModel({ 
+                model: nextModel.name,
+                generationConfig: {
+                  temperature: 0.7,
+                  topP: 0.8,
+                  topK: 40,
+                  maxOutputTokens: 4000, // Zwiększone do 4000 - dla szczegółowych wyjaśnień matematycznych
+                }
+              });
+              // Update model reference
+              Object.assign(model, newModel);
+            }
+          }
+        }
+      }
+      
+      // Guard: jeśli result nadal undefined (nie powinno się zdarzyć)
+      if (!result) {
+        throw new Error('Failed to get response from Gemini API after retries');
       }
 
       const response = result.response;
-      const aiResponse = response.text();
+      let aiResponse: string;
+      
+      try {
+        aiResponse = response.text();
+        console.log('✅ Successfully extracted text from Gemini response');
+        console.log('📏 Response length:', aiResponse.length, 'chars');
+        console.log('📝 Response preview:', JSON.stringify(aiResponse.substring(0, 200)));
+      } catch (textError) {
+        console.error('❌ ERROR extracting text from Gemini response:', textError);
+        console.error('📊 Response object:', JSON.stringify(response, null, 2));
+        throw new Error('Failed to extract text from Gemini response');
+      }
+      
+      // Sprawdź czy odpowiedź jest pusta
+      if (!aiResponse || aiResponse.trim().length === 0) {
+        console.error('❌ Empty response from Gemini API');
+        console.error('📊 Full response for debugging:', JSON.stringify(aiResponse));
+        console.error('📊 Response candidates:', JSON.stringify(result.response.candidates, null, 2));
+        
+        // Sprawdź finish reason
+        const finishReason = result.response.candidates?.[0]?.finishReason;
+        console.error('🔍 Finish reason:', finishReason);
+        
+        if (finishReason === 'MAX_TOKENS') {
+          console.error('⚠️ MAX_TOKENS reached but response is empty - Gemini API issue');
+          throw new Error('Gemini API returned MAX_TOKENS with empty response - possible API issue');
+        }
+        
+        throw new Error('Empty response from Gemini API');
+      }
 
       // Dodajemy odpowiedź do historii
       addMessageToHistory(sessionId, 'model', aiResponse);
@@ -637,14 +759,20 @@ Odpowiedz krótko (max 300 słów) i praktycznie.`;
     });
 
   } catch (error) {
-    console.error('❌ Błąd chatbota:', error);
+    console.error('❌ CRITICAL ERROR in chatbot API:', error);
+    console.error('❌ Error type:', error instanceof Error ? error.constructor.name : typeof error);
+    console.error('❌ Error message:', error instanceof Error ? error.message : String(error));
+    console.error('❌ Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
 
     // Error fallback
     try {
       const { message, sessionId = crypto.randomUUID() } = await req.json().catch(() => ({ message: '', sessionId: crypto.randomUUID() }));
       
+      console.log('🔍 Attempting fallback for message:', message?.substring(0, 50));
+      
       if (isEducationRelated(message)) {
         const fallback = getFallbackResponse(message) || getDefaultResponse();
+        console.log('✅ Using education-related fallback');
         return NextResponse.json({
           response: fallback.response,
           buttons: fallback.buttons || [],
@@ -653,6 +781,7 @@ Odpowiedz krótko (max 300 słów) i praktycznie.`;
         }, { status: 200 });
       }
       
+      console.log('⚠️ Message not education-related, returning 500');
       return NextResponse.json({
         response: '😅 **Ups! Coś poszło nie tak...**\n\nSpróbuj ponownie za chwilę lub skontaktuj się bezpośrednio z **Patrykiem Kuleszą**!',
         buttons: [
