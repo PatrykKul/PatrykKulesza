@@ -682,7 +682,10 @@ export default function ChatbotNew() {
           <div className="absolute inset-0 bg-blue-400/50 rounded-2xl animate-ping opacity-20"></div>
           <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-xs font-bold text-white animate-bounce">AI</div>
           <div className="absolute bottom-full right-0 mb-3 px-4 py-2 bg-gray-900 text-white text-sm rounded-xl opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap transform translate-y-2 group-hover:translate-y-0 pointer-events-none">
-            💬 Umów korepetycje!
+            <div className="leading-tight">
+              <div>💬 Umów korepetycje!</div>
+              <div className="leading-tight">Zadaj pytanie!</div>
+            </div>
             <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
           </div>
         </button>
