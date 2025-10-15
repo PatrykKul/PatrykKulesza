@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ArrowLeft, Calculator, Clock, Award, FileText, Download, Eye, EyeOff, CheckCircle, RotateCcw, PenTool, X, Delete, Plus, Minus, Divide, MessageSquare } from 'lucide-react';
 import MathText, { MathSolutionStep } from '@/app/matematyka/components/MathText';
 import { useImageScan } from '@/hooks/useImageScan';
-import AdvancedCanvas from './AdvancedCanvas';
+import WhiteboardCanvas from './WhiteboardCanvas';
 import ConfettiModal from '@/components/ConfettiModal';
 import { useExamContext } from '@/contexts/ExamContext';
 
@@ -61,6 +61,8 @@ export default function ExamPage({
   const [showCalculator, setShowCalculator] = useState(false);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [showTimerNotification, setShowTimerNotification] = useState(true);
+  const [splitSize, setSplitSize] = useState(50); // % width for left panel
+  const [isDragging, setIsDragging] = useState(false);
   
   // 🔥 Refs do śledzenia widocznych zadań
   const problemRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -205,6 +207,34 @@ export default function ExamPage({
       [problemId]: [option]
     }));
   };
+
+  // Resizable split handlers
+  const handleMouseDown = () => {
+    setIsDragging(true);
+  };
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!isDragging) return;
+    
+    const newSize = (e.clientX / window.innerWidth) * 100;
+    // Limit between 20% and 80%
+    setSplitSize(Math.min(Math.max(newSize, 20), 80));
+  }, [isDragging]);
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, handleMouseMove]);
 
   const checkAnswer = (problemId: string) => {
     setCheckedAnswers(prev => ({
@@ -1281,55 +1311,62 @@ export default function ExamPage({
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#1f6feb] to-[#58a6ff] rounded-full mb-6">
-              <Calculator className="w-10 h-10 text-white" />
-            </div>
-            
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#58a6ff] via-[#1f6feb] to-[#0969da] bg-clip-text text-transparent">
-              {getExtendedTitle()}
-            </h1>
-            
-            <div className="flex flex-wrap justify-center gap-6 text-gray-300 mb-6">
-              <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5 text-[#58a6ff]" />
-                <span>Czas: {examData.duration} minut</span>
+      {/* Split Layout: Left = Exam, Right = Whiteboard */}
+      <div className="flex h-[calc(100vh-80px)] relative">
+        {/* LEFT SIDE - Exam Content (resizable) */}
+        <main 
+          className="overflow-y-auto border-r border-[#30363d]"
+          style={{ width: `${splitSize}%` }}
+        >
+          <div className="container mx-auto px-4 py-8">
+            <div className="max-w-4xl mx-auto">
+              <div className="text-center mb-12">
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#1f6feb] to-[#58a6ff] rounded-full mb-6">
+                  <Calculator className="w-10 h-10 text-white" />
+                </div>
+                
+                <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#58a6ff] via-[#1f6feb] to-[#0969da] bg-clip-text text-transparent">
+                  {getExtendedTitle()}
+                </h1>
+                
+                <div className="flex flex-wrap justify-center gap-6 text-gray-300 mb-6">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-[#58a6ff]" />
+                    <span>Czas: {examData.duration} minut</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Award className="w-5 h-5 text-[#58a6ff]" />
+                    <span>Punkty: {examData.maxPoints}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-[#58a6ff]" />
+                    <span>Data: {examData.date}</span>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Award className="w-5 h-5 text-[#58a6ff]" />
-                <span>Punkty: {examData.maxPoints}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-[#58a6ff]" />
-                <span>Data: {examData.date}</span>
-              </div>
-            </div>
-          </div>
 
-          {/* Powiadomienie o automatycznym uruchomieniu timera */}
-          {showTimerNotification && (
-            <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-l-4 border-yellow-400 rounded-lg p-4 mb-6 animate-pulse">
-              <div className="flex items-center gap-3">
-                <div className="flex-shrink-0">
-                  <Clock className="w-6 h-6 text-yellow-400" />
+              {/* Powiadomienie o automatycznym uruchomieniu timera */}
+              {showTimerNotification && (
+                <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-l-4 border-yellow-400 rounded-lg p-4 mb-6 animate-pulse">
+                  <div className="flex items-center gap-3">
+                    <div className="flex-shrink-0">
+                      <Clock className="w-6 h-6 text-yellow-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-yellow-400 font-semibold text-lg">Timer został uruchomiony!</h3>
+                      <p className="text-yellow-200 text-sm">
+                        Egzamin rozpoczął się automatycznie. Timer zatrzyma się po ukończeniu wszystkich zadań.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setShowTimerNotification(false)}
+                      className="flex-shrink-0 p-1 text-yellow-400 hover:text-yellow-200 transition-colors"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-yellow-400 font-semibold text-lg">Timer został uruchomiony!</h3>
-                  <p className="text-yellow-200 text-sm">
-                    Egzamin rozpoczął się automatycznie. Timer zatrzyma się po ukończeniu wszystkich zadań.
-                  </p>
-                </div>
-                <button
-                  onClick={() => setShowTimerNotification(false)}
-                  className="flex-shrink-0 p-1 text-yellow-400 hover:text-yellow-200 transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          )}
+              )}
 
           <div className="space-y-8">
             {examData.problems.map((problem, index) => {
@@ -1646,14 +1683,6 @@ export default function ExamPage({
                     </button>
 
                     <button
-                      onClick={() => toggleCanvas(problem.id)}
-                      className="inline-flex items-center gap-2 bg-[#8b5cf6] hover:bg-[#7c3aed] text-white px-4 py-2 rounded-lg font-semibold transition-colors"
-                    >
-                      <PenTool className="w-4 h-4" />
-                      {showCanvas[problem.id] ? 'Ukryj rozwiązywanie' : 'Rozwiązuj'}
-                    </button>
-
-                    <button
                       onClick={() => toggleSolution(problem.id)}
                       className="inline-flex items-center gap-2 bg-[#58a6ff] hover:bg-[#4493f8] text-black px-4 py-2 rounded-lg font-semibold transition-colors"
                     >
@@ -1670,8 +1699,6 @@ export default function ExamPage({
                       )}
                     </button>
                   </div>
-
-                  {showCanvas[problem.id] && <AdvancedCanvas problemId={problem.id} />}
                   {visibleSolutions[problem.id] && (
                     <div className="border-t border-[#30363d] pt-6 mt-6">
                       <div className="bg-green-900/20 border border-green-600/30 rounded-lg p-4 mb-4">
@@ -1766,10 +1793,30 @@ export default function ExamPage({
               Potrzebujesz pomocy z tymi zadaniami? Umów korepetycje!
             </Link>
           </div>
-        </div>
-      </main>
+            </div>
+          </div>
+        </main>
 
-      <footer className="border-t border-[#30363d] bg-[#161b22] mt-20">
+        {/* RESIZER - Draggable Divider */}
+        <div
+          onMouseDown={handleMouseDown}
+          className={`w-1 bg-[#30363d] hover:bg-[#58a6ff] cursor-col-resize transition-colors relative group ${isDragging ? 'bg-[#58a6ff]' : ''}`}
+          style={{ cursor: 'col-resize' }}
+        >
+          {/* Visual indicator */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-12 bg-[#58a6ff] rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+        </div>
+
+        {/* RIGHT SIDE - Whiteboard Canvas (resizable) */}
+        <aside 
+          className="bg-[#161b22] relative"
+          style={{ width: `${100 - splitSize}%` }}
+        >
+          <WhiteboardCanvas problemId={`${year}-${type}-${level || examType}`} className="h-full" />
+        </aside>
+      </div>
+
+      <footer className="border-t border-[#30363d] bg-[#161b22]">
         <div className="container mx-auto px-4 py-8 text-center">
           <p className="text-gray-400">
             © 2024 Patryk Kulesza - Korepetycje z Matematyki. Wszystkie prawa zastrzeżone.

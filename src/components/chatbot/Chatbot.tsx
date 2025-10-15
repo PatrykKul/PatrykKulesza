@@ -748,7 +748,36 @@ export default function ChatbotNew() {
     : { width: `${chatSize.width}px`, height: `${chatSize.height}px`, maxWidth: 'calc(100vw - 3rem)', maxHeight: 'calc(100vh - 3rem)' };
 
   return (
-    <div ref={chatRef} className={`korkus-chatbot fixed z-50 bg-white border border-gray-200 rounded-2xl shadow-2xl flex flex-col overflow-hidden ${isMaximized ? 'top-0 right-0' : 'bottom-6 right-6'} ${isResizing ? 'select-none' : ''}`} style={chatStyle}>
+    <>
+      {/* Toggle Button - Fixed bottom right */}
+      {!isOpen && (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="fixed bottom-6 right-6 z-50 w-16 h-16 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center justify-center"
+          title="Otwórz KORKUŚ AI"
+        >
+          <MessageSquare className="w-7 h-7" />
+        </button>
+      )}
+
+      {/* Modal Backdrop with Blur */}
+      {isOpen && (
+        <div className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
+      )}
+
+      {/* Chatbot Modal - Centered & Wider */}
+      {isOpen && (
+        <div 
+          ref={chatRef} 
+          className="korkus-chatbot fixed z-50 bg-white border border-gray-200 rounded-2xl shadow-2xl flex flex-col overflow-hidden top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+          style={{
+            width: '900px',
+            height: '600px',
+            maxWidth: 'calc(100vw - 4rem)',
+            maxHeight: 'calc(100vh - 4rem)'
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
       
       {/* HEADER */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4">
@@ -947,5 +976,7 @@ export default function ChatbotNew() {
         </div>
       </div>
     </div>
+      )}
+    </>
   );
 }
