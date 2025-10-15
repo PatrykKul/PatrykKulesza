@@ -116,11 +116,8 @@ export const Header = () => {
             >
               <Search className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 group-hover:text-[#1f6feb] transition-colors flex-shrink-0" />
               <span className="text-sm sm:text-base text-gray-400 group-hover:text-gray-300 transition-colors truncate">
-                Szukaj materiałów...
+                Szukaj...
               </span>
-              <kbd className="hidden sm:flex items-center gap-1 px-2 py-1 text-xs bg-[#161b22] border border-[#30363d] rounded text-gray-500 ml-auto">
-                <span className="text-xs">⌘</span>K
-              </kbd>
             </motion.button>
 
             {/* Hamburger Menu Button */}
