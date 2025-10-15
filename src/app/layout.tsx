@@ -1,9 +1,17 @@
+// ==========================================
+// FILE: src/app/layout.tsx
+// ==========================================
+// Layout - DODANO: SearchContextProvider + GlobalSearch
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "katex/dist/katex.min.css";
 import Chatbot from "@/components/chatbot/Chatbot";
 import { ExamContextProvider } from "@/contexts/ExamContext";
+// 🔥 NOWE IMPORTY
+import { SearchContextProvider } from "@/contexts/SearchContext";
+import GlobalSearch from "@/components/GlobalSearch";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -187,10 +195,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ExamContextProvider>
-          {children}
-          <Chatbot />
-        </ExamContextProvider>
+        {/* 🔥 NOWA STRUKTURA - SearchContextProvider owija wszystko */}
+        <SearchContextProvider>
+          <ExamContextProvider>
+            {children}
+            <Chatbot />
+            {/* 🔥 NOWY KOMPONENT - GlobalSearch */}
+            <GlobalSearch />
+          </ExamContextProvider>
+        </SearchContextProvider>
       </body>
     </html>
   );

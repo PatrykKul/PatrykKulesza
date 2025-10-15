@@ -156,6 +156,21 @@ export default function ChatbotNew() {
     };
   }, []);
 
+  // 🔥 Listener dla otwierania chatbota z GlobalSearch (AI Asystent click)
+  useEffect(() => {
+    const handleOpen = () => {
+      console.log('🤖 KORKUŚ: Opening from external trigger (GlobalSearch)');
+      setIsOpen(true);
+    };
+
+    window.addEventListener('korkus:open', handleOpen as EventListener);
+    
+    return () => {
+      window.removeEventListener('korkus:open', handleOpen as EventListener);
+    };
+  }, []);
+
+
   // Pierwsza wiadomość
   useEffect(() => {
     if (messages.length === 0) {
@@ -423,6 +438,41 @@ export default function ChatbotNew() {
     }
 
     // Normal mode - send to API
+
+    // 🔥 DETEKCJA "GDZIE ZNAJDĘ X" - integracja z GlobalSearch
+    const searchPatterns = [
+      /gdzie znajd[ęe] (.+)/i,
+      /szukam (.+)/i,
+      /gdzie jest (.+)/i,
+      /pokaz mi (.+)/i,
+      /pokaż mi (.+)/i,
+      /znajdź (.+)/i,
+      /znajdz (.+)/i
+    ];
+
+    for (const pattern of searchPatterns) {
+      const match = userMsg.match(pattern);
+      if (match && match[1]) {
+        const query = match[1].trim();
+        
+        console.log('🔍 KORKUŚ: Triggering GlobalSearch for:', query);
+        
+        // Trigger wyszukiwarki z typing effect
+        window.dispatchEvent(new CustomEvent('korkus:triggerSearch', { 
+          detail: { query } 
+        }));
+        
+        // Bot odpowiada
+        setMessages(prev => [...prev, {
+          role: 'bot',
+          content: `🔍 **Sprawdzam "${query}"...**\n\nOtwieram wyszukiwarkę dla Ciebie!`,
+        }]);
+        
+        return; // Nie wysyłaj do API
+      }
+    }
+    // KONIEC DETEKCJI "GDZIE ZNAJDĘ X"
+
     setLoading(true);
 
     try {
