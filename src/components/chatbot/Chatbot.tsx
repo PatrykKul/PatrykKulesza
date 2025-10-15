@@ -4,8 +4,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { MessageSquare, X, Send, GripVertical, Maximize2, Minimize2 } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import MathText from '@/app/matematyka/components/MathText';
-import { useExamContext } from '@/contexts/ExamContext';
-import type { MathProblem } from '@/app/matematyka/components/ExamPage';
+import { useExamContext } from '@/app/matematyka/components/exams/ExamContext';
+import type { MathProblem } from '@/app/matematyka/components/exams/ExamPage';
 
 interface ChatButton {
   text: string;
@@ -975,7 +975,7 @@ export default function ChatbotNew() {
           🎓 <strong>Patryk Kulesza</strong> - Matematyka • Angielski • Programowanie
         </div>
       </div>
-    </div>
+        </div>
       )}
     </>
   );

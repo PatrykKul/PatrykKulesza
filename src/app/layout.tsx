@@ -8,10 +8,10 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "katex/dist/katex.min.css";
 import Chatbot from "@/components/chatbot/Chatbot";
-import { ExamContextProvider } from "@/contexts/ExamContext";
+import { ExamContextProvider } from "@/app/matematyka/components/exams/ExamContext";
 // 🔥 NOWE IMPORTY
-import { SearchContextProvider } from "@/contexts/SearchContext";
-import GlobalSearch from "@/components/GlobalSearch";
+import { SearchContextProvider } from "@/components/GlobalSearch/SearchContext";
+import GlobalSearch from "@/components/GlobalSearch/GlobalSearch";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

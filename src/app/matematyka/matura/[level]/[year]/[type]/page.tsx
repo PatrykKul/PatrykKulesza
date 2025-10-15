@@ -1,4 +1,4 @@
-import ExamPageWrapper from '@/app/matematyka/components/ExamPageWrapper';
+import ExamPageWrapper from '@/app/matematyka/components/exams/ExamPageWrapper';
 import { examData } from './examData';
 import { notFound } from 'next/navigation';
 

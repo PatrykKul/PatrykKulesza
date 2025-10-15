@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { MathProblem } from '@/app/matematyka/components/ExamPage';
+import { MathProblem } from '@/app/matematyka/components/exams/ExamPage';
 
 interface ExamContextData {
   currentProblem: MathProblem | null;

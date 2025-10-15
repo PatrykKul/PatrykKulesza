@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Search } from 'lucide-react';
 import Image from 'next/image';
 import { MENU_ITEMS } from '../utils/utils';
-import { useSearchContext } from '@/contexts/SearchContext';
+import { useSearchContext } from '@/components/GlobalSearch/SearchContext';
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

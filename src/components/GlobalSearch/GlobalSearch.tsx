@@ -7,8 +7,8 @@
 
 'use client';
 
-import { useSearchContext } from '@/contexts/SearchContext';
-import { searchItems, type SearchItem } from '@/data/searchRegistry';
+import { useSearchContext } from '@/components/GlobalSearch/SearchContext';
+import { searchItems, type SearchItem } from '@/components/GlobalSearch/searchRegistry';
 import { useRouter } from 'next/navigation';
 import { Search, X, Sparkles, ChevronRight, Home, BookOpen, Briefcase, Mail } from 'lucide-react';
 import { useEffect, useRef, useState, useCallback } from 'react';

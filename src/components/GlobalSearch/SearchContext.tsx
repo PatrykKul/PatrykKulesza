@@ -4,7 +4,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import type { SearchItem } from '@/data/searchRegistry';
+import type { SearchItem } from '@/components/GlobalSearch/searchRegistry';
 
 interface SearchContextData {
   isOpen: boolean;

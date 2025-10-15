@@ -3,11 +3,11 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Calculator, Clock, Award, FileText, Download, Eye, EyeOff, CheckCircle, RotateCcw, PenTool, X, Delete, Plus, Minus, Divide, MessageSquare } from 'lucide-react';
-import MathText, { MathSolutionStep } from '@/app/matematyka/components/MathText';
+import MathText, { MathSolutionStep } from '../MathText';
 import { useImageScan } from '@/hooks/useImageScan';
-import WhiteboardCanvas from './WhiteboardCanvas';
-import ConfettiModal from '@/components/ConfettiModal';
-import { useExamContext } from '@/contexts/ExamContext';
+import WhiteboardCanvas from '../whiteboard/WhiteboardCanvas';
+import ConfettiModal from './ConfettiModal';
+import { useExamContext } from '@/app/matematyka/components/exams/ExamContext';
 
 // Types
 export interface MathProblem {
@@ -217,8 +217,8 @@ export default function ExamPage({
     if (!isDragging) return;
     
     const newSize = (e.clientX / window.innerWidth) * 100;
-    // Limit between 20% and 80%
-    setSplitSize(Math.min(Math.max(newSize, 20), 80));
+    // Limit between 30% and 80% (30/70 min, 80/20 max)
+    setSplitSize(Math.min(Math.max(newSize, 30), 80));
   }, [isDragging]);
 
   const handleMouseUp = () => {
@@ -1175,150 +1175,112 @@ export default function ExamPage({
     p .katex { font-size: 1.9em !important; }
   }
 }`}</style>
-      
-      <header className="sticky top-0 z-20 border-b border-[#30363d] bg-[#161b22] shadow-lg">
-        <div className="container mx-auto px-3 py-2.5">
-          <div className="flex items-center justify-between gap-4">
-            {/* Lewa strona - nawigacja */}
-            <Link 
-              href={basePath}
-              className="inline-flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 md:px-5 md:py-3 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] hover:border-[#58a6ff] rounded-lg text-[#58a6ff] hover:text-white transition-all duration-200 font-medium text-sm sm:text-base md:text-lg transform hover:scale-105"
-            >
-              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
-              <span className="hidden sm:inline">Powrót do materiałów</span>
-              <span className="sm:hidden">Powrót</span>
-            </Link>
-
-            {/* Środek - kompaktowe statystyki */}
-            <div className="flex items-center gap-3 text-sm font-medium">
-              {/* Timer controls */}
-              <div className="flex items-center gap-1.5">
-                <button
-                  onClick={() => setTimerActive(!timerActive)}
-                  className={`p-1.5 rounded-md transition-all ${
-                    timerActive 
-                      ? 'bg-yellow-900/50 text-yellow-300 hover:bg-yellow-900/70' 
-                      : 'bg-green-900/50 text-green-300 hover:bg-green-900/70'
-                  }`}
-                  title={timerActive ? 'Zatrzymaj timer' : 'Uruchom timer'}
-                >
-                  {timerActive ? (
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
-                  ) : (
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                    </svg>
-                  )}
-                </button>
-                <button
-                  onClick={() => {
-                    setTimeElapsed(0);
-                    setTimerActive(false);
-                  }}
-                  className="p-1.5 rounded-md bg-red-900/50 text-red-300 hover:bg-red-900/70 transition-all"
-                  title="Zresetuj timer"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                </button>
-              </div>
-
-              <span className="text-gray-400">|</span>
-
-              {/* Kompaktowe statystyki */}
-              <div className="flex items-center gap-1">
-                <Clock className={`w-4 h-4 ${timerActive ? 'text-yellow-300' : isExamCompleted ? 'text-green-400' : 'text-[#58a6ff]'}`} />
-                <span className={`${timerActive ? 'text-yellow-300 font-semibold' : isExamCompleted ? 'text-green-400 font-semibold' : 'text-gray-300'}`}>
-                  {formatTime(timeElapsed)}
-                  <span className="hidden sm:inline">/{examData.duration}min</span>
-                  {isExamCompleted && <span className="hidden md:inline text-xs ml-1">(Ukończono)</span>}
-                </span>
-              </div>
-
-              <span className="text-gray-400 hidden sm:inline">|</span>
-
-              <div className="hidden sm:flex items-center gap-1">
-                <CheckCircle className="w-4 h-4 text-[#58a6ff]" />
-                <span className="text-gray-300">
-                  {checkedCount}/{totalProblems}
-                </span>
-              </div>
-
-              <span className="text-gray-400 hidden sm:inline">|</span>
-
-              <div className="flex items-center gap-1">
-                <Award className="w-4 h-4 text-[#58a6ff]" />
-                <span className="font-bold text-[#58a6ff]">
-                  {totalScore}/{examData.maxPoints}pkt
-                </span>
-              </div>
-
-              {(answeredCount > 0 || checkedCount > 0) && (
-                <>
-                  <span className="text-gray-400">|</span>
-                  <button
-                    onClick={resetAllProblems}
-                    className="p-1.5 text-gray-400 hover:text-red-300 hover:bg-red-900/30 rounded-md transition-colors"
-                    title="Zacznij od nowa"
-                  >
-                    <RotateCcw className="w-4 h-4" />
-                  </button>
-                </>
-              )}
-            </div>
-
-            {/* Prawa strona - Przyciski pobierania */}
-            <div className="flex items-center gap-2">
-              {/* Pobierz widok z rozwiązaniami */}
-              <button
-                onClick={() => window.print()}
-                className="inline-flex items-center gap-1.5 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] px-2.5 py-1.5 rounded-lg transition-colors font-medium flex-shrink-0"
-                title="Pobierz aktualny widok z rozwiązaniami"
-              >
-                <Download className="w-4 h-4" />
-                <span className="hidden lg:inline text-sm">Pobierz PDF</span>
-                <span className="lg:hidden text-sm">PDF</span>
-              </button>
-
-              {/* Pobierz oryginalny arkusz */}
-              {examData.examPdfUrl && (
-                <button
-                  onClick={() => window.open(examData.examPdfUrl, '_blank')}
-                  className="inline-flex items-center gap-1.5 bg-[#238636] hover:bg-[#2ea043] border border-[#238636] px-2.5 py-1.5 rounded-lg transition-colors font-medium flex-shrink-0"
-                  title="Pobierz oryginalny arkusz egzaminacyjny"
-                >
-                  <FileText className="w-4 h-4" />
-                  <span className="hidden lg:inline text-sm">Arkusz</span>
-                  <span className="lg:hidden text-sm">Arkusz</span>
-                </button>
-              )}
-
-              {/* Pobierz klucz odpowiedzi */}
-              {examData.answerKeyUrl && (
-                <button
-                  onClick={() => window.open(examData.answerKeyUrl, '_blank')}
-                  className="inline-flex items-center gap-1.5 bg-[#8b5cf6] hover:bg-[#7c3aed] border border-[#8b5cf6] px-2.5 py-1.5 rounded-lg transition-colors font-medium flex-shrink-0"
-                  title="Pobierz klucz odpowiedzi"
-                >
-                  <CheckCircle className="w-4 h-4" />
-                  <span className="hidden lg:inline text-sm">Klucz</span>
-                  <span className="lg:hidden text-sm">Klucz</span>
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
 
       {/* Split Layout: Left = Exam, Right = Whiteboard */}
-      <div className="flex h-[calc(100vh-80px)] relative">
+      <div className="flex h-screen relative overflow-hidden">
         {/* LEFT SIDE - Exam Content (resizable) */}
         <main 
-          className="overflow-y-auto border-r border-[#30363d]"
+          className="overflow-y-auto overflow-x-hidden border-r border-[#30363d] flex flex-col"
           style={{ width: `${splitSize}%` }}
         >
-          <div className="container mx-auto px-4 py-8">
+          {/* Header - Only over exam side - SIMPLIFIED */}
+          <header className="sticky top-0 z-20 border-b border-[#30363d] bg-[#161b22] shadow-lg">
+            <div className="px-3 py-2">
+              <div className="flex items-center justify-between gap-3">
+                {/* Powrót */}
+                <Link 
+                  href={basePath}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] hover:border-[#58a6ff] rounded-lg text-[#58a6ff] hover:text-white transition-all duration-200 font-medium text-sm"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span className="hidden sm:inline">Powrót</span>
+                </Link>
+
+                {/* Kompaktowe statystyki */}
+                <div className="flex items-center gap-2 text-xs font-medium">
+                  {/* Timer controls */}
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => setTimerActive(!timerActive)}
+                      className={`p-1 rounded transition-all ${
+                        timerActive 
+                          ? 'bg-yellow-900/50 text-yellow-300 hover:bg-yellow-900/70' 
+                          : 'bg-green-900/50 text-green-300 hover:bg-green-900/70'
+                      }`}
+                      title={timerActive ? 'Zatrzymaj timer' : 'Uruchom timer'}
+                    >
+                      {timerActive ? (
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                      ) : (
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setTimeElapsed(0);
+                        setTimerActive(false);
+                      }}
+                      className="p-1 rounded bg-red-900/50 text-red-300 hover:bg-red-900/70 transition-all"
+                      title="Zresetuj timer"
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                    </button>
+                  </div>
+
+                  <span className="text-gray-400">|</span>
+
+                  {/* Timer */}
+                  <div className="flex items-center gap-1">
+                    <Clock className={`w-3 h-3 ${timerActive ? 'text-yellow-300' : isExamCompleted ? 'text-green-400' : 'text-[#58a6ff]'}`} />
+                    <span className={`${timerActive ? 'text-yellow-300' : isExamCompleted ? 'text-green-400' : 'text-gray-300'}`}>
+                      {formatTime(timeElapsed)}
+                      <span className="hidden sm:inline">/{examData.duration}min</span>
+                    </span>
+                  </div>
+
+                  <span className="text-gray-400 hidden sm:inline">|</span>
+
+                  {/* Zadania */}
+                  <div className="hidden sm:flex items-center gap-1">
+                    <CheckCircle className="w-3 h-3 text-[#58a6ff]" />
+                    <span className="text-gray-300">
+                      {checkedCount}/{totalProblems}
+                    </span>
+                  </div>
+
+                  <span className="text-gray-400 hidden sm:inline">|</span>
+
+                  {/* Punkty */}
+                  <div className="flex items-center gap-1">
+                    <Award className="w-3 h-3 text-[#58a6ff]" />
+                    <span className="font-bold text-[#58a6ff]">
+                      {totalScore}/{examData.maxPoints}
+                    </span>
+                  </div>
+
+                  {/* Reset */}
+                  {(answeredCount > 0 || checkedCount > 0) && (
+                    <>
+                      <span className="text-gray-400">|</span>
+                      <button
+                        onClick={resetAllProblems}
+                        className="p-1 text-gray-400 hover:text-red-300 hover:bg-red-900/30 rounded transition-colors"
+                        title="Zacznij od nowa"
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <div className="container mx-auto px-4 py-8 flex-1">
             <div className="max-w-4xl mx-auto">
               <div className="text-center mb-12">
                 <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#1f6feb] to-[#58a6ff] rounded-full mb-6">
@@ -1328,6 +1290,31 @@ export default function ExamPage({
                 <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#58a6ff] via-[#1f6feb] to-[#0969da] bg-clip-text text-transparent">
                   {getExtendedTitle()}
                 </h1>
+                
+                {/* Przyciski pobierania - pod tytułem */}
+                <div className="flex flex-wrap justify-center gap-3 mb-6">
+                  {examData.examPdfUrl && (
+                    <button
+                      onClick={() => window.open(examData.examPdfUrl, '_blank')}
+                      className="inline-flex items-center gap-2 bg-[#238636] hover:bg-[#2ea043] border border-[#238636] px-4 py-2 rounded-lg transition-colors font-medium text-sm"
+                      title="Pobierz oryginalny arkusz egzaminacyjny"
+                    >
+                      <FileText className="w-4 h-4" />
+                      <span>Pobierz arkusz</span>
+                    </button>
+                  )}
+                  
+                  {examData.answerKeyUrl && (
+                    <button
+                      onClick={() => window.open(examData.answerKeyUrl, '_blank')}
+                      className="inline-flex items-center gap-2 bg-[#8b5cf6] hover:bg-[#7c3aed] border border-[#8b5cf6] px-4 py-2 rounded-lg transition-colors font-medium text-sm"
+                      title="Pobierz klucz odpowiedzi"
+                    >
+                      <CheckCircle className="w-4 h-4" />
+                      <span>Klucz odpowiedzi</span>
+                    </button>
+                  )}
+                </div>
                 
                 <div className="flex flex-wrap justify-center gap-6 text-gray-300 mb-6">
                   <div className="flex items-center gap-2">
@@ -1746,7 +1733,7 @@ export default function ExamPage({
                             if (scannedSolutionImages && scannedSolutionImages.length > 0) {
                               return (
                                 <div className="mt-4 space-y-3">
-                                  {scannedSolutionImages.map((solutionIndex, arrayIndex) => (
+                                  {scannedSolutionImages.map((solutionIndex: number, arrayIndex: number) => (
                                     <div key={arrayIndex} className="bg-[#21262d] border border-[#30363d] rounded-lg p-3">
                                       <img 
                                         src={getImagePath(problem.id, 'solution', solutionIndex - 1)} 
@@ -1807,39 +1794,13 @@ export default function ExamPage({
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-12 bg-[#58a6ff] rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
 
-        {/* RIGHT SIDE - Whiteboard Canvas (resizable) */}
+        {/* RIGHT SIDE - Whiteboard Canvas (wypełnia resztę przestrzeni) */}
         <aside 
-          className="bg-[#161b22] relative"
-          style={{ width: `${100 - splitSize}%` }}
+          className="flex-1 bg-[#161b22] relative overflow-hidden"
         >
-          <WhiteboardCanvas problemId={`${year}-${type}-${level || examType}`} className="h-full" />
+          <WhiteboardCanvas problemId={`${year}-${type}-${level || examType}`} className="w-full h-full" />
         </aside>
       </div>
-
-      <footer className="border-t border-[#30363d] bg-[#161b22]">
-        <div className="container mx-auto px-4 py-8 text-center">
-          <p className="text-gray-400">
-            © 2024 Patryk Kulesza - Korepetycje z Matematyki. Wszystkie prawa zastrzeżone.
-          </p>
-        </div>
-      </footer>
-
-      {/* Floating Calculator Button */}
-          <div className="fixed right-24 md:right-32 bottom-4 z-30">
-          <button
-          onClick={() => setShowCalculator(!showCalculator)}
-          className="bg-gradient-to-r from-[#f59e0b] to-[#d97706] hover:from-[#d97706] hover:to-[#b45309] text-white p-4 rounded-full shadow-2xl transition-all duration-300 transform hover:scale-110 hover:-translate-y-1 group"
-          title={showCalculator ? "Zamknij kalkulator" : "Otwórz kalkulator"}
-        >
-          <Calculator className="w-6 h-6" />
-          <div className="absolute right-full top-1/2 -translate-y-1/2 mr-3 bg-[#161b22] border border-[#30363d] px-3 py-1 rounded-lg text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
-            Kalkulator
-          </div>
-        </button>
-      </div>
-
-      {/* Floating Calculator */}
-      {showCalculator && <MathCalculator />}
 
       {/* Confetti Modal */}
       <ConfettiModal
