@@ -188,11 +188,18 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
     updateCanvasSize();
     window.addEventListener('resize', debouncedUpdateCanvasSize);
     
+    // ResizeObserver to detect container size changes (e.g., when split panel is resized)
+    const resizeObserver = new ResizeObserver(() => {
+      debouncedUpdateCanvasSize();
+    });
+    resizeObserver.observe(container);
+    
     return () => {
       if (resizeTimeout) {
         clearTimeout(resizeTimeout);
       }
       window.removeEventListener('resize', debouncedUpdateCanvasSize);
+      resizeObserver.disconnect();
     };
   }, []);
   
@@ -1424,9 +1431,10 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
           textInputRef.current?.focus();
         }, 0);
       } else {
-        setElements(prev => [...prev, currentElement]);
+        const newElements = [...elements, currentElement];
+        setElements(newElements);
         setCurrentElement(null);
-        saveToHistory();
+        saveToHistory(newElements); // Przekaż nowe elements
       }
     }
     
@@ -1491,13 +1499,14 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
       return;
     }
     
-    setElements(prev => prev.map(el => 
+    const newElements = elements.map(el => 
       el.id === pendingTextId && el.type === 'text'
         ? { ...el, text: trimmedText, fontSize, color } as TextElement
         : el
-    ));
+    );
+    setElements(newElements);
     
-    saveToHistory();
+    saveToHistory(newElements); // Przekaż nowe elements
     cancelTextInput();
   };
   
@@ -1520,12 +1529,28 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
     saveToHistory();
   };
   
-  const saveToHistory = useCallback(() => {
+  // 🔥 saveToHistory - używa useRef pattern + akceptuje opcjonalnie nowe elements
+  const saveToHistoryRef = useRef((newElements?: DrawingElement[]) => {
+    const elementsToSave = newElements !== undefined ? newElements : elementsRef.current;
     const newHistory = history.slice(0, historyIndex + 1);
-    newHistory.push([...elementsRef.current]);
+    newHistory.push([...elementsToSave]);
     setHistory(newHistory);
     setHistoryIndex(newHistory.length - 1);
+  });
+  
+  useEffect(() => {
+    saveToHistoryRef.current = (newElements?: DrawingElement[]) => {
+      const elementsToSave = newElements !== undefined ? newElements : elementsRef.current;
+      const newHistory = history.slice(0, historyIndex + 1);
+      newHistory.push([...elementsToSave]);
+      setHistory(newHistory);
+      setHistoryIndex(newHistory.length - 1);
+    };
   }, [history, historyIndex]);
+  
+  const saveToHistory = useCallback((newElements?: DrawingElement[]) => {
+    saveToHistoryRef.current(newElements);
+  }, []);
   
   // 🔥 STABILNE REFS dla akcji Toolbar
   const undoRef = useRef(() => {
@@ -1590,10 +1615,10 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
         setElements([]);
         setSelectedElementId(null);
         setSelectedElementIds(new Set());
-        saveToHistory();
+        saveToHistoryRef.current([]); // Przekaż puste elements
       }
     };
-  }, [historyIndex, history, saveToHistory]);
+  }, [historyIndex, history]);
   
   // Stable callbacks
   const undo = useCallback(() => undoRef.current(), []);
@@ -1662,8 +1687,10 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
       yRange
     };
     
-    setElements(prev => [...prev, newFunction]);
-    saveToHistory();
+    const currentElements = elementsRef.current;
+    const newElements = [...currentElements, newFunction];
+    setElements(newElements);
+    saveToHistoryRef.current(newElements);
     setTool('select');
   });
   
@@ -1682,11 +1709,14 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
         yRange
       };
       
-      setElements(prev => [...prev, newFunction]);
-      saveToHistory();
+      // Najpierw pobierz aktualne elements z ref
+      const currentElements = elementsRef.current;
+      const newElements = [...currentElements, newFunction];
+      setElements(newElements);
+      saveToHistoryRef.current(newElements); // Przekaż nowe elements
       setTool('select');
     };
-  }, [color, lineWidth, saveToHistory]);
+  }, [color, lineWidth]);
   
   const handleGenerateFunction = useCallback((expression: string) => {
     handleGenerateFunctionRef.current(expression);
