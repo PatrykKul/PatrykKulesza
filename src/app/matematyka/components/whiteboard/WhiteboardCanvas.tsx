@@ -188,17 +188,24 @@ export default function WhiteboardCanvas({ className = '' }: WhiteboardCanvasPro
       const oldScale = viewport.scale;
       const newScale = Math.min(Math.max(oldScale * scaleChange, 0.1), 1.0); // 10% to 100%
       
-      // Calculate the world point under the mouse cursor
-      const worldX = (mouseX - viewport.x) / oldScale;
-      const worldY = (mouseY - viewport.y) / oldScale;
+      // MIRO-STYLE: Calculate world point under mouse cursor
+      // 1. Get mouse position relative to canvas center
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const mouseRelX = mouseX - centerX;
+      const mouseRelY = mouseY - centerY;
       
-      // Calculate new viewport position to keep world point under cursor
-      const newX = mouseX - worldX * newScale;
-      const newY = mouseY - worldY * newScale;
+      // 2. Convert to world coordinates (reverse of our transformation)
+      const worldX = viewport.x + mouseRelX / oldScale;
+      const worldY = viewport.y + mouseRelY / oldScale;
+      
+      // 3. Calculate new viewport position to keep world point under cursor
+      const newViewportX = worldX - mouseRelX / newScale;
+      const newViewportY = worldY - mouseRelY / newScale;
       
       const newViewport = constrainViewport({
-        x: newX,
-        y: newY,
+        x: newViewportX,
+        y: newViewportY,
         scale: newScale
       });
       
