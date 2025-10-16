@@ -217,9 +217,26 @@ export default function ExamPage({
     if (!isDragging) return;
     
     const newSize = (e.clientX / window.innerWidth) * 100;
-    // Limit between 30% and 80% (30/70 min, 80/20 max)
-    setSplitSize(Math.min(Math.max(newSize, 30), 80));
+    
+    // Auto-collapse logic
+    if (newSize < 25) {
+      // Collapsing left panel (exam) - show only whiteboard
+      setSplitSize(0);
+    } else if (newSize > 85) {
+      // Collapsing right panel (whiteboard) - show only exam
+      setSplitSize(100);
+    } else {
+      // Normal resizing between 30% and 80%
+      setSplitSize(Math.min(Math.max(newSize, 30), 80));
+    }
   }, [isDragging]);
+
+
+
+
+
+
+
 
   const handleMouseUp = () => {
     setIsDragging(false);
@@ -1178,7 +1195,35 @@ export default function ExamPage({
 
       {/* Split Layout: Left = Exam, Right = Whiteboard */}
       <div className="flex h-screen relative overflow-hidden">
+      {/* Expand Left Panel Button (when collapsed) */}
+      {splitSize === 0 && (
+        <button
+          onClick={() => setSplitSize(50)}
+          className="fixed left-0 top-1/2 -translate-y-1/2 bg-[#58a6ff] hover:bg-[#4493f8] text-white p-2 rounded-r-lg shadow-lg z-50 transition-all"
+          title="Rozwiń panel egzaminu"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      )}
+
+      {/* Expand Right Panel Button (when collapsed) */}
+      {splitSize === 100 && (
+        <button
+          onClick={() => setSplitSize(50)}
+          className="fixed right-0 top-1/2 -translate-y-1/2 bg-[#58a6ff] hover:bg-[#4493f8] text-white p-2 rounded-l-lg shadow-lg z-50 transition-all"
+          title="Rozwiń whiteboard"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+      )}
+
+
         {/* LEFT SIDE - Exam Content (resizable) */}
+        {splitSize > 0 && (
         <main 
           className="overflow-y-auto overflow-x-hidden border-r border-[#30363d] flex flex-col"
           style={{ width: `${splitSize}%` }}
@@ -1784,7 +1829,10 @@ export default function ExamPage({
           </div>
         </main>
 
+                )}
+
         {/* RESIZER - Draggable Divider */}
+        {splitSize > 0 && splitSize < 100 && (
         <div
           onMouseDown={handleMouseDown}
           className={`w-1 bg-[#30363d] hover:bg-[#58a6ff] cursor-col-resize transition-colors relative group ${isDragging ? 'bg-[#58a6ff]' : ''}`}
@@ -1794,11 +1842,14 @@ export default function ExamPage({
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-12 bg-[#58a6ff] rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
 
+                )}
+
         {/* RIGHT SIDE - Whiteboard Canvas (wypełnia resztę przestrzeni) */}
         <aside 
           className="flex-1 bg-[#161b22] relative overflow-hidden"
+          style={{ display: splitSize >= 100 ? 'none' : 'flex' }}
         >
-          <WhiteboardCanvas problemId={`${year}-${type}-${level || examType}`} className="w-full h-full" />
+          <WhiteboardCanvas  className="w-full h-full" />
         </aside>
       </div>
 

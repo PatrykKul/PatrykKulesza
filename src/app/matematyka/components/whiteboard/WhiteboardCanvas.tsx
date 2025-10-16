@@ -1,24 +1,7 @@
 'use client';
 
-/**
- * WhiteboardCanvas - Professional whiteboard in Miro style
- * Features:
- * - Selection mode - click to select and edit objects
- * - Text: draw area (like rectangle), type directly
- * - Click text again to edit or delete
- * - Zoom 10-100% with smooth controls
- * - Pan (drag canvas)
- * - Infinite canvas with grid
- * - Professional toolbar
- * - Drawing: pen, eraser, shapes (with fill option), text
- * - Draggable calculator
- * - Undo/Redo/Clear with full history
- * - Keyboard shortcuts
- */
-
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { X } from 'lucide-react';
-import Toolbar, { Tool, ShapeType } from './Toolbar';
+import Toolbar, { Tool, ShapeType, ZoomControls } from './Toolbar';
 
 interface Point {
   x: number;
@@ -31,7 +14,6 @@ interface DrawingPath {
   points: Point[];
   color: string;
   width: number;
-  tool: 'pen' | 'eraser';
 }
 
 interface Shape {
@@ -52,8 +34,6 @@ interface TextElement {
   type: 'text';
   x: number;
   y: number;
-  width: number;
-  height: number;
   text: string;
   fontSize: number;
   color: string;
@@ -67,26 +47,27 @@ interface ViewportTransform {
   scale: number;
 }
 
-interface HistoryState {
-  elements: DrawingElement[];
-}
-
 interface WhiteboardCanvasProps {
-  problemId?: string;
   className?: string;
 }
 
-export default function WhiteboardCanvas({ problemId, className = '' }: WhiteboardCanvasProps) {
+export default function WhiteboardCanvas({ className = '' }: WhiteboardCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const textInputRef = useRef<HTMLTextAreaElement>(null);
   
-  // Viewport & Transform
-  const [viewport, setViewport] = useState<ViewportTransform>({ x: 0, y: 0, scale: 1 });
+  // MIRO-STYLE VIEWPORT: World coordinates (not screen!)
+  // x, y = camera position in world space
+  // zoom = scale factor (0.1 = 10%, 1.0 = 100%)
+  // SIMPLE: Just state, no localStorage (keeps viewport stable during resize)
+  const [viewport, setViewport] = useState<ViewportTransform>({ 
+    x: 0,    // World X (center of camera)
+    y: 0,    // World Y (center of camera)
+    scale: 1 // Zoom level (100%)
+  });
   const [isPanning, setIsPanning] = useState(false);
   const [lastPanPoint, setLastPanPoint] = useState<Point | null>(null);
   
-  // Drawing state
   const [isDrawing, setIsDrawing] = useState(false);
   const [tool, setTool] = useState<Tool>('select');
   const [selectedShape, setSelectedShape] = useState<ShapeType>('rectangle');
@@ -95,116 +76,151 @@ export default function WhiteboardCanvas({ problemId, className = '' }: Whiteboa
   const [fontSize, setFontSize] = useState(24);
   const [fillShape, setFillShape] = useState(false);
   
-  // Elements
   const [elements, setElements] = useState<DrawingElement[]>([]);
   const [currentElement, setCurrentElement] = useState<DrawingElement | null>(null);
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
+  const [selectedElementIds, setSelectedElementIds] = useState<Set<string>>(new Set());
   
-  // Text editing state
-  const [editingTextId, setEditingTextId] = useState<string | null>(null);
+  // Selection box for multi-select
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [selectionStart, setSelectionStart] = useState<Point | null>(null);
+  const [selectionEnd, setSelectionEnd] = useState<Point | null>(null);
+  
+  // Text editing - PAINT-STYLE
+  const [isEditingText, setIsEditingText] = useState(false);
+  const [textPosition, setTextPosition] = useState<Point | null>(null);
+  const [textBoxSize, setTextBoxSize] = useState<{ width: number; height: number } | null>(null);
   const [textDraft, setTextDraft] = useState('');
-  const [textBoxBounds, setTextBoxBounds] = useState<{x: number; y: number; width: number; height: number} | null>(null);
+  const [pendingTextId, setPendingTextId] = useState<string | null>(null);
   
-  // History for undo/redo
-  const [history, setHistory] = useState<HistoryState[]>([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
+  // History
+  const [history, setHistory] = useState<DrawingElement[][]>([[]]);
+  const [historyIndex, setHistoryIndex] = useState(0);
   
-  // Calculator state
-  const [showCalculator, setShowCalculator] = useState(false);
-  const [calcPosition, setCalcPosition] = useState({ x: 100, y: 100 });
-  const [calcDisplay, setCalcDisplay] = useState('0');
-  const [calcValue, setCalcValue] = useState<number | null>(null);
-  const [calcOperation, setCalcOperation] = useState<string | null>(null);
-  const [isDraggingCalc, setIsDraggingCalc] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  // Element dragging
+  const [isDraggingElement, setIsDraggingElement] = useState(false);
+  const [dragStartPoint, setDragStartPoint] = useState<Point | null>(null);
+  const [draggedElementsStart, setDraggedElementsStart] = useState<Map<string, any>>(new Map());
   
-  // Initialize canvas
+  // Resizing
+  const [isResizing, setIsResizing] = useState(false);
+  const [resizeHandle, setResizeHandle] = useState<string | null>(null);
+  const [resizeStartBounds, setResizeStartBounds] = useState<any>(null);
+  
+  // Ref to always have the latest redrawCanvas function (prevents stale closures)
+  const redrawCanvasRef = useRef<() => void>(() => {});
+  
+  // Canvas setup - Instant resize with viewport preservation
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) return;
     
-    const resizeCanvas = () => {
+    const updateCanvasSize = () => {
       const dpr = window.devicePixelRatio || 1;
       const rect = container.getBoundingClientRect();
+      const width = Math.ceil(rect.width);
+      const height = Math.ceil(rect.height);
       
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      canvas.style.width = `${rect.width}px`;
-      canvas.style.height = `${rect.height}px`;
+      // Only resize if actually changed (prevents unnecessary redraws)
+      const currentWidth = canvas.width / dpr;
+      const currentHeight = canvas.height / dpr;
+      if (Math.abs(width - currentWidth) < 1 && Math.abs(height - currentHeight) < 1) {
+        return;
+      }
+      
+      // MIRO-STYLE: Canvas resize does NOT affect viewport!
+      // Viewport stays at the same world position
+      // User just sees more/less of the world
+      
+      // Update canvas dimensions (this clears the canvas)
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
       
       const ctx = canvas.getContext('2d');
       if (ctx) {
         ctx.scale(dpr, dpr);
-        redrawCanvas();
+        // Use ref to always call the latest redrawCanvas (prevents stale closures)
+        redrawCanvasRef.current();
       }
     };
     
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
+    // Initial setup
+    updateCanvasSize();
     
+    // Handle window resize
+    window.addEventListener('resize', updateCanvasSize);
+    
+    // Handle container resize - INSTANT, no debounce!
     const resizeObserver = new ResizeObserver(() => {
-      resizeCanvas();
+      // Use requestAnimationFrame for smooth but immediate update
+      requestAnimationFrame(updateCanvasSize);
     });
     resizeObserver.observe(container);
     
     return () => {
-      window.removeEventListener('resize', resizeCanvas);
+      window.removeEventListener('resize', updateCanvasSize);
       resizeObserver.disconnect();
     };
   }, []);
   
-  // Wheel event for zoom
+  // Separate effect for redrawing when state changes - REMOVED, now handled in ref update effect
+  
+  // Wheel zoom
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     
-    const handleWheelEvent = (e: WheelEvent) => {
-      if (editingTextId) return; // Don't zoom while editing text
-      
+    const handleWheel = (e: WheelEvent) => {
+      if (isEditingText) return;
       e.preventDefault();
       
       const rect = canvas.getBoundingClientRect();
-      const screenPoint = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
-      };
-      
-      const canvasPointBefore = screenToCanvas(screenPoint.x, screenPoint.y);
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
       
       const zoomIntensity = 0.1;
       const delta = -e.deltaY;
       const scaleChange = 1 + (delta > 0 ? zoomIntensity : -zoomIntensity);
       
-      const newScale = Math.min(Math.max(viewport.scale * scaleChange, 0.1), 1);
+      const oldScale = viewport.scale;
+      const newScale = Math.min(Math.max(oldScale * scaleChange, 0.1), 1.0); // 10% to 100%
       
-      const canvasPointAfter = {
-        x: (screenPoint.x - viewport.x) / newScale,
-        y: (screenPoint.y - viewport.y) / newScale
-      };
+      // Calculate the world point under the mouse cursor
+      const worldX = (mouseX - viewport.x) / oldScale;
+      const worldY = (mouseY - viewport.y) / oldScale;
       
-      const newX = viewport.x + (canvasPointBefore.x - canvasPointAfter.x) * newScale;
-      const newY = viewport.y + (canvasPointBefore.y - canvasPointAfter.y) * newScale;
+      // Calculate new viewport position to keep world point under cursor
+      const newX = mouseX - worldX * newScale;
+      const newY = mouseY - worldY * newScale;
       
-      setViewport({
+      const newViewport = constrainViewport({
         x: newX,
         y: newY,
         scale: newScale
       });
+      
+      setViewport(newViewport);
     };
     
-    canvas.addEventListener('wheel', handleWheelEvent, { passive: false });
-    
-    return () => {
-      canvas.removeEventListener('wheel', handleWheelEvent);
-    };
-  }, [viewport, editingTextId]);
+    canvas.addEventListener('wheel', handleWheel, { passive: false });
+    return () => canvas.removeEventListener('wheel', handleWheel);
+  }, [viewport, isEditingText]); // constrainViewport is defined below, will use latest version
   
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't trigger shortcuts while editing text
-      if (editingTextId || textBoxBounds) return;
+      // Text editing shortcuts
+      if (isEditingText) {
+        if (e.key === 'Escape') {
+          cancelTextInput();
+        } else if (e.key === 'Enter') {
+          finishTextInput();
+        }
+        return;
+      }
       
       if (e.ctrlKey || e.metaKey) {
         if (e.key === 'z') {
@@ -215,51 +231,173 @@ export default function WhiteboardCanvas({ problemId, className = '' }: Whiteboa
           redo();
         }
       } else if (e.key === 'Delete' || e.key === 'Backspace') {
-        if (selectedElementId) {
+        if (selectedElementId || selectedElementIds.size > 0) {
           e.preventDefault();
-          deleteElement(selectedElementId);
+          deleteSelectedElement();
         }
       } else if (e.key === 'Escape') {
         setSelectedElementId(null);
-        setTextBoxBounds(null);
-        setEditingTextId(null);
+        setSelectedElementIds(new Set());
       } else {
         // Tool shortcuts
-        switch (e.key.toLowerCase()) {
-          case 'v': setTool('select'); break;
-          case 'h': setTool('pan'); break;
-          case 'p': setTool('pen'); break;
-          case 'e': setTool('eraser'); break;
-          case 's': setTool('shape'); break;
-          case 't': setTool('text'); break;
-        }
+        const key = e.key.toLowerCase();
+        if (key === 'v') setTool('select');
+        else if (key === 'h') setTool('pan');
+        else if (key === 'p') setTool('pen');
+        else if (key === 's') setTool('shape');
+        else if (key === 't') setTool('text');
       }
     };
     
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedElementId, editingTextId, textBoxBounds, historyIndex, history]);
+  }, [selectedElementId, selectedElementIds, isEditingText, historyIndex]);
   
-  // Auto-focus text input when editing
-  useEffect(() => {
-    if (textBoxBounds && textInputRef.current) {
-      textInputRef.current.focus();
-    }
-  }, [textBoxBounds]);
-  
+  // MIRO-STYLE: Convert screen coordinates to world coordinates
   const screenToCanvas = useCallback((screenX: number, screenY: number): Point => {
-    return {
-      x: (screenX - viewport.x) / viewport.scale,
-      y: (screenY - viewport.y) / viewport.scale
-    };
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    
+    const rect = canvas.getBoundingClientRect();
+    
+    // Screen point relative to canvas center
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const relX = screenX - centerX;
+    const relY = screenY - centerY;
+    
+    // Apply inverse transformation: unzoom, then untranslate
+    const worldX = viewport.x + relX / viewport.scale;
+    const worldY = viewport.y + relY / viewport.scale;
+    
+    return { x: worldX, y: worldY };
   }, [viewport]);
   
-  const canvasToScreen = useCallback((canvasX: number, canvasY: number): Point => {
-    return {
-      x: canvasX * viewport.scale + viewport.x,
-      y: canvasY * viewport.scale + viewport.y
-    };
+  // MIRO-STYLE: Convert world coordinates to screen coordinates
+  const canvasToScreen = useCallback((worldX: number, worldY: number): Point => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    
+    const rect = canvas.getBoundingClientRect();
+    
+    // Apply transformation: translate, then zoom
+    const relX = (worldX - viewport.x) * viewport.scale;
+    const relY = (worldY - viewport.y) * viewport.scale;
+    
+    // Add canvas center offset
+    const screenX = rect.width / 2 + relX;
+    const screenY = rect.height / 2 + relY;
+    
+    return { x: screenX, y: screenY };
   }, [viewport]);
+  
+  const getElementBounds = (element: DrawingElement) => {
+    if (element.type === 'shape') {
+      return {
+        minX: Math.min(element.startX, element.endX),
+        maxX: Math.max(element.startX, element.endX),
+        minY: Math.min(element.startY, element.endY),
+        maxY: Math.max(element.startY, element.endY)
+      };
+    } else if (element.type === 'path') {
+      return getBoundsForPath(element);
+    } else if (element.type === 'text') {
+      // Estimate text bounds
+      const width = element.text.length * element.fontSize * 0.6;
+      const height = element.fontSize * 1.2;
+      return {
+        minX: element.x,
+        maxX: element.x + width,
+        minY: element.y - height,
+        maxY: element.y
+      };
+    }
+    return { minX: 0, maxX: 0, minY: 0, maxY: 0 };
+  };
+  
+  const drawResizeHandles = (ctx: CanvasRenderingContext2D, element: DrawingElement) => {
+    const bounds = getElementBounds(element);
+    const handleSize = 8 / viewport.scale;
+    
+    const handles = [
+      { x: bounds.minX, y: bounds.minY }, // top-left
+      { x: bounds.maxX, y: bounds.minY }, // top-right
+      { x: bounds.maxX, y: bounds.maxY }, // bottom-right
+      { x: bounds.minX, y: bounds.maxY }, // bottom-left
+      { x: (bounds.minX + bounds.maxX) / 2, y: bounds.minY }, // top-center
+      { x: (bounds.minX + bounds.maxX) / 2, y: bounds.maxY }, // bottom-center
+      { x: bounds.minX, y: (bounds.minY + bounds.maxY) / 2 }, // left-center
+      { x: bounds.maxX, y: (bounds.minY + bounds.maxY) / 2 }, // right-center
+    ];
+    
+    ctx.fillStyle = '#3b82f6';
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2 / viewport.scale;
+    
+    handles.forEach(handle => {
+      ctx.fillRect(
+        handle.x - handleSize / 2,
+        handle.y - handleSize / 2,
+        handleSize,
+        handleSize
+      );
+      ctx.strokeRect(
+        handle.x - handleSize / 2,
+        handle.y - handleSize / 2,
+        handleSize,
+        handleSize
+      );
+    });
+  };
+  
+  const getHandleAtPoint = (element: DrawingElement, point: Point): string | null => {
+    const bounds = getElementBounds(element);
+    const handleSize = 8 / viewport.scale;
+    const threshold = handleSize;
+    
+    const handles = [
+      { name: 'tl', x: bounds.minX, y: bounds.minY },
+      { name: 'tr', x: bounds.maxX, y: bounds.minY },
+      { name: 'br', x: bounds.maxX, y: bounds.maxY },
+      { name: 'bl', x: bounds.minX, y: bounds.maxY },
+      { name: 't', x: (bounds.minX + bounds.maxX) / 2, y: bounds.minY },
+      { name: 'b', x: (bounds.minX + bounds.maxX) / 2, y: bounds.maxY },
+      { name: 'l', x: bounds.minX, y: (bounds.minY + bounds.maxY) / 2 },
+      { name: 'r', x: bounds.maxX, y: (bounds.minY + bounds.maxY) / 2 },
+    ];
+    
+    for (const handle of handles) {
+      const dx = point.x - handle.x;
+      const dy = point.y - handle.y;
+      if (Math.sqrt(dx * dx + dy * dy) <= threshold) {
+        return handle.name;
+      }
+    }
+    
+    return null;
+  };
+  
+  // MIRO-STYLE: Soft limits to prevent getting too lost
+  // But allows infinite panning in practice
+  const constrainViewport = useCallback((newViewport: ViewportTransform): ViewportTransform => {
+    const { x, y, scale } = newViewport;
+    
+    // Soft bounds: Allow panning far, but not infinitely
+    // This prevents accidental "getting lost"
+    const MAX_PAN = 10000; // 10000 units in world space
+    
+    const constrainedX = Math.min(Math.max(x, -MAX_PAN), MAX_PAN);
+    const constrainedY = Math.min(Math.max(y, -MAX_PAN), MAX_PAN);
+    
+    // Zoom limits: 10% to 100% (infinite canvas, no need for huge zoom)
+    const constrainedScale = Math.min(Math.max(scale, 0.1), 1.0);
+    
+    return { 
+      x: constrainedX, 
+      y: constrainedY, 
+      scale: constrainedScale 
+    };
+  }, []);
   
   const redrawCanvas = useCallback(() => {
     const canvas = canvasRef.current;
@@ -270,82 +408,144 @@ export default function WhiteboardCanvas({ problemId, className = '' }: Whiteboa
     
     const rect = canvas.getBoundingClientRect();
     
+    // Clear entire canvas
     ctx.clearRect(0, 0, rect.width, rect.height);
-    ctx.fillStyle = '#ffffff';
+    
+    // Fill with light gray background
+    ctx.fillStyle = '#f5f5f5';
     ctx.fillRect(0, 0, rect.width, rect.height);
     
-    drawGrid(ctx, rect.width, rect.height);
-    
+    // MIRO-STYLE TRANSFORMATION
+    // 1. Translate to canvas center
+    // 2. Apply zoom
+    // 3. Translate by negative viewport position (camera)
     ctx.save();
-    ctx.translate(viewport.x, viewport.y);
+    ctx.translate(rect.width / 2, rect.height / 2);
     ctx.scale(viewport.scale, viewport.scale);
+    ctx.translate(-viewport.x, -viewport.y);
+    
+    // Draw infinite grid
+    drawInfiniteGrid(ctx, rect.width, rect.height);
     
     // Draw all elements
-    [...elements, ...(currentElement ? [currentElement] : [])].forEach(element => {
+    const allElements = [...elements, ...(currentElement ? [currentElement] : [])];
+    
+    allElements.forEach(element => {
+      const isSelected = selectedElementIds.has(element.id) || element.id === selectedElementId;
+      const isBeingEdited = isEditingText && element.id === pendingTextId;
+      
       if (element.type === 'path') {
-        drawPath(ctx, element);
+        drawPath(ctx, element, isSelected);
       } else if (element.type === 'shape') {
-        drawShape(ctx, element, element.id === selectedElementId);
-      } else if (element.type === 'text' && element.id !== editingTextId) {
-        drawText(ctx, element, element.id === selectedElementId);
+        drawShape(ctx, element, isSelected);
+      } else if (element.type === 'text') {
+        // Don't draw text if it's currently being edited
+        if (!isBeingEdited) {
+          drawText(ctx, element, isSelected);
+        }
       }
     });
     
-    // Draw text box outline while creating
-    if (textBoxBounds && !editingTextId) {
+    // Draw resize handles for selected elements
+    allElements.forEach(element => {
+      const isSelected = selectedElementIds.has(element.id) || element.id === selectedElementId;
+      if (isSelected && (element.type === 'shape' || element.type === 'path')) {
+        drawResizeHandles(ctx, element);
+      }
+    });
+    
+    // Draw selection box
+    if (isSelecting && selectionStart && selectionEnd) {
       ctx.strokeStyle = '#3b82f6';
-      ctx.lineWidth = 2 / viewport.scale;
+      ctx.fillStyle = 'rgba(59, 130, 246, 0.1)';
+      ctx.lineWidth = 1 / viewport.scale;
       ctx.setLineDash([5 / viewport.scale, 5 / viewport.scale]);
-      ctx.strokeRect(textBoxBounds.x, textBoxBounds.y, textBoxBounds.width, textBoxBounds.height);
+      
+      const width = selectionEnd.x - selectionStart.x;
+      const height = selectionEnd.y - selectionStart.y;
+      
+      ctx.fillRect(selectionStart.x, selectionStart.y, width, height);
+      ctx.strokeRect(selectionStart.x, selectionStart.y, width, height);
       ctx.setLineDash([]);
     }
     
     ctx.restore();
-  }, [elements, viewport, currentElement, selectedElementId, textBoxBounds, editingTextId]);
+  }, [elements, viewport, currentElement, selectedElementId, selectedElementIds, isSelecting, selectionStart, selectionEnd, isEditingText, pendingTextId]);
   
+  // Update ref whenever redrawCanvas changes AND trigger redraw
   useEffect(() => {
-    redrawCanvas();
+    redrawCanvasRef.current = redrawCanvas;
+    redrawCanvas(); // Call it to actually redraw when dependencies change
   }, [redrawCanvas]);
   
-  const drawGrid = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
-    const gridSize = 20 * viewport.scale;
-    const offsetX = viewport.x % gridSize;
-    const offsetY = viewport.y % gridSize;
+  // MIRO-STYLE: Infinite grid
+  const drawInfiniteGrid = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) => {
+    const gridSize = 50; // Grid cell size in world units
     
-    ctx.strokeStyle = '#f0f0f0';
-    ctx.lineWidth = 1;
+    // Calculate visible world bounds
+    const worldLeft = viewport.x - canvasWidth / (2 * viewport.scale);
+    const worldRight = viewport.x + canvasWidth / (2 * viewport.scale);
+    const worldTop = viewport.y - canvasHeight / (2 * viewport.scale);
+    const worldBottom = viewport.y + canvasHeight / (2 * viewport.scale);
     
-    for (let x = offsetX; x < width; x += gridSize) {
+    // Calculate grid line range
+    const startX = Math.floor(worldLeft / gridSize) * gridSize;
+    const endX = Math.ceil(worldRight / gridSize) * gridSize;
+    const startY = Math.floor(worldTop / gridSize) * gridSize;
+    const endY = Math.ceil(worldBottom / gridSize) * gridSize;
+    
+    ctx.strokeStyle = '#e0e0e0';
+    ctx.lineWidth = 1 / viewport.scale;
+    
+    // Draw vertical lines
+    for (let x = startX; x <= endX; x += gridSize) {
       ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, height);
+      ctx.moveTo(x, startY);
+      ctx.lineTo(x, endY);
       ctx.stroke();
     }
     
-    for (let y = offsetY; y < height; y += gridSize) {
+    // Draw horizontal lines
+    for (let y = startY; y <= endY; y += gridSize) {
       ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(width, y);
+      ctx.moveTo(startX, y);
+      ctx.lineTo(endX, y);
       ctx.stroke();
     }
+    
+    // Draw origin axes (thicker, darker)
+    ctx.strokeStyle = '#999999';
+    ctx.lineWidth = 2 / viewport.scale;
+    
+    // X axis
+    ctx.beginPath();
+    ctx.moveTo(startX, 0);
+    ctx.lineTo(endX, 0);
+    ctx.stroke();
+    
+    // Y axis
+    ctx.beginPath();
+    ctx.moveTo(0, startY);
+    ctx.lineTo(0, endY);
+    ctx.stroke();
   };
   
-  const drawPath = (ctx: CanvasRenderingContext2D, path: DrawingPath) => {
+  const drawPath = (ctx: CanvasRenderingContext2D, path: DrawingPath, isSelected: boolean) => {
     if (path.points.length < 2) return;
     
-    ctx.strokeStyle = path.tool === 'eraser' ? '#ffffff' : path.color;
+    ctx.strokeStyle = path.color;
     ctx.lineWidth = path.width;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     
     ctx.beginPath();
     ctx.moveTo(path.points[0].x, path.points[0].y);
-    
     for (let i = 1; i < path.points.length; i++) {
       ctx.lineTo(path.points[i].x, path.points[i].y);
     }
-    
     ctx.stroke();
+    
+    if (isSelected) drawSelectionBox(ctx, getBoundsForPath(path));
   };
   
   const drawShape = (ctx: CanvasRenderingContext2D, shape: Shape, isSelected: boolean) => {
@@ -360,36 +560,51 @@ export default function WhiteboardCanvas({ problemId, className = '' }: Whiteboa
     
     ctx.beginPath();
     
-    switch (shape.shapeType) {
-      case 'rectangle':
-        ctx.rect(shape.startX, shape.startY, width, height);
-        break;
-        
-      case 'circle':
-        const radius = Math.sqrt(width * width + height * height) / 2;
-        const centerX = shape.startX + width / 2;
-        const centerY = shape.startY + height / 2;
-        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        break;
-        
-      case 'triangle':
-        const topX = shape.startX + width / 2;
-        const topY = shape.startY;
-        const bottomLeftX = shape.startX;
-        const bottomLeftY = shape.endY;
-        const bottomRightX = shape.endX;
-        const bottomRightY = shape.endY;
-        
-        ctx.moveTo(topX, topY);
-        ctx.lineTo(bottomRightX, bottomRightY);
-        ctx.lineTo(bottomLeftX, bottomLeftY);
-        ctx.closePath();
-        break;
-        
-      case 'line':
-        ctx.moveTo(shape.startX, shape.startY);
-        ctx.lineTo(shape.endX, shape.endY);
-        break;
+    if (shape.shapeType === 'rectangle') {
+      ctx.rect(shape.startX, shape.startY, width, height);
+    } else if (shape.shapeType === 'circle') {
+      const radius = Math.sqrt(width * width + height * height) / 2;
+      const centerX = shape.startX + width / 2;
+      const centerY = shape.startY + height / 2;
+      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+    } else if (shape.shapeType === 'triangle') {
+      ctx.moveTo(shape.startX + width / 2, shape.startY);
+      ctx.lineTo(shape.endX, shape.endY);
+      ctx.lineTo(shape.startX, shape.endY);
+      ctx.closePath();
+    } else if (shape.shapeType === 'line') {
+      ctx.moveTo(shape.startX, shape.startY);
+      ctx.lineTo(shape.endX, shape.endY);
+    } else if (shape.shapeType === 'arrow') {
+      // Arrow line
+      ctx.moveTo(shape.startX, shape.startY);
+      ctx.lineTo(shape.endX, shape.endY);
+      ctx.stroke();
+      
+      // Arrow head
+      const angle = Math.atan2(shape.endY - shape.startY, shape.endX - shape.startX);
+      const headLength = 15;
+      
+      ctx.beginPath();
+      ctx.moveTo(shape.endX, shape.endY);
+      ctx.lineTo(
+        shape.endX - headLength * Math.cos(angle - Math.PI / 6),
+        shape.endY - headLength * Math.sin(angle - Math.PI / 6)
+      );
+      ctx.lineTo(
+        shape.endX - headLength * Math.cos(angle + Math.PI / 6),
+        shape.endY - headLength * Math.sin(angle + Math.PI / 6)
+      );
+      ctx.closePath();
+      ctx.fill();
+      
+      if (isSelected) drawSelectionBox(ctx, {
+        minX: Math.min(shape.startX, shape.endX),
+        minY: Math.min(shape.startY, shape.endY),
+        maxX: Math.max(shape.startX, shape.endX),
+        maxY: Math.max(shape.startY, shape.endY)
+      });
+      return;
     }
     
     if (shape.fill && shape.shapeType !== 'line') {
@@ -399,20 +614,12 @@ export default function WhiteboardCanvas({ problemId, className = '' }: Whiteboa
     }
     ctx.stroke();
     
-    // Draw selection box
-    if (isSelected) {
-      const minX = Math.min(shape.startX, shape.endX);
-      const minY = Math.min(shape.startY, shape.endY);
-      const maxX = Math.max(shape.startX, shape.endX);
-      const maxY = Math.max(shape.startY, shape.endY);
-      const padding = 5 / viewport.scale;
-      
-      ctx.strokeStyle = '#3b82f6';
-      ctx.lineWidth = 2 / viewport.scale;
-      ctx.setLineDash([5 / viewport.scale, 5 / viewport.scale]);
-      ctx.strokeRect(minX - padding, minY - padding, maxX - minX + padding * 2, maxY - minY + padding * 2);
-      ctx.setLineDash([]);
-    }
+    if (isSelected) drawSelectionBox(ctx, {
+      minX: Math.min(shape.startX, shape.endX),
+      minY: Math.min(shape.startY, shape.endY),
+      maxX: Math.max(shape.startX, shape.endX),
+      maxY: Math.max(shape.startY, shape.endY)
+    });
   };
   
   const drawText = (ctx: CanvasRenderingContext2D, text: TextElement, isSelected: boolean) => {
@@ -427,128 +634,249 @@ export default function WhiteboardCanvas({ problemId, className = '' }: Whiteboa
       ctx.fillText(line, text.x, text.y + i * lineHeight);
     });
     
-    // Draw selection box
     if (isSelected) {
-      const padding = 5 / viewport.scale;
-      ctx.strokeStyle = '#3b82f6';
-      ctx.lineWidth = 2 / viewport.scale;
-      ctx.setLineDash([5 / viewport.scale, 5 / viewport.scale]);
-      ctx.strokeRect(text.x - padding, text.y - padding, text.width + padding * 2, text.height + padding * 2);
-      ctx.setLineDash([]);
+      const maxLineWidth = Math.max(...lines.map(line => ctx.measureText(line).width));
+      const width = Math.max(maxLineWidth, 50);
+      const height = lineHeight * lines.length;
+      
+      drawSelectionBox(ctx, {
+        minX: text.x,
+        minY: text.y,
+        maxX: text.x + width,
+        maxY: text.y + height
+      });
     }
   };
   
-  const getCanvasPoint = (e: React.MouseEvent | React.TouchEvent): Point => {
+  const drawSelectionBox = (
+    ctx: CanvasRenderingContext2D,
+    bounds: { minX: number; minY: number; maxX: number; maxY: number }
+  ) => {
+    const padding = 5 / viewport.scale;
+    ctx.strokeStyle = '#3b82f6';
+    ctx.lineWidth = 2 / viewport.scale;
+    ctx.setLineDash([5 / viewport.scale, 5 / viewport.scale]);
+    ctx.strokeRect(
+      bounds.minX - padding,
+      bounds.minY - padding,
+      bounds.maxX - bounds.minX + padding * 2,
+      bounds.maxY - bounds.minY + padding * 2
+    );
+    ctx.setLineDash([]);
+  };
+  
+  const getBoundsForPath = (path: DrawingPath) => {
+    const xs = path.points.map(p => p.x);
+    const ys = path.points.map(p => p.y);
+    return {
+      minX: Math.min(...xs),
+      maxX: Math.max(...xs),
+      minY: Math.min(...ys),
+      maxY: Math.max(...ys)
+    };
+  };
+  
+  const getCanvasPoint = (e: React.MouseEvent): Point => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
     
     const rect = canvas.getBoundingClientRect();
-    
-    let clientX: number, clientY: number;
-    
-    if ('touches' in e) {
-      clientX = e.touches[0].clientX;
-      clientY = e.touches[0].clientY;
-    } else {
-      clientX = e.clientX;
-      clientY = e.clientY;
-    }
-    
     return {
-      x: clientX - rect.left,
-      y: clientY - rect.top
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
     };
   };
   
+  const isElementInBox = (element: DrawingElement, minX: number, minY: number, maxX: number, maxY: number): boolean => {
+    if (element.type === 'text') {
+      // Check if text position is inside box
+      return element.x >= minX && element.x <= maxX && element.y >= minY && element.y <= maxY;
+    } else if (element.type === 'shape') {
+      const elMinX = Math.min(element.startX, element.endX);
+      const elMaxX = Math.max(element.startX, element.endX);
+      const elMinY = Math.min(element.startY, element.endY);
+      const elMaxY = Math.max(element.startY, element.endY);
+      
+      // Check if shape overlaps with selection box
+      return !(elMaxX < minX || elMinX > maxX || elMaxY < minY || elMinY > maxY);
+    } else if (element.type === 'path') {
+      const bounds = getBoundsForPath(element);
+      // Check if path overlaps with selection box
+      return !(bounds.maxX < minX || bounds.minX > maxX || bounds.maxY < minY || bounds.minY > maxY);
+    }
+    return false;
+  };
+  
   const findElementAtPoint = (canvasPoint: Point): DrawingElement | null => {
-    // Check in reverse order (top element first)
     for (let i = elements.length - 1; i >= 0; i--) {
       const element = elements[i];
+      const padding = 10;
       
       if (element.type === 'text') {
-        const padding = 5;
-        if (canvasPoint.x >= element.x - padding &&
-            canvasPoint.x <= element.x + element.width + padding &&
-            canvasPoint.y >= element.y - padding &&
-            canvasPoint.y <= element.y + element.height + padding) {
+        const width = 200; // Approximate
+        const height = element.fontSize * 1.2;
+        if (
+          canvasPoint.x >= element.x - padding &&
+          canvasPoint.x <= element.x + width + padding &&
+          canvasPoint.y >= element.y - padding &&
+          canvasPoint.y <= element.y + height + padding
+        ) {
           return element;
         }
       } else if (element.type === 'shape') {
         const minX = Math.min(element.startX, element.endX);
-        const minY = Math.min(element.startY, element.endY);
         const maxX = Math.max(element.startX, element.endX);
+        const minY = Math.min(element.startY, element.endY);
         const maxY = Math.max(element.startY, element.endY);
-        const padding = 10;
         
-        if (canvasPoint.x >= minX - padding &&
-            canvasPoint.x <= maxX + padding &&
-            canvasPoint.y >= minY - padding &&
-            canvasPoint.y <= maxY + padding) {
+        if (
+          canvasPoint.x >= minX - padding &&
+          canvasPoint.x <= maxX + padding &&
+          canvasPoint.y >= minY - padding &&
+          canvasPoint.y <= maxY + padding
+        ) {
+          return element;
+        }
+      } else if (element.type === 'path') {
+        const bounds = getBoundsForPath(element);
+        if (
+          canvasPoint.x >= bounds.minX - padding &&
+          canvasPoint.x <= bounds.maxX + padding &&
+          canvasPoint.y >= bounds.minY - padding &&
+          canvasPoint.y <= bounds.maxY + padding
+        ) {
           return element;
         }
       }
     }
-    
     return null;
   };
   
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (editingTextId) return; // Don't start drawing while editing text
+    // If editing text, clicking anywhere else finishes the text input
+    if (isEditingText) {
+      finishTextInput();
+      return;
+    }
     
     const screenPoint = getCanvasPoint(e);
     const canvasPoint = screenToCanvas(screenPoint.x, screenPoint.y);
     
-    if (tool === 'pan' || e.button === 1 || (e.button === 0 && e.ctrlKey)) {
+    // Pan mode - middle button, right button, or Ctrl+left click
+    if (tool === 'pan' || e.button === 1 || e.button === 2 || (e.button === 0 && (e.ctrlKey || e.metaKey))) {
+      e.preventDefault(); // Prevent context menu on right click
       setIsPanning(true);
       setLastPanPoint(screenPoint);
       return;
     }
     
+    // Select mode
     if (tool === 'select') {
       const element = findElementAtPoint(canvasPoint);
+      
+      // Check if clicking on a resize handle of selected element
+      if (element && (selectedElementIds.has(element.id) || element.id === selectedElementId)) {
+        const handle = getHandleAtPoint(element, canvasPoint);
+        if (handle) {
+          // Start resizing
+          setIsResizing(true);
+          setResizeHandle(handle);
+          setDragStartPoint(canvasPoint);
+          setSelectedElementId(element.id);
+          setResizeStartBounds(getElementBounds(element));
+          return;
+        }
+      }
+      
       if (element) {
-        setSelectedElementId(element.id);
-        
-        // Double-click to edit text
-        if (element.type === 'text') {
-          const now = Date.now();
-          const lastClick = (window as any).__lastClickTime || 0;
-          if (now - lastClick < 300) { // 300ms for double-click
-            startEditingText(element.id);
-          }
-          (window as any).__lastClickTime = now;
+        // Clicked on an element
+        if (e.ctrlKey || e.metaKey) {
+          // Ctrl+click: toggle element in selection
+          setSelectedElementIds(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(element.id)) {
+              newSet.delete(element.id);
+            } else {
+              newSet.add(element.id);
+            }
+            return newSet;
+          });
+        } else if (selectedElementIds.has(element.id)) {
+          // Clicked on already selected element - start dragging all selected
+          const elementsToSave = new Map();
+          elements.forEach(el => {
+            if (selectedElementIds.has(el.id)) {
+              elementsToSave.set(el.id, { ...el });
+            }
+          });
+          setIsDraggingElement(true);
+          setDragStartPoint(canvasPoint);
+          setDraggedElementsStart(elementsToSave);
+        } else {
+          // Clicked on unselected element - select only this one
+          setSelectedElementIds(new Set([element.id]));
+          setSelectedElementId(element.id);
+          const elementsToSave = new Map();
+          elementsToSave.set(element.id, { ...element });
+          setIsDraggingElement(true);
+          setDragStartPoint(canvasPoint);
+          setDraggedElementsStart(elementsToSave);
         }
       } else {
-        setSelectedElementId(null);
+        // Clicked on empty space - start selection box
+        if (!e.ctrlKey && !e.metaKey) {
+          setSelectedElementIds(new Set());
+          setSelectedElementId(null);
+        }
+        setIsSelecting(true);
+        setSelectionStart(canvasPoint);
+        setSelectionEnd(canvasPoint);
       }
       return;
     }
     
+    // TEXT TOOL - PAINT-STYLE: Draw box to place text, or click existing text to edit
     if (tool === 'text') {
-      // Start dragging text box
+      // Check if clicked on existing text element
+      const element = findElementAtPoint(canvasPoint);
+      if (element && element.type === 'text') {
+        // Edit existing text
+        const screenPos = canvasToScreen(element.x, element.y);
+        startTextInput(screenPos, canvasPoint, element);
+        return;
+      }
+      
+      // Start drawing box for new text (with preview)
       setIsDrawing(true);
-      setTextBoxBounds({
-        x: canvasPoint.x,
-        y: canvasPoint.y,
-        width: 0,
-        height: 0
-      });
+      const textBox: Shape = {
+        id: Date.now().toString(),
+        type: 'shape',
+        shapeType: 'rectangle',
+        startX: canvasPoint.x,
+        startY: canvasPoint.y,
+        endX: canvasPoint.x,
+        endY: canvasPoint.y,
+        color: '#3b82f6',
+        strokeWidth: 2,
+        fill: false
+      };
+      setCurrentElement(textBox);
       return;
     }
     
-    if (tool === 'pen' || tool === 'eraser') {
-      setIsDrawing(true);
+    // Drawing tools
+    setIsDrawing(true);
+    
+    if (tool === 'pen') {
       const newPath: DrawingPath = {
         id: Date.now().toString(),
         type: 'path',
         points: [canvasPoint],
-        color: color,
-        width: lineWidth,
-        tool: tool
+        color,
+        width: lineWidth
       };
       setCurrentElement(newPath);
     } else if (tool === 'shape') {
-      setIsDrawing(true);
       const newShape: Shape = {
         id: Date.now().toString(),
         type: 'shape',
@@ -557,7 +885,7 @@ export default function WhiteboardCanvas({ problemId, className = '' }: Whiteboa
         startY: canvasPoint.y,
         endX: canvasPoint.x,
         endY: canvasPoint.y,
-        color: color,
+        color,
         strokeWidth: lineWidth,
         fill: fillShape
       };
@@ -568,46 +896,162 @@ export default function WhiteboardCanvas({ problemId, className = '' }: Whiteboa
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const screenPoint = getCanvasPoint(e);
     
-    if (isPanning) {
-      if (lastPanPoint) {
-        const dx = screenPoint.x - lastPanPoint.x;
-        const dy = screenPoint.y - lastPanPoint.y;
-        
-        setViewport(prev => ({
+    if (isPanning && lastPanPoint) {
+      // MIRO-STYLE PANNING: screen delta → world delta
+      const dx = screenPoint.x - lastPanPoint.x;
+      const dy = screenPoint.y - lastPanPoint.y;
+      
+      // Convert screen delta to world delta (inverse of zoom)
+      const worldDx = -dx / viewport.scale;  // Negative because moving viewport opposite to mouse
+      const worldDy = -dy / viewport.scale;
+      
+      setViewport(prev => {
+        const newViewport = {
           ...prev,
-          x: prev.x + dx,
-          y: prev.y + dy
-        }));
-        
-        setLastPanPoint(screenPoint);
-      }
+          x: prev.x + worldDx,
+          y: prev.y + worldDy
+        };
+        return constrainViewport(newViewport);
+      });
+      setLastPanPoint(screenPoint);
       return;
     }
     
-    if (!isDrawing) return;
-    
     const canvasPoint = screenToCanvas(screenPoint.x, screenPoint.y);
     
-    if (currentElement?.type === 'path') {
-      setCurrentElement(prev => prev ? {
-        ...prev,
+    // Resizing
+    if (isResizing && dragStartPoint && resizeHandle && selectedElementId) {
+      const dx = canvasPoint.x - dragStartPoint.x;
+      const dy = canvasPoint.y - dragStartPoint.y;
+      
+      setElements(prev => prev.map(el => {
+        if (el.id !== selectedElementId) return el;
+        
+        if (el.type === 'shape') {
+          let newStartX = el.startX;
+          let newStartY = el.startY;
+          let newEndX = el.endX;
+          let newEndY = el.endY;
+          
+          // Handle corner and edge resizing
+          if (resizeHandle.includes('l')) newStartX = resizeStartBounds.minX + dx;
+          if (resizeHandle.includes('r')) newEndX = resizeStartBounds.maxX + dx;
+          if (resizeHandle.includes('t')) newStartY = resizeStartBounds.minY + dy;
+          if (resizeHandle.includes('b')) newEndY = resizeStartBounds.maxY + dy;
+          
+          // For shapes, we need to update based on original positions
+          if (resizeHandle === 'tl') {
+            newStartX = el.startX < el.endX ? resizeStartBounds.minX + dx : el.startX;
+            newStartY = el.startY < el.endY ? resizeStartBounds.minY + dy : el.startY;
+            if (el.startX > el.endX) newEndX = resizeStartBounds.minX + dx;
+            if (el.startY > el.endY) newEndY = resizeStartBounds.minY + dy;
+          } else if (resizeHandle === 'tr') {
+            newEndX = el.endX > el.startX ? resizeStartBounds.maxX + dx : el.endX;
+            newStartY = el.startY < el.endY ? resizeStartBounds.minY + dy : el.startY;
+            if (el.endX < el.startX) newStartX = resizeStartBounds.maxX + dx;
+            if (el.startY > el.endY) newEndY = resizeStartBounds.minY + dy;
+          } else if (resizeHandle === 'br') {
+            newEndX = el.endX > el.startX ? resizeStartBounds.maxX + dx : el.endX;
+            newEndY = el.endY > el.startY ? resizeStartBounds.maxY + dy : el.endY;
+            if (el.endX < el.startX) newStartX = resizeStartBounds.maxX + dx;
+            if (el.endY < el.startY) newStartY = resizeStartBounds.maxY + dy;
+          } else if (resizeHandle === 'bl') {
+            newStartX = el.startX < el.endX ? resizeStartBounds.minX + dx : el.startX;
+            newEndY = el.endY > el.startY ? resizeStartBounds.maxY + dy : el.endY;
+            if (el.startX > el.endX) newEndX = resizeStartBounds.minX + dx;
+            if (el.endY < el.startY) newStartY = resizeStartBounds.maxY + dy;
+          } else if (resizeHandle === 't') {
+            newStartY = el.startY < el.endY ? resizeStartBounds.minY + dy : el.startY;
+            if (el.startY > el.endY) newEndY = resizeStartBounds.minY + dy;
+          } else if (resizeHandle === 'b') {
+            newEndY = el.endY > el.startY ? resizeStartBounds.maxY + dy : el.endY;
+            if (el.endY < el.startY) newStartY = resizeStartBounds.maxY + dy;
+          } else if (resizeHandle === 'l') {
+            newStartX = el.startX < el.endX ? resizeStartBounds.minX + dx : el.startX;
+            if (el.startX > el.endX) newEndX = resizeStartBounds.minX + dx;
+          } else if (resizeHandle === 'r') {
+            newEndX = el.endX > el.startX ? resizeStartBounds.maxX + dx : el.endX;
+            if (el.endX < el.startX) newStartX = resizeStartBounds.maxX + dx;
+          }
+          
+          return {
+            ...el,
+            startX: newStartX,
+            startY: newStartY,
+            endX: newEndX,
+            endY: newEndY
+          };
+        } else if (el.type === 'path') {
+          // Scale path points
+          const scaleX = (resizeStartBounds.maxX - resizeStartBounds.minX + dx * (resizeHandle.includes('r') ? 1 : resizeHandle.includes('l') ? -1 : 0)) / (resizeStartBounds.maxX - resizeStartBounds.minX);
+          const scaleY = (resizeStartBounds.maxY - resizeStartBounds.minY + dy * (resizeHandle.includes('b') ? 1 : resizeHandle.includes('t') ? -1 : 0)) / (resizeStartBounds.maxY - resizeStartBounds.minY);
+          
+          return {
+            ...el,
+            points: el.points.map(p => ({
+              x: resizeStartBounds.minX + (p.x - resizeStartBounds.minX) * scaleX,
+              y: resizeStartBounds.minY + (p.y - resizeStartBounds.minY) * scaleY
+            }))
+          };
+        }
+        
+        return el;
+      }));
+      return;
+    }
+    
+    // Selection box dragging
+    if (isSelecting && selectionStart) {
+      setSelectionEnd(canvasPoint);
+      return;
+    }
+    
+    // Element dragging
+    if (isDraggingElement && dragStartPoint && draggedElementsStart.size > 0) {
+      const dx = canvasPoint.x - dragStartPoint.x;
+      const dy = canvasPoint.y - dragStartPoint.y;
+      
+      setElements(prev => prev.map(el => {
+        const startEl = draggedElementsStart.get(el.id);
+        if (!startEl) return el;
+        
+        if (el.type === 'text') {
+          return { ...el, x: startEl.x + dx, y: startEl.y + dy };
+        } else if (el.type === 'shape') {
+          return {
+            ...el,
+            startX: startEl.startX + dx,
+            startY: startEl.startY + dy,
+            endX: startEl.endX + dx,
+            endY: startEl.endY + dy
+          };
+        } else if (el.type === 'path') {
+          return {
+            ...el,
+            points: startEl.points.map((p: Point) => ({ 
+              x: p.x + dx, 
+              y: p.y + dy 
+            }))
+          };
+        }
+        return el;
+      }));
+      return;
+    }
+    
+    if (!isDrawing || !currentElement) return;
+    
+    if (currentElement.type === 'path') {
+      setCurrentElement(prev => ({
+        ...prev!,
         points: [...(prev as DrawingPath).points, canvasPoint]
-      } as DrawingPath : null);
-    } else if (currentElement?.type === 'shape') {
-      setCurrentElement(prev => prev ? {
-        ...prev,
+      } as DrawingPath));
+    } else if (currentElement.type === 'shape') {
+      setCurrentElement(prev => ({
+        ...prev!,
         endX: canvasPoint.x,
         endY: canvasPoint.y
-      } as Shape : null);
-    } else if (textBoxBounds) {
-      // Update text box size
-      const width = canvasPoint.x - textBoxBounds.x;
-      const height = canvasPoint.y - textBoxBounds.y;
-      setTextBoxBounds({
-        ...textBoxBounds,
-        width,
-        height
-      });
+      }));
     }
   };
   
@@ -618,121 +1062,227 @@ export default function WhiteboardCanvas({ problemId, className = '' }: Whiteboa
       return;
     }
     
-    if (!isDrawing) return;
+    // Finish resizing
+    if (isResizing) {
+      setIsResizing(false);
+      setResizeHandle(null);
+      setDragStartPoint(null);
+      setResizeStartBounds(null);
+      saveToHistory();
+      return;
+    }
+    
+    // Finish selection box
+    if (isSelecting && selectionStart && selectionEnd) {
+      const minX = Math.min(selectionStart.x, selectionEnd.x);
+      const maxX = Math.max(selectionStart.x, selectionEnd.x);
+      const minY = Math.min(selectionStart.y, selectionEnd.y);
+      const maxY = Math.max(selectionStart.y, selectionEnd.y);
+      
+      // Find all elements inside selection box
+      const selectedIds = new Set<string>();
+      elements.forEach(element => {
+        if (isElementInBox(element, minX, minY, maxX, maxY)) {
+          selectedIds.add(element.id);
+        }
+      });
+      
+      setSelectedElementIds(selectedIds);
+      setSelectedElementId(selectedIds.size === 1 ? Array.from(selectedIds)[0] : null);
+      setIsSelecting(false);
+      setSelectionStart(null);
+      setSelectionEnd(null);
+      return;
+    }
+    
+    if (isDraggingElement) {
+      setIsDraggingElement(false);
+      setDragStartPoint(null);
+      setDraggedElementsStart(new Map());
+      saveToHistory();
+      return;
+    }
+    
+    if (isDrawing && currentElement) {
+      // Special handling for text tool - convert box to text input area
+      if (tool === 'text' && currentElement.type === 'shape') {
+        const minX = Math.min(currentElement.startX, currentElement.endX);
+        const maxX = Math.max(currentElement.startX, currentElement.endX);
+        const minY = Math.min(currentElement.startY, currentElement.endY);
+        const maxY = Math.max(currentElement.startY, currentElement.endY);
+        
+        const width = maxX - minX;
+        const height = maxY - minY;
+        
+        // If box is too small (just a click), use default size
+        const finalWidth = width < 50 ? 150 : width;
+        const finalHeight = height < 30 ? 40 : height;
+        const finalMinX = width < 50 ? currentElement.startX : minX;
+        const finalMinY = height < 30 ? currentElement.startY : minY;
+        
+        // Calculate font size based on box height
+        const newFontSize = Math.max(12, Math.min(finalHeight * 0.6, 72));
+        setFontSize(newFontSize);
+        
+        // Convert canvas position to screen for textarea
+        const topLeft = canvasToScreen(finalMinX, finalMinY);
+        
+        // Create text element with empty text
+        const id = Date.now().toString();
+        const newText: TextElement = {
+          id,
+          type: 'text',
+          x: finalMinX,
+          y: finalMinY + finalHeight * 0.8, // Position text baseline
+          text: '',
+          fontSize: newFontSize,
+          color
+        };
+        setElements(prev => [...prev, newText]);
+        
+        // Open textarea at the box position
+        setPendingTextId(id);
+        setTextDraft('');
+        setTextPosition({ 
+          x: topLeft.x, 
+          y: topLeft.y
+        });
+        setTextBoxSize({
+          width: finalWidth * viewport.scale,
+          height: finalHeight * viewport.scale
+        });
+        setIsEditingText(true);
+        setCurrentElement(null);
+        
+        setTimeout(() => {
+          textInputRef.current?.focus();
+        }, 0);
+      } else {
+        // Normal element - add to canvas
+        setElements(prev => [...prev, currentElement]);
+        setCurrentElement(null);
+        saveToHistory();
+      }
+    }
     
     setIsDrawing(false);
-    
-    if (currentElement) {
-      setElements(prev => [...prev, currentElement]);
-      setCurrentElement(null);
-      saveToHistory();
-    } else if (textBoxBounds) {
-      // Finalize text box - start editing
-      const minWidth = 100;
-      const minHeight = 30;
-      
-      const finalBounds = {
-        x: textBoxBounds.width < 0 ? textBoxBounds.x + textBoxBounds.width : textBoxBounds.x,
-        y: textBoxBounds.height < 0 ? textBoxBounds.y + textBoxBounds.height : textBoxBounds.y,
-        width: Math.max(Math.abs(textBoxBounds.width), minWidth),
-        height: Math.max(Math.abs(textBoxBounds.height), minHeight)
-      };
-      
-      setTextBoxBounds(finalBounds);
-      setTextDraft('');
-    }
   };
   
-  const startEditingText = (id: string) => {
-    const element = elements.find(e => e.id === id);
-    if (element && element.type === 'text') {
-      setEditingTextId(id);
-      setTextDraft(element.text);
-      setTextBoxBounds({
-        x: element.x,
-        y: element.y,
-        width: element.width,
-        height: element.height
+  // TEXT INPUT - PAINT-STYLE: Inline editing on canvas
+  const startTextInput = (screenPoint: Point, canvasPoint: Point, existingText?: TextElement) => {
+    if (existingText) {
+      // Editing existing text
+      setPendingTextId(existingText.id);
+      setTextDraft(existingText.text);
+      setFontSize(existingText.fontSize);
+      setColor(existingText.color);
+      
+      // Position textarea exactly where the text element is
+      const screenPos = canvasToScreen(existingText.x, existingText.y);
+      setTextPosition(screenPos);
+      
+      // Estimate size based on text length and font size
+      const estimatedWidth = Math.max(150, existingText.text.length * existingText.fontSize * 0.6);
+      const estimatedHeight = existingText.fontSize * 1.5;
+      setTextBoxSize({
+        width: estimatedWidth * viewport.scale,
+        height: estimatedHeight * viewport.scale
       });
-      setSelectedElementId(null);
-    }
-  };
-  
-  const finishTextEditing = () => {
-    if (!textBoxBounds) return;
-    
-    if (editingTextId) {
-      // Update existing text
-      if (textDraft.trim()) {
-        setElements(prev => prev.map(el => 
-          el.id === editingTextId && el.type === 'text'
-            ? { ...el, text: textDraft }
-            : el
-        ));
-        saveToHistory();
-      } else {
-        // Delete if empty
-        deleteElement(editingTextId);
-      }
-      setEditingTextId(null);
     } else {
-      // Create new text
-      if (textDraft.trim()) {
-        const newText: TextElement = {
-          id: Date.now().toString(),
-          type: 'text',
-          x: textBoxBounds.x,
-          y: textBoxBounds.y,
-          width: textBoxBounds.width,
-          height: textBoxBounds.height,
-          text: textDraft.trim(),
-          fontSize: fontSize,
-          color: color
-        };
-        
-        setElements(prev => [...prev, newText]);
-        saveToHistory();
-      }
+      // New text at canvas position
+      const id = Date.now().toString();
+      setPendingTextId(id);
+      setTextDraft('');
+      setTextPosition(screenPoint);
+      
+      // Default size for new text
+      setTextBoxSize({
+        width: 150,
+        height: 40
+      });
+      
+      // Store the canvas position for the new text
+      const newText: TextElement = {
+        id,
+        type: 'text',
+        x: canvasPoint.x,
+        y: canvasPoint.y,
+        text: '',
+        fontSize,
+        color
+      };
+      setElements(prev => [...prev, newText]);
     }
     
-    setTextBoxBounds(null);
-    setTextDraft('');
+    setIsEditingText(true);
+    
+    // Focus input after render
+    setTimeout(() => {
+      textInputRef.current?.focus();
+      textInputRef.current?.select();
+    }, 0);
   };
   
-  const deleteElement = (id: string) => {
-    setElements(prev => prev.filter(el => el.id !== id));
+  const finishTextInput = () => {
+    if (!pendingTextId) return;
+    
+    const trimmedText = textDraft.trim();
+    
+    // If empty text, delete the element
+    if (!trimmedText) {
+      setElements(prev => prev.filter(el => el.id !== pendingTextId));
+      cancelTextInput();
+      return;
+    }
+    
+    // Update the text element with final content
+    setElements(prev => prev.map(el => 
+      el.id === pendingTextId && el.type === 'text'
+        ? { ...el, text: trimmedText, fontSize, color } as TextElement
+        : el
+    ));
+    
+    saveToHistory();
+    cancelTextInput();
+  };
+  
+  const cancelTextInput = () => {
+    setIsEditingText(false);
+    setTextPosition(null);
+    setTextBoxSize(null);
+    setTextDraft('');
+    setPendingTextId(null);
+  };
+  
+  const deleteSelectedElement = () => {
+    if (selectedElementIds.size === 0 && !selectedElementId) return;
+    
+    setElements(prev => prev.filter(el => 
+      !selectedElementIds.has(el.id) && el.id !== selectedElementId
+    ));
+    setSelectedElementIds(new Set());
     setSelectedElementId(null);
     saveToHistory();
   };
   
   const saveToHistory = () => {
-    const state: HistoryState = {
-      elements: [...elements]
-    };
-    
     const newHistory = history.slice(0, historyIndex + 1);
-    newHistory.push(state);
-    
+    newHistory.push([...elements]);
     setHistory(newHistory);
     setHistoryIndex(newHistory.length - 1);
   };
   
   const undo = () => {
     if (historyIndex > 0) {
-      const prevState = history[historyIndex - 1];
-      setElements(prevState.elements);
       setHistoryIndex(historyIndex - 1);
-    } else if (historyIndex === 0) {
-      setElements([]);
-      setHistoryIndex(-1);
+      setElements([...history[historyIndex - 1]]);
     }
   };
   
   const redo = () => {
     if (historyIndex < history.length - 1) {
-      const nextState = history[historyIndex + 1];
-      setElements(nextState.elements);
       setHistoryIndex(historyIndex + 1);
+      setElements([...history[historyIndex + 1]]);
     }
   };
   
@@ -740,219 +1290,119 @@ export default function WhiteboardCanvas({ problemId, className = '' }: Whiteboa
     if (confirm('Czy na pewno chcesz wyczyścić całą tablicę?')) {
       setElements([]);
       setSelectedElementId(null);
+      setSelectedElementIds(new Set());
       saveToHistory();
     }
   };
   
+  // MIRO-STYLE: Reset view to home (0, 0, 100% zoom)
+  const resetView = () => {
+    setViewport({ x: 0, y: 0, scale: 1 });
+  };
+  
   const zoomIn = () => {
-    setViewport(prev => ({
-      ...prev,
-      scale: Math.min(prev.scale * 1.2, 1)
+    setViewport(prev => constrainViewport({ 
+      ...prev, 
+      scale: prev.scale * 1.2 
     }));
   };
   
   const zoomOut = () => {
-    setViewport(prev => ({
-      ...prev,
-      scale: Math.max(prev.scale / 1.2, 0.1)
+    setViewport(prev => constrainViewport({ 
+      ...prev, 
+      scale: prev.scale / 1.2 
     }));
   };
   
-  // Calculator functions
-  const calcInput = (num: string) => {
-    setCalcDisplay(prev => prev === '0' ? num : prev + num);
-  };
-  
-  const calcOp = (op: string) => {
-    setCalcValue(parseFloat(calcDisplay));
-    setCalcOperation(op);
-    setCalcDisplay('0');
-  };
-  
-  const calcEqual = () => {
-    if (calcValue === null || calcOperation === null) return;
-    const current = parseFloat(calcDisplay);
-    let result = 0;
-    switch (calcOperation) {
-      case '+': result = calcValue + current; break;
-      case '-': result = calcValue - current; break;
-      case '*': result = calcValue * current; break;
-      case '/': result = calcValue / current; break;
-    }
-    setCalcDisplay(result.toString());
-    setCalcValue(null);
-    setCalcOperation(null);
-  };
-  
-  const calcClear = () => {
-    setCalcDisplay('0');
-    setCalcValue(null);
-    setCalcOperation(null);
-  };
-  
-  const handleCalcMouseDown = (e: React.MouseEvent) => {
-    setIsDraggingCalc(true);
-    setDragOffset({
-      x: e.clientX - calcPosition.x,
-      y: e.clientY - calcPosition.y
-    });
-  };
-  
-  const handleCalcMouseMove = useCallback((e: MouseEvent) => {
-    if (!isDraggingCalc) return;
-    setCalcPosition({
-      x: e.clientX - dragOffset.x,
-      y: e.clientY - dragOffset.y
-    });
-  }, [isDraggingCalc, dragOffset]);
-  
-  const handleCalcMouseUp = () => {
-    setIsDraggingCalc(false);
-  };
-  
-  useEffect(() => {
-    if (isDraggingCalc) {
-      document.addEventListener('mousemove', handleCalcMouseMove);
-      document.addEventListener('mouseup', handleCalcMouseUp);
-      return () => {
-        document.removeEventListener('mousemove', handleCalcMouseMove);
-        document.removeEventListener('mouseup', handleCalcMouseUp);
-      };
-    }
-  }, [isDraggingCalc, handleCalcMouseMove]);
-  
   return (
-    <div ref={containerRef} className={`relative w-full h-full bg-white overflow-hidden ${className}`}>
-      <canvas
-        ref={canvasRef}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        className="absolute inset-0 w-full h-full touch-none"
-        style={{
-          cursor: tool === 'pan' || isPanning ? 'grab' : 
-                  tool === 'select' ? 'default' : 'crosshair'
-        }}
-      />
-      
-      <Toolbar
-        tool={tool}
-        setTool={setTool}
-        selectedShape={selectedShape}
-        setSelectedShape={setSelectedShape}
-        color={color}
-        setColor={setColor}
-        lineWidth={lineWidth}
-        setLineWidth={setLineWidth}
-        fontSize={fontSize}
-        setFontSize={setFontSize}
-        fillShape={fillShape}
-        setFillShape={setFillShape}
-        onUndo={undo}
-        onRedo={redo}
-        onClear={clearCanvas}
-        onZoomIn={zoomIn}
-        onZoomOut={zoomOut}
-        canUndo={historyIndex >= 0}
-        canRedo={historyIndex < history.length - 1}
-        zoom={viewport.scale}
-        showCalculator={showCalculator}
-        setShowCalculator={setShowCalculator}
-      />
-      
-      {/* Text input overlay */}
-      {textBoxBounds && (
-        <div
-          className="absolute bg-white border-2 border-blue-500 rounded shadow-lg overflow-hidden"
+    <div className={`relative w-full h-full bg-white ${className}`}>
+      {/* Canvas container - fills parent completely */}
+      <div ref={containerRef} className="absolute inset-0 overflow-hidden">
+        {/* Toolbar floating in top-left */}
+        <Toolbar
+          tool={tool}
+          setTool={setTool}
+          selectedShape={selectedShape}
+          setSelectedShape={setSelectedShape}
+          color={color}
+          setColor={setColor}
+          lineWidth={lineWidth}
+          setLineWidth={setLineWidth}
+          fontSize={fontSize}
+          setFontSize={setFontSize}
+          fillShape={fillShape}
+          setFillShape={setFillShape}
+          onUndo={undo}
+          onRedo={redo}
+          onClear={clearCanvas}
+          onResetView={resetView}
+          canUndo={historyIndex > 0}
+          canRedo={historyIndex < history.length - 1}
+        />
+        
+        {/* Zoom Controls floating in bottom-left */}
+        <ZoomControls
+          zoom={viewport.scale}
+          onZoomIn={zoomIn}
+          onZoomOut={zoomOut}
+          onResetView={resetView}
+        />
+        
+        <canvas
+          ref={canvasRef}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onContextMenu={(e) => e.preventDefault()}
+          className="absolute inset-0 w-full h-full touch-none"
           style={{
-            left: `${canvasToScreen(textBoxBounds.x, textBoxBounds.y).x}px`,
-            top: `${canvasToScreen(textBoxBounds.x, textBoxBounds.y).y}px`,
-            width: `${textBoxBounds.width * viewport.scale}px`,
-            height: `${textBoxBounds.height * viewport.scale}px`,
-            minWidth: '100px',
-            minHeight: '30px'
+            cursor: 
+              tool === 'pan' || isPanning ? 'grab' : 
+              tool === 'select' ? 'default' : 
+              tool === 'text' ? 'text' :
+              'crosshair',
+            willChange: 'auto', // Disable will-change to prevent repaints
+            imageRendering: 'crisp-edges' // Crisp rendering during resize
           }}
-        >
+        />
+        
+        {/* Text Input - PAINT-STYLE: Textarea with box preview like in Paint */}
+        {isEditingText && textPosition && textBoxSize && (
           <textarea
             ref={textInputRef}
             value={textDraft}
             onChange={(e) => setTextDraft(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Escape') {
-                setTextBoxBounds(null);
-                setTextDraft('');
-                setEditingTextId(null);
-              } else if (e.key === 'Enter' && e.ctrlKey) {
-                finishTextEditing();
+              if (e.key === 'Enter' && !e.shiftKey) {
+                // Enter without Shift - finish editing
+                e.preventDefault();
+                finishTextInput();
+              } else if (e.key === 'Escape') {
+                e.preventDefault();
+                finishTextInput();
               }
+              // Shift+Enter allows new line in textarea
             }}
-            onBlur={finishTextEditing}
-            placeholder="Wpisz tekst... (Ctrl+Enter aby zakończyć)"
-            className="w-full h-full p-2 resize-none outline-none"
+            onBlur={finishTextInput}
+            placeholder=""
+            className="absolute z-50 px-2 py-1 outline-none border-2 border-blue-500 bg-white/90 resize-none overflow-hidden"
             style={{
+              left: `${textPosition.x}px`,
+              top: `${textPosition.y}px`,
+              width: `${textBoxSize.width}px`,
+              height: `${textBoxSize.height}px`,
               fontSize: `${fontSize * viewport.scale}px`,
               color: color,
-              lineHeight: '1.2'
+              lineHeight: '1.2',
+              fontFamily: 'Arial, sans-serif',
+              whiteSpace: 'pre-wrap',
+              boxSizing: 'border-box'
             }}
+            autoFocus
           />
-        </div>
-      )}
-      
-      {/* Calculator */}
-      {showCalculator && (
-        <div
-          className="absolute bg-white rounded-xl shadow-2xl border border-gray-200 w-64 z-50"
-          style={{
-            left: `${calcPosition.x}px`,
-            top: `${calcPosition.y}px`,
-            cursor: isDraggingCalc ? 'grabbing' : 'default'
-          }}
-        >
-          <div
-            onMouseDown={handleCalcMouseDown}
-            className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-t-xl px-4 py-3 flex items-center justify-between cursor-grab active:cursor-grabbing"
-          >
-            <span className="text-white font-semibold">Kalkulator</span>
-            <button
-              onClick={() => setShowCalculator(false)}
-              className="text-white hover:bg-white/20 rounded p-1 transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-          
-          <div className="p-4 space-y-3">
-            <div className="bg-gray-100 rounded-lg px-4 py-3 text-right border border-gray-200">
-              <div className="text-2xl font-mono text-gray-800">{calcDisplay}</div>
-            </div>
-            
-            <div className="grid grid-cols-4 gap-2">
-              <button onClick={calcClear} className="col-span-2 bg-red-500 hover:bg-red-600 text-white rounded-lg py-3 font-semibold transition-colors">C</button>
-              <button onClick={() => calcOp('/')} className="bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-3 font-semibold transition-colors">÷</button>
-              <button onClick={() => calcOp('*')} className="bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-3 font-semibold transition-colors">×</button>
-              
-              {[7, 8, 9].map(num => (
-                <button key={num} onClick={() => calcInput(num.toString())} className="bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg py-3 font-medium transition-colors">{num}</button>
-              ))}
-              <button onClick={() => calcOp('-')} className="bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-3 font-semibold transition-colors">−</button>
-              
-              {[4, 5, 6].map(num => (
-                <button key={num} onClick={() => calcInput(num.toString())} className="bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg py-3 font-medium transition-colors">{num}</button>
-              ))}
-              <button onClick={() => calcOp('+')} className="bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-3 font-semibold transition-colors">+</button>
-              
-              {[1, 2, 3].map(num => (
-                <button key={num} onClick={() => calcInput(num.toString())} className="bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg py-3 font-medium transition-colors">{num}</button>
-              ))}
-              <button onClick={calcEqual} className="row-span-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-bold text-xl transition-colors">=</button>
-              
-              <button onClick={() => calcInput('0')} className="col-span-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg py-3 font-medium transition-colors">0</button>
-              <button onClick={() => calcInput('.')} className="bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg py-3 font-medium transition-colors">.</button>
-            </div>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
