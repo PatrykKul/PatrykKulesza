@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Calculator, Clock, Award, FileText, Download, Eye, EyeOff, CheckCircle, RotateCcw, PenTool, X, Delete, Plus, Minus, Divide, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Calculator, Clock, Award, FileText, Download, Eye, EyeOff, CheckCircle, RotateCcw, PenTool, X, Delete, Plus, Minus, Divide, MessageSquare, ArrowLeftRight } from 'lucide-react';
 import MathText, { MathSolutionStep } from '../MathText';
 import { useImageScan } from '@/hooks/useImageScan';
 import WhiteboardCanvas from '../whiteboard/WhiteboardCanvas';
@@ -63,6 +63,11 @@ export default function ExamPage({
   const [showTimerNotification, setShowTimerNotification] = useState(true);
   const [splitSize, setSplitSize] = useState(50); // % width for left panel
   const [isDragging, setIsDragging] = useState(false);
+  
+  // Mobile toggle function
+  const toggleView = () => {
+    setSplitSize(prev => prev === 0 ? 100 : 0);
+  };
   
   // 🔥 Refs do śledzenia widocznych zadań
   const problemRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -1849,9 +1854,18 @@ export default function ExamPage({
           className="flex-1 bg-[#161b22] relative overflow-hidden"
           style={{ display: splitSize >= 100 ? 'none' : 'flex' }}
         >
-          <WhiteboardCanvas  className="w-full h-full" />
+          <WhiteboardCanvas  className="w-full h-full" splitSize={splitSize} onToggleView={toggleView} />
         </aside>
       </div>
+
+      {/* Mobile Toggle Button - Absolutely positioned for entire page */}
+      <button
+        onClick={toggleView}
+        className="md:hidden fixed top-16 right-4 z-50 bg-[#58a6ff] hover:bg-[#4493f8] text-white p-3 rounded-full shadow-lg transition-all"
+        title={splitSize === 0 ? "Przełącz na pełny widok whiteboard" : "Przełącz na pełny widok egzaminu"}
+      >
+        <ArrowLeftRight className="w-5 h-5" />
+      </button>
 
       {/* Confetti Modal */}
       <ConfettiModal
