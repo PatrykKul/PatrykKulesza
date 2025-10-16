@@ -466,7 +466,7 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
     
     allElements.forEach(element => {
       const isSelected = selectedElementIds.has(element.id) || element.id === selectedElementId;
-      if (isSelected && (element.type === 'shape' || element.type === 'path')) {
+      if (isSelected) {
         drawResizeHandles(ctx, element);
       }
     });
@@ -630,11 +630,11 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
   
   const drawText = (ctx: CanvasRenderingContext2D, text: TextElement, isSelected: boolean) => {
     ctx.fillStyle = text.color;
-    ctx.font = `${text.fontSize / viewport.scale}px Arial`;
+    ctx.font = `${text.fontSize}px Arial`;
     ctx.textBaseline = 'top';
     
     const lines = text.text.split('\n');
-    const lineHeight = text.fontSize / viewport.scale * 1.2;
+    const lineHeight = text.fontSize * 1.2;
     
     lines.forEach((line, i) => {
       ctx.fillText(line, text.x, text.y + i * lineHeight);
@@ -716,9 +716,9 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
     
     // Label funkcji
     ctx.fillStyle = color;
-    ctx.font = `bold ${14 / viewport.scale}px Arial`;
+    ctx.font = `bold ${14}px Arial`;
     ctx.textBaseline = 'top';
-    const labelPadding = 10 / viewport.scale;
+    const labelPadding = 10;
     ctx.fillText(
       `f(x) = ${expression}`,
       -xRange + labelPadding,
@@ -1108,6 +1108,52 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
               y: resizeStartBounds.minY + (p.y - resizeStartBounds.minY) * scaleY
             }))
           };
+        } else if (el.type === 'function') {
+          // Resize funkcji - zmiana xRange i yRange
+          let scaleX = 1;
+          let scaleY = 1;
+          
+          if (resizeHandle.includes('r')) {
+            scaleX = (resizeStartBounds.maxX - resizeStartBounds.minX + dx) / (resizeStartBounds.maxX - resizeStartBounds.minX);
+          } else if (resizeHandle.includes('l')) {
+            scaleX = (resizeStartBounds.maxX - resizeStartBounds.minX - dx) / (resizeStartBounds.maxX - resizeStartBounds.minX);
+          }
+          
+          if (resizeHandle.includes('b')) {
+            scaleY = (resizeStartBounds.maxY - resizeStartBounds.minY + dy) / (resizeStartBounds.maxY - resizeStartBounds.minY);
+          } else if (resizeHandle.includes('t')) {
+            scaleY = (resizeStartBounds.maxY - resizeStartBounds.minY - dy) / (resizeStartBounds.maxY - resizeStartBounds.minY);
+          }
+          
+          const newXRange = Math.max(100, el.xRange * scaleX);
+          const newYRange = Math.max(100, el.yRange * scaleY);
+          
+          return {
+            ...el,
+            xRange: newXRange,
+            yRange: newYRange
+          };
+        } else if (el.type === 'text') {
+          // Resize tekstu - zmiana fontSize
+          const originalWidth = resizeStartBounds.maxX - resizeStartBounds.minX;
+          const originalHeight = resizeStartBounds.maxY - resizeStartBounds.minY;
+          
+          let newFontSize = el.fontSize;
+          
+          if (resizeHandle.includes('r') || resizeHandle.includes('l')) {
+            const newWidth = originalWidth + (resizeHandle.includes('r') ? dx : -dx);
+            const scale = newWidth / originalWidth;
+            newFontSize = Math.max(12, Math.min(500, el.fontSize * scale));
+          } else if (resizeHandle.includes('b') || resizeHandle.includes('t')) {
+            const newHeight = originalHeight + (resizeHandle.includes('b') ? dy : -dy);
+            const scale = newHeight / originalHeight;
+            newFontSize = Math.max(12, Math.min(500, el.fontSize * scale));
+          }
+          
+          return {
+            ...el,
+            fontSize: newFontSize
+          };
         }
         
         return el;
@@ -1410,6 +1456,49 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
     }));
   }, []);
   
+  // Touch events handlers
+  const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      
+      const rect = canvas.getBoundingClientRect();
+      const mouseEvent = {
+        clientX: touch.clientX,
+        clientY: touch.clientY,
+        button: 0,
+        ctrlKey: false,
+        metaKey: false,
+        preventDefault: () => e.preventDefault()
+      } as unknown as React.MouseEvent<HTMLCanvasElement>;
+      
+      handleMouseDown(mouseEvent);
+    }
+  };
+  
+  const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      
+      const rect = canvas.getBoundingClientRect();
+      const mouseEvent = {
+        clientX: touch.clientX,
+        clientY: touch.clientY,
+        button: 0,
+        preventDefault: () => e.preventDefault()
+      } as unknown as React.MouseEvent<HTMLCanvasElement>;
+      
+      handleMouseMove(mouseEvent);
+    }
+  };
+  
+  const handleTouchEnd = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    handleMouseUp();
+  };
+  
   return (
     <div className={`relative w-full h-full bg-white ${className}`}>
       <div ref={containerRef} className="absolute inset-0 overflow-hidden">
@@ -1450,8 +1539,11 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
           onContextMenu={(e) => e.preventDefault()}
-          className="absolute inset-0 w-full h-full touch-none"
+          className="absolute inset-0 w-full h-full"
           style={{
             cursor: 
               tool === 'pan' || isPanning ? 'grab' : 
