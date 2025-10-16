@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo, useRef } from 'react';
 import { 
   MousePointer2, Hand, PenTool, Type, Square, Circle, Triangle, 
   Minus, ArrowRight, Undo, Redo, ZoomIn, ZoomOut, 
@@ -32,7 +32,7 @@ interface ToolbarProps {
   onToggleView?: () => void;
 }
 
-export function ZoomControls({ 
+const ZoomControlsComponent = ({ 
   zoom, 
   onZoomIn, 
   onZoomOut,
@@ -42,7 +42,7 @@ export function ZoomControls({
   onZoomIn: () => void; 
   onZoomOut: () => void;
   onResetView: () => void;
-}) {
+}) => {
   return (
     <div className="absolute bottom-4 left-4 bg-white rounded-lg shadow-lg border border-gray-200 z-10 pointer-events-auto">
       <div className="flex items-center gap-1 p-1.5">
@@ -76,9 +76,21 @@ export function ZoomControls({
       </div>
     </div>
   );
-}
+};
 
-export default function Toolbar({
+// 🔥 Custom comparison - ZoomControls re-renderuje się TYLKO gdy zmienia się zoom
+const areZoomPropsEqual = (
+  prevProps: { zoom: number; onZoomIn: () => void; onZoomOut: () => void; onResetView: () => void },
+  nextProps: { zoom: number; onZoomIn: () => void; onZoomOut: () => void; onResetView: () => void }
+) => {
+  // Sprawdź tylko zoom - funkcje mają stabilne referencje
+  return prevProps.zoom === nextProps.zoom;
+};
+
+export const ZoomControls = memo(ZoomControlsComponent, areZoomPropsEqual);
+ZoomControls.displayName = 'ZoomControls';
+
+function Toolbar({
   tool,
   setTool,
   selectedShape,
@@ -809,3 +821,22 @@ export default function Toolbar({
   );
 }
 
+// 🔥 Custom comparison - Toolbar re-renderuje się TYLKO gdy zmienia się coś istotnego
+const arePropsEqual = (prevProps: ToolbarProps, nextProps: ToolbarProps) => {
+  return (
+    prevProps.tool === nextProps.tool &&
+    prevProps.selectedShape === nextProps.selectedShape &&
+    prevProps.color === nextProps.color &&
+    prevProps.lineWidth === nextProps.lineWidth &&
+    prevProps.fontSize === nextProps.fontSize &&
+    prevProps.fillShape === nextProps.fillShape &&
+    prevProps.canUndo === nextProps.canUndo &&
+    prevProps.canRedo === nextProps.canRedo &&
+    prevProps.splitSize === nextProps.splitSize
+    // ⚠️ Celowo IGNORUJEMY funkcje - mają stabilne referencje dzięki useCallback
+  );
+};
+
+const MemoizedToolbar = memo(Toolbar, arePropsEqual);
+MemoizedToolbar.displayName = 'Toolbar';
+export default MemoizedToolbar;

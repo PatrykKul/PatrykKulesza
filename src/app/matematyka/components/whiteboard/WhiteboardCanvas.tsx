@@ -140,7 +140,7 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
   
   const [isResizing, setIsResizing] = useState(false);
   const [resizeHandle, setResizeHandle] = useState<string | null>(null);
-  const [resizeStartBounds, setResizeStartBounds] = useState<{ minX: number; minY: number; maxX: number; maxY: number } | null>(null);
+  const [resizeOriginalElement, setResizeOriginalElement] = useState<DrawingElement | null>(null);
   
   const redrawCanvasRef = useRef<() => void>(() => {});
   
@@ -150,15 +150,18 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
     const container = containerRef.current;
     if (!canvas || !container) return;
     
+    let resizeTimeout: NodeJS.Timeout | null = null;
+    
     const updateCanvasSize = () => {
       const dpr = window.devicePixelRatio || 1;
       const rect = container.getBoundingClientRect();
       const width = Math.ceil(rect.width);
       const height = Math.ceil(rect.height);
       
+      // Skip if size hasn't changed significantly
       const currentWidth = canvas.width / dpr;
       const currentHeight = canvas.height / dpr;
-      if (Math.abs(width - currentWidth) < 1 && Math.abs(height - currentHeight) < 1) {
+      if (Math.abs(width - currentWidth) < 2 && Math.abs(height - currentHeight) < 2) {
         return;
       }
       
@@ -174,17 +177,22 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
       }
     };
     
-    updateCanvasSize();
-    window.addEventListener('resize', updateCanvasSize);
+    // Debounced version for resize events
+    const debouncedUpdateCanvasSize = () => {
+      if (resizeTimeout) {
+        clearTimeout(resizeTimeout);
+      }
+      resizeTimeout = setTimeout(updateCanvasSize, 100);
+    };
     
-    const resizeObserver = new ResizeObserver(() => {
-      requestAnimationFrame(updateCanvasSize);
-    });
-    resizeObserver.observe(container);
+    updateCanvasSize();
+    window.addEventListener('resize', debouncedUpdateCanvasSize);
     
     return () => {
-      window.removeEventListener('resize', updateCanvasSize);
-      resizeObserver.disconnect();
+      if (resizeTimeout) {
+        clearTimeout(resizeTimeout);
+      }
+      window.removeEventListener('resize', debouncedUpdateCanvasSize);
     };
   }, []);
   
@@ -292,31 +300,33 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
     
+    const vp = viewportRef.current;
     const rect = canvas.getBoundingClientRect();
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
     const relX = screenX - centerX;
     const relY = screenY - centerY;
     
-    const worldX = viewport.x + relX / viewport.scale;
-    const worldY = viewport.y + relY / viewport.scale;
+    const worldX = vp.x + relX / vp.scale;
+    const worldY = vp.y + relY / vp.scale;
     
     return { x: worldX, y: worldY };
-  }, [viewport]);
+  }, []);
   
   const canvasToScreen = useCallback((worldX: number, worldY: number): Point => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
     
+    const vp = viewportRef.current;
     const rect = canvas.getBoundingClientRect();
-    const relX = (worldX - viewport.x) * viewport.scale;
-    const relY = (worldY - viewport.y) * viewport.scale;
+    const relX = (worldX - vp.x) * vp.scale;
+    const relY = (worldY - vp.y) * vp.scale;
     
     const screenX = rect.width / 2 + relX;
     const screenY = rect.height / 2 + relY;
     
     return { x: screenX, y: screenY };
-  }, [viewport]);
+  }, []);
   
   const getElementBounds = (element: DrawingElement) => {
     if (element.type === 'shape') {
@@ -329,13 +339,33 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
     } else if (element.type === 'path') {
       return getBoundsForPath(element);
     } else if (element.type === 'text') {
+      // Use canvas to measure actual text width
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.font = `${element.fontSize}px Arial`;
+          const lines = element.text.split('\n');
+          const maxLineWidth = Math.max(...lines.map(line => ctx.measureText(line).width), 50);
+          const lineHeight = element.fontSize * 1.2;
+          const height = lineHeight * lines.length;
+          
+          return {
+            minX: element.x,
+            maxX: element.x + maxLineWidth,
+            minY: element.y,
+            maxY: element.y + height
+          };
+        }
+      }
+      // Fallback
       const width = element.text.length * element.fontSize * 0.6;
       const height = element.fontSize * 1.2;
       return {
         minX: element.x,
         maxX: element.x + width,
-        minY: element.y - height,
-        maxY: element.y
+        minY: element.y,
+        maxY: element.y + height
       };
     } else if (element.type === 'function') {
       return {
@@ -348,24 +378,41 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
     return { minX: 0, maxX: 0, minY: 0, maxY: 0 };
   };
   
-  const drawResizeHandles = (ctx: CanvasRenderingContext2D, element: DrawingElement) => {
-    const bounds = getElementBounds(element);
-    const handleSize = 8 / viewport.scale;
+
+  const getGroupBounds = (elementIds: Set<string>) => {
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
     
+    elements.forEach(el => {
+      if (elementIds.has(el.id)) {
+        const bounds = getElementBounds(el);
+        minX = Math.min(minX, bounds.minX);
+        minY = Math.min(minY, bounds.minY);
+        maxX = Math.max(maxX, bounds.maxX);
+        maxY = Math.max(maxY, bounds.maxY);
+      }
+    });
+    
+    return { minX, minY, maxX, maxY };
+  };
+  
+    const drawResizeHandles = (ctx: CanvasRenderingContext2D, bounds: { minX: number; minY: number; maxX: number; maxY: number }) => {
+    const vp = viewportRef.current;
+    const handleSize = 8 / vp.scale;
+    
+    // TYLKO ROGI - 4 handles
     const handles = [
       { x: bounds.minX, y: bounds.minY },
       { x: bounds.maxX, y: bounds.minY },
       { x: bounds.maxX, y: bounds.maxY },
-      { x: bounds.minX, y: bounds.maxY },
-      { x: (bounds.minX + bounds.maxX) / 2, y: bounds.minY },
-      { x: (bounds.minX + bounds.maxX) / 2, y: bounds.maxY },
-      { x: bounds.minX, y: (bounds.minY + bounds.maxY) / 2 },
-      { x: bounds.maxX, y: (bounds.minY + bounds.maxY) / 2 },
+      { x: bounds.minX, y: bounds.maxY }
     ];
     
     ctx.fillStyle = '#3b82f6';
     ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 2 / viewport.scale;
+    ctx.lineWidth = 2 / vp.scale;
     
     handles.forEach(handle => {
       ctx.fillRect(
@@ -383,20 +430,17 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
     });
   };
   
-  const getHandleAtPoint = (element: DrawingElement, point: Point): string | null => {
-    const bounds = getElementBounds(element);
-    const handleSize = 8 / viewport.scale;
+  const getHandleAtPoint = (bounds: { minX: number; minY: number; maxX: number; maxY: number }, point: Point): string | null => {
+    const vp = viewportRef.current;
+    const handleSize = 8 / vp.scale;
     const threshold = handleSize;
     
+    // TYLKO 4 ROGI
     const handles = [
       { name: 'tl', x: bounds.minX, y: bounds.minY },
       { name: 'tr', x: bounds.maxX, y: bounds.minY },
       { name: 'br', x: bounds.maxX, y: bounds.maxY },
-      { name: 'bl', x: bounds.minX, y: bounds.maxY },
-      { name: 't', x: (bounds.minX + bounds.maxX) / 2, y: bounds.minY },
-      { name: 'b', x: (bounds.minX + bounds.maxX) / 2, y: bounds.maxY },
-      { name: 'l', x: bounds.minX, y: (bounds.minY + bounds.maxY) / 2 },
-      { name: 'r', x: bounds.maxX, y: (bounds.minY + bounds.maxY) / 2 },
+      { name: 'bl', x: bounds.minX, y: bounds.maxY }
     ];
     
     for (const handle of handles) {
@@ -425,6 +469,32 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
     };
   }, []);
   
+  // 🔥 Używamy useRef aby zapobiec re-renderom przez ciągłe zmiany
+  const elementsRef = useRef(elements);
+  const viewportRef = useRef(viewport);
+  const currentElementRef = useRef(currentElement);
+  const selectedElementIdRef = useRef(selectedElementId);
+  const selectedElementIdsRef = useRef(selectedElementIds);
+  const isSelectingRef = useRef(isSelecting);
+  const selectionStartRef = useRef(selectionStart);
+  const selectionEndRef = useRef(selectionEnd);
+  const isEditingTextRef = useRef(isEditingText);
+  const pendingTextIdRef = useRef(pendingTextId);
+  
+  // Sync refs
+  useEffect(() => {
+    elementsRef.current = elements;
+    viewportRef.current = viewport;
+    currentElementRef.current = currentElement;
+    selectedElementIdRef.current = selectedElementId;
+    selectedElementIdsRef.current = selectedElementIds;
+    isSelectingRef.current = isSelecting;
+    selectionStartRef.current = selectionStart;
+    selectionEndRef.current = selectionEnd;
+    isEditingTextRef.current = isEditingText;
+    pendingTextIdRef.current = pendingTextId;
+  });
+  
   const redrawCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -440,16 +510,16 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
     
     ctx.save();
     ctx.translate(rect.width / 2, rect.height / 2);
-    ctx.scale(viewport.scale, viewport.scale);
-    ctx.translate(-viewport.x, -viewport.y);
+    ctx.scale(viewportRef.current.scale, viewportRef.current.scale);
+    ctx.translate(-viewportRef.current.x, -viewportRef.current.y);
     
     drawInfiniteGrid(ctx, rect.width, rect.height);
     
-    const allElements = [...elements, ...(currentElement ? [currentElement] : [])];
+    const allElements = [...elementsRef.current, ...(currentElementRef.current ? [currentElementRef.current] : [])];
     
     allElements.forEach(element => {
-      const isSelected = selectedElementIds.has(element.id) || element.id === selectedElementId;
-      const isBeingEdited = isEditingText && element.id === pendingTextId;
+      const isSelected = selectedElementIdsRef.current.has(element.id) || element.id === selectedElementIdRef.current;
+      const isBeingEdited = isEditingTextRef.current && element.id === pendingTextIdRef.current;
       
       if (element.type === 'path') {
         drawPath(ctx, element, isSelected);
@@ -464,42 +534,77 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
       }
     });
     
-    allElements.forEach(element => {
-      const isSelected = selectedElementIds.has(element.id) || element.id === selectedElementId;
-      if (isSelected) {
-        drawResizeHandles(ctx, element);
+    // Draw group selection box if multiple elements selected
+    if (selectedElementIdsRef.current.size > 1) {
+      const groupBounds = getGroupBounds(selectedElementIdsRef.current);
+      drawSelectionBox(ctx, groupBounds);
+      drawResizeHandles(ctx, groupBounds);
+    } else if (selectedElementIdRef.current) {
+      // Single element selection
+      const element = allElements.find(el => el.id === selectedElementIdRef.current);
+      if (element) {
+        const bounds = getElementBounds(element);
+        drawResizeHandles(ctx, bounds);
       }
-    });
+    } else if (selectedElementIdsRef.current.size === 1) {
+      // Single element in set
+      const id = Array.from(selectedElementIdsRef.current)[0];
+      const element = allElements.find(el => el.id === id);
+      if (element) {
+        const bounds = getElementBounds(element);
+        drawResizeHandles(ctx, bounds);
+      }
+    }
     
-    if (isSelecting && selectionStart && selectionEnd) {
+    if (isSelectingRef.current && selectionStartRef.current && selectionEndRef.current) {
       ctx.strokeStyle = '#3b82f6';
       ctx.fillStyle = 'rgba(59, 130, 246, 0.1)';
-      ctx.lineWidth = 1 / viewport.scale;
-      ctx.setLineDash([5 / viewport.scale, 5 / viewport.scale]);
+      ctx.lineWidth = 1 / viewportRef.current.scale;
+      ctx.setLineDash([5 / viewportRef.current.scale, 5 / viewportRef.current.scale]);
       
-      const width = selectionEnd.x - selectionStart.x;
-      const height = selectionEnd.y - selectionStart.y;
+      const width = selectionEndRef.current.x - selectionStartRef.current.x;
+      const height = selectionEndRef.current.y - selectionStartRef.current.y;
       
-      ctx.fillRect(selectionStart.x, selectionStart.y, width, height);
-      ctx.strokeRect(selectionStart.x, selectionStart.y, width, height);
+      ctx.fillRect(selectionStartRef.current.x, selectionStartRef.current.y, width, height);
+      ctx.strokeRect(selectionStartRef.current.x, selectionStartRef.current.y, width, height);
       ctx.setLineDash([]);
     }
     
     ctx.restore();
-  }, [elements, viewport, currentElement, selectedElementId, selectedElementIds, isSelecting, selectionStart, selectionEnd, isEditingText, pendingTextId]);
+  }, []); // 🔥 Pusta dependency array - funkcja używa refs
   
   useEffect(() => {
     redrawCanvasRef.current = redrawCanvas;
-    redrawCanvas();
   }, [redrawCanvas]);
+  
+  // 🔥 Używamy requestAnimationFrame aby płynnie renderować canvas
+  // bez ciągłego re-renderowania komponentu
+  useEffect(() => {
+    let rafId: number;
+    
+    const scheduleRedraw = () => {
+      rafId = requestAnimationFrame(() => {
+        redrawCanvasRef.current();
+      });
+    };
+    
+    scheduleRedraw();
+    
+    return () => {
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
+    };
+  }, [elements, viewport, currentElement, selectedElementId, selectedElementIds, isSelecting, selectionStart, selectionEnd, isEditingText, pendingTextId]);
   
   const drawInfiniteGrid = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) => {
     const gridSize = 50;
+    const vp = viewportRef.current;
     
-    const worldLeft = viewport.x - canvasWidth / (2 * viewport.scale);
-    const worldRight = viewport.x + canvasWidth / (2 * viewport.scale);
-    const worldTop = viewport.y - canvasHeight / (2 * viewport.scale);
-    const worldBottom = viewport.y + canvasHeight / (2 * viewport.scale);
+    const worldLeft = vp.x - canvasWidth / (2 * vp.scale);
+    const worldRight = vp.x + canvasWidth / (2 * vp.scale);
+    const worldTop = vp.y - canvasHeight / (2 * vp.scale);
+    const worldBottom = vp.y + canvasHeight / (2 * vp.scale);
     
     const startX = Math.floor(worldLeft / gridSize) * gridSize;
     const endX = Math.ceil(worldRight / gridSize) * gridSize;
@@ -507,7 +612,7 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
     const endY = Math.ceil(worldBottom / gridSize) * gridSize;
     
     ctx.strokeStyle = '#e0e0e0';
-    ctx.lineWidth = 1 / viewport.scale;
+    ctx.lineWidth = 1 / vp.scale;
     
     for (let x = startX; x <= endX; x += gridSize) {
       ctx.beginPath();
@@ -525,7 +630,7 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
     
     // Osie środka (0, 0) - grubsze
     ctx.strokeStyle = '#999999';
-    ctx.lineWidth = 2 / viewport.scale;
+    ctx.lineWidth = 2 / vp.scale;
     
     ctx.beginPath();
     ctx.moveTo(startX, 0);
@@ -542,7 +647,7 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
     if (path.points.length < 2) return;
     
     ctx.strokeStyle = path.color;
-    ctx.lineWidth = path.width / viewport.scale;
+    ctx.lineWidth = path.width / viewportRef.current.scale;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     
@@ -559,7 +664,7 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
   const drawShape = (ctx: CanvasRenderingContext2D, shape: Shape, isSelected: boolean) => {
     ctx.strokeStyle = shape.color;
     ctx.fillStyle = shape.color;
-    ctx.lineWidth = shape.strokeWidth / viewport.scale;
+    ctx.lineWidth = shape.strokeWidth / viewportRef.current.scale;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     
@@ -589,7 +694,7 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
       ctx.stroke();
       
       const angle = Math.atan2(shape.endY - shape.startY, shape.endX - shape.startX);
-      const headLength = 15 / viewport.scale;
+      const headLength = 15 / viewportRef.current.scale;
       
       ctx.beginPath();
       ctx.moveTo(shape.endX, shape.endY);
@@ -659,10 +764,11 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
     ctx.save();
     
     const { expression, color, strokeWidth, xRange, yRange } = plot;
+    const vp = viewportRef.current;
     
     // Rysuj funkcję
     ctx.strokeStyle = color;
-    ctx.lineWidth = strokeWidth / viewport.scale;
+    ctx.lineWidth = strokeWidth / vp.scale;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     
@@ -728,10 +834,10 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
     // Selection box
     if (isSelected) {
       ctx.strokeStyle = '#3b82f6';
-      ctx.lineWidth = 2 / viewport.scale;
-      ctx.setLineDash([5 / viewport.scale, 5 / viewport.scale]);
+      ctx.lineWidth = 2 / vp.scale;
+      ctx.setLineDash([5 / vp.scale, 5 / vp.scale]);
       
-      const padding = 5 / viewport.scale;
+      const padding = 5 / vp.scale;
       ctx.strokeRect(
         -xRange - padding,
         -yRange - padding,
@@ -748,10 +854,11 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
     ctx: CanvasRenderingContext2D,
     bounds: { minX: number; minY: number; maxX: number; maxY: number }
   ) => {
-    const padding = 5 / viewport.scale;
+    const vp = viewportRef.current;
+    const padding = 5 / vp.scale;
     ctx.strokeStyle = '#3b82f6';
-    ctx.lineWidth = 2 / viewport.scale;
-    ctx.setLineDash([5 / viewport.scale, 5 / viewport.scale]);
+    ctx.lineWidth = 2 / vp.scale;
+    ctx.setLineDash([5 / vp.scale, 5 / vp.scale]);
     ctx.strokeRect(
       bounds.minX - padding,
       bounds.minY - padding,
@@ -808,13 +915,12 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
       const padding = 10;
       
       if (element.type === 'text') {
-        const width = 200;
-        const height = element.fontSize * 1.2;
+        const bounds = getElementBounds(element);
         if (
-          canvasPoint.x >= element.x - padding &&
-          canvasPoint.x <= element.x + width + padding &&
-          canvasPoint.y >= element.y - padding &&
-          canvasPoint.y <= element.y + height + padding
+          canvasPoint.x >= bounds.minX - padding &&
+          canvasPoint.x <= bounds.maxX + padding &&
+          canvasPoint.y >= bounds.minY - padding &&
+          canvasPoint.y <= bounds.maxY + padding
         ) {
           return element;
         }
@@ -856,28 +962,6 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
     return null;
   };
   
-  // 🔥 GENEROWANIE FUNKCJI
-  const handleGenerateFunction = useCallback((expression: string) => {
-    // Większy zakres dla lepszej widoczności
-    // 1 jednostka matematyczna = 50 pikseli (rozmiar kratki na gridzie)
-    const xRange = 1000;  // -500 do +500 pikseli (20 kratek w każdą stronę)
-    const yRange = 1000;  // -500 do +500 pikseli (20 kratek w każdą stronę)
-    
-    const newFunction: FunctionPlot = {
-      id: Date.now().toString(),
-      type: 'function',
-      expression,
-      color,
-      strokeWidth: lineWidth,
-      xRange,
-      yRange
-    };
-    
-    setElements(prev => [...prev, newFunction]);
-    saveToHistory();
-    setTool('select'); // Przejdź do trybu zaznaczania
-  }, [color, lineWidth]);
-  
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (isEditingText) {
       finishTextInput();
@@ -899,16 +983,33 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
     if (tool === 'select') {
       const element = findElementAtPoint(canvasPoint);
       
-      if (element && (selectedElementIds.has(element.id) || element.id === selectedElementId)) {
-        const handle = getHandleAtPoint(element, canvasPoint);
+      // Check for resize handle on group or single element
+      const idsToCheck: Set<string> = selectedElementIds.size > 0 ? selectedElementIds : (selectedElementId ? new Set([selectedElementId]) : new Set());
+      
+      if (idsToCheck.size > 0) {
+        const bounds = idsToCheck.size > 1 ? getGroupBounds(idsToCheck) : getElementBounds(elements.find(el => el.id === Array.from(idsToCheck)[0])!);
+        const handle = getHandleAtPoint(bounds, canvasPoint);
+        
         if (handle) {
           setIsResizing(true);
           setResizeHandle(handle);
           setDragStartPoint(canvasPoint);
-          setSelectedElementId(element.id);
-          setResizeStartBounds(getElementBounds(element));
+          
+          // Store all selected elements for group resize
+          const elementsToStore = new Map();
+          elements.forEach(el => {
+            if (idsToCheck.has(el.id)) {
+              elementsToStore.set(el.id, { ...el });
+            }
+          });
+          
+          setDraggedElementsStart(elementsToStore);
           return;
         }
+      }
+      
+      if (element && (selectedElementIds.has(element.id) || element.id === selectedElementId)) {
+        // Element clicked but not on handle - prepare for drag
       }
       
       if (element) {
@@ -1038,57 +1139,86 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
     
     const canvasPoint = screenToCanvas(screenPoint.x, screenPoint.y);
     
-    if (isResizing && dragStartPoint && resizeHandle && selectedElementId && resizeStartBounds) {
+    if (isResizing && dragStartPoint && resizeHandle) {
       const dx = canvasPoint.x - dragStartPoint.x;
       const dy = canvasPoint.y - dragStartPoint.y;
       
+      const elementsToResize = selectedElementIds.size > 0 ? selectedElementIds : new Set([selectedElementId!]);
+      
+      // Get original group bounds from stored elements (IMPORTANT!)
+      let origMinX = Infinity;
+      let origMinY = Infinity;
+      let origMaxX = -Infinity;
+      let origMaxY = -Infinity;
+      
+      draggedElementsStart.forEach((origEl, id) => {
+        if (elementsToResize.has(id)) {
+          const bounds = getElementBounds(origEl);
+          origMinX = Math.min(origMinX, bounds.minX);
+          origMinY = Math.min(origMinY, bounds.minY);
+          origMaxX = Math.max(origMaxX, bounds.maxX);
+          origMaxY = Math.max(origMaxY, bounds.maxY);
+        }
+      });
+      
+      const origWidth = origMaxX - origMinX;
+      const origHeight = origMaxY - origMinY;
+      
+      // Calculate new bounds based on handle
+      let newMinX = origMinX;
+      let newMinY = origMinY;
+      let newMaxX = origMaxX;
+      let newMaxY = origMaxY;
+      
+      if (resizeHandle === 'tl') {
+        newMinX = origMinX + dx;
+        newMinY = origMinY + dy;
+      } else if (resizeHandle === 'tr') {
+        newMaxX = origMaxX + dx;
+        newMinY = origMinY + dy;
+      } else if (resizeHandle === 'br') {
+        newMaxX = origMaxX + dx;
+        newMaxY = origMaxY + dy;
+      } else if (resizeHandle === 'bl') {
+        newMinX = origMinX + dx;
+        newMaxY = origMaxY + dy;
+      }
+      
+      // Prevent negative dimensions
+      if (newMaxX - newMinX < 10) {
+        if (resizeHandle === 'tl' || resizeHandle === 'bl') {
+          newMinX = newMaxX - 10;
+        } else {
+          newMaxX = newMinX + 10;
+        }
+      }
+      if (newMaxY - newMinY < 10) {
+        if (resizeHandle === 'tl' || resizeHandle === 'tr') {
+          newMinY = newMaxY - 10;
+        } else {
+          newMaxY = newMinY + 10;
+        }
+      }
+      
+      const newWidth = newMaxX - newMinX;
+      const newHeight = newMaxY - newMinY;
+      const scaleX = newWidth / origWidth;
+      const scaleY = newHeight / origHeight;
+      
       setElements(prev => prev.map(el => {
-        if (el.id !== selectedElementId) return el;
+        if (!elementsToResize.has(el.id)) return el;
+        
+        const origElement = draggedElementsStart.get(el.id);
+        if (!origElement) return el;
         
         if (el.type === 'shape') {
-          let newStartX = el.startX;
-          let newStartY = el.startY;
-          let newEndX = el.endX;
-          let newEndY = el.endY;
+          const origShape = origElement as Shape;
           
-          if (resizeHandle.includes('l')) newStartX = resizeStartBounds.minX + dx;
-          if (resizeHandle.includes('r')) newEndX = resizeStartBounds.maxX + dx;
-          if (resizeHandle.includes('t')) newStartY = resizeStartBounds.minY + dy;
-          if (resizeHandle.includes('b')) newEndY = resizeStartBounds.maxY + dy;
-          
-          if (resizeHandle === 'tl') {
-            newStartX = el.startX < el.endX ? resizeStartBounds.minX + dx : el.startX;
-            newStartY = el.startY < el.endY ? resizeStartBounds.minY + dy : el.startY;
-            if (el.startX > el.endX) newEndX = resizeStartBounds.minX + dx;
-            if (el.startY > el.endY) newEndY = resizeStartBounds.minY + dy;
-          } else if (resizeHandle === 'tr') {
-            newEndX = el.endX > el.startX ? resizeStartBounds.maxX + dx : el.endX;
-            newStartY = el.startY < el.endY ? resizeStartBounds.minY + dy : el.startY;
-            if (el.endX < el.startX) newStartX = resizeStartBounds.maxX + dx;
-            if (el.startY > el.endY) newEndY = resizeStartBounds.minY + dy;
-          } else if (resizeHandle === 'br') {
-            newEndX = el.endX > el.startX ? resizeStartBounds.maxX + dx : el.endX;
-            newEndY = el.endY > el.startY ? resizeStartBounds.maxY + dy : el.endY;
-            if (el.endX < el.startX) newStartX = resizeStartBounds.maxX + dx;
-            if (el.endY < el.startY) newStartY = resizeStartBounds.maxY + dy;
-          } else if (resizeHandle === 'bl') {
-            newStartX = el.startX < el.endX ? resizeStartBounds.minX + dx : el.startX;
-            newEndY = el.endY > el.startY ? resizeStartBounds.maxY + dy : el.endY;
-            if (el.startX > el.endX) newEndX = resizeStartBounds.minX + dx;
-            if (el.endY < el.startY) newStartY = resizeStartBounds.maxY + dy;
-          } else if (resizeHandle === 't') {
-            newStartY = el.startY < el.endY ? resizeStartBounds.minY + dy : el.startY;
-            if (el.startY > el.endY) newEndY = resizeStartBounds.minY + dy;
-          } else if (resizeHandle === 'b') {
-            newEndY = el.endY > el.startY ? resizeStartBounds.maxY + dy : el.endY;
-            if (el.endY < el.startY) newStartY = resizeStartBounds.maxY + dy;
-          } else if (resizeHandle === 'l') {
-            newStartX = el.startX < el.endX ? resizeStartBounds.minX + dx : el.startX;
-            if (el.startX > el.endX) newEndX = resizeStartBounds.minX + dx;
-          } else if (resizeHandle === 'r') {
-            newEndX = el.endX > el.startX ? resizeStartBounds.maxX + dx : el.endX;
-            if (el.endX < el.startX) newStartX = resizeStartBounds.maxX + dx;
-          }
+          // Map from original bounds to new bounds
+          const newStartX = newMinX + (origShape.startX - origMinX) * scaleX;
+          const newStartY = newMinY + (origShape.startY - origMinY) * scaleY;
+          const newEndX = newMinX + (origShape.endX - origMinX) * scaleX;
+          const newEndY = newMinY + (origShape.endY - origMinY) * scaleY;
           
           return {
             ...el,
@@ -1098,61 +1228,43 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
             endY: newEndY
           };
         } else if (el.type === 'path') {
-          const scaleX = (resizeStartBounds.maxX - resizeStartBounds.minX + dx * (resizeHandle.includes('r') ? 1 : resizeHandle.includes('l') ? -1 : 0)) / (resizeStartBounds.maxX - resizeStartBounds.minX);
-          const scaleY = (resizeStartBounds.maxY - resizeStartBounds.minY + dy * (resizeHandle.includes('b') ? 1 : resizeHandle.includes('t') ? -1 : 0)) / (resizeStartBounds.maxY - resizeStartBounds.minY);
+          const origPath = origElement as DrawingPath;
           
           return {
             ...el,
-            points: el.points.map(p => ({
-              x: resizeStartBounds.minX + (p.x - resizeStartBounds.minX) * scaleX,
-              y: resizeStartBounds.minY + (p.y - resizeStartBounds.minY) * scaleY
+            points: origPath.points.map(p => ({
+              x: newMinX + (p.x - origMinX) * scaleX,
+              y: newMinY + (p.y - origMinY) * scaleY
             }))
           };
+        } else if (el.type === 'text') {
+          const origText = origElement as TextElement;
+          
+          // Map position from original bounds to new bounds
+          const newX = newMinX + (origText.x - origMinX) * scaleX;
+          const newY = newMinY + (origText.y - origMinY) * scaleY;
+          
+          // Scale font size
+          const avgScale = (scaleX + scaleY) / 2;
+          const newFontSize = Math.max(12, Math.min(500, origText.fontSize * avgScale));
+          
+          return {
+            ...el,
+            x: newX,
+            y: newY,
+            fontSize: newFontSize
+          };
         } else if (el.type === 'function') {
-          // Resize funkcji - zmiana xRange i yRange
-          let scaleX = 1;
-          let scaleY = 1;
+          const origFunc = origElement as FunctionPlot;
           
-          if (resizeHandle.includes('r')) {
-            scaleX = (resizeStartBounds.maxX - resizeStartBounds.minX + dx) / (resizeStartBounds.maxX - resizeStartBounds.minX);
-          } else if (resizeHandle.includes('l')) {
-            scaleX = (resizeStartBounds.maxX - resizeStartBounds.minX - dx) / (resizeStartBounds.maxX - resizeStartBounds.minX);
-          }
-          
-          if (resizeHandle.includes('b')) {
-            scaleY = (resizeStartBounds.maxY - resizeStartBounds.minY + dy) / (resizeStartBounds.maxY - resizeStartBounds.minY);
-          } else if (resizeHandle.includes('t')) {
-            scaleY = (resizeStartBounds.maxY - resizeStartBounds.minY - dy) / (resizeStartBounds.maxY - resizeStartBounds.minY);
-          }
-          
-          const newXRange = Math.max(100, el.xRange * scaleX);
-          const newYRange = Math.max(100, el.yRange * scaleY);
+          // For functions, just scale the ranges
+          const newXRange = Math.max(100, origFunc.xRange * scaleX);
+          const newYRange = Math.max(100, origFunc.yRange * scaleY);
           
           return {
             ...el,
             xRange: newXRange,
             yRange: newYRange
-          };
-        } else if (el.type === 'text') {
-          // Resize tekstu - zmiana fontSize
-          const originalWidth = resizeStartBounds.maxX - resizeStartBounds.minX;
-          const originalHeight = resizeStartBounds.maxY - resizeStartBounds.minY;
-          
-          let newFontSize = el.fontSize;
-          
-          if (resizeHandle.includes('r') || resizeHandle.includes('l')) {
-            const newWidth = originalWidth + (resizeHandle.includes('r') ? dx : -dx);
-            const scale = newWidth / originalWidth;
-            newFontSize = Math.max(12, Math.min(500, el.fontSize * scale));
-          } else if (resizeHandle.includes('b') || resizeHandle.includes('t')) {
-            const newHeight = originalHeight + (resizeHandle.includes('b') ? dy : -dy);
-            const scale = newHeight / originalHeight;
-            newFontSize = Math.max(12, Math.min(500, el.fontSize * scale));
-          }
-          
-          return {
-            ...el,
-            fontSize: newFontSize
           };
         }
         
@@ -1161,7 +1273,7 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
       return;
     }
     
-    if (isSelecting && selectionStart) {
+        if (isSelecting && selectionStart) {
       setSelectionEnd(canvasPoint);
       return;
     }
@@ -1228,7 +1340,7 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
       setIsResizing(false);
       setResizeHandle(null);
       setDragStartPoint(null);
-      setResizeStartBounds(null);
+      setResizeOriginalElement(null);
       saveToHistory();
       return;
     }
@@ -1408,56 +1520,185 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
     saveToHistory();
   };
   
-  const saveToHistory = () => {
+  const saveToHistory = useCallback(() => {
     const newHistory = history.slice(0, historyIndex + 1);
-    newHistory.push([...elements]);
+    newHistory.push([...elementsRef.current]);
     setHistory(newHistory);
     setHistoryIndex(newHistory.length - 1);
-  };
+  }, [history, historyIndex]);
   
-  const undo = useCallback(() => {
+  // 🔥 STABILNE REFS dla akcji Toolbar
+  const undoRef = useRef(() => {
     if (historyIndex > 0) {
       setHistoryIndex(historyIndex - 1);
       setElements([...history[historyIndex - 1]]);
     }
-  }, [historyIndex, history]);
+  });
   
-  const redo = useCallback(() => {
+  const redoRef = useRef(() => {
     if (historyIndex < history.length - 1) {
       setHistoryIndex(historyIndex + 1);
       setElements([...history[historyIndex + 1]]);
     }
-  }, [historyIndex, history.length]);
+  });
   
-  const clearCanvas = useCallback(() => {
+  const clearCanvasRef = useRef(() => {
     if (confirm('Czy na pewno chcesz wyczyścić całą tablicę?')) {
       setElements([]);
       setSelectedElementId(null);
       setSelectedElementIds(new Set());
       saveToHistory();
     }
-  }, []);
+  });
   
-  const resetView = useCallback(() => {
+  const resetViewRef = useRef(() => {
     setViewport({ x: 0, y: 0, scale: 1 });
-  }, []);
+  });
   
-  const zoomIn = useCallback(() => {
+  const zoomInRef = useRef(() => {
     setViewport(prev => constrainViewport({ 
       ...prev, 
       scale: prev.scale * 1.2 
     }));
-  }, []);
+  });
   
-  const zoomOut = useCallback(() => {
+  const zoomOutRef = useRef(() => {
     setViewport(prev => constrainViewport({ 
       ...prev, 
       scale: prev.scale / 1.2 
     }));
+  });
+  
+  // Update refs
+  useEffect(() => {
+    undoRef.current = () => {
+      if (historyIndex > 0) {
+        setHistoryIndex(historyIndex - 1);
+        setElements([...history[historyIndex - 1]]);
+      }
+    };
+    
+    redoRef.current = () => {
+      if (historyIndex < history.length - 1) {
+        setHistoryIndex(historyIndex + 1);
+        setElements([...history[historyIndex + 1]]);
+      }
+    };
+    
+    clearCanvasRef.current = () => {
+      if (confirm('Czy na pewno chcesz wyczyścić całą tablicę?')) {
+        setElements([]);
+        setSelectedElementId(null);
+        setSelectedElementIds(new Set());
+        saveToHistory();
+      }
+    };
+  }, [historyIndex, history, saveToHistory]);
+  
+  // Stable callbacks
+  const undo = useCallback(() => undoRef.current(), []);
+  const redo = useCallback(() => redoRef.current(), []);
+  const clearCanvas = useCallback(() => clearCanvasRef.current(), []);
+  const resetView = useCallback(() => resetViewRef.current(), []);
+  const zoomIn = useCallback(() => zoomInRef.current(), []);
+  const zoomOut = useCallback(() => zoomOutRef.current(), []);
+  
+  // 🔥 STABILNE CALLBACKI - używamy useRef aby referencje NIGDY się nie zmieniały
+  // To zapobiega re-renderom Toolbar przy każdym ruchu myszki/rysowaniu
+  const handleToolChangeRef = useRef((newTool: Tool) => setTool(newTool));
+  const handleShapeChangeRef = useRef((shape: ShapeType) => setSelectedShape(shape));
+  const handleColorChangeRef = useRef((newColor: string) => setColor(newColor));
+  const handleLineWidthChangeRef = useRef((width: number) => setLineWidth(width));
+  const handleFontSizeChangeRef = useRef((size: number) => setFontSize(size));
+  const handleFillShapeChangeRef = useRef((fill: boolean) => setFillShape(fill));
+  
+  // Update refs when state setters might change (never, but for safety)
+  useEffect(() => {
+    handleToolChangeRef.current = (newTool: Tool) => setTool(newTool);
+    handleShapeChangeRef.current = (shape: ShapeType) => setSelectedShape(shape);
+    handleColorChangeRef.current = (newColor: string) => setColor(newColor);
+    handleLineWidthChangeRef.current = (width: number) => setLineWidth(width);
+    handleFontSizeChangeRef.current = (size: number) => setFontSize(size);
+    handleFillShapeChangeRef.current = (fill: boolean) => setFillShape(fill);
+  });
+  
+  // Stable function references - NEVER change
+  const handleToolChange = useCallback((newTool: Tool) => {
+    handleToolChangeRef.current(newTool);
   }, []);
+  
+  const handleShapeChange = useCallback((shape: ShapeType) => {
+    handleShapeChangeRef.current(shape);
+  }, []);
+  
+  const handleColorChange = useCallback((newColor: string) => {
+    handleColorChangeRef.current(newColor);
+  }, []);
+  
+  const handleLineWidthChange = useCallback((width: number) => {
+    handleLineWidthChangeRef.current(width);
+  }, []);
+  
+  const handleFontSizeChange = useCallback((size: number) => {
+    handleFontSizeChangeRef.current(size);
+  }, []);
+  
+  const handleFillShapeChange = useCallback((fill: boolean) => {
+    handleFillShapeChangeRef.current(fill);
+  }, []);
+  
+  // 🔥 GENEROWANIE FUNKCJI - stable callback
+  const handleGenerateFunctionRef = useRef((expression: string) => {
+    const xRange = 1000;
+    const yRange = 1000;
+    
+    const newFunction: FunctionPlot = {
+      id: Date.now().toString(),
+      type: 'function',
+      expression,
+      color,
+      strokeWidth: lineWidth,
+      xRange,
+      yRange
+    };
+    
+    setElements(prev => [...prev, newFunction]);
+    saveToHistory();
+    setTool('select');
+  });
+  
+  useEffect(() => {
+    handleGenerateFunctionRef.current = (expression: string) => {
+      const xRange = 1000;
+      const yRange = 1000;
+      
+      const newFunction: FunctionPlot = {
+        id: Date.now().toString(),
+        type: 'function',
+        expression,
+        color,
+        strokeWidth: lineWidth,
+        xRange,
+        yRange
+      };
+      
+      setElements(prev => [...prev, newFunction]);
+      saveToHistory();
+      setTool('select');
+    };
+  }, [color, lineWidth, saveToHistory]);
+  
+  const handleGenerateFunction = useCallback((expression: string) => {
+    handleGenerateFunctionRef.current(expression);
+  }, []);
+  
+  // 🔥 Zmemoizowane wartości canUndo/canRedo - zapobiega re-renderom Toolbar
+  const canUndo = historyIndex > 0;
+  const canRedo = historyIndex < history.length - 1;
   
   // Touch events handlers
   const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    e.preventDefault(); // Zapobiega scrollowaniu podczas rysowania
     if (e.touches.length === 1) {
       const touch = e.touches[0];
       const canvas = canvasRef.current;
@@ -1470,7 +1711,7 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
         button: 0,
         ctrlKey: false,
         metaKey: false,
-        preventDefault: () => e.preventDefault()
+        preventDefault: () => {}
       } as unknown as React.MouseEvent<HTMLCanvasElement>;
       
       handleMouseDown(mouseEvent);
@@ -1478,6 +1719,7 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
   };
   
   const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    e.preventDefault(); // Zapobiega scrollowaniu podczas rysowania
     if (e.touches.length === 1) {
       const touch = e.touches[0];
       const canvas = canvasRef.current;
@@ -1488,7 +1730,7 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
         clientX: touch.clientX,
         clientY: touch.clientY,
         button: 0,
-        preventDefault: () => e.preventDefault()
+        preventDefault: () => {}
       } as unknown as React.MouseEvent<HTMLCanvasElement>;
       
       handleMouseMove(mouseEvent);
@@ -1496,6 +1738,7 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
   };
   
   const handleTouchEnd = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
     handleMouseUp();
   };
   
@@ -1504,24 +1747,24 @@ export default function WhiteboardCanvas({ className = '', splitSize = 50, onTog
       <div ref={containerRef} className="absolute inset-0 overflow-hidden">
         <Toolbar
           tool={tool}
-          setTool={setTool}
+          setTool={handleToolChange}
           selectedShape={selectedShape}
-          setSelectedShape={setSelectedShape}
+          setSelectedShape={handleShapeChange}
           color={color}
-          setColor={setColor}
+          setColor={handleColorChange}
           lineWidth={lineWidth}
-          setLineWidth={setLineWidth}
+          setLineWidth={handleLineWidthChange}
           fontSize={fontSize}
-          setFontSize={setFontSize}
+          setFontSize={handleFontSizeChange}
           fillShape={fillShape}
-          setFillShape={setFillShape}
+          setFillShape={handleFillShapeChange}
           onUndo={undo}
           onRedo={redo}
           onClear={clearCanvas}
           onResetView={resetView}
           onGenerateFunction={handleGenerateFunction}
-          canUndo={historyIndex > 0}
-          canRedo={historyIndex < history.length - 1}
+          canUndo={canUndo}
+          canRedo={canRedo}
           splitSize={splitSize}
           onToggleView={onToggleView}
         />
